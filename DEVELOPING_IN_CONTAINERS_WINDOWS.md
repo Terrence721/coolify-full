@@ -1,10 +1,8 @@
 # Developing Coolify In Containers (Windows)
 
-This guide is for contributors who have never developed inside containers before.
+This guide is for contributors who are new to container-based development.
 
-It uses the Docker Compose workflow that is already working in this repository.
-
-## 0. 5-Command Quick Start (Daily)
+## 0. 5-Command Quick Start
 
 Run these from the project root in PowerShell:
 
@@ -21,17 +19,17 @@ Open after startup:
 - App: `http://localhost:8000`
 - Vite: `http://localhost:5173`
 
-## 1. What Is Running Where?
+## 1. What Runs Where
 
-- Your code stays on Windows in this folder: `C:\Users\Terre\source\repos\coolify-full`
-- Docker runs Linux containers for the app and services.
-- The main app container name is `coolify`.
-- You edit files locally in VS Code, and containers see the same files through mounted volumes.
+- Your code stays on Windows in `C:\Users\Terre\source\repos\coolify-full`
+- Docker runs Linux containers for the app and services
+- The main app container is `coolify`
+- VS Code edits the files on Windows and the containers see the same files through mounted volumes
 
 ## 2. One-Time Setup
 
 1. Install Docker Desktop.
-2. Start Docker Desktop and wait until it says Docker is running.
+2. Start Docker Desktop and wait until ready.
 3. Open PowerShell in the project root.
 4. Create `.env` from the development template if needed:
 
@@ -39,9 +37,9 @@ Open after startup:
 Copy-Item .env.development.example .env
 ```
 
-## 3. Start The Development Stack
+## 3. Start The Stack
 
-Run from project root:
+Run from the project root:
 
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
@@ -53,7 +51,7 @@ Check status:
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ```
 
-Expected key services:
+Expected services:
 
 - `coolify` (app)
 - `coolify-db` (Postgres)
@@ -61,29 +59,16 @@ Expected key services:
 - `coolify-realtime`
 - `coolify-vite`
 
-## 4. Open The App And Tools
-
-- App: `http://localhost:8000`
-- Vite dev server: `http://localhost:5173`
-- Mailpit: `http://localhost:8025`
-- Horizon: `http://localhost:8000/horizon`
-
-If `curl` in PowerShell behaves oddly, use:
-
-```powershell
-Invoke-WebRequest -Uri http://localhost:8000/api/health -UseBasicParsing
-```
-
-## 5. Daily Workflow
+## 4. Daily Workflow
 
 1. Start Docker Desktop.
-2. Start stack with `docker compose ... up -d`.
+2. Start the stack.
 3. Edit code in VS Code.
 4. Run commands inside the app container.
 5. Run tests.
 6. Format changed PHP files.
 
-## 6. Run Commands Inside The Container
+## 5. Run Commands Inside The Container
 
 Use this pattern:
 
@@ -100,7 +85,7 @@ docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact"
 docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pint --dirty --format agent"
 ```
 
-## 7. Dependencies
+## 6. Dependencies
 
 ### PHP dependencies
 
@@ -113,35 +98,35 @@ docker exec coolify sh -lc "cd /var/www/html && composer dump-autoload"
 
 ### JavaScript dependencies
 
-Install in project root:
+Install in the project root:
 
 ```powershell
 npm install
 ```
 
-For browser tests (Pest Browser), also install Playwright:
+For browser tests, also install Playwright:
 
 ```powershell
 npm install playwright
 npx playwright install
 ```
 
-## 8. Running Tests
+## 7. Running Tests
 
-To avoid running browser tests when you want backend tests, scope your command:
+Use folder scoping when you want to avoid browser tests:
 
 ```powershell
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Feature"
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Unit"
 ```
 
-Run a specific test filter:
+Run a specific filter:
 
 ```powershell
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Feature --filter=SomeTestName"
 ```
 
-## 9. Useful Logs And Debugging
+## 8. Useful Logs And Debugging
 
 Tail app logs:
 
@@ -149,15 +134,15 @@ Tail app logs:
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify
 ```
 
-Tail vite logs:
+Tail Vite logs:
 
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f vite
 ```
 
-## 10. Common Issues
+## 9. Common Issues
 
-### A) `PlaywrightNotInstalledException`
+### Playwright is missing
 
 Install browser test dependencies:
 
@@ -166,27 +151,27 @@ npm install playwright
 npx playwright install
 ```
 
-### B) `Undefined type 'Log'` in editor
+### `Undefined type 'Log'` in the editor
 
-Use an explicit import in PHP files:
+Use an explicit import:
 
 ```php
 use Illuminate\Support\Facades\Log;
 ```
 
-### C) Docker compose warnings about `PUSHER_HOST` or `PUSHER_PORT`
+### Docker compose warns about `PUSHER_HOST` or `PUSHER_PORT`
 
-These are warnings from missing optional env values and do not necessarily block local development.
+These are optional environment values and do not always block local development.
 
-### D) Container says app health is `starting`
+### App health stays `starting`
 
-Wait 20 to 60 seconds, then re-check:
+Wait 20 to 60 seconds, then check status again:
 
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ```
 
-## 11. Stop, Restart, Reset
+## 10. Stop, Restart, Reset
 
 Stop containers:
 
@@ -194,21 +179,49 @@ Stop containers:
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
 
-Restart fresh with data reset:
+Reset data and restart:
 
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
-Then run migrations/seed as needed:
+Then run migrations and seeders:
 
 ```powershell
 docker exec coolify sh -lc "cd /var/www/html && php artisan migrate:fresh --seed"
 ```
 
-## 12. Recommended VS Code Habit
+## 11. Scan Other Folders
 
-Keep one terminal profile for Docker commands and one for Git.
+Use these when you want to inspect a specific part of the repository.
 
-When in doubt, run commands inside the `coolify` container instead of local Windows PHP.
+### Syntax checks
+
+```powershell
+Get-ChildItem app -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
+Get-ChildItem routes -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
+Get-ChildItem database -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
+Get-ChildItem tests -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
+```
+
+### Static analysis
+
+```powershell
+vendor/bin/phpstan analyse app --memory-limit=1G
+vendor/bin/phpstan analyse routes --memory-limit=1G
+vendor/bin/phpstan analyse database --memory-limit=1G
+vendor/bin/phpstan analyse tests --memory-limit=1G
+```
+
+### What each folder is for
+
+- `app`: actions, jobs, models, services, listeners, notifications
+- `routes`: web, API, console, and channel routes
+- `database`: migrations, seeders, and factories
+- `tests`: feature, unit, and browser tests
+- `config`: configuration files; syntax validation is enough for most files
+- `resources/views`: Blade syntax and editor diagnostics
+- `resources/js`: use `yarn build` or the Vite dev server
+
+Start with the smallest folder that matches the code you changed, then widen the scan if needed.

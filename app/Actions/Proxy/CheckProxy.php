@@ -180,7 +180,7 @@ class CheckProxy
         // Command sets for different ways to check ports, ordered by preference
         $portCheckScript = "
             $checkProxyPortScript
-            
+
             # Try ss command first
             if command -v ss >/dev/null 2>&1; then
                 ss_output=\$(ss -Htuln state listening sport = :$port 2>/dev/null);
@@ -201,7 +201,7 @@ class CheckProxy
                 echo \"port_conflict|\$ss_output\";
                 exit 0;
             fi;
-            
+
             # Try netstat as fallback
             if command -v netstat >/dev/null 2>&1; then
                 netstat_output=\$(netstat -tuln 2>/dev/null | grep ':$port ');
@@ -221,7 +221,7 @@ class CheckProxy
                 echo \"port_conflict|\$netstat_output\";
                 exit 0;
             fi;
-            
+
             # Final fallback using nc
             if nc -z -w1 127.0.0.1 $port >/dev/null 2>&1; then
                 echo 'port_conflict|nc_detected';

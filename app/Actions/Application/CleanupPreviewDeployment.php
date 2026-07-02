@@ -8,23 +8,15 @@ use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\ApplicationPreview;
 use Illuminate\Support\Facades\Log;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class CleanupPreviewDeployment
 {
 
+    use AsAction;
+
     public string $jobQueue = 'high';
 
-    /**
-     * Clean up a PR preview deployment completely.
-     *
-     * This handles:
-     * 1. Cancelling active deployments for the PR (QUEUED/IN_PROGRESS → CANCELLED_BY_USER)
-     * 2. Killing helper containers by deployment_uuid
-     * 3. Stopping/removing all running PR containers
-     * 4. Dispatching DeleteResourceJob for thorough cleanup (volumes, networks, database records)
-     *
-     * This unifies the cleanup logic from GitHub webhook handler to be used across all providers.
-     */
     public function handle(
         Application $application,
         int $pull_request_id,
@@ -54,21 +46,18 @@ class CleanupPreviewDeployment
             ];
         }
 
-        // Step 1: Cancel all active deployments for this PR and kill helper containers
         $result['cancelled_deployments'] = $this->cancelActiveDeployments(
             $application,
             $pull_request_id,
             $server
         );
 
-        // Step 2: Stop and remove all running PR containers
         $result['killed_containers'] = $this->stopRunningContainers(
             $application,
             $pull_request_id,
             $server
         );
 
-        // Step 3: Find or use provided preview, then dispatch cleanup job for thorough cleanup
         if (! $preview) {
             $preview = ApplicationPreview::where('application_id', $application->id)
                 ->where('pull_request_id', $pull_request_id)
@@ -82,9 +71,6 @@ class CleanupPreviewDeployment
         return $result;
     }
 
-    /**
-     * Cancel all active (QUEUED/IN_PROGRESS) deployments for this PR.
-     */
     private function cancelActiveDeployments(
         Application $application,
         int $pull_request_id,
@@ -120,9 +106,6 @@ class CleanupPreviewDeployment
         return $cancelled;
     }
 
-    /**
-     * Kill the helper container used during deployment.
-     */
     private function killHelperContainer(string $deployment_uuid, $server): void
     {
         try {
@@ -138,9 +121,6 @@ class CleanupPreviewDeployment
         }
     }
 
-    /**
-     * Stop and remove all running containers for this PR.
-     */
     private function stopRunningContainers(
         Application $application,
         int $pull_request_id,
