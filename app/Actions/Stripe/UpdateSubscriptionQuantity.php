@@ -4,6 +4,7 @@ namespace App\Actions\Stripe;
 
 use App\Jobs\ServerLimitCheckJob;
 use App\Models\Team;
+use Illuminate\Support\Facades\Log;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 
@@ -105,7 +106,7 @@ class UpdateSubscriptionQuantity
                 ],
             ];
         } catch (\Exception $e) {
-            \Log::warning("Stripe fetch price preview error for team {$team->id}: ".$e->getMessage());
+            Log::warning("Stripe fetch price preview error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'Could not load price preview.', 'preview' => null];
         }
@@ -153,7 +154,7 @@ class UpdateSubscriptionQuantity
             // Check if the proration invoice was paid
             $latestInvoice = $updatedSubscription->latest_invoice;
             if ($latestInvoice && $latestInvoice->status !== 'paid') {
-                \Log::warning("Subscription {$subscription->stripe_subscription_id} quantity updated but invoice not paid (status: {$latestInvoice->status}) for team {$team->name}. Reverting to {$previousQuantity}.");
+                Log::warning("Subscription {$subscription->stripe_subscription_id} quantity updated but invoice not paid (status: {$latestInvoice->status}) for team {$team->name}. Reverting to {$previousQuantity}.");
 
                 // Revert subscription quantity on Stripe
                 try {
@@ -164,7 +165,7 @@ class UpdateSubscriptionQuantity
                         'proration_behavior' => 'none',
                     ]);
                 } catch (\Exception $revertException) {
-                    \Log::critical("Failed to revert Stripe quantity for subscription {$subscription->stripe_subscription_id}, team {$team->id}. Stripe may have quantity {$quantity} but local is {$previousQuantity}. Error: ".$revertException->getMessage());
+                    Log::critical("Failed to revert Stripe quantity for subscription {$subscription->stripe_subscription_id}, team {$team->id}. Stripe may have quantity {$quantity} but local is {$previousQuantity}. Error: ".$revertException->getMessage());
                     send_internal_notification(
                         "CRITICAL: Stripe quantity revert failed for subscription {$subscription->stripe_subscription_id}, team {$team->id}. Manual reconciliation required."
                     );
@@ -184,15 +185,15 @@ class UpdateSubscriptionQuantity
 
             ServerLimitCheckJob::dispatch($team);
 
-            \Log::info("Subscription {$subscription->stripe_subscription_id} quantity updated to {$quantity} for team {$team->name}");
+            Log::info("Subscription {$subscription->stripe_subscription_id} quantity updated to {$quantity} for team {$team->name}");
 
             return ['success' => true, 'error' => null];
         } catch (InvalidRequestException $e) {
-            \Log::error("Stripe update quantity error for team {$team->id}: ".$e->getMessage());
+            Log::error("Stripe update quantity error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'Stripe error: '.$e->getMessage()];
         } catch (\Exception $e) {
-            \Log::error("Update subscription quantity error for team {$team->id}: ".$e->getMessage());
+            Log::error("Update subscription quantity error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'An unexpected error occurred. Please contact support.'];
         }

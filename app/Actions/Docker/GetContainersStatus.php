@@ -350,9 +350,9 @@ class GetContainersStatus
                     $containerName = null;
                 }
             }
-            $projectUuid = data_get($service, 'environment.project.uuid');
-            $serviceUuid = data_get($service, 'uuid');
-            $environmentName = data_get($service, 'environment.name');
+            $projectUuid = data_get($exitedService, 'environment.project.uuid');
+            $serviceUuid = data_get($exitedService, 'uuid');
+            $environmentName = data_get($exitedService, 'environment.name');
 
             if ($projectUuid && $serviceUuid && $environmentName) {
                 $url = base_url().'/project/'.$projectUuid.'/'.$environmentName.'/service/'.$serviceUuid;

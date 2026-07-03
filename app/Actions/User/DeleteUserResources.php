@@ -4,6 +4,7 @@ namespace App\Actions\User;
 
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class DeleteUserResources
 {
@@ -99,7 +100,7 @@ class DeleteUserResources
                 $application->forceDelete();
                 $deletedCounts['applications']++;
             } catch (\Exception $e) {
-                \Log::error("Failed to delete application {$application->id}: ".$e->getMessage());
+                Log::error("Failed to delete application {$application->id}: ".$e->getMessage());
                 throw $e; // Re-throw to trigger rollback
             }
         }
@@ -110,7 +111,7 @@ class DeleteUserResources
                 $database->forceDelete();
                 $deletedCounts['databases']++;
             } catch (\Exception $e) {
-                \Log::error("Failed to delete database {$database->id}: ".$e->getMessage());
+                Log::error("Failed to delete database {$database->id}: ".$e->getMessage());
                 throw $e; // Re-throw to trigger rollback
             }
         }
@@ -121,7 +122,7 @@ class DeleteUserResources
                 $service->forceDelete();
                 $deletedCounts['services']++;
             } catch (\Exception $e) {
-                \Log::error("Failed to delete service {$service->id}: ".$e->getMessage());
+                Log::error("Failed to delete service {$service->id}: ".$e->getMessage());
                 throw $e; // Re-throw to trigger rollback
             }
         }

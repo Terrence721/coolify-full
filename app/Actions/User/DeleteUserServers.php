@@ -5,6 +5,7 @@ namespace App\Actions\User;
 use App\Models\Server;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class DeleteUserServers
 {
@@ -54,7 +55,7 @@ class DeleteUserServers
             try {
                 // Skip the default server (ID 0) which is the Coolify host
                 if ($server->id === 0) {
-                    \Log::info('Skipping deletion of Coolify host server (ID: 0)');
+                    Log::info('Skipping deletion of Coolify host server (ID: 0)');
 
                     continue;
                 }
@@ -65,7 +66,7 @@ class DeleteUserServers
                 $server->forceDelete();
                 $deletedCount++;
             } catch (\Exception $e) {
-                \Log::error("Failed to delete server {$server->id}: ".$e->getMessage());
+                Log::error("Failed to delete server {$server->id}: ".$e->getMessage());
                 throw $e; // Re-throw to trigger rollback
             }
         }

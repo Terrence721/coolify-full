@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 2
+    paths:
+        - app/Actions
+        - app/Console
+        - app/Exceptions
+        - app/Http
+        - app/Jobs
+        - app/Listeners
+        - app/Notifications
+        - app/Policies
+        - app/Providers

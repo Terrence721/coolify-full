@@ -3,6 +3,8 @@
 namespace App\Actions\Stripe;
 
 use App\Models\Team;
+use Illuminate\Support\Facades\Log;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 
 class ResumeSubscription
@@ -40,15 +42,15 @@ class ResumeSubscription
                 'stripe_cancel_at_period_end' => false,
             ]);
 
-            \Log::info("Subscription {$subscription->stripe_subscription_id} resumed for team {$team->name}");
+            Log::info("Subscription {$subscription->stripe_subscription_id} resumed for team {$team->name}");
 
             return ['success' => true, 'error' => null];
-        } catch (\Stripe\Exception\InvalidRequestException $e) {
-            \Log::error("Stripe resume subscription error for team {$team->id}: ".$e->getMessage());
+        } catch (InvalidRequestException $e) {
+            Log::error("Stripe resume subscription error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'Stripe error: '.$e->getMessage()];
         } catch (\Exception $e) {
-            \Log::error("Resume subscription error for team {$team->id}: ".$e->getMessage());
+            Log::error("Resume subscription error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'An unexpected error occurred. Please contact support.'];
         }

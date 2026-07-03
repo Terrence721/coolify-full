@@ -3,6 +3,9 @@
 namespace App\Actions\Stripe;
 
 use App\Models\Team;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 
 class RefundSubscription
@@ -39,7 +42,7 @@ class RefundSubscription
 
         try {
             $stripeSubscription = $this->stripe->subscriptions->retrieve($subscription->stripe_subscription_id);
-        } catch (\Stripe\Exception\InvalidRequestException $e) {
+        } catch (InvalidRequestException $e) {
             return $this->ineligible('Subscription not found in Stripe.');
         }
 
@@ -49,7 +52,7 @@ class RefundSubscription
             return $this->ineligible("Subscription status is '{$stripeSubscription->status}'.", $currentPeriodEnd);
         }
 
-        $startDate = \Carbon\Carbon::createFromTimestamp($stripeSubscription->start_date);
+        $startDate = Carbon::createFromTimestamp($stripeSubscription->start_date);
         $daysSinceStart = (int) $startDate->diffInDays(now());
         $daysRemaining = self::REFUND_WINDOW_DAYS - $daysSinceStart;
 
@@ -112,7 +115,7 @@ class RefundSubscription
             try {
                 $this->stripe->subscriptions->cancel($subscription->stripe_subscription_id);
             } catch (\Exception $e) {
-                \Log::critical("Refund succeeded but subscription cancel failed for team {$team->id}: ".$e->getMessage());
+                Log::critical("Refund succeeded but subscription cancel failed for team {$team->id}: ".$e->getMessage());
                 send_internal_notification(
                     "CRITICAL: Refund succeeded but cancel failed for subscription {$subscription->stripe_subscription_id}, team {$team->id}. Manual intervention required."
                 );
@@ -127,15 +130,15 @@ class RefundSubscription
 
             $team->subscriptionEnded();
 
-            \Log::info("Refunded and cancelled subscription {$subscription->stripe_subscription_id} for team {$team->name}");
+            Log::info("Refunded and cancelled subscription {$subscription->stripe_subscription_id} for team {$team->name}");
 
             return ['success' => true, 'error' => null];
-        } catch (\Stripe\Exception\InvalidRequestException $e) {
-            \Log::error("Stripe refund error for team {$team->id}: ".$e->getMessage());
+        } catch (InvalidRequestException $e) {
+            Log::error("Stripe refund error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'Stripe error: '.$e->getMessage()];
         } catch (\Exception $e) {
-            \Log::error("Refund error for team {$team->id}: ".$e->getMessage());
+            Log::error("Refund error for team {$team->id}: ".$e->getMessage());
 
             return ['success' => false, 'error' => 'An unexpected error occurred. Please contact support.'];
         }

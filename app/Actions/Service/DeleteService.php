@@ -13,9 +13,10 @@ class DeleteService
 
     public function handle(Service $service, bool $deleteVolumes, bool $deleteConnectedNetworks, bool $deleteConfigurations, bool $dockerCleanup)
     {
+        $server = data_get($service, 'server');
+
         try {
-            $server = data_get($service, 'server');
-            if ($deleteVolumes && $server->isFunctional()) {
+            if ($deleteVolumes && $server && $server->isFunctional()) {
                 $storagesToDelete = collect([]);
 
                 $service->environment_variables()->delete();
@@ -51,7 +52,9 @@ class DeleteService
                 $service->deleteConnectedNetworks();
             }
 
-            instant_remote_process(["docker rm -f $service->uuid"], $server, throwError: false);
+            if ($server) {
+                instant_remote_process(["docker rm -f $service->uuid"], $server, throwError: false);
+            }
         } catch (\Exception $e) {
             throw new \RuntimeException($e->getMessage());
         } finally {
@@ -70,7 +73,7 @@ class DeleteService
             $service->tags()->detach();
             $service->forceDelete();
 
-            if ($dockerCleanup) {
+            if ($dockerCleanup && $server) {
                 CleanupDocker::dispatch($server, false, false);
             }
         }

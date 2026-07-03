@@ -44,7 +44,7 @@ class StartSentinel
         ];
         if (isDev()) {
             // data_set($environments, 'DEBUG', 'true');
-            if ($customImage && ! empty($customImage)) {
+            if ($customImage) {
                 $image = $customImage;
             }
             $mountDir = '/var/lib/docker/volumes/coolify_dev_coolify_data/_data/sentinel';

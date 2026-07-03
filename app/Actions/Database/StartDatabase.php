@@ -53,6 +53,8 @@ class StartDatabase
             case StandaloneClickhouse::class:
                 $activity = StartClickhouse::run($database);
                 break;
+            default:
+                throw new \RuntimeException('Unsupported database type.');
         }
         if ($database->is_public && $database->public_port) {
             StartDatabaseProxy::dispatch($database);
