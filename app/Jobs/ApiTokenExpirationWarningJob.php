@@ -32,6 +32,11 @@ class ApiTokenExpirationWarningJob implements ShouldBeEncrypted, ShouldQueue, Si
             ->where('tokenable_type', User::class)
             ->chunkById(100, function ($tokens) {
                 foreach ($tokens as $token) {
+                    $tokenId = data_get($token, 'id');
+                    if ($tokenId === null) {
+                        continue;
+                    }
+
                     if (! $token->team_id) {
                         continue;
                     }
@@ -46,7 +51,7 @@ class ApiTokenExpirationWarningJob implements ShouldBeEncrypted, ShouldQueue, Si
                     $team->notify(new ApiTokenExpiringNotification($token));
 
                     $markedAsSent = PersonalAccessToken::query()
-                        ->whereKey($token->getKey())
+                        ->whereKey($tokenId)
                         ->whereNotNull('expires_at')
                         ->where('expires_at', '>', now())
                         ->where('expires_at', '<=', now()->addDay())

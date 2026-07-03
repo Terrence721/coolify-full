@@ -285,7 +285,7 @@ EOD;
     public function getContainers()
     {
         $this->containers = [];
-        $teamId = data_get(auth()->user()->currentTeam(), 'id');
+        $teamId = data_get(currentTeam(), 'id');
 
         // Try to find resource by route parameter
         $databaseUuid = data_get($this->parameters, 'database_uuid');

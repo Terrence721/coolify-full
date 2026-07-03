@@ -107,7 +107,13 @@ class StandaloneDragonfly extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneDragonfly::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandaloneDragonfly::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandaloneDragonfly::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

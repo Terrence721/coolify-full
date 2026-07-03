@@ -30,7 +30,7 @@ class Patches extends Component
 
     public function getListeners()
     {
-        $teamId = auth()->user()->currentTeam()->id;
+        $teamId = currentTeam()->id;
 
         return [
             "echo-private:team.{$teamId},ServerPackageUpdated" => 'checkForUpdatesDispatch',

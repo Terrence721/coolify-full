@@ -4,7 +4,6 @@ namespace App\Livewire\Project\Shared\ScheduledTask;
 
 use App\Models\ScheduledTask;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -34,7 +33,7 @@ class Executions extends Component
 
     public function getListeners()
     {
-        $teamId = Auth::user()->currentTeam()->id;
+        $teamId = currentTeam()->id;
 
         return [
             "echo-private:team.{$teamId},ScheduledTaskDone" => 'refreshExecutions',

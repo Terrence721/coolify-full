@@ -113,7 +113,13 @@ class StandaloneMysql extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneMysql::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandaloneMysql::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandaloneMysql::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

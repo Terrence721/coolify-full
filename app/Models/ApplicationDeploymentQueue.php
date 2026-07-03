@@ -118,7 +118,7 @@ class ApplicationDeploymentQueue extends Model
         ]);
     }
 
-    public function getOutput($name)
+    public function getOutput(string $name): ?string
     {
         if (! $this->logs) {
             return null;
@@ -141,7 +141,7 @@ class ApplicationDeploymentQueue extends Model
         return str($this->commit_message)->value();
     }
 
-    private function redactSensitiveInfo($text)
+    private function redactSensitiveInfo(string $text)
     {
         $text = remove_iip($text);
 

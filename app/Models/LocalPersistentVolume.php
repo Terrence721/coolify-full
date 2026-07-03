@@ -46,7 +46,7 @@ class LocalPersistentVolume extends BaseModel
         return $this->morphTo('resource');
     }
 
-    protected function customizeName($value)
+    protected function customizeName(string $value): string
     {
         return str($value)->trim()->value;
     }

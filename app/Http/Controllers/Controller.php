@@ -27,7 +27,7 @@ class Controller extends BaseController
 
     public function realtime_test()
     {
-        if (auth()->user()?->currentTeam()->id !== 0) {
+        if (data_get(currentTeam(), 'id') !== 0) {
             return redirect(RouteServiceProvider::HOME);
         }
         TestEvent::dispatch();
@@ -46,12 +46,12 @@ class Controller extends BaseController
             abort(403);
         }
 
-        $user = auth()->user();
-        if (! $user) {
+        $user = Auth::user();
+        if (! $user instanceof User) {
             abort(403);
         }
 
-        if (! hash_equals((string) $request->route('id'), (string) $user->getKey())) {
+        if (! hash_equals((string) $request->route('id'), (string) $user->getAuthIdentifier())) {
             abort(403);
         }
 

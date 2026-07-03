@@ -74,7 +74,7 @@ class Slack extends Component
     public function mount()
     {
         try {
-            $this->team = auth()->user()->currentTeam();
+            $this->team = currentTeam();
             $this->settings = $this->team->slackNotificationSettings;
             $this->authorize('view', $this->settings);
             $this->syncData();

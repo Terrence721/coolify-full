@@ -130,7 +130,13 @@ class StandalonePostgresql extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandalonePostgresql::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandalonePostgresql::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandalonePostgresql::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

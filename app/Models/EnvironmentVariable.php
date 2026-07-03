@@ -161,8 +161,8 @@ class EnvironmentVariable extends BaseModel
     protected function value(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value = null) => $this->get_environment_variables($value),
-            set: fn (?string $value = null) => $this->set_environment_variables($value),
+            get: fn (?string $value = null): ?string => $this->get_environment_variables($value),
+            set: fn (?string $value = null): ?string => $this->set_environment_variables($value),
         );
     }
 

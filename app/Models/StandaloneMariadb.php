@@ -111,7 +111,13 @@ class StandaloneMariadb extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneMariadb::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandaloneMariadb::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandaloneMariadb::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

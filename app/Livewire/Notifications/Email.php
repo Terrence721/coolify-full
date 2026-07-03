@@ -113,7 +113,7 @@ class Email extends Component
     public function mount()
     {
         try {
-            $this->team = auth()->user()->currentTeam();
+            $this->team = currentTeam();
             $this->emails = auth()->user()->email;
             $this->settings = $this->team->emailNotificationSettings;
             $this->authorize('view', $this->settings);

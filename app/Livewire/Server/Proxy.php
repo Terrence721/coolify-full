@@ -34,7 +34,7 @@ class Proxy extends Component
 
     public function getListeners()
     {
-        $teamId = auth()->user()->currentTeam()->id;
+        $teamId = currentTeam()->id;
 
         return [
             'saveConfiguration' => 'submit',

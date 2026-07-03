@@ -117,7 +117,13 @@ class StandaloneMongodb extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneMongodb::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandaloneMongodb::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandaloneMongodb::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

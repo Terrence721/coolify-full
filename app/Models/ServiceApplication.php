@@ -74,7 +74,13 @@ class ServiceApplication extends BaseModel
      */
     public static function ownedByCurrentTeam(): Builder
     {
-        return ServiceApplication::whereRelation('service.environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return ServiceApplication::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return ServiceApplication::whereRelation('service.environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

@@ -31,6 +31,7 @@ use App\Models\Team;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Process\Pool;
@@ -82,7 +83,7 @@ function database_configuration_dir(): string
 {
     return base_configuration_dir().'/databases';
 }
-function database_proxy_dir($uuid): string
+function database_proxy_dir(string $uuid): string
 {
     return base_configuration_dir()."/databases/$uuid/proxy";
 }
@@ -320,12 +321,24 @@ function generate_readme_file(string $name, string $updated_at): string
 
 function isInstanceAdmin()
 {
-    return auth()?->user()?->isInstanceAdmin() ?? false;
+    $user = Auth::user();
+
+    if (! $user instanceof User) {
+        return false;
+    }
+
+    return $user->isInstanceAdmin();
 }
 
 function currentTeam()
 {
-    return Auth::user()?->currentTeam() ?? null;
+    $user = Auth::user();
+
+    if (! $user instanceof User) {
+        return null;
+    }
+
+    return $user->currentTeam();
 }
 
 function find_destination_for_current_team(?string $uuid): StandaloneDocker|SwarmDocker|null
@@ -344,7 +357,8 @@ function showBoarding(): bool
         return false;
     }
 
-    if (Auth::user()?->isMember()) {
+    $user = Auth::user();
+    if ($user instanceof User && $user->isMember()) {
         return false;
     }
 
@@ -353,7 +367,7 @@ function showBoarding(): bool
 function refreshSession(?Team $team = null): void
 {
     if (! $team) {
-        $currentTeam = Auth::user()->currentTeam();
+        $currentTeam = currentTeam();
         if ($currentTeam) {
             // currentTeam() can resolve a stale (just-deleted) team from the
             // session/cache, so Team::find() may still return null here.
@@ -641,7 +655,7 @@ function crons_queue(): string
     return isCloud() ? 'crons' : 'high';
 }
 
-function translate_cron_expression($expression_to_validate): string
+function translate_cron_expression(string $expression_to_validate): string
 {
     if (isset(VALID_CRON_STRINGS[$expression_to_validate])) {
         return VALID_CRON_STRINGS[$expression_to_validate];
@@ -649,7 +663,7 @@ function translate_cron_expression($expression_to_validate): string
 
     return $expression_to_validate;
 }
-function validate_cron_expression($expression_to_validate): bool
+function validate_cron_expression(string $expression_to_validate): bool
 {
     if (empty($expression_to_validate)) {
         return false;
@@ -700,7 +714,7 @@ function validate_timezone(string $timezone): bool
     return in_array($timezone, timezone_identifiers_list());
 }
 
-function parseEnvFormatToArray($env_file_contents)
+function parseEnvFormatToArray(string $env_file_contents)
 {
     $env_array = [];
     $lines = explode("\n", $env_file_contents);
@@ -991,7 +1005,10 @@ function extractCommentFromRemainder(string $remainder): ?string
     return null;
 }
 
-function data_get_str($data, $key, $default = null): Stringable
+/**
+ * @param  array<int, string|int>|string|int|null  $key
+ */
+function data_get_str(mixed $data, array|string|int|null $key, mixed $default = null): Stringable
 {
     $str = data_get($data, $key, $default) ?? $default;
 
@@ -1141,7 +1158,7 @@ function queryResourcesByUuid(string $uuid)
 
     return null;
 }
-function generateTagDeployWebhook($tag_name)
+function generateTagDeployWebhook(string $tag_name): string
 {
     $baseUrl = base_url();
     $api = Url::fromString($baseUrl).'/api/v1';
@@ -1149,7 +1166,7 @@ function generateTagDeployWebhook($tag_name)
 
     return $api.$endpoint;
 }
-function generateDeployWebhook($resource)
+function generateDeployWebhook(Model $resource): string
 {
     $baseUrl = base_url();
     $api = Url::fromString($baseUrl).'/api/v1';
@@ -1158,7 +1175,7 @@ function generateDeployWebhook($resource)
 
     return $api.$endpoint."?uuid=$uuid&force=false";
 }
-function generateGitManualWebhook($resource, $type)
+function generateGitManualWebhook(Model $resource, string $type): ?string
 {
     if ($resource->source_id !== 0 && ! is_null($resource->source_id)) {
         return null;
@@ -1171,7 +1188,7 @@ function generateGitManualWebhook($resource, $type)
 
     return null;
 }
-function removeAnsiColors($text)
+function removeAnsiColors(?string $text): ?string
 {
     return preg_replace('/\e[[][A-Za-z0-9];?[0-9]*m?/', '', $text);
 }
@@ -1336,7 +1353,7 @@ function replaceLocalSource(Stringable $source, Stringable $replacedWith)
     return $source;
 }
 
-function convertToArray($collection)
+function convertToArray(mixed $collection): mixed
 {
     if ($collection instanceof Collection) {
         return $collection->map(function ($item) {
@@ -1589,7 +1606,7 @@ function validateDNSEntry(string $fqdn, Server $server)
     return $found_matching_ip;
 }
 
-function ipMatch($ip, $cidrs, &$match = null)
+function ipMatch(string $ip, array $cidrs, ?string &$match = null): bool
 {
     foreach ((array) $cidrs as $cidr) {
         [$subnet, $mask] = explode('/', $cidr);
@@ -1603,7 +1620,7 @@ function ipMatch($ip, $cidrs, &$match = null)
     return false;
 }
 
-function checkIPAgainstAllowlist($ip, $allowlist)
+function checkIPAgainstAllowlist(string $ip, array $allowlist): bool
 {
     if (empty($allowlist)) {
         return false;
@@ -1861,8 +1878,12 @@ function isAnyDeploymentInprogress()
     exit(1);
 }
 
-function isBase64Encoded($strValue)
+function isBase64Encoded(?string $strValue): bool
 {
+    if ($strValue === null) {
+        return false;
+    }
+
     return base64_encode(base64_decode($strValue, true)) === $strValue;
 }
 function customApiValidator(Collection|array $item, array $rules, array $messages = [])
@@ -2799,10 +2820,10 @@ function parseDockerComposeFile(Service|Application $resource, bool $isNew = fal
                             if ($source && $target) {
                                 if ((str($source)->startsWith('.') || str($source)->startsWith('~'))) {
                                     $dir = base_configuration_dir().'/applications/'.$resource->uuid;
-                                    if (str($source, '.')) {
+                                    if (str($source)->startsWith('.')) {
                                         $source = str($source)->replaceFirst('.', $dir);
                                     }
-                                    if (str($source, '~')) {
+                                    if (str($source)->startsWith('~')) {
                                         $source = str($source)->replaceFirst('~', $dir);
                                     }
                                     if ($pull_request_id !== 0) {
@@ -2928,10 +2949,10 @@ function parseDockerComposeFile(Service|Application $resource, bool $isNew = fal
                                 $uuid = $resource->uuid;
                                 if ((str($source)->startsWith('.') || str($source)->startsWith('~') || str($source)->startsWith('/'))) {
                                     $dir = base_configuration_dir().'/applications/'.$resource->uuid;
-                                    if (str($source, '.')) {
+                                    if (str($source)->startsWith('.')) {
                                         $source = str($source)->replaceFirst('.', $dir);
                                     }
-                                    if (str($source, '~')) {
+                                    if (str($source)->startsWith('~')) {
                                         $source = str($source)->replaceFirst('~', $dir);
                                     }
                                     if ($read_only) {
@@ -3407,14 +3428,10 @@ function generate_fluentd_configuration(): array
     ];
 }
 
-function isAssociativeArray($array)
+function isAssociativeArray(array|Collection $array): bool
 {
     if ($array instanceof Collection) {
         $array = $array->toArray();
-    }
-
-    if (! is_array($array)) {
-        throw new InvalidArgumentException('Input must be an array or a Collection.');
     }
 
     if ($array === []) {
@@ -3477,7 +3494,7 @@ function add_coolify_default_environment_variables(StandaloneRedis|StandalonePos
     }
 }
 
-function convertToKeyValueCollection($environment)
+function convertToKeyValueCollection(Collection $environment): Collection
 {
     $convertedServiceVariables = collect([]);
     if (isAssociativeArray($environment)) {
@@ -3538,6 +3555,8 @@ function wireNavigate(): string
 /**
  * Redirect to a named route with SPA navigation support.
  * Automatically uses wire:navigate when is_wire_navigate_enabled is true.
+ *
+ * @param  array<int|string, mixed>  $parameters
  */
 function redirectRoute(Component $component, string $name, array $parameters = []): mixed
 {
@@ -3549,7 +3568,9 @@ function redirectRoute(Component $component, string $name, array $parameters = [
         $navigate = true;
     }
 
-    return $component->redirectRoute($name, $parameters, navigate: $navigate);
+    $component->redirectRoute($name, $parameters, navigate: $navigate);
+
+    return null;
 }
 
 function getHelperVersion(): string
@@ -3963,7 +3984,9 @@ function shouldSkipPasswordConfirmation(): bool
     }
 
     // Skip if user has no password (OAuth users)
-    if (! Auth::user()?->hasPassword()) {
+    $user = Auth::user();
+
+    if (! $user instanceof User || ! $user->hasPassword()) {
         return true;
     }
 
@@ -4135,7 +4158,7 @@ function downsampleLTTB(array $data, int $threshold): array
  * This is the canonical implementation used by both EnvironmentVariable::realValue and the compose parsers
  * to ensure shared variable references are replaced with their actual values.
  */
-function resolveSharedEnvironmentVariables(?string $value, $resource): ?string
+function resolveSharedEnvironmentVariables(?string $value, Application|Service|null $resource): ?string
 {
     if (is_null($value) || $value === '' || is_null($resource)) {
         return $value;

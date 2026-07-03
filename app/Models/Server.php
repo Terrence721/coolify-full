@@ -225,7 +225,7 @@ class Server extends BaseModel
      * Find a Server by ID using the identity map cache.
      * This prevents N+1 queries when the same Server is accessed multiple times.
      */
-    public static function findCached($id): ?static
+    public static function findCached(?int $id): ?static
     {
         if ($id === null) {
             return null;
@@ -288,7 +288,7 @@ class Server extends BaseModel
 
     use HasSafeStringAttribute;
 
-    public function setValidationLogsAttribute($value): void
+    public function setValidationLogsAttribute(?string $value): void
     {
         $this->attributes['validation_logs'] = $value !== null
             ? Purify::config('validation_logs')->clean($value)
@@ -320,10 +320,18 @@ class Server extends BaseModel
      */
     public static function ownedByCurrentTeam(array $select = ['*'])
     {
-        $teamId = currentTeam()->id;
+        $team = currentTeam();
         $selectArray = collect($select)->concat(['id']);
 
-        return Server::whereTeamId($teamId)->with('settings', 'swarmDockers', 'standaloneDockers')->select($selectArray->all())->orderBy('name');
+        if (! $team) {
+            return Server::query()
+                ->whereRaw('1 = 0')
+                ->with('settings', 'swarmDockers', 'standaloneDockers')
+                ->select($selectArray->all())
+                ->orderBy('name');
+        }
+
+        return Server::whereTeamId($team->id)->with('settings', 'swarmDockers', 'standaloneDockers')->select($selectArray->all())->orderBy('name');
     }
 
     /**
@@ -370,6 +378,7 @@ class Server extends BaseModel
                 $dynamic_conf_path = '/data/coolify/proxy/caddy/dynamic';
             }
         }
+        $default_redirect_file = "$dynamic_conf_path/default_redirect_503.yaml";
         if ($proxy_type === ProxyTypes::TRAEFIK->value) {
             $default_redirect_file = "$dynamic_conf_path/default_redirect_503.yaml";
         } elseif ($proxy_type === ProxyTypes::CADDY->value) {
@@ -385,6 +394,8 @@ class Server extends BaseModel
         if ($redirect_enabled === false) {
             instant_remote_process(["rm -f $default_redirect_file"], $this);
         } else {
+            $conf = null;
+
             if ($proxy_type === ProxyTypes::CADDY->value) {
                 if (filled($redirect_url)) {
                     $conf = ":80, :443 {
@@ -441,6 +452,11 @@ class Server extends BaseModel
                 }
                 $conf = Yaml::dump($dynamic_conf, 12, 2);
             }
+
+            if ($conf === null) {
+                return;
+            }
+
             $conf = $banner.$conf;
             $base64 = base64_encode($conf);
             instant_remote_process([
@@ -659,7 +675,7 @@ $schema://$host {
         return $this->ip === 'host.docker.internal' || $this->id === 0;
     }
 
-    public static function buildServers($teamId)
+    public static function buildServers(int $teamId)
     {
         return Server::whereTeamId($teamId)->whereRelation('settings', 'is_reachable', true)->whereRelation('settings', 'is_build_server', true);
     }
@@ -745,17 +761,17 @@ $schema://$host {
         return $applications->concat($databases)->concat($services->get());
     }
 
-    public function stopUnmanaged($id)
+    public function stopUnmanaged(string $id)
     {
         return instant_remote_process(['docker stop -t 0 '.escapeshellarg($id)], $this);
     }
 
-    public function restartUnmanaged($id)
+    public function restartUnmanaged(string $id)
     {
         return instant_remote_process(['docker restart '.escapeshellarg($id)], $this);
     }
 
-    public function startUnmanaged($id)
+    public function startUnmanaged(string $id)
     {
         return instant_remote_process(['docker start '.escapeshellarg($id)], $this);
     }

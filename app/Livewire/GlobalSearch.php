@@ -248,12 +248,12 @@ class GlobalSearch extends Component
     private function loadSearchableItems()
     {
         // Try to get from Redis cache first
-        $cacheKey = self::getCacheKey(auth()->user()->currentTeam()->id);
+        $cacheKey = self::getCacheKey(currentTeam()->id);
 
         $this->allSearchableItems = Cache::remember($cacheKey, 300, function () {
             ray()->showQueries();
             $items = collect();
-            $team = auth()->user()->currentTeam();
+            $team = currentTeam();
 
             // Get all applications
             $applications = Application::ownedByCurrentTeam()

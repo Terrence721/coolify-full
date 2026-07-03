@@ -63,7 +63,7 @@ class SettingsEmail extends Component
         }
         $this->settings = instanceSettings();
         $this->syncData();
-        $this->team = auth()->user()->currentTeam();
+        $this->team = currentTeam();
         $this->testEmailAddress = auth()->user()->email;
     }
 

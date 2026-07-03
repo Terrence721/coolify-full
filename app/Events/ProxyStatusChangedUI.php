@@ -18,8 +18,8 @@ class ProxyStatusChangedUI implements ShouldBroadcast
 
     public function __construct(?int $teamId = null, ?int $activityId = null)
     {
-        if (is_null($teamId) && auth()->check() && auth()->user()->currentTeam()) {
-            $teamId = auth()->user()->currentTeam()->id;
+        if (is_null($teamId) && auth()->check() && currentTeam()) {
+            $teamId = currentTeam()->id;
         }
         $this->teamId = $teamId;
         $this->activityId = $activityId;

@@ -25,7 +25,7 @@ class ConfigurationChecker extends Component
 
     public function getListeners(): array
     {
-        $teamId = auth()->user()->currentTeam()->id;
+        $teamId = currentTeam()->id;
 
         return [
             "echo-private:team.{$teamId},ApplicationConfigurationChanged" => 'configurationChanged',

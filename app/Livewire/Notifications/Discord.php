@@ -72,7 +72,7 @@ class Discord extends Component
     public function mount()
     {
         try {
-            $this->team = auth()->user()->currentTeam();
+            $this->team = currentTeam();
             $this->settings = $this->team->discordNotificationSettings;
             $this->authorize('view', $this->settings);
             $this->syncData();

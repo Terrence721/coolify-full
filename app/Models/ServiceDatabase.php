@@ -73,7 +73,13 @@ class ServiceDatabase extends BaseModel
      */
     public static function ownedByCurrentTeam(): Builder
     {
-        return ServiceDatabase::whereRelation('service.environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return ServiceDatabase::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return ServiceDatabase::whereRelation('service.environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

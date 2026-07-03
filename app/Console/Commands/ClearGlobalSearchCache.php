@@ -39,7 +39,7 @@ class ClearGlobalSearchCache extends Command
             return Command::FAILURE;
         }
 
-        $teamId = auth()->user()->currentTeam()->id;
+        $teamId = currentTeam()->id;
 
         return $this->clearTeamCache($teamId);
     }

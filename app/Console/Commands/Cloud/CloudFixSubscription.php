@@ -31,7 +31,7 @@ class CloudFixSubscription extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $stripe = new StripeClient(config('subscription.stripe_api_key'));
 
@@ -62,7 +62,7 @@ class CloudFixSubscription extends Command
             $stripeInvoicePaid = $team->subscription->stripe_invoice_paid;
             $stripeCustomerId = $team->subscription->stripe_customer_id;
 
-            if (! $stripeSubscriptionId && str($stripeInvoicePaid)->lower() != 'past_due') {
+            if (! $stripeSubscriptionId && str((string) $stripeInvoicePaid)->lower() != 'past_due') {
                 fputcsv($out, [
                     $team->id,
                     $stripeInvoicePaid,
@@ -108,12 +108,14 @@ class CloudFixSubscription extends Command
         }
 
         fclose($out);
+
+        return self::SUCCESS;
     }
 
     /**
      * Fix canceled subscriptions in the database
      */
-    private function fixCanceledSubscriptions(StripeClient $stripe)
+    private function fixCanceledSubscriptions(StripeClient $stripe): int
     {
         $isDryRun = $this->option('dry-run');
         $checkOne = $this->option('one');
@@ -328,7 +330,7 @@ class CloudFixSubscription extends Command
     /**
      * Verify all active subscriptions against Stripe API
      */
-    private function verifyAllActiveSubscriptions(StripeClient $stripe)
+    private function verifyAllActiveSubscriptions(StripeClient $stripe): int
     {
         $isDryRun = $this->option('dry-run');
         $shouldFix = $this->option('fix-verified');
@@ -628,7 +630,7 @@ class CloudFixSubscription extends Command
                                 $result['status'],
                                 $result['action'],
                                 implode(', ', $memberEmails),
-                                $subscription->stripe_customer_id ? "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}" : 'N/A',
+                                "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}",
                                 $foundResult && isset($foundResult['subscription']) ? "https://dashboard.stripe.com/subscriptions/{$foundResult['subscription']->id}" : 'N/A',
                             ]);
                         }
@@ -646,7 +648,7 @@ class CloudFixSubscription extends Command
                             'error: '.$e->getStripeCode(),
                             'error',
                             implode(', ', $memberEmails),
-                            $subscription->stripe_customer_id ? "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}" : 'N/A',
+                            "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}",
                             $subscription->stripe_subscription_id ? "https://dashboard.stripe.com/subscriptions/{$subscription->stripe_subscription_id}" : 'N/A',
                         ]);
                     }
@@ -663,8 +665,8 @@ class CloudFixSubscription extends Command
                         'error',
                         'error',
                         implode(', ', $memberEmails),
-                        $subscription->stripe_customer_id ? "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}" : 'N/A',
-                        $subscription->stripe_subscription_id ? "https://dashboard.stripe.com/subscriptions/{$subscription->stripe_subscription_id}" : 'N/A',
+                        "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}",
+                        "https://dashboard.stripe.com/subscriptions/{$subscription->stripe_subscription_id}",
                     ]);
                 }
             }
@@ -716,7 +718,7 @@ class CloudFixSubscription extends Command
     /**
      * Fix a subscription based on its status
      */
-    private function fixSubscription($team, $subscription, $status)
+    private function fixSubscription(Team $team, mixed $subscription, string $status): void
     {
         $message = "Fixing subscription for Team ID: {$team->id} (Status: {$status})\n";
         $message .= "Team Name: {$team->name}\n";
@@ -732,7 +734,7 @@ class CloudFixSubscription extends Command
     /**
      * Search for subscriptions by customer ID
      */
-    private function searchSubscriptionsByCustomer(StripeClient $stripe, $customerId, $requireActive = false)
+    private function searchSubscriptionsByCustomer(StripeClient $stripe, string $customerId, bool $requireActive = false): ?array
     {
         try {
             $subscriptions = $stripe->subscriptions->all([
@@ -772,7 +774,10 @@ class CloudFixSubscription extends Command
     /**
      * Search for subscriptions by team member emails
      */
-    private function searchSubscriptionsByEmails(StripeClient $stripe, $emails)
+    /**
+     * @param  array<int, string>  $emails
+     */
+    private function searchSubscriptionsByEmails(StripeClient $stripe, array $emails): ?array
     {
         $this->line('  → Searching by team member emails...');
 
@@ -815,7 +820,11 @@ class CloudFixSubscription extends Command
     /**
      * Handle found subscription update (only for active/past_due subscriptions)
      */
-    private function handleFoundSubscription($team, $subscription, $foundSub, $searchMethod, $isDryRun, $shouldFix, &$stats)
+    /**
+     * @param  array<string, int>  $stats
+     * @return array<string, string>
+     */
+    private function handleFoundSubscription(Team $team, mixed $subscription, mixed $foundSub, string $searchMethod, bool $isDryRun, bool $shouldFix, array &$stats): array
     {
         $stripeStatus = $foundSub->status;
         $this->info("  ✓ FOUND active/past_due subscription {$foundSub->id} (status: {$stripeStatus})");
@@ -858,7 +867,11 @@ class CloudFixSubscription extends Command
     /**
      * Handle missing subscription
      */
-    private function handleMissingSubscription($team, $subscription, $status, $isDryRun, $shouldFix, &$stats)
+    /**
+     * @param  array<string, int>  $stats
+     * @return array<string, string>
+     */
+    private function handleMissingSubscription(Team $team, mixed $subscription, string $status, bool $isDryRun, bool $shouldFix, array &$stats): array
     {
         $stats['missing']++;
 

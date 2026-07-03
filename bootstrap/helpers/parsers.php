@@ -4,6 +4,7 @@ use App\Enums\ProxyTypes;
 use App\Jobs\ServerFilesFromServerJob;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
+use App\Models\EnvironmentVariable;
 use App\Models\LocalFileVolume;
 use App\Models\LocalPersistentVolume;
 use App\Models\Service;
@@ -441,15 +442,15 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
             $key = str($key);
             $value = str($value);
             $regex = '/\$(\{?([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\}?)/';
-            preg_match_all($regex, $value, $valueMatches);
+            preg_match_all($regex, $value->value(), $valueMatches);
             if (count($valueMatches[2]) > 0) {
                 foreach ($valueMatches[2] as $match) {
-                    $match = str($match);
-                    if ($match->startsWith('SERVICE_')) {
-                        if ($magicEnvironments->has($match->value())) {
+                    $matchStr = str($match);
+                    if ($matchStr->startsWith('SERVICE_')) {
+                        if ($magicEnvironments->has($matchStr->value())) {
                             continue;
                         }
-                        $magicEnvironments->put($match->value(), '');
+                        $magicEnvironments->put($matchStr->value(), '');
                     }
                 }
             }
@@ -601,7 +602,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                     if ($resource->build_pack === 'dockercompose') {
                         // Check if a service with this name actually exists
                         $serviceExists = false;
-                        foreach ($services as $serviceNameKey => $service) {
+                        foreach ($services as $serviceNameKey => $serviceDefinition) {
                             $transformedServiceName = str($serviceNameKey)->replace('-', '_')->replace('.', '_')->value();
                             if ($transformedServiceName === $serviceName) {
                                 $serviceExists = true;
@@ -1020,6 +1021,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                             $isRequired = str_contains($operator, '?');
 
                             // Create the primary variable with its default (only if it doesn't exist)
+                            /** @var EnvironmentVariable $envVar */
                             $envVar = $resource->environment_variables()->firstOrCreate([
                                 'key' => $varName,
                                 'resourceable_type' => get_class($resource),
@@ -1049,6 +1051,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
 
                                     if (! $isMagicVariable) {
                                         if ($nestedSplit !== null) {
+                                            /** @var EnvironmentVariable $nestedEnvVar */
                                             $nestedEnvVar = $resource->environment_variables()->firstOrCreate([
                                                 'key' => $nestedSplit['variable'],
                                                 'resourceable_type' => get_class($resource),
@@ -1059,6 +1062,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                                             ]);
                                             $environment[$nestedSplit['variable']] = $nestedEnvVar->value;
                                         } else {
+                                            /** @var EnvironmentVariable $nestedEnvVar */
                                             $nestedEnvVar = $resource->environment_variables()->firstOrCreate([
                                                 'key' => $nestedContent,
                                                 'resourceable_type' => get_class($resource),
@@ -1080,6 +1084,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                         } else {
                             // Simple variable reference without default
                             $parsedKeyValue = replaceVariables($value);
+                            /** @var EnvironmentVariable $envVar */
                             $envVar = $resource->environment_variables()->firstOrCreate([
                                 'key' => $content,
                                 'resourceable_type' => get_class($resource),
@@ -1115,6 +1120,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                         if ($originalValue->value() === $value->value()) {
                             // This means the variable does not have a default value
                             $parsedKeyValue = replaceVariables($value);
+                            /** @var EnvironmentVariable $envVar */
                             $envVar = $resource->environment_variables()->firstOrCreate([
                                 'key' => $parsedKeyValue,
                                 'resourceable_type' => get_class($resource),
@@ -1716,15 +1722,15 @@ function serviceParser(Service $resource): Collection
             $key = str($key);
             $value = str($value);
             $regex = '/\$(\{?([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)\}?)/';
-            preg_match_all($regex, $value, $valueMatches);
+            preg_match_all($regex, $value->value(), $valueMatches);
             if (count($valueMatches[2]) > 0) {
                 foreach ($valueMatches[2] as $match) {
-                    $match = str($match);
-                    if ($match->startsWith('SERVICE_')) {
-                        if ($magicEnvironments->has($match->value())) {
+                    $matchStr = str($match);
+                    if ($matchStr->startsWith('SERVICE_')) {
+                        if ($magicEnvironments->has($matchStr->value())) {
                             continue;
                         }
-                        $magicEnvironments->put($match->value(), '');
+                        $magicEnvironments->put($matchStr->value(), '');
                     }
                 }
             }
@@ -2379,6 +2385,7 @@ function serviceParser(Service $resource): Collection
 
                             // Create the primary variable with its default (only if it doesn't exist)
                             // Use firstOrCreate instead of updateOrCreate to avoid overwriting user edits
+                            /** @var EnvironmentVariable $envVar */
                             $envVar = $resource->environment_variables()->firstOrCreate([
                                 'key' => $varName,
                                 'resourceable_type' => get_class($resource),
@@ -2411,6 +2418,7 @@ function serviceParser(Service $resource): Collection
                                     if (! $isMagicVariable) {
                                         if ($nestedSplit !== null) {
                                             // Create nested variable with its default (only if it doesn't exist)
+                                            /** @var EnvironmentVariable $nestedEnvVar */
                                             $nestedEnvVar = $resource->environment_variables()->firstOrCreate([
                                                 'key' => $nestedSplit['variable'],
                                                 'resourceable_type' => get_class($resource),
@@ -2423,6 +2431,7 @@ function serviceParser(Service $resource): Collection
                                             $environment[$nestedSplit['variable']] = $nestedEnvVar->value;
                                         } else {
                                             // Simple nested variable without default (only if it doesn't exist)
+                                            /** @var EnvironmentVariable $nestedEnvVar */
                                             $nestedEnvVar = $resource->environment_variables()->firstOrCreate([
                                                 'key' => $nestedContent,
                                                 'resourceable_type' => get_class($resource),
@@ -2446,6 +2455,7 @@ function serviceParser(Service $resource): Collection
                         } else {
                             // Simple variable reference without default
                             // Use firstOrCreate to avoid overwriting user-saved values on redeploy
+                            /** @var EnvironmentVariable $envVar */
                             $envVar = $resource->environment_variables()->firstOrCreate([
                                 'key' => $content,
                                 'resourceable_type' => get_class($resource),
@@ -2484,6 +2494,7 @@ function serviceParser(Service $resource): Collection
                             // This means the variable does not have a default value
                             // Use firstOrCreate to avoid overwriting user-saved values on redeploy
                             $parsedKeyValue = replaceVariables($value);
+                            /** @var EnvironmentVariable $envVar */
                             $envVar = $resource->environment_variables()->firstOrCreate([
                                 'key' => $parsedKeyValue,
                                 'resourceable_type' => get_class($resource),

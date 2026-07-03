@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -72,11 +73,20 @@ class GithubApp extends BaseModel
         });
     }
 
-    public static function ownedByCurrentTeam()
+    /** @return Builder<GithubApp> */
+    public static function ownedByCurrentTeam(): Builder
     {
-        return GithubApp::where(function ($query) {
-            $query->where('team_id', currentTeam()->id)
-                ->orWhere('is_system_wide', true);
+        $team = currentTeam();
+
+        return GithubApp::where(function (Builder $query) use ($team) {
+            if ($team) {
+                $query->where('team_id', $team->id)
+                    ->orWhere('is_system_wide', true);
+
+                return;
+            }
+
+            $query->where('is_system_wide', true);
         });
     }
 

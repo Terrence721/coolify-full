@@ -16,8 +16,8 @@ class FileStorageChanged implements ShouldBroadcast
 
     public function __construct($teamId = null)
     {
-        if (is_null($teamId) && auth()->check() && auth()->user()->currentTeam()) {
-            $teamId = auth()->user()->currentTeam()->id;
+        if (is_null($teamId) && auth()->check() && currentTeam()) {
+            $teamId = currentTeam()->id;
         }
         $this->teamId = $teamId;
     }

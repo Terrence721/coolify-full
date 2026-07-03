@@ -56,3 +56,18 @@ it('verifies image update logic is present in parseDockerComposeFile', function 
         ->toContain('$savedService->image = $image;')
         ->toContain('$savedService->save();');
 });
+
+it('ensures parseDockerComposeFile does not call the str() helper with two arguments', function () {
+    // Regression test: str($source, '.') and str($source, '~') threw
+    // "ArgumentCountError: Too many arguments to function str()" at runtime,
+    // because the global str() helper only accepts a single argument.
+    // The relative/home-relative volume source rewriting must use
+    // str($source)->startsWith(...) instead.
+    $sharedFile = file_get_contents(__DIR__.'/../../bootstrap/helpers/shared.php');
+
+    expect($sharedFile)
+        ->not->toContain("str(\$source, '.')")
+        ->not->toContain("str(\$source, '~')")
+        ->toContain("str(\$source)->startsWith('.')")
+        ->toContain("str(\$source)->startsWith('~')");
+});

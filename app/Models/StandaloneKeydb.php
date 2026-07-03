@@ -108,7 +108,13 @@ class StandaloneKeydb extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneKeydb::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandaloneKeydb::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandaloneKeydb::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

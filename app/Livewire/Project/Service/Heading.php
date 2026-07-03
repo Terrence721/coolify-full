@@ -8,7 +8,6 @@ use App\Actions\Service\StopService;
 use App\Enums\ProcessStatus;
 use App\Models\Service;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Spatie\Activitylog\Models\Activity;
 
@@ -40,7 +39,14 @@ class Heading extends Component
 
     public function getListeners()
     {
-        $teamId = Auth::user()->currentTeam()->id;
+        $teamId = data_get(currentTeam(), 'id');
+
+        if ($teamId === null) {
+            return [
+                'refresh' => '$refresh',
+                'envsUpdated' => '$refresh',
+            ];
+        }
 
         return [
             "echo-private:team.{$teamId},ServiceStatusChanged" => 'checkStatus',
@@ -178,8 +184,9 @@ class Heading extends Component
 
     private function authorizeService(string $ability): void
     {
+        $serviceId = data_get($this->service, 'id');
         $this->service = Service::ownedByCurrentTeam()
-            ->whereKey($this->service->getKey())
+            ->whereKey($serviceId)
             ->firstOrFail();
 
         $this->authorize($ability, $this->service);

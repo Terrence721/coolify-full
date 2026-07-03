@@ -77,7 +77,7 @@ class User extends Authenticatable implements SendsEmail
     /**
      * Set the email attribute to lowercase.
      */
-    public function setEmailAttribute($value)
+    public function setEmailAttribute(string $value): void
     {
         $this->attributes['email'] = strtolower($value);
     }
@@ -85,7 +85,7 @@ class User extends Authenticatable implements SendsEmail
     /**
      * Set the pending_email attribute to lowercase.
      */
-    public function setPendingEmailAttribute($value)
+    public function setPendingEmailAttribute(?string $value): void
     {
         $this->attributes['pending_email'] = $value ? strtolower($value) : null;
     }
@@ -251,7 +251,7 @@ class User extends Authenticatable implements SendsEmail
             'team_id' => session('currentTeam')->id,
         ]);
 
-        return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
+        return new NewAccessToken($token, data_get($token, 'id').'|'.$plainTextToken);
     }
 
     public function teams(): BelongsToMany
@@ -281,7 +281,7 @@ class User extends Authenticatable implements SendsEmail
             'verify.verify',
             Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
             [
-                'id' => $this->getKey(),
+                'id' => $this->getAuthIdentifier(),
                 'hash' => hash('sha256', $this->getEmailForVerification()),
             ]
         );

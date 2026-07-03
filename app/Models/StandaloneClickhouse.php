@@ -108,7 +108,13 @@ class StandaloneClickhouse extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneClickhouse::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+
+        if (! $team) {
+            return StandaloneClickhouse::query()->whereRaw('1 = 0')->orderBy('name');
+        }
+
+        return StandaloneClickhouse::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

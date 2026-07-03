@@ -13,13 +13,14 @@ use App\Models\Server;
 use App\Models\Service;
 use App\Models\Tag;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 use Visus\Cuid2\Cuid2;
 
 class DeployController extends Controller
 {
-    private function removeSensitiveData($deployment)
+    private function removeSensitiveData(mixed $deployment): mixed
     {
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $deployment->makeHidden([
@@ -63,7 +64,7 @@ class DeployController extends Controller
             ),
         ]
     )]
-    public function deployments(Request $request)
+    public function deployments(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -116,7 +117,7 @@ class DeployController extends Controller
             ),
         ]
     )]
-    public function deployment_by_uuid(Request $request)
+    public function deployment_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -131,7 +132,7 @@ class DeployController extends Controller
             return response()->json(['message' => 'Deployment not found.'], 404);
         }
         $application = $deployment->application;
-        if (! $application || data_get($application->team(), 'id') !== (int) $teamId) {
+        if (! $application || (int) data_get($application, 'team_id') !== (int) $teamId) {
             return response()->json(['message' => 'Deployment not found.'], 404);
         }
 
@@ -205,7 +206,7 @@ class DeployController extends Controller
             ),
         ]
     )]
-    public function cancel_deployment(Request $request)
+    public function cancel_deployment(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -286,8 +287,8 @@ class DeployController extends Controller
             auditLog('api.deployment.cancelled', [
                 'team_id' => $teamId,
                 'deployment_uuid' => $deployment->deployment_uuid,
-                'application_id' => $application?->id,
-                'application_uuid' => $application?->uuid,
+                'application_id' => data_get($application, 'id'),
+                'application_uuid' => data_get($application, 'uuid'),
                 'server_id' => $deployment->server_id,
             ]);
 
@@ -358,7 +359,7 @@ class DeployController extends Controller
 
         ]
     )]
-    public function deploy(Request $request)
+    public function deploy(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
 
@@ -394,7 +395,7 @@ class DeployController extends Controller
         return response()->json(['message' => 'You must provide uuid or tag.'], 400);
     }
 
-    private function by_uuids(string $uuid, int $teamId, bool $force = false, int $pr = 0, ?string $dockerTag = null)
+    private function by_uuids(string $uuid, int $teamId, bool $force = false, int $pr = 0, ?string $dockerTag = null): JsonResponse
     {
         $uuids = explode(',', $uuid);
         $uuids = collect(array_filter($uuids));
@@ -404,8 +405,8 @@ class DeployController extends Controller
         }
         $deployments = collect();
         $payload = collect();
-        foreach ($uuids as $uuid) {
-            $resource = getResourceByUuid($uuid, $teamId);
+        foreach ($uuids as $resourceUuid) {
+            $resource = getResourceByUuid($resourceUuid, $teamId);
             if ($resource) {
                 $dockerTagForResource = $dockerTag;
                 if ($pr !== 0) {
@@ -417,20 +418,20 @@ class DeployController extends Controller
                         $preview = $resource->previews()->where('pull_request_id', $pr)->first();
                     }
                     if (! $preview) {
-                        $deployments->push(['message' => "Pull request {$pr} not found for this resource.", 'resource_uuid' => $uuid]);
+                        $deployments->push(['message' => "Pull request {$pr} not found for this resource.", 'resource_uuid' => $resourceUuid]);
 
                         continue;
                     }
                 }
                 $result = $this->deploy_resource($resource, $force, $pr, $dockerTagForResource);
                 if (isset($result['status']) && $result['status'] === 429) {
-                    return response()->json(['message' => $result['message']], 429)->header('Retry-After', 60);
+                    return response()->json(['message' => $result['message']], 429)->header('Retry-After', '60');
                 }
                 ['message' => $return_message, 'deployment_uuid' => $deployment_uuid] = $result;
                 if ($deployment_uuid) {
-                    $deployments->push(['message' => $return_message, 'resource_uuid' => $uuid, 'deployment_uuid' => $deployment_uuid->toString()]);
+                    $deployments->push(['message' => $return_message, 'resource_uuid' => $resourceUuid, 'deployment_uuid' => $deployment_uuid->toString()]);
                 } else {
-                    $deployments->push(['message' => $return_message, 'resource_uuid' => $uuid]);
+                    $deployments->push(['message' => $return_message, 'resource_uuid' => $resourceUuid]);
                 }
             }
         }
@@ -443,7 +444,7 @@ class DeployController extends Controller
         return response()->json(['message' => 'No resources found.'], 404);
     }
 
-    public function by_tags(string $tags, int $team_id, bool $force = false)
+    public function by_tags(string $tags, int $team_id, bool $force = false): JsonResponse
     {
         $tags = explode(',', $tags);
         $tags = collect(array_filter($tags));
@@ -470,7 +471,7 @@ class DeployController extends Controller
             foreach ($applications as $resource) {
                 $result = $this->deploy_resource($resource, $force);
                 if (isset($result['status']) && $result['status'] === 429) {
-                    return response()->json(['message' => $result['message']], 429)->header('Retry-After', 60);
+                    return response()->json(['message' => $result['message']], 429)->header('Retry-After', '60');
                 }
                 ['message' => $return_message, 'deployment_uuid' => $deployment_uuid] = $result;
                 if ($deployment_uuid) {
@@ -495,14 +496,15 @@ class DeployController extends Controller
         return response()->json(['message' => 'No resources found with this tag.'], 404);
     }
 
-    public function deploy_resource($resource, bool $force = false, int $pr = 0, ?string $dockerTag = null): array
+    /** @return array{message: string|null, deployment_uuid: Cuid2|null, status?: int} */
+    public function deploy_resource(mixed $resource, bool $force = false, int $pr = 0, ?string $dockerTag = null): array
     {
         $message = null;
         $deployment_uuid = null;
         if (gettype($resource) !== 'object') {
             return ['message' => "Resource ($resource) not found.", 'deployment_uuid' => $deployment_uuid];
         }
-        switch ($resource?->getMorphClass()) {
+        switch ($resource->getMorphClass()) {
             case Application::class:
                 // Check authorization for application deployment
                 try {
@@ -532,7 +534,7 @@ class DeployController extends Controller
                         'resource_type' => 'application',
                         'application_uuid' => $resource->uuid,
                         'application_name' => $resource->name,
-                        'deployment_uuid' => $deployment_uuid?->toString(),
+                        'deployment_uuid' => $deployment_uuid->toString(),
                         'force_rebuild' => $force,
                         'pull_request_id' => $pr,
                     ]);
@@ -670,7 +672,7 @@ class DeployController extends Controller
             ),
         ]
     )]
-    public function get_application_deployments(Request $request)
+    public function get_application_deployments(Request $request): JsonResponse
     {
         $request->validate([
             'skip' => ['nullable', 'integer', 'min:0'],

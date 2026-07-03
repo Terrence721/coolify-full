@@ -17,7 +17,7 @@ class DecideWhatToDoWithUser
             refreshSession($currentTeam);
         }
         if (auth()?->user()?->currentTeam()) {
-            refreshSession(auth()->user()->currentTeam());
+            refreshSession(currentTeam());
         } elseif (auth()?->user()?->teams?->count() > 0) {
             // User's session team is invalid (e.g., removed from team), switch to first available team
             refreshSession(auth()->user()->teams->first());

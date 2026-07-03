@@ -96,8 +96,10 @@ function splitOnOperatorOutsideNested(string $content): ?array
     return null;
 }
 
-function replaceVariables(string $variable): Stringable
+function replaceVariables(string|Stringable $variable): Stringable
 {
+    $variable = (string) $variable;
+
     // Handle ${VAR} syntax with proper brace matching
     $str = str($variable);
 

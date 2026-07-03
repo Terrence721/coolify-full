@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
 use OpenApi\Attributes as OA;
 
 /**
@@ -77,7 +78,8 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         });
 
         static::saving(function ($team) {
-            if (auth()->user()?->isMember()) {
+            $user = Auth::user();
+            if ($user instanceof User && $user->isMember()) {
                 throw new \Exception('You are not allowed to update this team.');
             }
         });

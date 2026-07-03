@@ -42,7 +42,7 @@ class Sentinel extends Component
 
     public function getListeners()
     {
-        $teamId = $this->server->team_id ?? auth()->user()->currentTeam()->id;
+        $teamId = $this->server->team_id ?? currentTeam()->id;
 
         return [
             "echo-private:team.{$teamId},SentinelRestarted" => 'handleSentinelRestarted',

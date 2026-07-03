@@ -11,7 +11,7 @@ class CleanupRedis extends Command
 
     protected $description = 'Cleanup Redis (Horizon jobs, metrics, overlapping queues, cache locks, and related data)';
 
-    public function handle()
+    public function handle(): int
     {
         $redis = Redis::connection('horizon');
         $prefix = config('horizon.prefix');
@@ -67,9 +67,11 @@ class CleanupRedis extends Command
         } else {
             $this->info("Redis cleanup: deleted {$deletedCount} items");
         }
+
+        return self::SUCCESS;
     }
 
-    private function shouldDeleteHashKey($redis, $keyWithoutPrefix, $dryRun)
+    private function shouldDeleteHashKey(mixed $redis, string $keyWithoutPrefix, bool $dryRun): bool
     {
         $data = $redis->command('hgetall', [$keyWithoutPrefix]);
         $status = data_get($data, 'status');
@@ -86,7 +88,7 @@ class CleanupRedis extends Command
         return false;
     }
 
-    private function shouldDeleteOtherKey($redis, $keyWithoutPrefix, $fullKey, $dryRun)
+    private function shouldDeleteOtherKey(mixed $redis, string $keyWithoutPrefix, string $fullKey, bool $dryRun): bool
     {
         // Clean up various Horizon data structures
         $patterns = [
@@ -128,7 +130,7 @@ class CleanupRedis extends Command
         return false;
     }
 
-    private function cleanupOverlappingQueues($redis, $prefix, $dryRun)
+    private function cleanupOverlappingQueues(mixed $redis, string $prefix, bool $dryRun): int
     {
         $cleanedCount = 0;
         $queueKeys = [];
@@ -170,15 +172,18 @@ class CleanupRedis extends Command
         return $cleanedCount;
     }
 
-    private function deduplicateQueueGroup($redis, $baseName, $keys, $dryRun)
+    /**
+     * @param  array<int, string>  $keys
+     */
+    private function deduplicateQueueGroup(mixed $redis, string $baseName, array $keys, bool $dryRun): int
     {
         $cleanedCount = 0;
 
         // Sort keys to keep the most recent one
         usort($keys, function ($a, $b) {
             // Prefer keys without timestamps (they're usually the main queue)
-            $aHasTimestamp = preg_match('/\d{10}/', $a);
-            $bHasTimestamp = preg_match('/\d{10}/', $b);
+            $aHasTimestamp = preg_match('/\d{10}/', $a) === 1;
+            $bHasTimestamp = preg_match('/\d{10}/', $b) === 1;
 
             if ($aHasTimestamp && ! $bHasTimestamp) {
                 return 1;
@@ -233,7 +238,7 @@ class CleanupRedis extends Command
         return $cleanedCount;
     }
 
-    private function deduplicateQueueContents($redis, $queueKey, $dryRun)
+    private function deduplicateQueueContents(mixed $redis, string $queueKey, bool $dryRun): int
     {
         $cleanedCount = 0;
         $type = $redis->command('type', [$queueKey]);
