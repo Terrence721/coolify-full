@@ -23,16 +23,25 @@ class EmailChannel
         try {
             // Get team and validate membership before proceeding
             $team = data_get($notifiable, 'id');
-            $members = Team::find($team)->members;
+            $teamModel = Team::find($team);
+            if (! $teamModel) {
+                throw new Exception('Team not found for notification');
+            }
+            $members = $teamModel->members;
 
-            $useInstanceEmailSettings = $notifiable->emailNotificationSettings->use_instance_email_settings;
+            $emailNotificationSettings = data_get($notifiable, 'emailNotificationSettings');
+            if (! $emailNotificationSettings) {
+                return;
+            }
+
+            $useInstanceEmailSettings = (bool) data_get($emailNotificationSettings, 'use_instance_email_settings');
             $isTransactionalEmail = data_get($notification, 'isTransactionalEmail', false);
             $customEmails = data_get($notification, 'emails', null);
 
             if ($useInstanceEmailSettings || $isTransactionalEmail) {
                 $settings = instanceSettings();
             } else {
-                $settings = $notifiable->emailNotificationSettings;
+                $settings = $emailNotificationSettings;
             }
 
             $isResendEnabled = $settings->resend_enabled;
@@ -70,6 +79,10 @@ class EmailChannel
                         throw new Exception('Recipient is not part of the team');
                     }
                 }
+            }
+
+            if (! method_exists($notification, 'toMail')) {
+                return;
             }
 
             $mailMessage = $notification->toMail($notifiable);

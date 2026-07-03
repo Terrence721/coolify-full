@@ -34,7 +34,7 @@ use Visus\Cuid2\Cuid2;
 
 class ApplicationsController extends Controller
 {
-    private function removeSensitiveData($application)
+    private function removeSensitiveData(mixed $application): mixed
     {
         $application->makeHidden([
             'id',
@@ -106,7 +106,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function applications(Request $request)
+    public function applications(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -290,7 +290,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_public_application(Request $request)
+    public function create_public_application(Request $request): JsonResponse
     {
         return $this->create_application($request, 'public');
     }
@@ -456,7 +456,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_private_gh_app_application(Request $request)
+    public function create_private_gh_app_application(Request $request): JsonResponse
     {
         return $this->create_application($request, 'private-gh-app');
     }
@@ -622,7 +622,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_private_deploy_key_application(Request $request)
+    public function create_private_deploy_key_application(Request $request): JsonResponse
     {
         return $this->create_application($request, 'private-deploy-key');
     }
@@ -759,7 +759,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_dockerfile_application(Request $request)
+    public function create_dockerfile_application(Request $request): JsonResponse
     {
         return $this->create_application($request, 'dockerfile');
     }
@@ -893,12 +893,12 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_dockerimage_application(Request $request)
+    public function create_dockerimage_application(Request $request): JsonResponse
     {
         return $this->create_application($request, 'dockerimage');
     }
 
-    private function create_application(Request $request, $type)
+    private function create_application(Request $request, string $type): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1944,7 +1944,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function application_by_uuid(Request $request)
+    public function application_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2025,7 +2025,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function logs_by_uuid(Request $request)
+    public function logs_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2119,7 +2119,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function delete_by_uuid(Request $request)
+    public function delete_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2328,7 +2328,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function update_by_uuid(Request $request)
+    public function update_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2729,7 +2729,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function envs(Request $request)
+    public function envs(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2834,7 +2834,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function update_env_by_uuid(Request $request)
+    public function update_env_by_uuid(Request $request): JsonResponse
     {
         $allowedFields = ['key', 'value', 'is_preview', 'is_literal', 'is_multiline', 'is_shown_once', 'is_runtime', 'is_buildtime', 'comment'];
         $teamId = getTeamIdFromToken();
@@ -2885,7 +2885,7 @@ class ApplicationsController extends Controller
         }
         $is_preview = $request->is_preview ?? false;
         $is_literal = $request->is_literal ?? false;
-        $key = str($request->key)->trim()->replace(' ', '_')->value;
+        $key = str($request->key)->trim()->replace(' ', '_')->value();
         if ($is_preview) {
             $env = $application->environment_variables_preview->where('key', $key)->first();
             if ($env) {
@@ -3052,7 +3052,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_bulk_envs(Request $request)
+    public function create_bulk_envs(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
 
@@ -3106,7 +3106,7 @@ class ApplicationsController extends Controller
             $is_literal = $item->get('is_literal') ?? false;
             $is_multi_line = $item->get('is_multiline') ?? false;
             $is_shown_once = $item->get('is_shown_once') ?? false;
-            $key = str($item->get('key'))->trim()->replace(' ', '_')->value;
+            $key = str($item->get('key'))->trim()->replace(' ', '_')->value();
             if ($is_preview) {
                 $env = $application->environment_variables_preview->where('key', $key)->first();
                 if ($env) {
@@ -3265,7 +3265,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function create_env(Request $request)
+    public function create_env(Request $request): JsonResponse
     {
         $allowedFields = ['key', 'value', 'is_preview', 'is_literal', 'is_multiline', 'is_shown_once', 'is_runtime', 'is_buildtime', 'comment'];
         $teamId = getTeamIdFromToken();
@@ -3310,7 +3310,7 @@ class ApplicationsController extends Controller
             ], 422);
         }
         $is_preview = $request->is_preview ?? false;
-        $key = str($request->key)->trim()->replace(' ', '_')->value;
+        $key = str($request->key)->trim()->replace(' ', '_')->value();
 
         if ($is_preview) {
             $env = $application->environment_variables_preview->where('key', $key)->first();
@@ -3440,7 +3440,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function delete_env_by_uuid(Request $request)
+    public function delete_env_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3550,7 +3550,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function action_deploy(Request $request)
+    public function action_deploy(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3664,7 +3664,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function action_stop(Request $request)
+    public function action_stop(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3750,7 +3750,7 @@ class ApplicationsController extends Controller
             ),
         ]
     )]
-    public function action_restart(Request $request)
+    public function action_restart(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3796,7 +3796,7 @@ class ApplicationsController extends Controller
         );
     }
 
-    private function validateDataApplications(Request $request, Server $server)
+    private function validateDataApplications(Request $request, Server $server): ?JsonResponse
     {
         $teamId = getTeamIdFromToken();
 
@@ -3886,6 +3886,8 @@ class ApplicationsController extends Controller
                 ], 409);
             }
         }
+
+        return null;
     }
 
     #[OA\Get(

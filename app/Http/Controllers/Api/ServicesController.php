@@ -22,7 +22,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class ServicesController extends Controller
 {
-    private function removeSensitiveData($service)
+    private function removeSensitiveData(mixed $service): mixed
     {
         $service->makeHidden([
             'id',
@@ -42,6 +42,10 @@ class ServicesController extends Controller
         return serializeApiResponse($service);
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $urlsArray
+     * @return array<string, mixed>|null
+     */
     private function applyServiceUrls(Service $service, array $urlsArray, string $teamId, bool $forceDomainOverride = false): ?array
     {
         $errors = [];
@@ -169,7 +173,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function services(Request $request)
+    public function services(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -291,7 +295,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function create_service(Request $request)
+    public function create_service(Request $request): JsonResponse
     {
         $allowedFields = ['type', 'name', 'description', 'project_uuid', 'environment_name', 'environment_uuid', 'server_uuid', 'destination_uuid', 'instant_deploy', 'docker_compose_raw', 'urls', 'force_domain_override', 'is_container_label_escape_enabled'];
 
@@ -676,6 +680,10 @@ class ServicesController extends Controller
                 'valid_service_types' => $serviceKeys,
             ], 404);
         }
+
+        return response()->json([
+            'message' => 'You need to provide either service type or docker_compose_raw.',
+        ], 422);
     }
 
     #[OA\Get(
@@ -717,7 +725,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function service_by_uuid(Request $request)
+    public function service_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -784,7 +792,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function delete_by_uuid(Request $request)
+    public function delete_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -940,7 +948,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function update_by_uuid(Request $request)
+    public function update_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1129,7 +1137,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function envs(Request $request)
+    public function envs(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1233,7 +1241,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function update_env_by_uuid(Request $request)
+    public function update_env_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1375,7 +1383,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function create_bulk_envs(Request $request)
+    public function create_bulk_envs(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1501,7 +1509,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function create_env(Request $request)
+    public function create_env(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1617,7 +1625,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function delete_env_by_uuid(Request $request)
+    public function delete_env_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1704,7 +1712,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function action_deploy(Request $request)
+    public function action_deploy(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1799,7 +1807,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function action_stop(Request $request)
+    public function action_stop(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -1897,7 +1905,7 @@ class ServicesController extends Controller
             ),
         ]
     )]
-    public function action_restart(Request $request)
+    public function action_restart(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2154,7 +2162,7 @@ class ServicesController extends Controller
                 'mount_path' => $request->mount_path,
                 'host_path' => $request->host_path,
                 'resource_id' => data_get($subResource, 'id'),
-                'resource_type' => method_exists($subResource, 'getMorphClass') ? $subResource->getMorphClass() : get_class($subResource),
+                'resource_type' => $subResource->getMorphClass(),
             ]);
 
             return response()->json($storage, 201);

@@ -27,7 +27,7 @@ use OpenApi\Attributes as OA;
 
 class DatabasesController extends Controller
 {
-    private function removeSensitiveData($database)
+    private function removeSensitiveData(mixed $database): mixed
     {
         $database->makeHidden([
             'id',
@@ -77,7 +77,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function databases(Request $request)
+    public function databases(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -148,7 +148,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function database_backup_details_uuid(Request $request)
+    public function database_backup_details_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -212,7 +212,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function database_by_uuid(Request $request)
+    public function database_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -331,7 +331,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function update_by_uuid(Request $request)
+    public function update_by_uuid(Request $request): JsonResponse
     {
         $allowedFields = ['name', 'description', 'image', 'public_port', 'public_port_timeout', 'is_public', 'instant_deploy', 'limits_memory', 'limits_memory_swap', 'limits_memory_swappiness', 'limits_memory_reservation', 'limits_cpus', 'limits_cpuset', 'limits_cpu_shares', 'postgres_user', 'postgres_password', 'postgres_db', 'postgres_initdb_args', 'postgres_host_auth_method', 'postgres_conf', 'clickhouse_admin_user', 'clickhouse_admin_password', 'dragonfly_password', 'redis_password', 'redis_conf', 'keydb_password', 'keydb_conf', 'mariadb_conf', 'mariadb_root_password', 'mariadb_user', 'mariadb_password', 'mariadb_database', 'mongo_conf', 'mongo_initdb_root_username', 'mongo_initdb_root_password', 'mongo_initdb_database', 'mysql_root_password', 'mysql_password', 'mysql_user', 'mysql_database', 'mysql_conf'];
         $teamId = getTeamIdFromToken();
@@ -699,7 +699,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_backup(Request $request)
+    public function create_backup(Request $request): JsonResponse
     {
         $backupConfigFields = ['save_s3', 'enabled', 'dump_all', 'frequency', 'databases_to_backup', 'database_backup_retention_amount_locally', 'database_backup_retention_days_locally', 'database_backup_retention_max_storage_locally', 'database_backup_retention_amount_s3', 'database_backup_retention_days_s3', 'database_backup_retention_max_storage_s3', 's3_storage_uuid', 'timeout'];
 
@@ -940,7 +940,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function update_backup(Request $request)
+    public function update_backup(Request $request): JsonResponse
     {
         $backupConfigFields = ['save_s3', 'enabled', 'dump_all', 'frequency', 'databases_to_backup', 'database_backup_retention_amount_locally', 'database_backup_retention_days_locally', 'database_backup_retention_max_storage_locally', 'database_backup_retention_amount_s3', 'database_backup_retention_days_s3', 'database_backup_retention_max_storage_s3', 's3_storage_uuid', 'timeout'];
 
@@ -1155,7 +1155,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_postgresql(Request $request)
+    public function create_database_postgresql(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::POSTGRESQL);
     }
@@ -1223,7 +1223,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_clickhouse(Request $request)
+    public function create_database_clickhouse(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::CLICKHOUSE);
     }
@@ -1290,7 +1290,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_dragonfly(Request $request)
+    public function create_database_dragonfly(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::DRAGONFLY);
     }
@@ -1358,7 +1358,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_redis(Request $request)
+    public function create_database_redis(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::REDIS);
     }
@@ -1426,7 +1426,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_keydb(Request $request)
+    public function create_database_keydb(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::KEYDB);
     }
@@ -1497,7 +1497,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_mariadb(Request $request)
+    public function create_database_mariadb(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::MARIADB);
     }
@@ -1568,7 +1568,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_mysql(Request $request)
+    public function create_database_mysql(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::MYSQL);
     }
@@ -1636,7 +1636,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_database_mongodb(Request $request)
+    public function create_database_mongodb(Request $request): JsonResponse
     {
         return $this->create_database($request, NewDatabaseTypes::MONGODB);
     }
@@ -1662,7 +1662,7 @@ class DatabasesController extends Controller
         if (! empty($extraFields)) {
             $errors = collect([]);
             foreach ($extraFields as $field) {
-                $errors->add($field, 'This field is not allowed.');
+                $errors->put($field, ['This field is not allowed.']);
             }
 
             return response()->json([
@@ -2242,7 +2242,6 @@ class DatabasesController extends Controller
             return response()->json(serializeApiResponse($payload))->setStatusCode(201);
         }
 
-        return response()->json(['message' => 'Invalid database type requested.'], 400);
     }
 
     #[OA\Delete(
@@ -2299,7 +2298,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function delete_by_uuid(Request $request)
+    public function delete_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2390,7 +2389,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function delete_backup_by_uuid(Request $request)
+    public function delete_backup_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2427,11 +2426,12 @@ class DatabasesController extends Controller
 
             // Delete all execution files (locally and optionally from S3)
             foreach ($executions as $execution) {
-                if ($execution->filename) {
-                    deleteBackupsLocally($execution->filename, $database->destination->server);
+                $executionFilename = data_get($execution, 'filename');
+                if (filled($executionFilename)) {
+                    deleteBackupsLocally((string) $executionFilename, $database->destination->server);
 
                     if ($deleteS3 && $backup->s3) {
-                        deleteBackupsS3($execution->filename, $backup->s3);
+                        deleteBackupsS3((string) $executionFilename, $backup->s3);
                     }
                 }
 
@@ -2458,6 +2458,10 @@ class DatabasesController extends Controller
 
             return response()->json(['message' => 'Failed to delete backup.'], 500);
         }
+
+        abort(400, 'Invalid database type requested.');
+
+        return response()->json(['message' => 'Invalid database type requested.'], 400);
     }
 
     #[OA\Delete(
@@ -2522,7 +2526,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function delete_execution_by_uuid(Request $request)
+    public function delete_execution_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2562,11 +2566,12 @@ class DatabasesController extends Controller
         $deleteS3 = $request->boolean('delete_s3', false);
 
         try {
-            if ($execution->filename) {
-                deleteBackupsLocally($execution->filename, $database->destination->server);
+            $executionFilename = data_get($execution, 'filename');
+            if (filled($executionFilename)) {
+                deleteBackupsLocally((string) $executionFilename, $database->destination->server);
 
                 if ($deleteS3 && $backup->s3) {
-                    deleteBackupsS3($execution->filename, $backup->s3);
+                    deleteBackupsS3((string) $executionFilename, $backup->s3);
                 }
             }
 
@@ -2644,7 +2649,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function list_backup_executions(Request $request)
+    public function list_backup_executions(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2675,13 +2680,15 @@ class DatabasesController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($execution) {
+                $createdAt = data_get($execution, 'created_at');
+
                 return [
-                    'uuid' => $execution->uuid,
-                    'filename' => $execution->filename,
-                    'size' => $execution->size,
-                    'created_at' => $execution->created_at->toIso8601String(),
-                    'message' => $execution->message,
-                    'status' => $execution->status,
+                    'uuid' => (string) data_get($execution, 'uuid'),
+                    'filename' => (string) data_get($execution, 'filename'),
+                    'size' => (int) data_get($execution, 'size', 0),
+                    'created_at' => method_exists($createdAt, 'toIso8601String') ? $createdAt->toIso8601String() : null,
+                    'message' => (string) data_get($execution, 'message', ''),
+                    'status' => (string) data_get($execution, 'status', ''),
                 ];
             });
 
@@ -2740,7 +2747,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function action_deploy(Request $request)
+    public function action_deploy(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2836,7 +2843,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function action_stop(Request $request)
+    public function action_stop(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2926,7 +2933,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function action_restart(Request $request)
+    public function action_restart(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -2960,7 +2967,7 @@ class DatabasesController extends Controller
         );
     }
 
-    private function removeSensitiveEnvData($env)
+    private function removeSensitiveEnvData(mixed $env): mixed
     {
         $env->makeHidden([
             'id',
@@ -3026,7 +3033,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function envs(Request $request)
+    public function envs(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3117,7 +3124,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function update_env_by_uuid(Request $request)
+    public function update_env_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3147,7 +3154,7 @@ class DatabasesController extends Controller
             ], 422);
         }
 
-        $key = str($request->key)->trim()->replace(' ', '_')->value;
+        $key = str($request->key)->trim()->replace(' ', '_')->value();
         $env = $database->environment_variables()->where('key', $key)->first();
         if (! $env) {
             return response()->json(['message' => 'Environment variable not found.'], 404);
@@ -3258,7 +3265,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_bulk_envs(Request $request)
+    public function create_bulk_envs(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3294,7 +3301,7 @@ class DatabasesController extends Controller
                     'errors' => $validator->errors(),
                 ], 422);
             }
-            $key = str($item['key'])->trim()->replace(' ', '_')->value;
+            $key = str($item['key'])->trim()->replace(' ', '_')->value();
             $env = $database->environment_variables()->updateOrCreate(
                 ['key' => $key],
                 $item
@@ -3383,7 +3390,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function create_env(Request $request)
+    public function create_env(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -3413,7 +3420,7 @@ class DatabasesController extends Controller
             ], 422);
         }
 
-        $key = str($request->key)->trim()->replace(' ', '_')->value;
+        $key = str($request->key)->trim()->replace(' ', '_')->value();
         $existingEnv = $database->environment_variables()->where('key', $key)->first();
         if ($existingEnv) {
             return response()->json([
@@ -3499,7 +3506,7 @@ class DatabasesController extends Controller
             ),
         ]
     )]
-    public function delete_env_by_uuid(Request $request)
+    public function delete_env_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

@@ -3,6 +3,7 @@
 namespace App\Actions\Database;
 
 use App\Helpers\SslHelper;
+use App\Models\Server;
 use App\Models\SslCertificate;
 use App\Models\StandaloneMongodb;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,13 +15,14 @@ class StartMongodb
 
     public StandaloneMongodb $database;
 
+    /** @var array<int, string> */
     public array $commands = [];
 
     public string $configuration_dir;
 
     private ?SslCertificate $ssl_certificate = null;
 
-    public function handle(StandaloneMongodb $database)
+    public function handle(StandaloneMongodb $database): mixed
     {
         $this->database = $database;
 
@@ -60,7 +62,10 @@ class StartMongodb
             $this->commands[] = "echo 'Setting up SSL for this database.'";
             $this->commands[] = "mkdir -p $this->configuration_dir/ssl";
 
-            $server = $this->database->destination->server;
+            $server = data_get($this->database, 'destination.server');
+            if (! $server instanceof Server) {
+                return null;
+            }
             $caCert = $server->sslCertificates()->where('is_ca_certificate', true)->first();
 
             if (! $caCert) {
@@ -71,7 +76,7 @@ class StartMongodb
             if (! $caCert) {
                 $this->dispatch('error', 'No CA certificate found for this database. Please generate a CA certificate for this server in the server/advanced page.');
 
-                return;
+                return null;
             }
             $this->ssl_certificate = $this->database->sslCertificates()->first();
 
@@ -135,7 +140,8 @@ class StartMongodb
             data_set($docker_compose, "services.{$container_name}.cpuset", $this->database->limits_cpuset);
         }
 
-        if ($this->database->destination->server->isLogDrainEnabled() && $this->database->isLogDrainEnabled()) {
+        $server = data_get($this->database, 'destination.server');
+        if ($server instanceof Server && $server->isLogDrainEnabled() && $this->database->isLogDrainEnabled()) {
             $docker_compose['services'][$container_name]['logging'] = generate_fluentd_configuration();
         }
 
@@ -215,7 +221,9 @@ class StartMongodb
                 $commandParts = ['mongod', '--config', '/etc/mongo/mongod.conf'];
             }
 
-            $sslConfig = match ($this->database->ssl_mode) {
+            /** @var 'allow'|'prefer'|'require'|'verify-full' $sslMode */
+            $sslMode = (string) $this->database->ssl_mode;
+            $sslConfigByMode = [
                 'allow' => [
                     '--tlsMode=allowTLS',
                     '--tlsAllowConnectionsWithoutCertificates',
@@ -235,8 +243,8 @@ class StartMongodb
                     '--tlsMode=requireTLS',
                     '--tlsAllowInvalidHostnames',
                 ],
-                default => [],
-            };
+            ];
+            $sslConfig = $sslConfigByMode[$sslMode];
 
             $commandParts = [...$commandParts, ...$sslConfig];
             $commandParts[] = '--tlsCAFile';
@@ -265,10 +273,11 @@ class StartMongodb
         }
         $this->commands[] = "echo 'Database started.'";
 
-        return remote_process($this->commands, $database->destination->server, callEventOnFinish: 'DatabaseStatusChanged');
+        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
     }
 
-    private function generate_local_persistent_volumes()
+    /** @return array<int, string> */
+    private function generate_local_persistent_volumes(): array
     {
         $local_persistent_volumes = [];
         foreach ($this->database->persistentStorages as $persistentStorage) {
@@ -283,7 +292,8 @@ class StartMongodb
         return $local_persistent_volumes;
     }
 
-    private function generate_local_persistent_volumes_only_volume_names()
+    /** @return array<string, array{name: string, external: bool}> */
+    private function generate_local_persistent_volumes_only_volume_names(): array
     {
         $local_persistent_volumes_names = [];
         foreach ($this->database->persistentStorages as $persistentStorage) {
@@ -300,7 +310,8 @@ class StartMongodb
         return $local_persistent_volumes_names;
     }
 
-    private function generate_environment_variables()
+    /** @return array<int, string> */
+    private function generate_environment_variables(): array
     {
         $environment_variables = collect();
         foreach ($this->database->runtime_environment_variables as $env) {
@@ -324,7 +335,7 @@ class StartMongodb
         return $environment_variables->all();
     }
 
-    private function add_custom_mongo_conf()
+    private function add_custom_mongo_conf(): void
     {
         if (is_null($this->database->mongo_conf) || empty($this->database->mongo_conf)) {
             return;
@@ -335,7 +346,7 @@ class StartMongodb
         $this->commands[] = "echo '{$content_base64}' | base64 -d | tee $this->configuration_dir/{$filename} > /dev/null";
     }
 
-    private function add_default_database()
+    private function add_default_database(): void
     {
         $dbJson = json_encode($this->database->mongo_initdb_database, JSON_UNESCAPED_SLASHES);
         $userJson = json_encode($this->database->mongo_initdb_root_username, JSON_UNESCAPED_SLASHES);

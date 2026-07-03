@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -43,7 +44,10 @@ class ScheduledTask extends BaseModel
         'service_id',
     ];
 
-    public static function ownedByCurrentTeamAPI(int $teamId)
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeamAPI(int $teamId): Builder
     {
         return static::where('team_id', $teamId)->orderBy('created_at', 'desc');
     }

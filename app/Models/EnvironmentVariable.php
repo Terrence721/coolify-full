@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property string $key
+ * @property string|null $value
+ * @property bool $is_literal
+ * @property bool $is_multiline
+ * @property bool $is_required
+ * @property bool $is_shared
+ * @property mixed $resourceable
+ * @property-read string|null $real_value
+ */
 #[OA\Schema(
     description: 'Environment Variable model',
     type: 'object',
@@ -33,16 +43,6 @@ use OpenApi\Attributes as OA;
         'updated_at' => ['type' => 'string'],
     ]
 )]
-/**
- * @property string $key
- * @property string|null $value
- * @property bool $is_literal
- * @property bool $is_multiline
- * @property bool $is_required
- * @property bool $is_shared
- * @property mixed $resourceable
- * @property-read string|null $real_value
- */
 class EnvironmentVariable extends BaseModel
 {
     public const BUILDPACK_CONTROL_VARIABLE_PREFIXES = ['NIXPACKS_', 'RAILPACK_'];

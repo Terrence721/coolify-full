@@ -28,17 +28,17 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
     /**
      * The number of times the job may be attempted.
      */
-    public $tries = 3;
+    public int $tries = 3;
 
     /**
      * The maximum number of unhandled exceptions to allow before failing.
      */
-    public $maxExceptions = 1;
+    public int $maxExceptions = 1;
 
     /**
      * The number of seconds the job can run before timing out.
      */
-    public $timeout = 300;
+    public int $timeout = 300;
 
     public ?Team $team = null;
 
@@ -59,6 +59,9 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
 
     public ?string $task_output = null;
 
+    /**
+     * @var array<int, string>
+     */
     public array $containers = [];
 
     public string $server_timezone = 'UTC';
@@ -78,25 +81,52 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
             'application.destination.server.settings',
         ]);
 
-        if ($this->task->service) {
-            $this->resource = $this->task->service;
-        } elseif ($this->task->application) {
-            $this->resource = $this->task->application;
+        $service = $this->task->service()->first();
+        if ($service instanceof Service) {
+            $this->resource = $service;
         } else {
+            $application = $this->task->application()->first();
+            if ($application instanceof Application) {
+                $this->resource = $application;
+            }
+        }
+
+        if (! $this->resource instanceof Application && ! $this->resource instanceof Service) {
             throw new \RuntimeException('ScheduledTaskJob failed: No resource found.');
         }
 
         $this->team = Team::findOrFail($this->task->team_id);
         $this->server_timezone = $this->getServerTimezone();
-        $this->server = $this->resource->destination->server;
+        $this->server = $this->resolveResourceServer();
+
+        if (! $this->server instanceof Server) {
+            throw new \RuntimeException('ScheduledTaskJob failed: No server found for resource.');
+        }
+    }
+
+    private function resolveResourceServer(): ?Server
+    {
+        if ($this->resource instanceof Application) {
+            $destination = $this->resource->destination()->first();
+            $server = data_get($destination, 'server');
+
+            return $server instanceof Server ? $server : null;
+        }
+
+        if ($this->resource instanceof Service) {
+            $server = data_get($this->resource, 'server');
+
+            return $server instanceof Server ? $server : null;
+        }
+
+        return null;
     }
 
     private function getServerTimezone(): string
     {
-        if ($this->resource instanceof Application) {
-            return $this->resource->destination->server->settings->server_timezone;
-        } elseif ($this->resource instanceof Service) {
-            return $this->resource->server->settings->server_timezone;
+        $server = $this->resolveResourceServer();
+        if ($server instanceof Server) {
+            return (string) data_get($server, 'settings.server_timezone', 'UTC');
         }
 
         return 'UTC';
@@ -178,7 +208,7 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
                 'job' => 'ScheduledTaskJob',
                 'task_id' => $this->task->uuid,
                 'task_name' => $this->task->name,
-                'server' => $this->server?->name ?? 'unknown',
+                'server' => $this->server instanceof Server ? $this->server->name : 'unknown',
                 'attempt' => $this->attempts(),
                 'error' => $e->getMessage(),
             ]);
@@ -194,7 +224,7 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
 
             if ($this->task_log) {
                 $finishedAt = Carbon::now();
-                $duration = round($startTime->floatDiffInSeconds($finishedAt), 2);
+                $duration = round((float) $startTime->diffInMilliseconds($finishedAt) / 1000, 2);
 
                 $this->task_log->update([
                     'finished_at' => $finishedAt->toImmutable(),
@@ -206,6 +236,8 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
 
     /**
      * Calculate the number of seconds to wait before retrying the job.
+     *
+     * @return array<int, int>
      */
     public function backoff(): array
     {
@@ -223,7 +255,7 @@ class ScheduledTaskJob implements ShouldBeEncrypted, ShouldQueue
             'job' => 'ScheduledTaskJob',
             'task_id' => $this->task->uuid,
             'task_name' => $this->task->name,
-            'server' => $this->server?->name ?? 'unknown',
+            'server' => $this->server instanceof Server ? $this->server->name : 'unknown',
             'total_attempts' => $this->attempts(),
             'error' => $exception?->getMessage(),
             'trace' => $exception?->getTraceAsString(),

@@ -7,9 +7,22 @@ use App\Traits\HasDatabaseHealthCheck;
 use App\Traits\HasMetrics;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property-read string $internal_db_url
+ * @property-read string|null $external_db_url
+ * @property string|null $redis_username
+ * @property string|null $redis_password
+ * @property-read StandaloneDocker|SwarmDocker|null $destination
+ * @property-read Server|mixed|null $server
+ * @property-read string $database_type
+ * @property-read Collection<int, EnvironmentVariable> $runtime_environment_variables
+ * @property-read Collection<int, LocalPersistentVolume> $persistentStorages
+ * @property-read array<int, string> $ports_mappings_array
+ */
 class StandaloneRedis extends BaseModel
 {
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, SoftDeletes;
@@ -101,7 +114,12 @@ class StandaloneRedis extends BaseModel
      */
     public static function ownedByCurrentTeam()
     {
-        return StandaloneRedis::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+        if (! $team) {
+            return StandaloneRedis::query()->whereRaw('0=1');
+        }
+
+        return StandaloneRedis::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**

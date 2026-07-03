@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Rules\SafeWebhookUrl;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -66,14 +67,22 @@ class S3Storage extends BaseModel
         });
     }
 
-    public static function ownedByCurrentTeam(array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(array $select = ['*']): Builder
     {
         $selectArray = collect($select)->concat(['id']);
 
         return S3Storage::whereTeamId(currentTeam()->id)->select($selectArray->all())->orderBy('name');
     }
 
-    public static function ownedByCurrentTeamAPI(int $teamId, array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeamAPI(int $teamId, array $select = ['*']): Builder
     {
         $selectArray = collect($select)->concat(['id']);
 

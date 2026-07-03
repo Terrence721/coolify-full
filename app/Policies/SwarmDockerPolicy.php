@@ -20,7 +20,9 @@ class SwarmDockerPolicy
      */
     public function view(User $user, SwarmDocker $swarmDocker): bool
     {
-        return $user->teams->contains('id', $swarmDocker->server->team_id);
+        $server = $swarmDocker->server()->first();
+
+        return $server ? $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**
@@ -37,7 +39,9 @@ class SwarmDockerPolicy
      */
     public function update(User $user, SwarmDocker $swarmDocker): bool
     {
-        return $user->teams->contains('id', $swarmDocker->server->team_id);
+        $server = $swarmDocker->server()->first();
+
+        return $server ? $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**
@@ -45,7 +49,9 @@ class SwarmDockerPolicy
      */
     public function delete(User $user, SwarmDocker $swarmDocker): bool
     {
-        return $user->teams->contains('id', $swarmDocker->server->team_id);
+        $server = $swarmDocker->server()->first();
+
+        return $server ? $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**

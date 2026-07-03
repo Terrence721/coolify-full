@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @property string $name
+ * @property string $mount_path
+ * @property string|null $host_path
+ */
 class LocalPersistentVolume extends BaseModel
 {
     protected $fillable = [

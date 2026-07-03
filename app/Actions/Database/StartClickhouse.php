@@ -2,6 +2,7 @@
 
 namespace App\Actions\Database;
 
+use App\Models\Server;
 use App\Models\StandaloneClickhouse;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Yaml\Yaml;
@@ -12,11 +13,12 @@ class StartClickhouse
 
     public StandaloneClickhouse $database;
 
+    /** @var array<int, string> */
     public array $commands = [];
 
     public string $configuration_dir;
 
-    public function handle(StandaloneClickhouse $database)
+    public function handle(StandaloneClickhouse $database): mixed
     {
         $this->database = $database;
 
@@ -72,7 +74,8 @@ class StartClickhouse
         if (! is_null($this->database->limits_cpuset)) {
             data_set($docker_compose, "services.{$container_name}.cpuset", $this->database->limits_cpuset);
         }
-        if ($this->database->destination->server->isLogDrainEnabled() && $this->database->isLogDrainEnabled()) {
+        $server = data_get($this->database, 'destination.server');
+        if ($server instanceof Server && $server->isLogDrainEnabled() && $this->database->isLogDrainEnabled()) {
             $docker_compose['services'][$container_name]['logging'] = generate_fluentd_configuration();
         }
         if (count($this->database->ports_mappings_array) > 0) {
@@ -109,10 +112,11 @@ class StartClickhouse
         $this->commands[] = "docker compose -f $this->configuration_dir/docker-compose.yml up -d";
         $this->commands[] = "echo 'Database started.'";
 
-        return remote_process($this->commands, $database->destination->server, callEventOnFinish: 'DatabaseStatusChanged');
+        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
     }
 
-    private function generate_local_persistent_volumes()
+    /** @return array<int, string> */
+    private function generate_local_persistent_volumes(): array
     {
         $local_persistent_volumes = [];
         foreach ($this->database->persistentStorages as $persistentStorage) {
@@ -127,7 +131,8 @@ class StartClickhouse
         return $local_persistent_volumes;
     }
 
-    private function generate_local_persistent_volumes_only_volume_names()
+    /** @return array<string, array{name: string, external: bool}> */
+    private function generate_local_persistent_volumes_only_volume_names(): array
     {
         $local_persistent_volumes_names = [];
         foreach ($this->database->persistentStorages as $persistentStorage) {
@@ -144,7 +149,8 @@ class StartClickhouse
         return $local_persistent_volumes_names;
     }
 
-    private function generate_environment_variables()
+    /** @return array<int, string> */
+    private function generate_environment_variables(): array
     {
         $environment_variables = collect();
         foreach ($this->database->runtime_environment_variables as $env) {

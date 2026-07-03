@@ -25,6 +25,11 @@ class TransactionalEmailChannel
         if (! $email) {
             return;
         }
+
+        if (! method_exists($notification, 'toMail')) {
+            return;
+        }
+
         $this->bootConfigs();
         $mailMessage = $notification->toMail($notifiable);
         Mail::send(

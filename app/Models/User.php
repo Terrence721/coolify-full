@@ -27,6 +27,9 @@ use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property-read Team|null $currentTeam
+ */
 #[OA\Schema(
     description: 'User model',
     type: 'object',

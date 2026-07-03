@@ -12,8 +12,12 @@ class SlackChannel
      */
     public function send(SendsSlack $notifiable, Notification $notification): void
     {
+        if (! method_exists($notification, 'toSlack')) {
+            return;
+        }
+
         $message = $notification->toSlack();
-        $slackSettings = $notifiable->slackNotificationSettings;
+        $slackSettings = data_get($notifiable, 'slackNotificationSettings');
 
         if (! $slackSettings || ! $slackSettings->isEnabled() || ! $slackSettings->slack_webhook_url) {
             return;

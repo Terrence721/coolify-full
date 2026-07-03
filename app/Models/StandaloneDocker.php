@@ -8,6 +8,11 @@ use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+/**
+ * @property int $server_id
+ * @property string $network
+ * @property-read Server|null $server
+ */
 class StandaloneDocker extends BaseModel
 {
     use HasFactory;

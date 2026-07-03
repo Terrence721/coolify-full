@@ -6,6 +6,7 @@ use App\Actions\Server\CleanupDocker;
 use App\Events\DockerCleanupDone;
 use App\Models\DockerCleanupExecution;
 use App\Models\Server;
+use App\Models\Team;
 use App\Notifications\Server\DockerCleanupFailed;
 use App\Notifications\Server\DockerCleanupSuccess;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
@@ -21,14 +23,25 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 600;
+    public int $timeout = 600;
 
-    public $tries = 1;
+    public int $tries = 1;
 
     public ?string $usageBefore = null;
 
     public ?DockerCleanupExecution $execution_log = null;
 
+    private function notifyServerTeam(Notification $notification): void
+    {
+        $team = $this->server->team;
+        if ($team instanceof Team) {
+            $team->notify($notification);
+        }
+    }
+
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('docker-cleanup-'.$this->server->uuid))->expireAfter(600)->dontRelease()];
@@ -62,7 +75,7 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
 
             $this->usageBefore = $this->server->getDiskUsage();
 
-            if ($this->manualCleanup || $this->server->settings->force_docker_cleanup) {
+            if ($this->manualCleanup || (bool) data_get($this->server, 'settings.force_docker_cleanup', false)) {
                 $cleanup_log = CleanupDocker::run(
                     server: $this->server,
                     deleteUnusedVolumes: $this->deleteUnusedVolumes,
@@ -77,13 +90,13 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
                     'cleanup_log' => $cleanup_log,
                 ]);
 
-                $this->server->team?->notify(new DockerCleanupSuccess($this->server, $message));
+                $this->notifyServerTeam(new DockerCleanupSuccess($this->server, $message));
                 event(new DockerCleanupDone($this->execution_log));
 
                 return;
             }
 
-            if (str($this->usageBefore)->isEmpty() || $this->usageBefore === null || $this->usageBefore === 0) {
+            if (str($this->usageBefore)->isEmpty() || $this->usageBefore === null || (float) $this->usageBefore === 0.0) {
                 $cleanup_log = CleanupDocker::run(
                     server: $this->server,
                     deleteUnusedVolumes: $this->deleteUnusedVolumes,
@@ -97,20 +110,20 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
                     'cleanup_log' => $cleanup_log,
                 ]);
 
-                $this->server->team?->notify(new DockerCleanupSuccess($this->server, $message));
+                $this->notifyServerTeam(new DockerCleanupSuccess($this->server, $message));
                 event(new DockerCleanupDone($this->execution_log));
 
                 return;
             }
 
-            if ($this->usageBefore >= $this->server->settings->docker_cleanup_threshold) {
+            if ((float) $this->usageBefore >= (float) data_get($this->server, 'settings.docker_cleanup_threshold', 0)) {
                 $cleanup_log = CleanupDocker::run(
                     server: $this->server,
                     deleteUnusedVolumes: $this->deleteUnusedVolumes,
                     deleteUnusedNetworks: $this->deleteUnusedNetworks
                 );
                 $usageAfter = $this->server->getDiskUsage();
-                $diskSaved = $this->usageBefore - $usageAfter;
+                $diskSaved = (float) $this->usageBefore - (float) ($usageAfter ?? 0);
 
                 if ($diskSaved > 0) {
                     $message = 'Saved '.$diskSaved.'% disk space. Disk usage before: '.$this->usageBefore.'%, Disk usage after: '.$usageAfter.'%.';
@@ -124,7 +137,7 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
                     'cleanup_log' => $cleanup_log,
                 ]);
 
-                $this->server->team?->notify(new DockerCleanupSuccess($this->server, $message));
+                $this->notifyServerTeam(new DockerCleanupSuccess($this->server, $message));
                 event(new DockerCleanupDone($this->execution_log));
             } else {
                 $message = 'No cleanup needed for '.$this->server->name;
@@ -134,7 +147,7 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
                     'message' => $message,
                 ]);
 
-                $this->server->team?->notify(new DockerCleanupSuccess($this->server, $message));
+                $this->notifyServerTeam(new DockerCleanupSuccess($this->server, $message));
                 event(new DockerCleanupDone($this->execution_log));
             }
         } catch (\Throwable $e) {
@@ -145,7 +158,7 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
                 ]);
                 event(new DockerCleanupDone($this->execution_log));
             }
-            $this->server->team?->notify(new DockerCleanupFailed($this->server, 'Docker cleanup job failed with the following error: '.$e->getMessage()));
+            $this->notifyServerTeam(new DockerCleanupFailed($this->server, 'Docker cleanup job failed with the following error: '.$e->getMessage()));
             throw $e;
         } finally {
             if ($this->execution_log) {

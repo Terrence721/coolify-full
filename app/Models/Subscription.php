@@ -3,7 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property-read Team|null $team
+ */
 class Subscription extends Model
 {
     protected $fillable = [
@@ -27,7 +31,7 @@ class Subscription extends Model
         ];
     }
 
-    public function team()
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }

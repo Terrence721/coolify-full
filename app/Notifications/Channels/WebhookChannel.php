@@ -22,6 +22,10 @@ class WebhookChannel
             return;
         }
 
+        if (! method_exists($notification, 'toWebhook')) {
+            return;
+        }
+
         $payload = $notification->toWebhook();
 
         if (isDev()) {

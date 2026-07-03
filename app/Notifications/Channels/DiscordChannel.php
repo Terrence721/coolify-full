@@ -12,9 +12,13 @@ class DiscordChannel
      */
     public function send(SendsDiscord $notifiable, Notification $notification): void
     {
+        if (! method_exists($notification, 'toDiscord')) {
+            return;
+        }
+
         $message = $notification->toDiscord();
 
-        $discordSettings = $notifiable->discordNotificationSettings;
+        $discordSettings = data_get($notifiable, 'discordNotificationSettings');
 
         if (! $discordSettings || ! $discordSettings->isEnabled() || ! $discordSettings->discord_webhook_url) {
             return;

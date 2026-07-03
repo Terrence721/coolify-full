@@ -11,12 +11,22 @@ use App\Notifications\Channels\SendsSlack;
 use App\Traits\HasNotificationSettings;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property-read Collection<int, User> $members
+ * @property-read Collection<int, Server> $servers
+ * @property-read Subscription|null $subscription
+ * @property-read int $limits
+ */
 #[OA\Schema(
     description: 'Team model',
     type: 'object',
@@ -37,7 +47,6 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-
 class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, SendsSlack
 {
     use HasFactory, HasNotificationSettings, HasSafeStringAttribute, Notifiable;
@@ -243,12 +252,12 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         }
     }
 
-    public function environment_variables()
+    public function environment_variables(): HasMany
     {
         return $this->hasMany(SharedEnvironmentVariable::class)->where('type', 'team');
     }
 
-    public function members()
+    public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id')->withPivot('role');
     }
@@ -258,12 +267,12 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return $this->hasOne(Subscription::class);
     }
 
-    public function applications()
+    public function applications(): HasManyThrough
     {
         return $this->hasManyThrough(Application::class, Project::class);
     }
 
-    public function invitations()
+    public function invitations(): HasMany
     {
         return $this->hasMany(TeamInvitation::class);
     }
@@ -277,17 +286,17 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return false;
     }
 
-    public function projects()
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
     }
 
-    public function servers()
+    public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
     }
 
-    public function privateKeys()
+    public function privateKeys(): HasMany
     {
         return $this->hasMany(PrivateKey::class);
     }

@@ -11,6 +11,7 @@ use App\Actions\Shared\ComplexStatusCheck;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
 use App\Models\Server;
+use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
 use App\Models\StandaloneClickhouse;
@@ -29,6 +30,8 @@ use App\Traits\CalculatesExcludedStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -43,66 +46,93 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     use CalculatesExcludedStatus;
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 30;
+    public int $timeout = 30;
 
+    /** @var Collection<int, array<string, mixed>> */
     public Collection $containers;
 
+    /** @var Collection<int, Application> */
     public Collection $applications;
 
+    /** @var Collection<int, ApplicationPreview> */
     public Collection $previews;
 
+    /** @var Collection<int, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse> */
     public Collection $databases;
 
+    /** @var Collection<int, Service> */
     public Collection $services;
 
+    /** @var Collection<string, Application> */
     public Collection $applicationsById;
 
+    /** @var Collection<string, ApplicationPreview> */
     public Collection $previewsByKey;
 
+    /** @var Collection<string, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse> */
     public Collection $databasesByUuid;
 
+    /** @var Collection<string, Service> */
     public Collection $servicesById;
 
+    /** @var Collection<string, Model> */
     public Collection $serviceApplicationsById;
 
+    /** @var Collection<string, Model> */
     public Collection $serviceDatabasesById;
 
+    /** @var Collection<int, int> */
     public Collection $allApplicationIds;
 
+    /** @var Collection<int, string> */
     public Collection $allDatabaseUuids;
 
+    /** @var Collection<int, string> */
     public Collection $allTcpProxyUuids;
 
+    /** @var Collection<int, string> */
     public Collection $allServiceApplicationIds;
 
+    /** @var Collection<int, mixed> */
     public Collection $allApplicationPreviewsIds;
 
+    /** @var Collection<int, string> */
     public Collection $allServiceDatabaseIds;
 
+    /** @var Collection<int, Application> */
     public Collection $allApplicationsWithAdditionalServers;
 
+    /** @var Collection<int, int|string> */
     public Collection $foundApplicationIds;
 
+    /** @var Collection<int, string> */
     public Collection $foundDatabaseUuids;
 
+    /** @var Collection<int, string> */
     public Collection $foundServiceApplicationIds;
 
+    /** @var Collection<int, string> */
     public Collection $foundServiceDatabaseIds;
 
+    /** @var Collection<int, string> */
     public Collection $foundApplicationPreviewsIds;
 
+    /** @var Collection<string, Collection<string, string>> */
     public Collection $applicationContainerStatuses;
 
+    /** @var Collection<string, Collection<string, string>> */
     public Collection $serviceContainerStatuses;
 
     public bool $foundProxy = false;
 
     public bool $foundLogDrainContainer = false;
 
+    /** @var array{Collection<int, int>, Collection<int, int>}|null */
     private ?array $cachedDestinationIds = null;
 
+    /** @return array<int, WithoutOverlapping> */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('push-server-update-'.$this->server->uuid))->expireAfter(30)->dontRelease()];
@@ -113,7 +143,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         return isDev() ? 1 : 3;
     }
 
-    public function __construct(public Server $server, public $data)
+    public function __construct(public Server $server, public mixed $data)
     {
         $this->containers = collect();
         $this->foundApplicationIds = collect();
@@ -136,7 +166,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         $this->serviceDatabasesById = collect();
     }
 
-    public function handle()
+    public function handle(): void
     {
         // Keep collection properties in a known state after queue deserialization.
         $this->serviceContainerStatuses = collect();
@@ -166,10 +196,10 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         if (! $this->data) {
             throw new \Exception('No data provided');
         }
-        $data = collect($this->data);
+        $data = collect((array) $this->data);
 
         // Heartbeat is updated by SentinelController on every push, before dispatch.
-        $this->containers = collect(data_get($data, 'containers'));
+        $this->containers = collect((array) data_get($data, 'containers', []));
         $filesystemUsageRoot = data_get($data, 'filesystem_usage_root.used_percentage');
 
         // Only dispatch the storage check when disk usage is at/above the notification
@@ -200,8 +230,8 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         $this->previewsByKey = $this->previews->keyBy(fn ($preview) => $preview->application_id.':'.$preview->pull_request_id);
         $this->databasesByUuid = $this->databases->keyBy('uuid');
         $this->servicesById = $this->services->keyBy(fn ($service) => (string) $service->id);
-        $this->serviceApplicationsById = $this->services->flatMap(fn ($service) => $service->applications)->keyBy(fn ($application) => (string) $application->id);
-        $this->serviceDatabasesById = $this->services->flatMap(fn ($service) => $service->databases)->keyBy(fn ($database) => (string) $database->id);
+        $this->serviceApplicationsById = $this->services->flatMap(fn ($service) => $service->applications)->keyBy(fn ($application) => (string) data_get($application, 'id'));
+        $this->serviceDatabasesById = $this->services->flatMap(fn ($service) => $service->databases)->keyBy(fn ($database) => (string) data_get($database, 'id'));
 
         $this->allApplicationIds = $this->applications->filter(function ($application) {
             return $application->additional_servers_count === 0;
@@ -225,7 +255,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             if ($containerStatus !== 'exited') {
                 $containerStatus = "$containerStatus:$containerHealth";
             }
-            $labels = collect(data_get($container, 'labels'));
+            $labels = collect((array) data_get($container, 'labels', []));
             $coolify_managed = $labels->has('coolify.managed');
 
             if (! $coolify_managed) {
@@ -329,6 +359,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         $this->checkLogDrainContainer();
     }
 
+    /** @return Collection<int, Application> */
     private function loadApplications(): Collection
     {
         [$standaloneDockerIds, $swarmDockerIds] = $this->serverDestinationIds();
@@ -349,7 +380,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
                 ->withCount('additional_servers')
                 ->where(fn ($query) => $this->scopeDestination($query, $standaloneDockerIds, $swarmDockerIds))
                 ->get()
-            : collect();
+            : collect([]);
 
         $additionalApplicationIds = DB::table('additional_destinations')
             ->where('server_id', $this->server->id)
@@ -378,12 +409,13 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         return $applications->unique('id')->values();
     }
 
+    /** @return Collection<int, ApplicationPreview> */
     private function loadPreviews(): Collection
     {
         $applicationIds = $this->applications->pluck('id');
 
         if ($applicationIds->isEmpty()) {
-            return collect();
+            return collect([]);
         }
 
         return ApplicationPreview::query()
@@ -398,6 +430,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             ->get();
     }
 
+    /** @return Collection<int, Service> */
     private function loadServices(): Collection
     {
         return $this->server->services()
@@ -414,11 +447,12 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             ->get();
     }
 
+    /** @return Collection<int, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse> */
     private function loadDatabases(): Collection
     {
         [$standaloneDockerIds, $swarmDockerIds] = $this->serverDestinationIds();
         if ($standaloneDockerIds->isEmpty() && $swarmDockerIds->isEmpty()) {
-            return collect();
+            return collect([]);
         }
         $databaseColumns = [
             'id',
@@ -434,7 +468,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             'last_restart_type',
         ];
 
-        return collect([
+        $databaseClasses = [
             StandalonePostgresql::class,
             StandaloneRedis::class,
             StandaloneMongodb::class,
@@ -443,14 +477,26 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             StandaloneKeydb::class,
             StandaloneDragonfly::class,
             StandaloneClickhouse::class,
-        ])->flatMap(function (string $databaseClass) use ($databaseColumns, $standaloneDockerIds, $swarmDockerIds) {
-            return $databaseClass::query()
+        ];
+
+        $databases = collect([]);
+        foreach ($databaseClasses as $databaseClass) {
+            $databases = $databases->concat($databaseClass::query()
                 ->select($databaseColumns)
-                ->where(fn ($query) => $this->scopeDestination($query, $standaloneDockerIds, $swarmDockerIds))
-                ->get();
-        })->filter(fn ($database) => data_get($database, 'name') !== 'coolify-db')->values();
+                ->where(function (Builder $query) use ($standaloneDockerIds) {
+                    $query->where('destination_type', StandaloneDocker::class)
+                        ->whereIn('destination_id', $standaloneDockerIds);
+                })->orWhere(function (Builder $query) use ($swarmDockerIds) {
+                    $query->where('destination_type', SwarmDocker::class)
+                        ->whereIn('destination_id', $swarmDockerIds);
+                })
+                ->get());
+        }
+
+        return $databases->filter(fn ($database) => data_get($database, 'name') !== 'coolify-db')->values();
     }
 
+    /** @return array{Collection<int, int>, Collection<int, int>} */
     private function serverDestinationIds(): array
     {
         if ($this->cachedDestinationIds !== null) {
@@ -463,18 +509,24 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         ];
     }
 
-    private function scopeDestination($query, Collection $standaloneDockerIds, Collection $swarmDockerIds): void
+    /**
+     * @template TModel of Model
+     * @param Builder<TModel> $query
+     * @param Collection<int, int> $standaloneDockerIds
+     * @param Collection<int, int> $swarmDockerIds
+     */
+    private function scopeDestination(Builder $query, Collection $standaloneDockerIds, Collection $swarmDockerIds): void
     {
-        $query->where(function ($query) use ($standaloneDockerIds) {
+        $query->where(function (Builder $query) use ($standaloneDockerIds) {
             $query->where('destination_type', StandaloneDocker::class)
                 ->whereIn('destination_id', $standaloneDockerIds);
-        })->orWhere(function ($query) use ($swarmDockerIds) {
+        })->orWhere(function (Builder $query) use ($swarmDockerIds) {
             $query->where('destination_type', SwarmDocker::class)
                 ->whereIn('destination_id', $swarmDockerIds);
         });
     }
 
-    private function aggregateMultiContainerStatuses()
+    private function aggregateMultiContainerStatuses(): void
     {
         if ($this->applicationContainerStatuses->isEmpty()) {
             return;
@@ -499,8 +551,8 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             if ($relevantStatuses->isEmpty()) {
                 $aggregatedStatus = $this->calculateExcludedStatusFromStrings($containerStatuses);
 
-                if ($aggregatedStatus && $application->status !== $aggregatedStatus) {
-                    $application->status = $aggregatedStatus;
+                if ($aggregatedStatus && data_get($application, 'status') !== $aggregatedStatus) {
+                    $application->setAttribute('status', $aggregatedStatus);
                     $application->save();
                 }
 
@@ -513,14 +565,14 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             $aggregatedStatus = $aggregator->aggregateFromStrings($relevantStatuses, 0, preserveRestarting: true);
 
             // Update application status with aggregated result
-            if ($aggregatedStatus && $application->status !== $aggregatedStatus) {
-                $application->status = $aggregatedStatus;
+            if ($aggregatedStatus && data_get($application, 'status') !== $aggregatedStatus) {
+                $application->setAttribute('status', $aggregatedStatus);
                 $application->save();
             }
         }
     }
 
-    private function aggregateServiceContainerStatuses()
+    private function aggregateServiceContainerStatuses(): void
     {
         if ($this->serviceContainerStatuses->isEmpty()) {
             return;
@@ -563,9 +615,9 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             // If all containers are excluded, calculate status from excluded containers
             if ($relevantStatuses->isEmpty()) {
                 $aggregatedStatus = $this->calculateExcludedStatusFromStrings($containerStatuses);
-                if ($aggregatedStatus && $subResource->status !== $aggregatedStatus) {
-                    $subResource->status = $aggregatedStatus;
-                    $subResource->save();
+                    if ($aggregatedStatus && data_get($subResource, 'status') !== $aggregatedStatus) {
+                        $subResource->setAttribute('status', $aggregatedStatus);
+                        $subResource->save();
                 }
 
                 continue;
@@ -578,26 +630,14 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             $aggregatedStatus = $aggregator->aggregateFromStrings($relevantStatuses, 0, preserveRestarting: true);
 
             // Update service sub-resource status with aggregated result
-            if ($aggregatedStatus && $subResource->status !== $aggregatedStatus) {
-                $subResource->status = $aggregatedStatus;
+            if ($aggregatedStatus && data_get($subResource, 'status') !== $aggregatedStatus) {
+                $subResource->setAttribute('status', $aggregatedStatus);
                 $subResource->save();
             }
         }
     }
 
-    private function updateApplicationStatus(string $applicationId, string $containerStatus)
-    {
-        $application = $this->applicationsById->get((string) $applicationId);
-        if (! $application) {
-            return;
-        }
-        if ($application->status !== $containerStatus) {
-            $application->status = $containerStatus;
-            $application->save();
-        }
-    }
-
-    private function updateApplicationPreviewStatus(string $applicationId, string $pullRequestId, string $containerStatus)
+    private function updateApplicationPreviewStatus(string $applicationId, string $pullRequestId, string $containerStatus): void
     {
         $application = $this->previewsByKey->get($applicationId.':'.$pullRequestId);
         if (! $application) {
@@ -609,7 +649,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         }
     }
 
-    private function updateNotFoundApplicationStatus()
+    private function updateNotFoundApplicationStatus(): void
     {
         $notFoundApplicationIds = $this->allApplicationIds->diff($this->foundApplicationIds);
         if ($notFoundApplicationIds->isEmpty()) {
@@ -628,7 +668,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             ->update(['status' => 'exited']);
     }
 
-    private function updateNotFoundApplicationPreviewStatus()
+    private function updateNotFoundApplicationPreviewStatus(): void
     {
         $notFoundApplicationPreviewsIds = $this->allApplicationPreviewsIds->diff($this->foundApplicationPreviewsIds);
         if ($notFoundApplicationPreviewsIds->isEmpty()) {
@@ -666,7 +706,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         }
     }
 
-    private function updateProxyStatus()
+    private function updateProxyStatus(): void
     {
         // If proxy is not found, start it
         if ($this->server->isProxyShouldRun()) {
@@ -690,7 +730,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         }
     }
 
-    private function updateDatabaseStatus(string $databaseUuid, string $containerStatus, bool $tcpProxy = false)
+    private function updateDatabaseStatus(string $databaseUuid, string $containerStatus, bool $tcpProxy = false): void
     {
         $database = $this->databasesByUuid->get($databaseUuid);
         if (! $database) {
@@ -719,7 +759,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         }
     }
 
-    private function updateNotFoundDatabaseStatus()
+    private function updateNotFoundDatabaseStatus(): void
     {
         $notFoundDatabaseUuids = $this->allDatabaseUuids->diff($this->foundDatabaseUuids);
         if ($notFoundDatabaseUuids->isEmpty()) {
@@ -750,7 +790,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         });
     }
 
-    private function updateNotFoundServiceStatus()
+    private function updateNotFoundServiceStatus(): void
     {
         $notFoundServiceApplicationIds = $this->allServiceApplicationIds->diff($this->foundServiceApplicationIds);
         $notFoundServiceDatabaseIds = $this->allServiceDatabaseIds->diff($this->foundServiceDatabaseIds);
@@ -770,14 +810,14 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         }
     }
 
-    private function updateAdditionalServersStatus()
+    private function updateAdditionalServersStatus(): void
     {
         $this->allApplicationsWithAdditionalServers->each(function ($application) {
             ComplexStatusCheck::run($application);
         });
     }
 
-    private function isRunning(string $containerStatus)
+    private function isRunning(string $containerStatus): bool
     {
         return str($containerStatus)->contains('running');
     }
@@ -799,7 +839,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
                str($containerStatus)->contains('paused');
     }
 
-    private function checkLogDrainContainer()
+    private function checkLogDrainContainer(): void
     {
         if ($this->server->isLogDrainEnabled() && $this->foundLogDrainContainer === false) {
             StartLogDrain::dispatch($this->server);

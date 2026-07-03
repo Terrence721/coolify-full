@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * @property-read S3Storage|null $s3
+ */
 class ScheduledDatabaseBackup extends BaseModel
 {
     protected function casts(): array
@@ -39,12 +43,18 @@ class ScheduledDatabaseBackup extends BaseModel
         'disable_local_backup',
     ];
 
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return ScheduledDatabaseBackup::whereRelation('team', 'id', currentTeam()->id)->orderBy('created_at', 'desc');
     }
 
-    public static function ownedByCurrentTeamAPI(int $teamId)
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeamAPI(int $teamId): Builder
     {
         return ScheduledDatabaseBackup::whereRelation('team', 'id', $teamId)->orderBy('created_at', 'desc');
     }
@@ -70,7 +80,7 @@ class ScheduledDatabaseBackup extends BaseModel
         return $this->hasMany(ScheduledDatabaseBackupExecution::class)->orderBy('created_at', 'desc');
     }
 
-    public function s3()
+    public function s3(): BelongsTo
     {
         return $this->belongsTo(S3Storage::class, 's3_storage_id');
     }

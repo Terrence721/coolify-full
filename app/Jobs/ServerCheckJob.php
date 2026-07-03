@@ -7,6 +7,7 @@ use App\Actions\Proxy\CheckProxy;
 use App\Actions\Proxy\StartProxy;
 use App\Actions\Server\StartLogDrain;
 use App\Models\Server;
+use App\Models\Team;
 use App\Notifications\Container\ContainerRestarted;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
@@ -16,18 +17,33 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\TimeoutExceededException;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class ServerCheckJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 60;
+    public int $timeout = 60;
 
-    public $containers;
+    /**
+     * @var Collection<int, array<string, mixed>>|null
+     */
+    public $containers = null;
 
+    private function notifyServerTeam(ContainerRestarted $notification): void
+    {
+        $team = $this->server->team;
+        if ($team instanceof Team) {
+            $team->notify($notification);
+        }
+    }
+
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('server-check-'.$this->server->uuid))->expireAfter(60)->dontRelease()];
@@ -49,7 +65,7 @@ class ServerCheckJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    public function handle()
+    public function handle(): ?string
     {
         try {
             if ($this->server->serverStatus() === false) {
@@ -71,7 +87,7 @@ class ServerCheckJob implements ShouldBeEncrypted, ShouldQueue
                     $this->checkLogDrainContainer();
                 }
 
-                if ($this->server->proxySet() && ! $this->server->proxy->force_stop) {
+                if ($this->server->proxySet() && ! (bool) data_get($this->server, 'proxy.force_stop', false)) {
                     $this->server->proxyType();
                     $foundProxyContainer = $this->containers->filter(function ($value, $key) {
                         if ($this->server->isSwarm()) {
@@ -85,23 +101,28 @@ class ServerCheckJob implements ShouldBeEncrypted, ShouldQueue
                             $shouldStart = CheckProxy::run($this->server);
                             if ($shouldStart) {
                                 StartProxy::run($this->server, async: false);
-                                $this->server->team?->notify(new ContainerRestarted('coolify-proxy', $this->server));
+                                $this->notifyServerTeam(new ContainerRestarted('coolify-proxy', $this->server));
                             }
                         } catch (\Throwable $e) {
                         }
                     } else {
-                        $this->server->proxy->status = data_get($foundProxyContainer, 'State.Status');
-                        $this->server->save();
+                        $proxy = $this->server->proxy;
+                        if ($proxy) {
+                            $proxy->setAttribute('status', data_get($foundProxyContainer, 'State.Status'));
+                            $proxy->save();
+                        }
                         ConnectProxyToNetworksJob::dispatchSync($this->server);
                     }
                 }
             }
+
+            return null;
         } catch (\Throwable $e) {
-            return handleError($e);
+            return (string) handleError($e);
         }
     }
 
-    private function checkLogDrainContainer()
+    private function checkLogDrainContainer(): void
     {
         $foundLogDrainContainer = $this->containers->filter(function ($value, $key) {
             return data_get($value, 'Name') === '/coolify-log-drain';

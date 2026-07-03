@@ -11,10 +11,14 @@ use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasConfiguration;
 use App\Traits\HasMetrics;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -27,6 +31,20 @@ use Spatie\Url\Url;
 use Symfony\Component\Yaml\Yaml;
 use Visus\Cuid2\Cuid2;
 
+/**
+ * @property-read ApplicationSetting $settings
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Server> $additional_servers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StandaloneDocker> $additional_networks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, LocalPersistentVolume> $persistentStorages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, LocalFileVolume> $fileStorages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $environment_variables
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $environment_variables_preview
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $runtime_environment_variables
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $runtime_environment_variables_preview
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $nixpacks_environment_variables
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $nixpacks_environment_variables_preview
+ * @property-read array<int, string> $ports_mappings_array
+ */
 #[OA\Schema(
     description: 'Application model',
     type: 'object',
@@ -116,7 +134,6 @@ use Visus\Cuid2\Cuid2;
         'http_basic_auth_password' => ['type' => 'string', 'nullable' => true, 'description' => 'Password for HTTP Basic Authentication'],
     ]
 )]
-
 class Application extends BaseModel
 {
     use ClearsGlobalSearchCache, HasConfiguration, HasFactory, HasMetrics, HasSafeStringAttribute, SoftDeletes;
@@ -439,7 +456,7 @@ class Application extends BaseModel
     /**
      * Check if a string is a valid JSON
      */
-    private function isJson($string)
+    private function isJson(string $string)
     {
         if (! is_string($string)) {
             return false;
@@ -449,7 +466,10 @@ class Application extends BaseModel
         return json_last_error() === JSON_ERROR_NONE;
     }
 
-    public static function ownedByCurrentTeamAPI(int $teamId)
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeamAPI(int $teamId): Builder
     {
         return Application::whereRelation('environment.project.team', 'id', $teamId)->orderBy('name');
     }
@@ -458,9 +478,17 @@ class Application extends BaseModel
      * Get query builder for applications owned by current team.
      * If you need all applications without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
-        return Application::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        $team = currentTeam();
+        if (! $team) {
+            return Application::whereRaw('1 = 0');
+        }
+
+        return Application::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**
@@ -516,13 +544,13 @@ class Application extends BaseModel
         instant_remote_process(["docker network rm {$uuid}"], $server, false);
     }
 
-    public function additional_servers()
+    public function additional_servers(): BelongsToMany
     {
         return $this->belongsToMany(Server::class, 'additional_destinations')
             ->withPivot('standalone_docker_id', 'status');
     }
 
-    public function additional_networks()
+    public function additional_networks(): BelongsToMany
     {
         return $this->belongsToMany(StandaloneDocker::class, 'additional_destinations')
             ->withPivot('server_id', 'status');
@@ -583,7 +611,7 @@ class Application extends BaseModel
             && $this->last_restart_type === 'crash';
     }
 
-    public function taskLink($task_uuid)
+    public function taskLink(string $task_uuid)
     {
         if (data_get($this, 'environment.project.uuid')) {
             $route = route('project.application.scheduled-tasks', [
@@ -609,17 +637,17 @@ class Application extends BaseModel
         return null;
     }
 
-    public function settings()
+    public function settings(): HasOne
     {
         return $this->hasOne(ApplicationSetting::class);
     }
 
-    public function persistentStorages()
+    public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
-    public function fileStorages()
+    public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
@@ -705,7 +733,7 @@ class Application extends BaseModel
         );
     }
 
-    public function gitCommitLink($link): string
+    public function gitCommitLink(string $link): string
     {
         $sourceHtmlUrl = data_get($this, 'source.html_url');
         if (! is_null($sourceHtmlUrl) && ! is_null(data_get($this, 'git_repository')) && ! is_null(data_get($this, 'git_branch'))) {
@@ -978,34 +1006,34 @@ class Application extends BaseModel
         return null;
     }
 
-    public function environment_variables()
+    public function environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', false);
     }
 
-    public function runtime_environment_variables()
+    public function runtime_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', false)
             ->withoutBuildpackControlVariables();
     }
 
-    public function nixpacks_environment_variables()
+    public function nixpacks_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', false)
             ->where('key', 'like', 'NIXPACKS_%');
     }
 
-    public function railpack_environment_variables()
+    public function railpack_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', false)
             ->where('key', 'like', 'RAILPACK_%');
     }
 
-    public function environment_variables_preview()
+    public function environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', true)
@@ -1019,21 +1047,21 @@ class Application extends BaseModel
             ");
     }
 
-    public function runtime_environment_variables_preview()
+    public function runtime_environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', true)
             ->withoutBuildpackControlVariables();
     }
 
-    public function nixpacks_environment_variables_preview()
+    public function nixpacks_environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', true)
             ->where('key', 'like', 'NIXPACKS_%');
     }
 
-    public function railpack_environment_variables_preview()
+    public function railpack_environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', true)
@@ -2102,7 +2130,7 @@ class Application extends BaseModel
         );
     }
 
-    protected function buildGitCheckoutCommand($target, ?string $gitSshCommand = null, ?string $gitConfigOptions = null): string
+    protected function buildGitCheckoutCommand(string $target, ?string $gitSshCommand = null, ?string $gitConfigOptions = null): string
     {
         $escapedTarget = escapeshellarg($target);
         $gitCommand = $gitConfigOptions ? "git {$gitConfigOptions}" : 'git';
@@ -2116,7 +2144,7 @@ class Application extends BaseModel
         return $command;
     }
 
-    private function parseWatchPaths($value)
+    private function parseWatchPaths(?string $value): ?string
     {
         if ($value) {
             $watch_paths = collect(explode("\n", $value))
@@ -2140,6 +2168,8 @@ class Application extends BaseModel
 
             return trim($watch_paths->implode("\n"));
         }
+
+        return null;
     }
 
     public function watchPaths(): Attribute
@@ -2325,7 +2355,7 @@ class Application extends BaseModel
         getFilesystemVolumesFromServer($this, $isInit);
     }
 
-    public function parseHealthcheckFromDockerfile($dockerfile, bool $isInit = false)
+    public function parseHealthcheckFromDockerfile(string $dockerfile, bool $isInit = false)
     {
         $dockerfile = str($dockerfile)->trim()->explode("\n");
         $hasHealthcheck = str($dockerfile)->contains('HEALTHCHECK');
@@ -2411,7 +2441,7 @@ class Application extends BaseModel
         return $generator->toArray();
     }
 
-    public function setConfig($config)
+    public function setConfig(string $config)
     {
         $validator = Validator::make(['config' => $config], [
             'config' => 'required|json',

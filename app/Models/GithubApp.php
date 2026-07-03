@@ -3,7 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
+/**
+ * @property-read Collection<int, Application> $applications
+ * @property-read Team|null $team
+ */
 class GithubApp extends BaseModel
 {
     protected $fillable = [
@@ -73,17 +80,17 @@ class GithubApp extends BaseModel
         });
     }
 
-    public function team()
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function applications()
+    public function applications(): MorphMany
     {
         return $this->morphMany(Application::class, 'source');
     }
 
-    public function privateKey()
+    public function privateKey(): BelongsTo
     {
         return $this->belongsTo(PrivateKey::class);
     }

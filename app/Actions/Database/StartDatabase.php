@@ -2,6 +2,7 @@
 
 namespace App\Actions\Database;
 
+use App\Models\Server;
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
@@ -22,10 +23,10 @@ class StartDatabase
         $job->onQueue(deployment_queue());
     }
 
-    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database)
+    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): mixed
     {
-        $server = $database->destination->server;
-        if (! $server->isFunctional()) {
+        $server = data_get($database, 'destination.server');
+        if (! $server instanceof Server || ! $server->isFunctional()) {
             return 'Server is not functional';
         }
         switch ($database->getMorphClass()) {

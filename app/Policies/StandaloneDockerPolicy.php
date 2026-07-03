@@ -20,7 +20,9 @@ class StandaloneDockerPolicy
      */
     public function view(User $user, StandaloneDocker $standaloneDocker): bool
     {
-        return $user->teams->contains('id', $standaloneDocker->server->team_id);
+        $server = $standaloneDocker->server()->first();
+
+        return $server ? $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**
@@ -37,7 +39,9 @@ class StandaloneDockerPolicy
      */
     public function update(User $user, StandaloneDocker $standaloneDocker): bool
     {
-        return $user->teams->contains('id', $standaloneDocker->server->team_id);
+        $server = $standaloneDocker->server()->first();
+
+        return $server ? $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**
@@ -45,7 +49,9 @@ class StandaloneDockerPolicy
      */
     public function delete(User $user, StandaloneDocker $standaloneDocker): bool
     {
-        return $user->teams->contains('id', $standaloneDocker->server->team_id);
+        $server = $standaloneDocker->server()->first();
+
+        return $server ? $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**

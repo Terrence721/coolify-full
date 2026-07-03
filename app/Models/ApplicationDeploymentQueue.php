@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Casts\EncryptedArrayCast;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Attributes as OA;
@@ -42,6 +43,9 @@ use OpenApi\Attributes as OA;
         'commit_message' => ['type' => 'string'],
     ],
 )]
+/**
+ * @property-read Application|null $application
+ */
 class ApplicationDeploymentQueue extends Model
 {
     protected $fillable = [
@@ -95,7 +99,7 @@ class ApplicationDeploymentQueue extends Model
         'configuration_diff' => EncryptedArrayCast::class,
     ];
 
-    public function application()
+    public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }

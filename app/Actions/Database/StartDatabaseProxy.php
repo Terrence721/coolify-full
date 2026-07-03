@@ -25,7 +25,7 @@ class StartDatabaseProxy
         $job->onQueue(deployment_queue());
     }
 
-    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse|ServiceDatabase $database)
+    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse|ServiceDatabase $database): void
     {
         $databaseType = $database->database_type;
         $network = data_get($database, 'destination.network');
@@ -60,7 +60,8 @@ class StartDatabaseProxy
         if (isDev()) {
             $host_configuration_dir = '/var/lib/docker/volumes/coolify_dev_coolify_data/_data/databases/'.$database->uuid.'/proxy';
         }
-        $timeoutConfig = $this->buildProxyTimeoutConfig($database->public_port_timeout);
+        $timeout = data_get($database, 'public_port_timeout');
+        $timeoutConfig = $this->buildProxyTimeoutConfig(is_int($timeout) ? $timeout : null);
         $nginxconf = <<<EOF
     user  nginx;
     worker_processes  auto;

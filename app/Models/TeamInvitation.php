@@ -2,8 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property-read Team|null $team
+ */
 class TeamInvitation extends Model
 {
     protected $fillable = [
@@ -23,12 +28,15 @@ class TeamInvitation extends Model
         $this->attributes['email'] = strtolower($value);
     }
 
-    public function team()
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return TeamInvitation::whereTeamId(currentTeam()->id);
     }

@@ -20,7 +20,7 @@ use Stringable;
 
 class ServersController extends Controller
 {
-    private function removeSensitiveDataFromSettings($settings)
+    private function removeSensitiveDataFromSettings(mixed $settings)
     {
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $settings = $settings->makeHidden([
@@ -31,7 +31,7 @@ class ServersController extends Controller
         return serializeApiResponse($settings);
     }
 
-    private function removeSensitiveData($server)
+    private function removeSensitiveData(ModelsServer $server)
     {
         $server->makeHidden([
             'id',
@@ -319,7 +319,7 @@ class ServersController extends Controller
 
                     return str(str($f[0])->explode(':')[0]);
                 })->filter(function (Stringable $fqdn) {
-                    return $fqdn->isNotEmpty();
+                    return (string) $fqdn !== '';
                 });
 
                 if ($ip === 'host.docker.internal') {
@@ -362,7 +362,7 @@ class ServersController extends Controller
 
                             return str(str($f[0])->explode(':')[0]);
                         })->filter(function (Stringable $fqdn) {
-                            return $fqdn->isNotEmpty();
+                            return $fqdn !== '';
                         });
                         $serviceIp = $server->ip;
                         if ($serviceIp === 'host.docker.internal') {

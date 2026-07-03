@@ -2,9 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property-read Service $service
+ */
 class ServiceDatabase extends BaseModel
 {
     use HasFactory, SoftDeletes;
@@ -50,7 +56,10 @@ class ServiceDatabase extends BaseModel
         });
     }
 
-    public static function ownedByCurrentTeamAPI(int $teamId)
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeamAPI(int $teamId): Builder
     {
         return ServiceDatabase::whereRelation('service.environment.project.team', 'id', $teamId)->orderBy('name');
     }
@@ -59,7 +68,10 @@ class ServiceDatabase extends BaseModel
      * Get query builder for service databases owned by current team.
      * If you need all service databases without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return ServiceDatabase::whereRelation('service.environment.project.team', 'id', currentTeam()->id)->orderBy('name');
     }
@@ -157,17 +169,17 @@ class ServiceDatabase extends BaseModel
         return service_configuration_dir()."/{$this->service->uuid}";
     }
 
-    public function service()
+    public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
-    public function persistentStorages()
+    public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
-    public function fileStorages()
+    public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
@@ -177,7 +189,7 @@ class ServiceDatabase extends BaseModel
         getFilesystemVolumesFromServer($this, $isInit);
     }
 
-    public function scheduledBackups()
+    public function scheduledBackups(): MorphMany
     {
         return $this->morphMany(ScheduledDatabaseBackup::class, 'database');
     }

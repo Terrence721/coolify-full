@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -82,6 +83,12 @@ use Visus\Cuid2\Cuid2;
  * - Server is fully up-to-date with the latest version
  * - Traefik image uses the 'latest' tag (no fixed version tracking)
  * - No Traefik version detected on the server
+ * @property-read ServerSetting $settings
+ * @property-read PrivateKey|null $privateKey
+ * @property-read CloudProviderToken|null $cloudProviderToken
+ * @property-read Team|null $team
+ * @property mixed $proxy
+ * @property array<string, mixed>|null $outdatedInfo
  *
  * @see CheckTraefikVersionForServerJob Where this data is populated
  * @see Proxy Where this data is read and displayed
@@ -1001,22 +1008,22 @@ $schema://$host {
         return $standalone_docker->concat($swarm_docker);
     }
 
-    public function standaloneDockers()
+    public function standaloneDockers(): HasMany
     {
         return $this->hasMany(StandaloneDocker::class);
     }
 
-    public function swarmDockers()
+    public function swarmDockers(): HasMany
     {
         return $this->hasMany(SwarmDocker::class);
     }
 
-    public function privateKey()
+    public function privateKey(): BelongsTo
     {
         return $this->belongsTo(PrivateKey::class);
     }
 
-    public function cloudProviderToken()
+    public function cloudProviderToken(): BelongsTo
     {
         return $this->belongsTo(CloudProviderToken::class);
     }

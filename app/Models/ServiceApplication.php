@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @property-read Service $service
+ */
 class ServiceApplication extends BaseModel
 {
     use HasFactory, SoftDeletes;
@@ -51,7 +57,10 @@ class ServiceApplication extends BaseModel
         instant_remote_process(["docker restart {$container_id}"], $this->service->server);
     }
 
-    public static function ownedByCurrentTeamAPI(int $teamId)
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeamAPI(int $teamId): Builder
     {
         return ServiceApplication::whereRelation('service.environment.project.team', 'id', $teamId)->orderBy('name');
     }
@@ -60,7 +69,10 @@ class ServiceApplication extends BaseModel
      * Get query builder for service applications owned by current team.
      * If you need all service applications without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return ServiceApplication::whereRelation('service.environment.project.team', 'id', currentTeam()->id)->orderBy('name');
     }
@@ -127,22 +139,22 @@ class ServiceApplication extends BaseModel
         return null;
     }
 
-    public function service()
+    public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
-    public function persistentStorages()
+    public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
-    public function fileStorages()
+    public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
 
-    public function environment_variables()
+    public function environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable');
     }

@@ -4,6 +4,11 @@ namespace App\Models;
 
 use App\Support\ValidationPatterns;
 
+/**
+ * @property int $server_id
+ * @property string $network
+ * @property-read Server|null $server
+ */
 class SwarmDocker extends BaseModel
 {
     protected $fillable = [
@@ -73,7 +78,12 @@ class SwarmDocker extends BaseModel
 
     public static function ownedByCurrentTeam()
     {
-        return static::whereHas('server', fn ($q) => $q->whereTeamId(currentTeam()->id));
+        $team = currentTeam();
+        if (! $team) {
+            return static::query()->whereRaw('0=1');
+        }
+
+        return static::whereHas('server', fn ($q) => $q->whereTeamId($team->id));
     }
 
     public static function ownedByCurrentTeamAPI(int $teamId)

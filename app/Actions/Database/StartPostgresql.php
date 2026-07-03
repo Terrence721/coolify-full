@@ -3,6 +3,7 @@
 namespace App\Actions\Database;
 
 use App\Helpers\SslHelper;
+use App\Models\Server;
 use App\Models\SslCertificate;
 use App\Models\StandalonePostgresql;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,15 +15,17 @@ class StartPostgresql
 
     public StandalonePostgresql $database;
 
+    /** @var array<int, string> */
     public array $commands = [];
 
+    /** @var array<int, string> */
     public array $init_scripts = [];
 
     public string $configuration_dir;
 
     private ?SslCertificate $ssl_certificate = null;
 
-    public function handle(StandalonePostgresql $database)
+    public function handle(StandalonePostgresql $database): mixed
     {
         $this->database = $database;
         $container_name = $this->database->uuid;
@@ -61,7 +64,10 @@ class StartPostgresql
             $this->commands[] = "echo 'Setting up SSL for this database.'";
             $this->commands[] = "mkdir -p $this->configuration_dir/ssl";
 
-            $server = $this->database->destination->server;
+            $server = data_get($this->database, 'destination.server');
+            if (! $server instanceof Server) {
+                return null;
+            }
             $caCert = $server->sslCertificates()->where('is_ca_certificate', true)->first();
 
             if (! $caCert) {
@@ -72,7 +78,7 @@ class StartPostgresql
             if (! $caCert) {
                 $this->dispatch('error', 'No CA certificate found for this database. Please generate a CA certificate for this server in the server/advanced page.');
 
-                return;
+                return null;
             }
 
             $this->ssl_certificate = $this->database->sslCertificates()->first();
@@ -134,7 +140,8 @@ class StartPostgresql
             data_set($docker_compose, "services.{$container_name}.cpuset", $this->database->limits_cpuset);
         }
 
-        if ($this->database->destination->server->isLogDrainEnabled() && $this->database->isLogDrainEnabled()) {
+        $server = data_get($this->database, 'destination.server');
+        if ($server instanceof Server && $server->isLogDrainEnabled() && $this->database->isLogDrainEnabled()) {
             $docker_compose['services'][$container_name]['logging'] = generate_fluentd_configuration();
         }
 
@@ -228,10 +235,11 @@ class StartPostgresql
         }
         $this->commands[] = "echo 'Database started.'";
 
-        return remote_process($this->commands, $database->destination->server, callEventOnFinish: 'DatabaseStatusChanged');
+        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
     }
 
-    private function generate_local_persistent_volumes()
+    /** @return array<int, string> */
+    private function generate_local_persistent_volumes(): array
     {
         $local_persistent_volumes = [];
         foreach ($this->database->persistentStorages as $persistentStorage) {
@@ -246,7 +254,8 @@ class StartPostgresql
         return $local_persistent_volumes;
     }
 
-    private function generate_local_persistent_volumes_only_volume_names()
+    /** @return array<string, array{name: string, external: bool}> */
+    private function generate_local_persistent_volumes_only_volume_names(): array
     {
         $local_persistent_volumes_names = [];
         foreach ($this->database->persistentStorages as $persistentStorage) {
@@ -263,7 +272,8 @@ class StartPostgresql
         return $local_persistent_volumes_names;
     }
 
-    private function generate_environment_variables()
+    /** @return array<int, string> */
+    private function generate_environment_variables(): array
     {
         $environment_variables = collect();
         foreach ($this->database->runtime_environment_variables as $env) {
@@ -290,7 +300,7 @@ class StartPostgresql
         return $environment_variables->all();
     }
 
-    private function generate_init_scripts()
+    private function generate_init_scripts(): void
     {
         $this->commands[] = "rm -rf $this->configuration_dir/docker-entrypoint-initdb.d/*";
 
@@ -310,13 +320,13 @@ class StartPostgresql
 
             $target_path = "$this->configuration_dir/docker-entrypoint-initdb.d/{$filename}";
             $escaped_target = escapeshellarg($target_path);
-            $content_base64 = base64_encode($content);
+            $content_base64 = base64_encode((string) $content);
             $this->commands[] = "echo '{$content_base64}' | base64 -d | tee {$escaped_target} > /dev/null";
             $this->init_scripts[] = $target_path;
         }
     }
 
-    private function add_custom_conf()
+    private function add_custom_conf(): void
     {
         $filename = 'custom-postgres.conf';
         $config_file_path = "$this->configuration_dir/$filename";
