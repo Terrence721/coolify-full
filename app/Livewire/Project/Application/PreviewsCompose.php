@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Application;
 
 use App\Models\ApplicationPreview;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Spatie\Url\Url;
@@ -25,7 +29,7 @@ class PreviewsCompose extends Component
         $this->domain = data_get($this->service, 'domain');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.application.previews-compose');
     }

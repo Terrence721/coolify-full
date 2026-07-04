@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server\Proxy;
 
 use App\Enums\ProxyTypes;
 use App\Models\Server;
 use App\Rules\ValidProxyConfigFilename;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Symfony\Component\Yaml\Yaml;
@@ -99,7 +103,7 @@ class NewDynamicConfiguration extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.proxy.new-dynamic-configuration');
     }

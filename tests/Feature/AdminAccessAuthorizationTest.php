@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Admin\Index as AdminIndex;
 use App\Models\InstanceSettings;
 use App\Models\Team;

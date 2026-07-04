@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Server\CaCertificate\Show;
 use App\Models\Server;
 use App\Models\SslCertificate;

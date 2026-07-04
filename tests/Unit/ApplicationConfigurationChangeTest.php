@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit test to verify that custom_network_aliases is included in configuration change detection.
  * Tests the behavior of the isConfigurationChanged method by verifying that different

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\ApplicationDeploymentQueue;
@@ -12,7 +14,7 @@ class CleanupApplicationDeploymentQueue extends Command
 
     protected $description = 'Cleanup application deployment queue.';
 
-    public function handle()
+    public function handle(): void
     {
         $team_id = $this->option('team-id');
         $servers = Server::query()->where('team_id', $team_id)->get();

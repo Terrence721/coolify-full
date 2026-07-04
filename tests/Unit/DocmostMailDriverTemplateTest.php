@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('requires a mail driver before Docmost can start', function () {
     $compose = file_get_contents(__DIR__.'/../../templates/compose/docmost.yaml');
 

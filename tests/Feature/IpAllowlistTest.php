@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Rules\ValidIpOrCidr;
 
 test('IP allowlist with single IPs', function () {

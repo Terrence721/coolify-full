@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Tags;
 
 use App\Http\Controllers\Api\DeployController;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\Tag;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Title;
@@ -88,7 +92,7 @@ class Show extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.tags.show');
     }

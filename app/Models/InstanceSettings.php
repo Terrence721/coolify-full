@@ -1,13 +1,102 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Once;
 use Spatie\Url\Url;
 
+/**
+ * @property int $id
+ * @property string|null $public_ipv4
+ * @property string|null $public_ipv6
+ * @property string|null $fqdn
+ * @property int $public_port_min
+ * @property int $public_port_max
+ * @property bool $do_not_track
+ * @property bool $is_auto_update_enabled
+ * @property bool $is_registration_enabled
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $next_channel
+ * @property bool $smtp_enabled
+ * @property string|null $smtp_from_address
+ * @property string|null $smtp_from_name
+ * @property string|null $smtp_recipients
+ * @property string|null $smtp_host
+ * @property int|null $smtp_port
+ * @property string|null $smtp_encryption
+ * @property string|null $smtp_username
+ * @property string|null $smtp_password
+ * @property int|null $smtp_timeout
+ * @property bool $resend_enabled
+ * @property string|null $resend_api_key
+ * @property bool $is_dns_validation_enabled
+ * @property string|null $custom_dns_servers
+ * @property string|null $instance_name
+ * @property bool $is_api_enabled
+ * @property string|null $allowed_ips
+ * @property string $auto_update_frequency
+ * @property string $update_check_frequency
+ * @property bool $new_version_available
+ * @property string $instance_timezone
+ * @property string $helper_version
+ * @property bool $disable_two_step_confirmation
+ * @property bool $is_sponsorship_popup_enabled
+ * @property string|null $dev_helper_version
+ * @property bool $is_wire_navigate_enabled
+ * @property bool $is_mcp_server_enabled
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereAllowedIps($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereAutoUpdateFrequency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereCustomDnsServers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereDevHelperVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereDisableTwoStepConfirmation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereDoNotTrack($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereFqdn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereHelperVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereInstanceName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereInstanceTimezone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsApiEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsAutoUpdateEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsDnsValidationEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsMcpServerEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsRegistrationEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsSponsorshipPopupEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereIsWireNavigateEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereNewVersionAvailable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereNextChannel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings wherePublicIpv4($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings wherePublicIpv6($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings wherePublicPortMax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings wherePublicPortMin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereResendApiKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereResendEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpEncryption($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpFromAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpFromName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpHost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpRecipients($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpTimeout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereSmtpUsername($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereUpdateCheckFrequency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InstanceSettings whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class InstanceSettings extends Model
 {
     protected $fillable = [

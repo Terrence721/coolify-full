@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('merges Coolify key with selected Hetzner keys', function () {
     $coolifyKeyId = 123;
     $selectedHetznerKeys = [456, 789];

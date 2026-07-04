@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CheckAndStartSentinelJob;
 use App\Jobs\ServerConnectionCheckJob;
 use App\Jobs\ServerManagerJob;

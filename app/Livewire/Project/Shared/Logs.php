@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared;
 
 use App\Models\Application;
@@ -12,6 +14,8 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
@@ -156,7 +160,7 @@ class Logs extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.shared.logs');
     }

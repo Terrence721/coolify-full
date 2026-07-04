@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Events\ServerReachabilityChanged;
@@ -22,9 +24,9 @@ class ServerConnectionCheckJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 15;
+    public int $timeout = 15;
 
     public function __construct(
         public Server $server,
@@ -42,7 +44,7 @@ class ServerConnectionCheckJob implements ShouldBeEncrypted, ShouldQueue
         $configRepository->disableSshMux();
     }
 
-    public function handle()
+    public function handle(): void
     {
         $wasReachable = (bool) $this->server->settings->is_reachable;
         $wasNotified = (bool) $this->server->unreachable_notification_sent;

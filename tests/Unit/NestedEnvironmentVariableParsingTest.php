@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Tests for nested environment variable parsing in Docker Compose files.
  *

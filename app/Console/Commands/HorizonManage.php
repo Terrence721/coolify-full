@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Enums\ApplicationDeploymentStatus;
@@ -22,7 +24,7 @@ class HorizonManage extends Command
 
     protected $description = 'Manage horizon';
 
-    public function handle()
+    public function handle(): mixed
     {
         if ($this->option('can-i-restart-this-worker')) {
             return $this->isThereAJobInProgress();
@@ -62,7 +64,7 @@ class HorizonManage extends Command
             if (count($pendingJobs) === 0) {
                 $this->info('No pending jobs found.');
 
-                return;
+                return null;
             }
             foreach ($pendingJobs as $pendingJob) {
                 $pendingJobsTable[] = [
@@ -81,7 +83,7 @@ class HorizonManage extends Command
             if (count($failedJobs) === 0) {
                 $this->info('No failed jobs found.');
 
-                return;
+                return null;
             }
             foreach ($failedJobs as $failedJob) {
                 $failedJobsTable[] = [
@@ -107,7 +109,7 @@ class HorizonManage extends Command
             if (count($failedJobsTable) === 0) {
                 $this->info('No failed jobs found.');
 
-                return;
+                return null;
             }
             $jobIds = multiselect(
                 label: 'Which job to delete?',
@@ -125,7 +127,7 @@ class HorizonManage extends Command
             if (count($runningJobs) === 0) {
                 $this->info('No running jobs found.');
 
-                return;
+                return null;
             }
             foreach ($runningJobs as $runningJob) {
                 $runningJobsTable[] = [
@@ -160,7 +162,7 @@ class HorizonManage extends Command
         }
     }
 
-    public function isThereAJobInProgress()
+    public function isThereAJobInProgress(): bool
     {
         $runningJobs = ApplicationDeploymentQueue::where('horizon_job_worker', gethostname())->where('status', ApplicationDeploymentStatus::IN_PROGRESS->value)->get();
         $count = $runningJobs->count();
@@ -171,7 +173,7 @@ class HorizonManage extends Command
         return true;
     }
 
-    public function getJobStatus(string $jobId)
+    public function getJobStatus(string $jobId): string
     {
         return getJobStatus($jobId);
     }

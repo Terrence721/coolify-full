@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use App\Models\Server;
@@ -13,21 +15,21 @@ class ActivityMonitor extends Component
     public ?string $header = null;
 
     #[Locked]
-    public $activityId = null;
+    public ?int $activityId = null;
 
-    public $eventToDispatch = 'activityFinished';
+    public string $eventToDispatch = 'activityFinished';
 
-    public $eventData = null;
+    public mixed $eventData = null;
 
-    public $isPollingActive = false;
+    public bool $isPollingActive = false;
 
     public bool $fullHeight = false;
 
-    public $activity;
+    public ?Activity $activity = null;
 
     public bool $showWaiting = true;
 
-    public static $eventDispatched = false;
+    public static bool $eventDispatched = false;
 
     protected $listeners = ['activityMonitor' => 'newMonitorActivity'];
 

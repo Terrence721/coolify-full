@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that service parser correctly handles image updates
  * without creating duplicate ServiceApplication or ServiceDatabase records.

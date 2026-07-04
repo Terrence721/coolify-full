@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Database\Backup;
 
 use App\Models\ScheduledDatabaseBackup;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Execution extends Component
@@ -41,7 +45,7 @@ class Execution extends Component
         $this->s3s = currentTeam()->s3s;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.database.backup.execution');
     }

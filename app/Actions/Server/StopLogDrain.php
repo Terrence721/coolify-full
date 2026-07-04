@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
@@ -9,7 +11,7 @@ class StopLogDrain
 {
     use AsAction;
 
-    public function handle(Server $server)
+    public function handle(Server $server): mixed
     {
         try {
             return instant_remote_process(['docker rm -f coolify-log-drain'], $server, false);

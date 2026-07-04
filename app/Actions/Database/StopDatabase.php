@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Database;
 
 use App\Actions\Server\CleanupDocker;
@@ -18,7 +20,7 @@ class StopDatabase
 {
     use AsAction;
 
-    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database, bool $dockerCleanup = true)
+    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database, bool $dockerCleanup = true): string
     {
         try {
             $server = $database->destination->server;
@@ -52,7 +54,7 @@ class StopDatabase
 
     }
 
-    private function stopContainer($database, string $containerName, int $timeout = 30): void
+    private function stopContainer(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database, string $containerName, int $timeout = 30): void
     {
         $server = $database->destination->server;
         instant_remote_process(command: [

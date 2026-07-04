@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\Webhook\Concerns\DetectsSkipDeployCommits;
 
 $harness = new class

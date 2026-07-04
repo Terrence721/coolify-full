@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\SharedVariables\Environment;
 
 use App\Models\Application;
 use App\Models\Project;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -177,7 +181,7 @@ class Show extends Component
         $this->getDevView();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.shared-variables.environment.show');
     }

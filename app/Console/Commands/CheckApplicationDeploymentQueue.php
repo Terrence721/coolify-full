@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Enums\ApplicationDeploymentStatus;
@@ -12,7 +14,7 @@ class CheckApplicationDeploymentQueue extends Command
 
     protected $description = 'Check application deployment queue.';
 
-    public function handle()
+    public function handle(): void
     {
         $seconds = $this->option('seconds');
         $deployments = ApplicationDeploymentQueue::whereIn('status', [
@@ -40,7 +42,7 @@ class CheckApplicationDeploymentQueue extends Command
         }
     }
 
-    private function cancelDeployment(ApplicationDeploymentQueue $deployment)
+    private function cancelDeployment(ApplicationDeploymentQueue $deployment): void
     {
         $deployment->update(['status' => ApplicationDeploymentStatus::FAILED]);
         if ($deployment->server?->isFunctional()) {

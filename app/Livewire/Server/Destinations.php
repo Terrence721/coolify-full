@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server;
 
 use App\Jobs\ConnectProxyToNetworksJob;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -88,7 +92,7 @@ class Destinations extends Component
         $this->dispatch('success', 'Scan done.');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.destinations');
     }

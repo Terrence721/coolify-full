@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Proxy;
 
 use App\Enums\ProxyTypes;
+use App\Helpers\SshMultiplexingHelper;
 use App\Models\Server;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
@@ -230,7 +233,7 @@ class CheckProxy
             fi;
         ";
 
-        $sshCommand = \App\Helpers\SshMultiplexingHelper::generateSshCommand($server, $portCheckScript);
+        $sshCommand = SshMultiplexingHelper::generateSshCommand($server, $portCheckScript);
 
         return [
             'ssh_command' => $sshCommand,

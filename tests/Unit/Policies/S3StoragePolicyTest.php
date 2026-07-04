@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\S3Storage;
 use App\Models\User;
 use App\Policies\S3StoragePolicy;

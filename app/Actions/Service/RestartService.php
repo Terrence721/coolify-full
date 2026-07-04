@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Service;
 
 use App\Models\Service;
@@ -11,7 +13,7 @@ class RestartService
 
     public string $jobQueue = 'high';
 
-    public function handle(Service $service, bool $pullLatestImages)
+    public function handle(Service $service, bool $pullLatestImages): mixed
     {
         return StartService::run(
             service: $service,

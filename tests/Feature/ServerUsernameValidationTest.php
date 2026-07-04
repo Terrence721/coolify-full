@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Server\New\ByIp;
 use App\Models\InstanceSettings;

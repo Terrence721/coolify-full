@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\BuildPackTypes;
 use App\Enums\RedirectTypes;
 use App\Enums\StaticImageTypes;
 use App\Rules\ValidGitBranch;
 use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -21,12 +24,12 @@ function getTeamIdFromToken()
 
     return $teamId;
 }
-function invalidTokenResponse()
+function invalidTokenResponse(): JsonResponse
 {
     return response()->json(['message' => 'Invalid token.', 'docs' => 'https://coolify.io/docs/api-reference/authorization'], 400);
 }
 
-function serializeApiResponse($data)
+function serializeApiResponse($data): Illuminate\Support\Collection
 {
     if ($data instanceof Collection) {
         return $data->map(function ($d) {
@@ -156,7 +159,7 @@ function sharedDataApplications()
     ];
 }
 
-function validateIncomingRequest(Request $request)
+function validateIncomingRequest(Request $request): ?JsonResponse
 {
     // check if request is json
     if (! $request->isJson()) {
@@ -181,7 +184,7 @@ function validateIncomingRequest(Request $request)
     }
 }
 
-function removeUnnecessaryFieldsFromRequest(Request $request)
+function removeUnnecessaryFieldsFromRequest(Request $request): void
 {
     $request->offsetUnset('project_uuid');
     $request->offsetUnset('environment_name');

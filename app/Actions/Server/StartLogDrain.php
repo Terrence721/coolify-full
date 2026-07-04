@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
@@ -12,7 +14,7 @@ class StartLogDrain
 
     public string $jobQueue = 'high';
 
-    public function handle(Server $server)
+    public function handle(Server $server): mixed
     {
         if ($server->settings->is_logdrain_newrelic_enabled) {
             $type = 'newrelic';

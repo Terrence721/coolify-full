@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\Server;
@@ -11,7 +13,7 @@ class CleanupUnreachableServers extends Command
 
     protected $description = 'Cleanup Unreachable Servers (7 days)';
 
-    public function handle()
+    public function handle(): void
     {
         echo "Running unreachable server cleanup...\n";
         $servers = Server::query()->where('unreachable_count', '>=', 3)->where('unreachable_notification_sent', true)->where('updated_at', '<', now()->subDays(7))->get();

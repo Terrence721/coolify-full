@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     // @see https://docs.sentry.io/product/sentry-basics/dsn-explainer/

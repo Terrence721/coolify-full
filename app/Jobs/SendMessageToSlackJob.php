@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Notifications\Dto\SlackMessage;
@@ -18,12 +20,12 @@ class SendMessageToSlackJob implements ShouldBeEncrypted, ShouldQueue
     /**
      * The number of times the job may be attempted.
      */
-    public $tries = 5;
+    public int $tries = 5;
 
     /**
      * The number of seconds to wait before retrying the job.
      */
-    public $backoff = 10;
+    public int $backoff = 10;
 
     public function __construct(
         private SlackMessage $message,

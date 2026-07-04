@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use function PHPUnit\Framework\assertNotNull;
 use function PHPUnit\Framework\assertNull;
 

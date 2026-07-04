@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 describe('GitHub Manual Webhook', function () {
     test('ping event returns pong', function () {
         $response = $this->postJson('/webhooks/source/github/events/manual', [], [

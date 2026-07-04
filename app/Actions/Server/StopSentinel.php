@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
@@ -9,7 +11,7 @@ class StopSentinel
 {
     use AsAction;
 
-    public function handle(Server $server)
+    public function handle(Server $server): void
     {
         instant_remote_process(['docker rm -f coolify-sentinel'], $server, false);
         $server->sentinelHeartbeat(isReset: true);

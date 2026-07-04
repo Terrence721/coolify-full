@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server\Proxy;
 
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Show extends Component
@@ -21,7 +25,7 @@ class Show extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.proxy.show');
     }

@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Settings;
 
 use App\Jobs\CheckForUpdatesJob;
 use App\Models\InstanceSettings;
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -101,7 +105,7 @@ class Updates extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.settings.updates');
     }

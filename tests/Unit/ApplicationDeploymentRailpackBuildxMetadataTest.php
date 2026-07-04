@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('persists buildx metadata between the helper container and host cleanup', function () {
     $sourceFile = file_get_contents(__DIR__.'/../../app/Jobs/ApplicationDeploymentJob.php');
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('extractYamlEnvironmentComments returns empty array for YAML without environment section', function () {
     $yaml = <<<'YAML'
 version: "3.8"

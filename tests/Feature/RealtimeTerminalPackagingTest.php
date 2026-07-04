@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('copies the realtime terminal utilities into the container image', function () {
     $dockerfile = file_get_contents(base_path('docker/coolify-realtime/Dockerfile'));
 

@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Team\Member;
 
 use App\Models\TeamInvitation;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -20,7 +24,7 @@ class Index extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.team.member.index');
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ScheduledTaskExecution;
 use Carbon\Carbon;

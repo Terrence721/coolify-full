@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
@@ -18,7 +20,7 @@ class UpdateCoolify
 
     public ?string $currentVersion = null;
 
-    public function handle($manual_update = false)
+    public function handle($manual_update = false): void
     {
         if (isDev()) {
             Sleep::for(10)->seconds();
@@ -114,7 +116,7 @@ class UpdateCoolify
         $settings->save();
     }
 
-    private function update()
+    private function update(): void
     {
         $latestHelperImageVersion = getHelperVersion();
         $upgradeScriptUrl = config('constants.coolify.upgrade_script_url');

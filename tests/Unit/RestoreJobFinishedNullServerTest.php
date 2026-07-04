@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Events\RestoreJobFinished;
 use App\Events\S3RestoreJobFinished;
 use App\Models\Server;

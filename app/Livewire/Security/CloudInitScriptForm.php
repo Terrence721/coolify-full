@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Security;
 
 use App\Models\CloudInitScript;
 use App\Rules\ValidCloudInitYaml;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -95,7 +99,7 @@ class CloudInitScriptForm extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.security.cloud-init-script-form');
     }

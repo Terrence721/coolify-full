@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Feature tests to verify that magic (referenced) SERVICE_URL_/SERVICE_FQDN_
  * variables do not overwrite values set by direct template declarations or updateCompose().

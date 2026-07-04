@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Service;
 
 use App\Models\ServiceApplication;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -168,7 +172,7 @@ class EditDomain extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.service.edit-domain');
     }

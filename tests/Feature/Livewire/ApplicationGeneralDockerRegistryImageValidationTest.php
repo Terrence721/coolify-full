@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Application\General;
 
 it('uses safe docker registry image validation rules in the application general form', function () {

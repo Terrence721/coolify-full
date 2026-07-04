@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\DockerCleanupJob;
 use App\Models\DockerCleanupExecution;
 use App\Models\Server;

@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Database;
 
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ServiceDatabase;
 use Exception;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
@@ -239,7 +243,7 @@ class BackupEdit extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.database.backup-edit', [
             'checkboxes' => [

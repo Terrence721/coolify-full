@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * GHSA-rcch-8c74-7f29 — Sink-side escaping tests
  *

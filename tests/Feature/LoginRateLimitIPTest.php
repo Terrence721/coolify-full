@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('tests login rate limiting with different IPs like the Python script', function () {
     // Create a test route that mimics login behavior
     // We'll directly test the rate limiter behavior

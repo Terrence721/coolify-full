@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ActivityTypes;
 use App\Enums\ProcessStatus;
 use App\Helpers\SshMultiplexingHelper;

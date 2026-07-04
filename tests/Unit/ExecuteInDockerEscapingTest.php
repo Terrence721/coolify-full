@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('passes a simple command through correctly', function () {
     $result = executeInDocker('test-container', 'ls -la /app');
 

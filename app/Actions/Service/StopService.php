@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Service;
 
 use App\Actions\Server\CleanupDocker;
@@ -16,7 +18,7 @@ class StopService
 
     public string $jobQueue = 'high';
 
-    public function handle(Service $service, bool $deleteConnectedNetworks = false, bool $dockerCleanup = true)
+    public function handle(Service $service, bool $deleteConnectedNetworks = false, bool $dockerCleanup = true): mixed
     {
         try {
             // Cancel any in-progress deployment activities so status doesn't stay stuck at "starting"

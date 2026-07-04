@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Security tests for RestoreJobFinished event to ensure it uses secure path validation.
  */

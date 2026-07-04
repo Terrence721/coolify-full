@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\New;
 
 use App\Models\Application;
 use App\Models\Project;
 use App\Services\DockerImageParser;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Visus\Cuid2\Cuid2;
 
@@ -157,7 +161,7 @@ class DockerImage extends Component
         ]);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.new.docker-image');
     }

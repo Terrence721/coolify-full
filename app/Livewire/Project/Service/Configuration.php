@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Service;
 
 use App\Models\Service;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -31,7 +35,7 @@ class Configuration extends Component
         'refresh' => 'refreshServices',
     ];
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.service.configuration');
     }

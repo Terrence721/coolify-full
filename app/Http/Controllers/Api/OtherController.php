@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use OpenApi\Attributes as OA;
 
@@ -36,7 +41,7 @@ class OtherController extends Controller
             ),
         ]
     )]
-    public function version(Request $request)
+    public function version(Request $request): ResponseFactory|Response
     {
         return response(config('constants.coolify.version'));
     }
@@ -78,7 +83,7 @@ class OtherController extends Controller
             ),
         ]
     )]
-    public function enable_api(Request $request)
+    public function enable_api(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -134,7 +139,7 @@ class OtherController extends Controller
             ),
         ]
     )]
-    public function disable_api(Request $request)
+    public function disable_api(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -190,7 +195,7 @@ class OtherController extends Controller
             ),
         ]
     )]
-    public function enable_mcp(Request $request)
+    public function enable_mcp(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -246,7 +251,7 @@ class OtherController extends Controller
             ),
         ]
     )]
-    public function disable_mcp(Request $request)
+    public function disable_mcp(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -265,7 +270,7 @@ class OtherController extends Controller
         return response()->json(['message' => 'MCP server disabled.'], 200);
     }
 
-    public function feedback(Request $request)
+    public function feedback(Request $request): JsonResponse
     {
         $data = $request->validate([
             'content' => ['required', 'string', 'min:10', 'max:2000'],
@@ -306,7 +311,7 @@ class OtherController extends Controller
             ),
         ]
     )]
-    public function healthcheck(Request $request)
+    public function healthcheck(Request $request): string
     {
         return 'OK';
     }

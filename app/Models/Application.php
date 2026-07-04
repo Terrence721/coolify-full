@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\ApplicationDeploymentStatus;
@@ -14,13 +16,16 @@ use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -33,6 +38,8 @@ use Visus\Cuid2\Cuid2;
 
 /**
  * @property-read ApplicationSetting $settings
+ * @property-read Environment $environment
+ * @property-read StandaloneDocker|SwarmDocker|null $destination
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Server> $additional_servers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StandaloneDocker> $additional_networks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, LocalPersistentVolume> $persistentStorages
@@ -44,6 +51,229 @@ use Visus\Cuid2\Cuid2;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $nixpacks_environment_variables
  * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $nixpacks_environment_variables_preview
  * @property-read array<int, string> $ports_mappings_array
+ * @property int $id
+ * @property int|null $repository_project_id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $fqdn
+ * @property string|null $config_hash
+ * @property string $git_repository
+ * @property string $git_branch
+ * @property string $git_commit_sha
+ * @property string|null $git_full_url
+ * @property string|null $docker_registry_image_name
+ * @property string|null $docker_registry_image_tag
+ * @property string $build_pack
+ * @property string $static_image
+ * @property string|null $install_command
+ * @property string|null $build_command
+ * @property string|null $start_command
+ * @property string|null $ports_exposes
+ * @property string|null $ports_mappings
+ * @property string $base_directory
+ * @property string|null $publish_directory
+ * @property string $health_check_path
+ * @property string|null $health_check_port
+ * @property string $health_check_host
+ * @property string $health_check_method
+ * @property int $health_check_return_code
+ * @property string $health_check_scheme
+ * @property string|null $health_check_response_text
+ * @property int $health_check_interval
+ * @property int $health_check_timeout
+ * @property int $health_check_retries
+ * @property int $health_check_start_period
+ * @property string $limits_memory
+ * @property string $limits_memory_swap
+ * @property int $limits_memory_swappiness
+ * @property string $limits_memory_reservation
+ * @property string $limits_cpus
+ * @property string|null $limits_cpuset
+ * @property int $limits_cpu_shares
+ * @property string $status
+ * @property string $preview_url_template
+ * @property string|null $destination_type
+ * @property int|null $destination_id
+ * @property string|null $source_type
+ * @property int|null $source_id
+ * @property int|null $private_key_id
+ * @property int $environment_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $description
+ * @property string|null $dockerfile
+ * @property bool $health_check_enabled
+ * @property string|null $dockerfile_location
+ * @property string|null $custom_labels
+ * @property string|null $dockerfile_target_build
+ * @property string|null $manual_webhook_secret_github
+ * @property string|null $manual_webhook_secret_gitlab
+ * @property string|null $docker_compose_location
+ * @property string|null $docker_compose
+ * @property string|null $docker_compose_raw
+ * @property string|null $docker_compose_domains
+ * @property Carbon|null $deleted_at
+ * @property string|null $docker_compose_custom_start_command
+ * @property string|null $docker_compose_custom_build_command
+ * @property int $swarm_replicas
+ * @property string|null $swarm_placement_constraints
+ * @property string|null $manual_webhook_secret_bitbucket
+ * @property string|null $custom_docker_run_options
+ * @property string|null $post_deployment_command
+ * @property string|null $post_deployment_command_container
+ * @property string|null $pre_deployment_command
+ * @property string|null $pre_deployment_command_container
+ * @property string|null $watch_paths
+ * @property bool $custom_healthcheck_found
+ * @property string|null $manual_webhook_secret_gitea
+ * @property string $redirect
+ * @property string $compose_parsing_version
+ * @property string $last_online_at
+ * @property string|null $custom_nginx_configuration
+ * @property string|null $custom_network_aliases
+ * @property bool $is_http_basic_auth_enabled
+ * @property string|null $http_basic_auth_username
+ * @property string|null $http_basic_auth_password
+ * @property int $restart_count
+ * @property Carbon|null $last_restart_at
+ * @property string|null $last_restart_type
+ * @property string $health_check_type
+ * @property string|null $health_check_command
+ * @property int $max_restart_count
+ * @property-read int|null $additional_networks_count
+ * @property-read int|null $additional_servers_count
+ * @property-read mixed $custom_network_aliases_array
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ApplicationDeploymentQueue> $deployment_queue
+ * @property-read int|null $deployment_queue_count
+ * @property-read int|null $environment_variables_count
+ * @property-read int|null $environment_variables_preview_count
+ * @property-read int|null $file_storages_count
+ * @property-read mixed $fqdns
+ * @property-read mixed $git_branch_location
+ * @property-read mixed $git_commits
+ * @property-read mixed $git_webhook
+ * @property-read mixed $image
+ * @property-read int|null $nixpacks_environment_variables_count
+ * @property-read int|null $nixpacks_environment_variables_preview_count
+ * @property-read int|null $persistent_storages_count
+ * @property-read mixed $ports_exposes_array
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ApplicationPreview> $previews
+ * @property-read int|null $previews_count
+ * @property-read PrivateKey|null $private_key
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $railpack_environment_variables
+ * @property-read int|null $railpack_environment_variables_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $railpack_environment_variables_preview
+ * @property-read int|null $railpack_environment_variables_preview_count
+ * @property-read int|null $runtime_environment_variables_count
+ * @property-read int|null $runtime_environment_variables_preview_count
+ * @property-read mixed $sanitized_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ScheduledTask> $scheduled_tasks
+ * @property-read int|null $scheduled_tasks_count
+ * @property-read mixed $server_status
+ * @property-read Model|\Eloquent|null $source
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Tag> $tags
+ * @property-read int|null $tags_count
+ *
+ * @method static \Database\Factories\ApplicationFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Application newModelQuery()
+ * @method static Builder<static>|Application newQuery()
+ * @method static Builder<static>|Application onlyTrashed()
+ * @method static Builder<static>|Application query()
+ * @method static Builder<static>|Application whereBaseDirectory($value)
+ * @method static Builder<static>|Application whereBuildCommand($value)
+ * @method static Builder<static>|Application whereBuildPack($value)
+ * @method static Builder<static>|Application whereComposeParsingVersion($value)
+ * @method static Builder<static>|Application whereConfigHash($value)
+ * @method static Builder<static>|Application whereCreatedAt($value)
+ * @method static Builder<static>|Application whereCustomDockerRunOptions($value)
+ * @method static Builder<static>|Application whereCustomHealthcheckFound($value)
+ * @method static Builder<static>|Application whereCustomLabels($value)
+ * @method static Builder<static>|Application whereCustomNetworkAliases($value)
+ * @method static Builder<static>|Application whereCustomNginxConfiguration($value)
+ * @method static Builder<static>|Application whereDeletedAt($value)
+ * @method static Builder<static>|Application whereDescription($value)
+ * @method static Builder<static>|Application whereDestinationId($value)
+ * @method static Builder<static>|Application whereDestinationType($value)
+ * @method static Builder<static>|Application whereDockerCompose($value)
+ * @method static Builder<static>|Application whereDockerComposeCustomBuildCommand($value)
+ * @method static Builder<static>|Application whereDockerComposeCustomStartCommand($value)
+ * @method static Builder<static>|Application whereDockerComposeDomains($value)
+ * @method static Builder<static>|Application whereDockerComposeLocation($value)
+ * @method static Builder<static>|Application whereDockerComposeRaw($value)
+ * @method static Builder<static>|Application whereDockerRegistryImageName($value)
+ * @method static Builder<static>|Application whereDockerRegistryImageTag($value)
+ * @method static Builder<static>|Application whereDockerfile($value)
+ * @method static Builder<static>|Application whereDockerfileLocation($value)
+ * @method static Builder<static>|Application whereDockerfileTargetBuild($value)
+ * @method static Builder<static>|Application whereEnvironmentId($value)
+ * @method static Builder<static>|Application whereFqdn($value)
+ * @method static Builder<static>|Application whereGitBranch($value)
+ * @method static Builder<static>|Application whereGitCommitSha($value)
+ * @method static Builder<static>|Application whereGitFullUrl($value)
+ * @method static Builder<static>|Application whereGitRepository($value)
+ * @method static Builder<static>|Application whereHealthCheckCommand($value)
+ * @method static Builder<static>|Application whereHealthCheckEnabled($value)
+ * @method static Builder<static>|Application whereHealthCheckHost($value)
+ * @method static Builder<static>|Application whereHealthCheckInterval($value)
+ * @method static Builder<static>|Application whereHealthCheckMethod($value)
+ * @method static Builder<static>|Application whereHealthCheckPath($value)
+ * @method static Builder<static>|Application whereHealthCheckPort($value)
+ * @method static Builder<static>|Application whereHealthCheckResponseText($value)
+ * @method static Builder<static>|Application whereHealthCheckRetries($value)
+ * @method static Builder<static>|Application whereHealthCheckReturnCode($value)
+ * @method static Builder<static>|Application whereHealthCheckScheme($value)
+ * @method static Builder<static>|Application whereHealthCheckStartPeriod($value)
+ * @method static Builder<static>|Application whereHealthCheckTimeout($value)
+ * @method static Builder<static>|Application whereHealthCheckType($value)
+ * @method static Builder<static>|Application whereHttpBasicAuthPassword($value)
+ * @method static Builder<static>|Application whereHttpBasicAuthUsername($value)
+ * @method static Builder<static>|Application whereId($value)
+ * @method static Builder<static>|Application whereInstallCommand($value)
+ * @method static Builder<static>|Application whereIsHttpBasicAuthEnabled($value)
+ * @method static Builder<static>|Application whereLastOnlineAt($value)
+ * @method static Builder<static>|Application whereLastRestartAt($value)
+ * @method static Builder<static>|Application whereLastRestartType($value)
+ * @method static Builder<static>|Application whereLimitsCpuShares($value)
+ * @method static Builder<static>|Application whereLimitsCpus($value)
+ * @method static Builder<static>|Application whereLimitsCpuset($value)
+ * @method static Builder<static>|Application whereLimitsMemory($value)
+ * @method static Builder<static>|Application whereLimitsMemoryReservation($value)
+ * @method static Builder<static>|Application whereLimitsMemorySwap($value)
+ * @method static Builder<static>|Application whereLimitsMemorySwappiness($value)
+ * @method static Builder<static>|Application whereManualWebhookSecretBitbucket($value)
+ * @method static Builder<static>|Application whereManualWebhookSecretGitea($value)
+ * @method static Builder<static>|Application whereManualWebhookSecretGithub($value)
+ * @method static Builder<static>|Application whereManualWebhookSecretGitlab($value)
+ * @method static Builder<static>|Application whereMaxRestartCount($value)
+ * @method static Builder<static>|Application whereName($value)
+ * @method static Builder<static>|Application wherePortsExposes($value)
+ * @method static Builder<static>|Application wherePortsMappings($value)
+ * @method static Builder<static>|Application wherePostDeploymentCommand($value)
+ * @method static Builder<static>|Application wherePostDeploymentCommandContainer($value)
+ * @method static Builder<static>|Application wherePreDeploymentCommand($value)
+ * @method static Builder<static>|Application wherePreDeploymentCommandContainer($value)
+ * @method static Builder<static>|Application wherePreviewUrlTemplate($value)
+ * @method static Builder<static>|Application wherePrivateKeyId($value)
+ * @method static Builder<static>|Application wherePublishDirectory($value)
+ * @method static Builder<static>|Application whereRedirect($value)
+ * @method static Builder<static>|Application whereRepositoryProjectId($value)
+ * @method static Builder<static>|Application whereRestartCount($value)
+ * @method static Builder<static>|Application whereSourceId($value)
+ * @method static Builder<static>|Application whereSourceType($value)
+ * @method static Builder<static>|Application whereStartCommand($value)
+ * @method static Builder<static>|Application whereStaticImage($value)
+ * @method static Builder<static>|Application whereStatus($value)
+ * @method static Builder<static>|Application whereSwarmPlacementConstraints($value)
+ * @method static Builder<static>|Application whereSwarmReplicas($value)
+ * @method static Builder<static>|Application whereUpdatedAt($value)
+ * @method static Builder<static>|Application whereUuid($value)
+ * @method static Builder<static>|Application whereWatchPaths($value)
+ * @method static Builder<static>|Application withTrashed(bool $withTrashed = true)
+ * @method static Builder<static>|Application withoutTrashed()
+ *
+ * @property-read AdditionalDestinationPivot|null $pivot
+ *
+ * @mixin \Eloquent
  */
 #[OA\Schema(
     description: 'Application model',
@@ -138,7 +368,7 @@ class Application extends BaseModel
 {
     use ClearsGlobalSearchCache, HasConfiguration, HasFactory, HasMetrics, HasSafeStringAttribute, SoftDeletes;
 
-    private static $parserVersion = '5';
+    private static string $parserVersion = '5';
 
     protected $fillable = [
         'name',
@@ -544,12 +774,19 @@ class Application extends BaseModel
         instant_remote_process(["docker network rm {$uuid}"], $server, false);
     }
 
+    /**
+     * @return BelongsToMany<Server, $this, AdditionalDestinationPivot>
+     */
     public function additional_servers(): BelongsToMany
     {
         return $this->belongsToMany(Server::class, 'additional_destinations')
+            ->using(AdditionalDestinationPivot::class)
             ->withPivot('standalone_docker_id', 'status');
     }
 
+    /**
+     * @return BelongsToMany<StandaloneDocker, $this, Pivot>
+     */
     public function additional_networks(): BelongsToMany
     {
         return $this->belongsToMany(StandaloneDocker::class, 'additional_destinations')
@@ -637,16 +874,25 @@ class Application extends BaseModel
         return null;
     }
 
+    /**
+     * @return HasOne<ApplicationSetting, $this>
+     */
     public function settings(): HasOne
     {
         return $this->hasOne(ApplicationSetting::class);
     }
 
+    /**
+     * @return MorphMany<LocalPersistentVolume, $this>
+     */
     public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
+    /**
+     * @return MorphMany<LocalFileVolume, $this>
+     */
     public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
@@ -1006,12 +1252,18 @@ class Application extends BaseModel
         return null;
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
             ->where('is_preview', false);
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function runtime_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1019,6 +1271,9 @@ class Application extends BaseModel
             ->withoutBuildpackControlVariables();
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function nixpacks_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1026,6 +1281,9 @@ class Application extends BaseModel
             ->where('key', 'like', 'NIXPACKS_%');
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function railpack_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1033,6 +1291,9 @@ class Application extends BaseModel
             ->where('key', 'like', 'RAILPACK_%');
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1047,6 +1308,9 @@ class Application extends BaseModel
             ");
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function runtime_environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1054,6 +1318,9 @@ class Application extends BaseModel
             ->withoutBuildpackControlVariables();
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function nixpacks_environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1061,6 +1328,9 @@ class Application extends BaseModel
             ->where('key', 'like', 'NIXPACKS_%');
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function railpack_environment_variables_preview(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable')
@@ -1068,6 +1338,9 @@ class Application extends BaseModel
             ->where('key', 'like', 'RAILPACK_%');
     }
 
+    /**
+     * @return HasMany<ScheduledTask, $this>
+     */
     public function scheduled_tasks(): HasMany
     {
         return $this->hasMany(ScheduledTask::class)->orderBy('name', 'asc');
@@ -1078,6 +1351,9 @@ class Application extends BaseModel
         return $this->belongsTo(PrivateKey::class);
     }
 
+    /**
+     * @return BelongsTo<Environment, $this>
+     */
     public function environment(): BelongsTo
     {
         return $this->belongsTo(Environment::class);
@@ -1225,7 +1501,7 @@ class Application extends BaseModel
         return data_get($this, 'settings.is_log_drain_enabled', false);
     }
 
-    public function isConfigurationChanged(bool $save = false)
+    public function isConfigurationChanged(bool $save = false): bool
     {
         $configurationDiff = $this->pendingDeploymentConfigurationDiff();
 
@@ -1318,7 +1594,7 @@ class Application extends BaseModel
         return md5($newConfigHash);
     }
 
-    public function customRepository()
+    public function customRepository(): array
     {
         return convertGitUrl($this->git_repository, $this->deploymentType(), $this->source);
     }
@@ -2430,7 +2706,10 @@ class Application extends BaseModel
         ];
     }
 
-    public function generateConfig($is_json = false)
+    /**
+     * @return string|array<string, mixed>
+     */
+    public function generateConfig(bool $is_json = false): string|array
     {
         $generator = new ConfigurationGenerator($this);
 

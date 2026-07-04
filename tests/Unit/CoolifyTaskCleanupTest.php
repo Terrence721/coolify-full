@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CoolifyTask;
 
 it('CoolifyTask has failed method that handles cleanup', function () {

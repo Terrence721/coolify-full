@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'coolify' => [
         'version' => '4.1.2',

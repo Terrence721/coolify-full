@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server\CaCertificate;
 
 use App\Helpers\SslHelper;
 use App\Jobs\RegenerateSslCertJob;
 use App\Models\Server;
 use App\Models\SslCertificate;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\Locked;
@@ -134,7 +138,7 @@ class Show extends Component
         remote_process($commands, $this->server);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.ca-certificate.show');
     }

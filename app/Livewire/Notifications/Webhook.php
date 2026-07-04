@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Notifications;
 
 use App\Models\Team;
 use App\Models\WebhookNotificationSettings;
 use App\Notifications\Test;
 use App\Rules\SafeWebhookUrl;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -195,7 +199,7 @@ class Webhook extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.notifications.webhook');
     }

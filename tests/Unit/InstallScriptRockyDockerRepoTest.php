@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function expectRockyInstallScriptToUseRhelRepo(string $path): void
 {
     $installScript = file_get_contents(base_path($path));

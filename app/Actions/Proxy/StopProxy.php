@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Proxy;
 
 use App\Events\ProxyStatusChanged;
@@ -12,7 +14,7 @@ class StopProxy
 {
     use AsAction;
 
-    public function handle(Server $server, bool $forceStop = true, int $timeout = 30, bool $restarting = false)
+    public function handle(Server $server, bool $forceStop = true, int $timeout = 30, bool $restarting = false): mixed
     {
         try {
             $containerName = $server->isSwarm() ? 'coolify-proxy_traefik' : 'coolify-proxy';

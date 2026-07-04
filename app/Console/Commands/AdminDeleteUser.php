@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Actions\Stripe\CancelSubscription;
@@ -10,6 +12,7 @@ use App\Models\Application;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Cache\Lock;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +36,7 @@ class AdminDeleteUser extends Command
 
     private User $user;
 
-    private $lock;
+    private ?Lock $lock = null;
 
     private array $deletionState = [
         'phase_1_overview' => false,
@@ -45,7 +48,7 @@ class AdminDeleteUser extends Command
         'db_committed' => false,
     ];
 
-    public function handle()
+    public function handle(): int
     {
         // Register signal handlers for graceful shutdown (Ctrl+C handling)
         $this->registerSignalHandlers();

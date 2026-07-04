@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Settings;
 
 use App\Models\InstanceSettings;
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -52,7 +56,7 @@ class Index extends Component
         'dev_helper_version.regex' => 'Dev helper version must match Docker tag format (alphanumeric, _, ., -; first char cannot be . or -).',
     ];
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.settings.index');
     }

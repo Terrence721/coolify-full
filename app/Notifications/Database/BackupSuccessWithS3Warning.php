@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications\Database;
 
 use App\Models\ScheduledDatabaseBackup;

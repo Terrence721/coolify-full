@@ -34,8 +34,8 @@ php artisan test --compact tests/Feature/SomeTest.php  # specific file
 vendor/bin/pint --dirty --format agent              # format changed files
 
 # Frontend
-npm run dev                     # vite dev server
-npm run build                   # production build
+yarn dev                        # vite dev server
+yarn build                      # production build
 ```
 
 ## Architecture
@@ -169,7 +169,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 ## Frontend Bundling
 
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
+- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `yarn build`, `yarn dev`, or `composer run dev`. Ask them.
 
 ## Documentation Files
 
@@ -264,7 +264,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 ## Vite Error
 
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
+- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `yarn build` or ask the user to run `yarn dev` or `composer run dev`.
 
 === laravel/v12 rules ===
 

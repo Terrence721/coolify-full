@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that the "new image" quick action properly matches
  * the docker-image type using the quickcommand field.

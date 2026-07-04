@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('escapeBashEnvValue wraps simple values in single quotes', function () {
     $result = escapeBashEnvValue('simple_value');
     expect($result)->toBe("'simple_value'");

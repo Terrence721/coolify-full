@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Support\ValidationPatterns;
 
 it('rejects container IDs with command injection characters', function (string $id) {

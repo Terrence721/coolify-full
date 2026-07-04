@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Service;
 
 use App\Models\Service;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
+use Spatie\Activitylog\Contracts\Activity;
 use Symfony\Component\Yaml\Yaml;
 
 class StartService
@@ -16,7 +19,7 @@ class StartService
         $job->onQueue(deployment_queue());
     }
 
-    public function handle(Service $service, bool $pullLatestImages = false, bool $stopBeforeStart = false)
+    public function handle(Service $service, bool $pullLatestImages = false, bool $stopBeforeStart = false): Activity
     {
         $service->parse();
         if ($this->shouldStopBeforeStarting($pullLatestImages, $stopBeforeStart)) {

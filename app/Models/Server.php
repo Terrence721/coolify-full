@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Actions\Proxy\StartProxy;
@@ -92,6 +94,89 @@ use Visus\Cuid2\Cuid2;
  *
  * @see CheckTraefikVersionForServerJob Where this data is populated
  * @see Proxy Where this data is read and displayed
+ *
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $description
+ * @property string $ip
+ * @property int $port
+ * @property string $user
+ * @property int $team_id
+ * @property int $private_key_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $unreachable_notification_sent
+ * @property int $unreachable_count
+ * @property bool $high_disk_usage_notification_sent
+ * @property bool $log_drain_notification_sent
+ * @property int|null $swarm_cluster
+ * @property string|null $validation_logs
+ * @property string $sentinel_updated_at
+ * @property Carbon|null $deleted_at
+ * @property string|null $ip_previous
+ * @property int|null $hetzner_server_id
+ * @property int|null $cloud_provider_token_id
+ * @property string|null $hetzner_server_status
+ * @property bool $is_validating
+ * @property string|null $detected_traefik_version
+ * @property array<array-key, mixed>|null $server_metadata
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, DockerCleanupExecution> $dockerCleanupExecutions
+ * @property-read int|null $docker_cleanup_executions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SharedEnvironmentVariable> $environment_variables
+ * @property-read int|null $environment_variables_count
+ * @property-read mixed $get_ip
+ * @property-read mixed $image
+ * @property-read mixed $is_coolify_host
+ * @property-read mixed $sanitized_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
+ * @property-read int|null $services_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SslCertificate> $sslCertificates
+ * @property-read int|null $ssl_certificates_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StandaloneDocker> $standaloneDockers
+ * @property-read int|null $standalone_dockers_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SwarmDocker> $swarmDockers
+ * @property-read int|null $swarm_dockers_count
+ *
+ * @method static \Database\Factories\ServerFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Server newModelQuery()
+ * @method static Builder<static>|Server newQuery()
+ * @method static Builder<static>|Server onlyTrashed()
+ * @method static Builder<static>|Server query()
+ * @method static Builder<static>|Server whereCloudProviderTokenId($value)
+ * @method static Builder<static>|Server whereCreatedAt($value)
+ * @method static Builder<static>|Server whereDeletedAt($value)
+ * @method static Builder<static>|Server whereDescription($value)
+ * @method static Builder<static>|Server whereDetectedTraefikVersion($value)
+ * @method static Builder<static>|Server whereHetznerServerId($value)
+ * @method static Builder<static>|Server whereHetznerServerStatus($value)
+ * @method static Builder<static>|Server whereHighDiskUsageNotificationSent($value)
+ * @method static Builder<static>|Server whereId($value)
+ * @method static Builder<static>|Server whereIp($value)
+ * @method static Builder<static>|Server whereIpPrevious($value)
+ * @method static Builder<static>|Server whereIsValidating($value)
+ * @method static Builder<static>|Server whereLogDrainNotificationSent($value)
+ * @method static Builder<static>|Server whereName($value)
+ * @method static Builder<static>|Server wherePort($value)
+ * @method static Builder<static>|Server wherePrivateKeyId($value)
+ * @method static Builder<static>|Server whereProxy($value)
+ * @method static Builder<static>|Server whereProxyType(string $proxyType)
+ * @method static Builder<static>|Server whereSentinelUpdatedAt($value)
+ * @method static Builder<static>|Server whereServerMetadata($value)
+ * @method static Builder<static>|Server whereSwarmCluster($value)
+ * @method static Builder<static>|Server whereTeamId($value)
+ * @method static Builder<static>|Server whereTraefikOutdatedInfo($value)
+ * @method static Builder<static>|Server whereUnreachableCount($value)
+ * @method static Builder<static>|Server whereUnreachableNotificationSent($value)
+ * @method static Builder<static>|Server whereUpdatedAt($value)
+ * @method static Builder<static>|Server whereUser($value)
+ * @method static Builder<static>|Server whereUuid($value)
+ * @method static Builder<static>|Server whereValidationLogs($value)
+ * @method static Builder<static>|Server withProxy()
+ * @method static Builder<static>|Server withTrashed(bool $withTrashed = true)
+ * @method static Builder<static>|Server withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 #[OA\Schema(
     description: 'Server model',
@@ -120,7 +205,7 @@ class Server extends BaseModel
 {
     use ClearsGlobalSearchCache, HasFactory, HasMetrics, SchemalessAttributesTrait, SoftDeletes;
 
-    public static $batch_counter = 0;
+    public static int $batch_counter = 0;
 
     /**
      * Identity map cache for request-scoped Server lookups.
@@ -264,7 +349,7 @@ class Server extends BaseModel
         'force_disabled' => 'boolean',
     ];
 
-    protected $schemalessAttributes = [
+    protected array $schemalessAttributes = [
         'proxy',
     ];
 
@@ -349,6 +434,9 @@ class Server extends BaseModel
         return Server::ownedByCurrentTeam()->whereRelation('settings', 'is_reachable', true)->whereRelation('settings', 'is_usable', true)->whereRelation('settings', 'is_swarm_worker', false)->whereRelation('settings', 'is_build_server', false)->whereRelation('settings', 'force_disabled', false);
     }
 
+    /**
+     * @return HasOne<ServerSetting, $this>
+     */
     public function settings(): HasOne
     {
         return $this->hasOne(ServerSetting::class);
@@ -631,7 +719,7 @@ $schema://$host {
         }
     }
 
-    public function reloadCaddy()
+    public function reloadCaddy(): ?string
     {
         return instant_remote_process([
             'docker exec coolify-proxy caddy reload --config /config/caddy/Caddyfile.autosave',
@@ -721,7 +809,7 @@ $schema://$host {
         return $wait;
     }
 
-    public function isSentinelLive()
+    public function isSentinelLive(): bool
     {
         return Carbon::parse($this->sentinel_updated_at)->isAfter(now()->subSeconds($this->waitBeforeDoingSshCheck()));
     }
@@ -761,17 +849,17 @@ $schema://$host {
         return $applications->concat($databases)->concat($services->get());
     }
 
-    public function stopUnmanaged(string $id)
+    public function stopUnmanaged(string $id): ?string
     {
         return instant_remote_process(['docker stop -t 0 '.escapeshellarg($id)], $this);
     }
 
-    public function restartUnmanaged(string $id)
+    public function restartUnmanaged(string $id): ?string
     {
         return instant_remote_process(['docker restart '.escapeshellarg($id)], $this);
     }
 
-    public function startUnmanaged(string $id)
+    public function startUnmanaged(string $id): ?string
     {
         return instant_remote_process(['docker start '.escapeshellarg($id)], $this);
     }
@@ -1024,21 +1112,33 @@ $schema://$host {
         return $standalone_docker->concat($swarm_docker);
     }
 
+    /**
+     * @return HasMany<StandaloneDocker, $this>
+     */
     public function standaloneDockers(): HasMany
     {
         return $this->hasMany(StandaloneDocker::class);
     }
 
+    /**
+     * @return HasMany<SwarmDocker, $this>
+     */
     public function swarmDockers(): HasMany
     {
         return $this->hasMany(SwarmDocker::class);
     }
 
+    /**
+     * @return BelongsTo<PrivateKey, $this>
+     */
     public function privateKey(): BelongsTo
     {
         return $this->belongsTo(PrivateKey::class);
     }
 
+    /**
+     * @return BelongsTo<CloudProviderToken, $this>
+     */
     public function cloudProviderToken(): BelongsTo
     {
         return $this->belongsTo(CloudProviderToken::class);
@@ -1054,6 +1154,9 @@ $schema://$host {
         return 'mux_'.$this->uuid;
     }
 
+    /**
+     * @return BelongsTo<Team, $this>
+     */
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
@@ -1322,7 +1425,7 @@ $schema://$host {
         }
     }
 
-    public function installDocker()
+    public function installDocker(): mixed
     {
         return InstallDocker::run($this);
     }
@@ -1337,7 +1440,7 @@ $schema://$host {
         return ValidatePrerequisites::run($this);
     }
 
-    public function installPrerequisites()
+    public function installPrerequisites(): mixed
     {
         return InstallPrerequisites::run($this);
     }
@@ -1504,7 +1607,7 @@ $schema://$host {
         return base_url().'/server/'.$this->uuid;
     }
 
-    public function restartContainer(string $containerName)
+    public function restartContainer(string $containerName): ?string
     {
         return instant_remote_process(['docker restart '.escapeshellarg($containerName)], $this, false);
     }

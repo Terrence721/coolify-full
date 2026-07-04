@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Docker;
 
 use App\Actions\Application\StopApplication;
@@ -7,8 +9,10 @@ use App\Actions\Database\StartDatabaseProxy;
 use App\Actions\Database\StopDatabaseProxy;
 use App\Actions\Shared\ComplexStatusCheck;
 use App\Events\ServiceChecked;
+use App\Models\Application;
 use App\Models\ApplicationPreview;
 use App\Models\Server;
+use App\Models\Service;
 use App\Models\ServiceDatabase;
 use App\Notifications\Application\RestartLimitReached as ApplicationRestartLimitReached;
 use App\Services\ContainerStatusAggregator;
@@ -25,21 +29,31 @@ class GetContainersStatus
 
     public string $jobQueue = 'high';
 
-    public $applications;
+    /** @var Collection<int, Application> */
+    public Collection $applications;
 
+    /** @var Collection<int, array<string, mixed>>|null */
     public ?Collection $containers;
 
+    /** @var Collection<int, array<string, mixed>>|null */
     public ?Collection $containerReplicates;
 
-    public $server;
+    public Server $server;
 
+    /** @var Collection<string, Collection<string, string>>|null */
     protected ?Collection $applicationContainerStatuses;
 
+    /** @var Collection<string, Collection<string, int>>|null */
     protected ?Collection $applicationContainerRestartCounts;
 
+    /** @var Collection<string, Collection<string, string>>|null */
     protected ?Collection $serviceContainerStatuses;
 
-    public function handle(Server $server, ?Collection $containers = null, ?Collection $containerReplicates = null)
+    /**
+     * @param  Collection<int, array<string, mixed>>|null  $containers
+     * @param  Collection<int, array<string, mixed>>|null  $containerReplicates
+     */
+    public function handle(Server $server, ?Collection $containers = null, ?Collection $containerReplicates = null): ?string
     {
         $this->containers = $containers;
         $this->containerReplicates = $containerReplicates;
@@ -66,7 +80,7 @@ class GetContainersStatus
         }
 
         if (is_null($this->containers)) {
-            return;
+            return null;
         }
 
         if ($this->containerReplicates) {
@@ -510,9 +524,14 @@ class GetContainersStatus
         $this->aggregateServiceContainerStatuses($services);
 
         ServiceChecked::dispatch($this->server->team->id);
+
+        return null;
     }
 
-    private function aggregateApplicationStatus($application, Collection $containerStatuses, int $maxRestartCount = 0): ?string
+    /**
+     * @param  Collection<string, string>  $containerStatuses
+     */
+    private function aggregateApplicationStatus(Application $application, Collection $containerStatuses, int $maxRestartCount = 0): string
     {
         // Parse docker compose to check for excluded containers
         $dockerComposeRaw = data_get($application, 'docker_compose_raw');
@@ -535,7 +554,10 @@ class GetContainersStatus
         return $aggregator->aggregateFromStrings($relevantStatuses, $maxRestartCount, preserveRestarting: true);
     }
 
-    private function aggregateServiceContainerStatuses($services)
+    /**
+     * @param  Collection<int, Service>  $services
+     */
+    private function aggregateServiceContainerStatuses(Collection $services): void
     {
         if (! isset($this->serviceContainerStatuses) || $this->serviceContainerStatuses->isEmpty()) {
             return;

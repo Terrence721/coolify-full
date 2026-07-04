@@ -1,17 +1,82 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property-read Service $service
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $human_name
+ * @property string|null $description
+ * @property string|null $fqdn
+ * @property string|null $ports
+ * @property string|null $exposes
+ * @property string $status
+ * @property int $service_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $exclude_from_status
+ * @property bool $required_fqdn
+ * @property string|null $image
+ * @property bool $is_log_drain_enabled
+ * @property bool $is_include_timestamps
+ * @property Carbon|null $deleted_at
+ * @property bool $is_gzip_enabled
+ * @property bool $is_stripprefix_enabled
+ * @property string $last_online_at
+ * @property bool $is_migrated
+ * @property-read Collection<int, EnvironmentVariable> $environment_variables
+ * @property-read int|null $environment_variables_count
+ * @property-read Collection<int, LocalFileVolume> $fileStorages
+ * @property-read int|null $file_storages_count
+ * @property-read mixed $fqdns
+ * @property-read Collection<int, LocalPersistentVolume> $persistentStorages
+ * @property-read int|null $persistent_storages_count
+ * @property-read mixed $sanitized_name
+ *
+ * @method static Builder<static>|ServiceApplication newModelQuery()
+ * @method static Builder<static>|ServiceApplication newQuery()
+ * @method static Builder<static>|ServiceApplication onlyTrashed()
+ * @method static Builder<static>|ServiceApplication query()
+ * @method static Builder<static>|ServiceApplication whereCreatedAt($value)
+ * @method static Builder<static>|ServiceApplication whereDeletedAt($value)
+ * @method static Builder<static>|ServiceApplication whereDescription($value)
+ * @method static Builder<static>|ServiceApplication whereExcludeFromStatus($value)
+ * @method static Builder<static>|ServiceApplication whereExposes($value)
+ * @method static Builder<static>|ServiceApplication whereFqdn($value)
+ * @method static Builder<static>|ServiceApplication whereHumanName($value)
+ * @method static Builder<static>|ServiceApplication whereId($value)
+ * @method static Builder<static>|ServiceApplication whereImage($value)
+ * @method static Builder<static>|ServiceApplication whereIsGzipEnabled($value)
+ * @method static Builder<static>|ServiceApplication whereIsIncludeTimestamps($value)
+ * @method static Builder<static>|ServiceApplication whereIsLogDrainEnabled($value)
+ * @method static Builder<static>|ServiceApplication whereIsMigrated($value)
+ * @method static Builder<static>|ServiceApplication whereIsStripprefixEnabled($value)
+ * @method static Builder<static>|ServiceApplication whereLastOnlineAt($value)
+ * @method static Builder<static>|ServiceApplication whereName($value)
+ * @method static Builder<static>|ServiceApplication wherePorts($value)
+ * @method static Builder<static>|ServiceApplication whereRequiredFqdn($value)
+ * @method static Builder<static>|ServiceApplication whereServiceId($value)
+ * @method static Builder<static>|ServiceApplication whereStatus($value)
+ * @method static Builder<static>|ServiceApplication whereUpdatedAt($value)
+ * @method static Builder<static>|ServiceApplication whereUuid($value)
+ * @method static Builder<static>|ServiceApplication withTrashed(bool $withTrashed = true)
+ * @method static Builder<static>|ServiceApplication withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class ServiceApplication extends BaseModel
 {
@@ -145,21 +210,33 @@ class ServiceApplication extends BaseModel
         return null;
     }
 
+    /**
+     * @return BelongsTo<Service, $this>
+     */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @return MorphMany<LocalPersistentVolume, $this>
+     */
     public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
+    /**
+     * @return MorphMany<LocalFileVolume, $this>
+     */
     public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
 
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
     public function environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable');

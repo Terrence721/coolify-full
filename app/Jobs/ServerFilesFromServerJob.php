@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Application;
@@ -21,7 +23,7 @@ class ServerFilesFromServerJob implements ShouldBeEncrypted, ShouldQueue
         $this->onQueue('high');
     }
 
-    public function handle()
+    public function handle(): void
     {
         $this->resource->getFilesFromServer(isInit: true);
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Casts\EncryptedArrayCast;
@@ -45,6 +47,75 @@ use OpenApi\Attributes as OA;
 )]
 /**
  * @property-read Application|null $application
+ * @property int $id
+ * @property string $application_id
+ * @property string $deployment_uuid
+ * @property int $pull_request_id
+ * @property bool $force_rebuild
+ * @property string $commit
+ * @property string $status
+ * @property bool $is_webhook
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $logs
+ * @property string|null $current_process_id
+ * @property bool $restart_only
+ * @property string|null $git_type
+ * @property int|null $server_id
+ * @property string|null $application_name
+ * @property string|null $server_name
+ * @property string|null $deployment_url
+ * @property string|null $destination_id
+ * @property bool $only_this_server
+ * @property bool $rollback
+ * @property string|null $commit_message
+ * @property bool $is_api
+ * @property int|null $build_server_id
+ * @property string|null $horizon_job_id
+ * @property string|null $horizon_job_worker
+ * @property Carbon|null $finished_at
+ * @property string|null $docker_registry_image_tag
+ * @property string|null $configuration_hash
+ * @property array|null $configuration_snapshot
+ * @property array|null $configuration_diff
+ * @property-read mixed $server
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereApplicationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereApplicationName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereBuildServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereCommit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereCommitMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereConfigurationDiff($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereConfigurationHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereConfigurationSnapshot($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereCurrentProcessId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereDeploymentUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereDeploymentUuid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereDestinationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereDockerRegistryImageTag($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereFinishedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereForceRebuild($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereGitType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereHorizonJobId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereHorizonJobWorker($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereIsApi($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereIsWebhook($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereLogs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereOnlyThisServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue wherePullRequestId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereRestartOnly($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereRollback($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereServerName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
  */
 class ApplicationDeploymentQueue extends Model
 {
@@ -99,6 +170,9 @@ class ApplicationDeploymentQueue extends Model
         'configuration_diff' => EncryptedArrayCast::class,
     ];
 
+    /**
+     * @return BelongsTo<Application, $this>
+     */
     public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
@@ -127,7 +201,7 @@ class ApplicationDeploymentQueue extends Model
         return collect(json_decode($this->logs))->where('name', $name)->first()?->output ?? null;
     }
 
-    public function getHorizonJobStatus()
+    public function getHorizonJobStatus(): string
     {
         return getJobStatus($this->horizon_job_id);
     }

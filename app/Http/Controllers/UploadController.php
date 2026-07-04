@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Controller as BaseController;
@@ -32,7 +35,7 @@ class UploadController extends BaseController
         'dmp',
     ];
 
-    public function upload(Request $request)
+    public function upload(Request $request): JsonResponse
     {
         $databaseIdentifier = request()->route('databaseUuid');
         $resource = getResourceByUuid($databaseIdentifier, data_get(currentTeam(), 'id'));
@@ -78,7 +81,7 @@ class UploadController extends BaseController
         ]);
     }
 
-    protected function saveFile(UploadedFile $file, string $resourceIdentifier)
+    protected function saveFile(UploadedFile $file, string $resourceIdentifier): JsonResponse
     {
         $originalName = $file->getClientOriginalName();
         $size = $file->getSize();

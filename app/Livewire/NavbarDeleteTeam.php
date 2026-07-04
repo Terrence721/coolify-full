@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -40,7 +44,7 @@ class NavbarDeleteTeam extends Component
         return redirectRoute($this, 'team.index');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.navbar-delete-team');
     }

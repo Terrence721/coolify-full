@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\New;
 
 use App\Models\Project;
@@ -8,7 +10,7 @@ use Visus\Cuid2\Cuid2;
 
 class EmptyProject extends Component
 {
-    public function createEmptyProject()
+    public function createEmptyProject(): mixed
     {
         $project = Project::create([
             'name' => generate_random_name(),

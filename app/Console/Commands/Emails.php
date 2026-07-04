@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\Application;
@@ -48,7 +50,7 @@ class Emails extends Command
 
     private ?string $email = null;
 
-    public function handle()
+    public function handle(): void
     {
         $type = select(
             'Which Email should be sent?',
@@ -260,7 +262,7 @@ class Emails extends Command
         }
     }
 
-    private function sendEmail(?string $email = null)
+    private function sendEmail(?string $email = null): void
     {
         if ($email) {
             $this->email = $email;

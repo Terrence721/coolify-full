@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Team;
@@ -21,7 +23,7 @@ class SubscriptionInvoiceFailedJob implements ShouldBeEncrypted, ShouldQueue
         $this->onQueue('high');
     }
 
-    public function handle()
+    public function handle(): void
     {
         try {
             // Double-check subscription status before sending failure notification

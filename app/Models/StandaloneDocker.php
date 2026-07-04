@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Jobs\ConnectProxyToNetworksJob;
@@ -7,11 +9,54 @@ use App\Support\ValidationPatterns;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $server_id
  * @property string $network
  * @property-read Server|null $server
+ * @property int $id
+ * @property string $name
+ * @property string $uuid
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Application> $applications
+ * @property-read int|null $applications_count
+ * @property-read Collection<int, StandaloneClickhouse> $clickhouses
+ * @property-read int|null $clickhouses_count
+ * @property-read Collection<int, StandaloneDragonfly> $dragonflies
+ * @property-read int|null $dragonflies_count
+ * @property-read mixed $image
+ * @property-read Collection<int, StandaloneKeydb> $keydbs
+ * @property-read int|null $keydbs_count
+ * @property-read Collection<int, StandaloneMariadb> $mariadbs
+ * @property-read int|null $mariadbs_count
+ * @property-read Collection<int, StandaloneMongodb> $mongodbs
+ * @property-read int|null $mongodbs_count
+ * @property-read Collection<int, StandaloneMysql> $mysqls
+ * @property-read int|null $mysqls_count
+ * @property-read Collection<int, StandalonePostgresql> $postgresqls
+ * @property-read int|null $postgresqls_count
+ * @property-read Collection<int, StandaloneRedis> $redis
+ * @property-read int|null $redis_count
+ * @property-read mixed $sanitized_name
+ * @property-read Collection<int, Service> $services
+ * @property-read int|null $services_count
+ * @property-write mixed $description
+ *
+ * @method static \Database\Factories\StandaloneDockerFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereNetwork($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StandaloneDocker whereUuid($value)
+ *
+ * @mixin \Eloquent
  */
 class StandaloneDocker extends BaseModel
 {

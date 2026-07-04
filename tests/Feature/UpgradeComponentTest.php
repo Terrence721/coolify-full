@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Upgrade;
 use App\Models\InstanceSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;

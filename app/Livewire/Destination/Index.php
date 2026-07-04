@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Destination;
 
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -23,7 +27,7 @@ class Index extends Component
             ->values();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.destination.index');
     }

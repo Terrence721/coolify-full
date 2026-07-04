@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Enums\ProcessStatus;
@@ -29,11 +31,11 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
         $this->onQueue('high');
     }
 
-    public function handle()
+    public function handle(): ?\Throwable
     {
         try {
             if ($this->application->is_public_repository()) {
-                return;
+                return null;
             }
 
             $serviceName = $this->application->name;
@@ -41,7 +43,7 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
             if ($this->status === ProcessStatus::CLOSED) {
                 $this->delete_comment();
 
-                return;
+                return null;
             }
 
             match ($this->status) {
@@ -57,7 +59,7 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
             $environmentUuid = data_get($this->application, 'environment.uuid');
             $applicationUuid = data_get($this->application, 'uuid');
             if (! $projectUuid || ! $environmentUuid || ! $applicationUuid) {
-                return;
+                return null;
             }
 
             $this->build_logs_url = base_url()."/project/{$projectUuid}/environment/{$environmentUuid}/application/{$applicationUuid}/deployment/{$this->deployment_uuid}";
@@ -75,7 +77,7 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    private function update_comment()
+    private function update_comment(): void
     {
         ['data' => $data] = githubApi(source: $this->application->source, endpoint: "/repos/{$this->application->git_repository}/issues/comments/{$this->preview->pull_request_issue_comment_id}", method: 'patch', data: [
             'body' => $this->body,
@@ -85,7 +87,7 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    private function create_comment()
+    private function create_comment(): void
     {
         ['data' => $data] = githubApi(source: $this->application->source, endpoint: "/repos/{$this->application->git_repository}/issues/{$this->preview->pull_request_id}/comments", method: 'post', data: [
             'body' => $this->body,
@@ -94,7 +96,7 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
         $this->preview->save();
     }
 
-    private function delete_comment()
+    private function delete_comment(): void
     {
         githubApi(source: $this->application->source, endpoint: "/repos/{$this->application->git_repository}/issues/comments/{$this->preview->pull_request_issue_comment_id}", method: 'delete');
     }

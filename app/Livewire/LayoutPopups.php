@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class LayoutPopups extends Component
@@ -20,7 +24,7 @@ class LayoutPopups extends Component
         $this->dispatch('success', 'Realtime events configured!');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.layout-popups');
     }

@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Notifications;
 
 use App\Models\SlackNotificationSettings;
 use App\Models\Team;
 use App\Notifications\Test;
 use App\Rules\SafeWebhookUrl;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
@@ -187,7 +191,7 @@ class Slack extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.notifications.slack');
     }

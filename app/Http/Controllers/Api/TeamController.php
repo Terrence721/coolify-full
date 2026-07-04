@@ -1,16 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Team;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use OpenApi\Attributes as OA;
 
 class TeamController extends Controller
 {
-    private function removeSensitiveData($team)
+    private function removeSensitiveData($team): Collection
     {
         $team->makeHidden([
             'custom_server_limit',
@@ -52,7 +56,7 @@ class TeamController extends Controller
             ),
         ]
     )]
-    public function teams(Request $request)
+    public function teams(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -111,7 +115,7 @@ class TeamController extends Controller
             ),
         ]
     )]
-    public function team_by_id(Request $request)
+    public function team_by_id(Request $request): JsonResponse
     {
         $id = $request->id;
         $teamId = getTeamIdFromToken();
@@ -179,7 +183,7 @@ class TeamController extends Controller
             ),
         ]
     )]
-    public function members_by_id(Request $request)
+    public function members_by_id(Request $request): JsonResponse
     {
         $id = $request->id;
         $teamId = getTeamIdFromToken();
@@ -237,7 +241,7 @@ class TeamController extends Controller
             ),
         ]
     )]
-    public function current_team(Request $request)
+    public function current_team(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -296,7 +300,7 @@ class TeamController extends Controller
             ),
         ]
     )]
-    public function current_team_members(Request $request)
+    public function current_team_members(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

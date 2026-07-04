@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Unit tests for cloud-init script validation logic
 
 it('validates cloud-init script is optional', function () {

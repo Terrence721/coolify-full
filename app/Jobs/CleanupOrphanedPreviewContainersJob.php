@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\ApplicationPreview;
@@ -28,7 +30,7 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 600; // 10 minutes max
+    public int $timeout = 600; // 10 minutes max
 
     public function __construct() {}
 

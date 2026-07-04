@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Test to verify that docker-compose custom start commands use the correct
  * execution context based on the preserveRepository setting.

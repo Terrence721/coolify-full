@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests verifying that GetContainersStatus has empty container
  * safeguards for ALL resource types (applications, previews, databases, services).

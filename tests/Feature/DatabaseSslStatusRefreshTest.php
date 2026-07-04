@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\ServerStatusBadge;
 use App\Livewire\Project\Database\Clickhouse\General as ClickhouseGeneral;

@@ -1,10 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $release_tag
+ * @property Carbon $read_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User $user
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead whereReadAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead whereReleaseTag($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserChangelogRead whereUserId($value)
+ *
+ * @mixin \Eloquent
+ */
 class UserChangelogRead extends Model
 {
     protected $fillable = [
@@ -17,6 +41,9 @@ class UserChangelogRead extends Model
         'read_at' => 'datetime',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

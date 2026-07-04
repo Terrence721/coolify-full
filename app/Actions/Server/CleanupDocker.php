@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
@@ -11,7 +13,10 @@ class CleanupDocker
 
     public string $jobQueue = 'high';
 
-    public function handle(Server $server, bool $deleteUnusedVolumes = false, bool $deleteUnusedNetworks = false)
+    /**
+     * @return mixed[]
+     */
+    public function handle(Server $server, bool $deleteUnusedVolumes = false, bool $deleteUnusedNetworks = false): array
     {
         $realtimeImage = config('constants.coolify.realtime_image');
         $realtimeImageVersion = config('constants.coolify.realtime_version');

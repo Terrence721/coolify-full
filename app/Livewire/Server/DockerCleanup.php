@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server;
 
 use App\Jobs\DockerCleanupJob;
 use App\Models\DockerCleanupExecution;
 use App\Models\Server;
 use Cron\CronExpression;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -154,7 +158,7 @@ class DockerCleanup extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.docker-cleanup');
     }

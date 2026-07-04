@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Security tests for shell metacharacter escaping in restore events.
  *

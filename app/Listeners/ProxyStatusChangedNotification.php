@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Listeners;
 
 use App\Enums\ProxyTypes;
@@ -14,7 +16,7 @@ class ProxyStatusChangedNotification implements ShouldQueueAfterCommit
 {
     public function __construct() {}
 
-    public function handle(ProxyStatusChanged $event)
+    public function handle(ProxyStatusChanged $event): void
     {
         $serverId = $event->data;
         if (is_null($serverId)) {

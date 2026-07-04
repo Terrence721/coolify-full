@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Tests for GitHub issue #7802: volume mappings from repo content in Preview Deployments.
  *

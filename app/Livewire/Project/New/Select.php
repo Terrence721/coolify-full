@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\New;
 
 use App\Models\Project;
 use App\Models\Server;
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
@@ -89,7 +93,7 @@ class Select extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.new.select');
     }

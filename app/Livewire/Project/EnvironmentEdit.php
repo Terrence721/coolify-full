@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project;
 
 use App\Models\Application;
 use App\Models\Project;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -72,7 +76,7 @@ class EnvironmentEdit extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.environment-edit');
     }

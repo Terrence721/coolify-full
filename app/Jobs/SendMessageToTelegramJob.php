@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -25,7 +27,7 @@ class SendMessageToTelegramJob implements ShouldBeEncrypted, ShouldQueue
     /**
      * The number of seconds to wait before retrying the job.
      */
-    public $backoff = 10;
+    public int $backoff = 10;
 
     /**
      * The maximum number of unhandled exceptions to allow before failing.

@@ -1,12 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Support\ValidationPatterns;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Url\Url;
 use Visus\Cuid2\Cuid2;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property int $pull_request_id
+ * @property string $pull_request_html_url
+ * @property string|null $pull_request_issue_comment_id
+ * @property string|null $fqdn
+ * @property string $status
+ * @property int $application_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $git_type
+ * @property string|null $docker_compose_domains
+ * @property string $last_online_at
+ * @property Carbon|null $deleted_at
+ * @property string|null $docker_registry_image_tag
+ * @property-read Application|null $application
+ * @property-read mixed $image
+ * @property-read Collection<int, LocalPersistentVolume> $persistentStorages
+ * @property-read int|null $persistent_storages_count
+ * @property-read mixed $sanitized_name
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereApplicationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereDockerComposeDomains($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereDockerRegistryImageTag($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereFqdn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereGitType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereLastOnlineAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview wherePullRequestHtmlUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview wherePullRequestId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview wherePullRequestIssueCommentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview whereUuid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationPreview withoutTrashed()
+ *
+ * @mixin \Eloquent
+ */
 class ApplicationPreview extends BaseModel
 {
     use SoftDeletes;

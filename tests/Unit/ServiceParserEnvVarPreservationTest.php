@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that Docker Compose environment variables
  * do not overwrite user-saved values on redeploy.

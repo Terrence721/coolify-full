@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Service;
 
 use App\Actions\Server\CleanupDocker;
@@ -11,7 +13,7 @@ class DeleteService
 {
     use AsAction;
 
-    public function handle(Service $service, bool $deleteVolumes, bool $deleteConnectedNetworks, bool $deleteConfigurations, bool $dockerCleanup)
+    public function handle(Service $service, bool $deleteVolumes, bool $deleteConnectedNetworks, bool $deleteConfigurations, bool $dockerCleanup): void
     {
         $server = data_get($service, 'server');
 

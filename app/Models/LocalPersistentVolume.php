@@ -1,14 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property string $name
  * @property string $mount_path
  * @property string|null $host_path
+ * @property int $id
+ * @property string|null $container_id
+ * @property string|null $resource_type
+ * @property int|null $resource_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $is_preview_suffix_enabled
+ * @property string $uuid
+ * @property-read Model|\Eloquent|null $application
+ * @property-read Model|\Eloquent|null $database
+ * @property-read mixed $image
+ * @property-read Model|\Eloquent|null $resource
+ * @property-read mixed $sanitized_name
+ * @property-read Model|\Eloquent|null $service
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereContainerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereHostPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereIsPreviewSuffixEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereMountPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereResourceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereResourceType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume whereUuid($value)
+ *
+ * @mixin \Eloquent
  */
 class LocalPersistentVolume extends BaseModel
 {

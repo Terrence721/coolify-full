@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('allows plain filenames without special characters', function () {
     $validNames = [
         'init.sql',

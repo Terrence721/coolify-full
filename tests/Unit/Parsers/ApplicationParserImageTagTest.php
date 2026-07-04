@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Tests for Docker Compose image tag injection in applicationParser.
  *

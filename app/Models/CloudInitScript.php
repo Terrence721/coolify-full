@@ -1,9 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $team_id
+ * @property string $name
+ * @property string $script
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Team $team
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript whereScript($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript whereTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CloudInitScript whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
+ */
 class CloudInitScript extends Model
 {
     protected $fillable = [

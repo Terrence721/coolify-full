@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Team;
@@ -16,7 +18,7 @@ class ServerLimitCheckJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 4;
+    public int $tries = 4;
 
     public function backoff(): int
     {
@@ -25,7 +27,7 @@ class ServerLimitCheckJob implements ShouldBeEncrypted, ShouldQueue
 
     public function __construct(public Team $team) {}
 
-    public function handle()
+    public function handle(): mixed
     {
         try {
             $servers = $this->team->servers;

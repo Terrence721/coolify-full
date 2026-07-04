@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server\New;
 
 use App\Enums\ProxyTypes;
@@ -11,6 +13,8 @@ use App\Models\Team;
 use App\Rules\ValidCloudInitYaml;
 use App\Rules\ValidHostname;
 use App\Services\HetznerService;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
@@ -536,7 +540,7 @@ class ByHetzner extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.new.by-hetzner');
     }

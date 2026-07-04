@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Security\ApiTokens;
 use App\Livewire\Team\Member;
 use App\Models\InstanceSettings;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * Verifies the opt-in read/write replica split in config/database.php.
  * The config file is re-required under different putenv() states so the

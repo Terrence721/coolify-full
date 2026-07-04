@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared\EnvironmentVariable;
 
 use App\Models\Application;

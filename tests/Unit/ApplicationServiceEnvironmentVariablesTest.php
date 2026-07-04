@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that Applications using Docker Compose handle
  * SERVICE_URL and SERVICE_FQDN environment variables correctly.

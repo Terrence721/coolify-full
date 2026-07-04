@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('removes email addresses', function () {
     $input = 'User email is test@example.com and another@domain.org';
     $result = sanitizeLogsForExport($input);

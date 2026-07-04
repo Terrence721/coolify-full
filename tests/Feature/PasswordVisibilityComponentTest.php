@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\MessageBag;
 use Illuminate\Support\ViewErrorBag;
 

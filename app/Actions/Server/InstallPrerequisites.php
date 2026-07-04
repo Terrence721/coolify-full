@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\Activitylog\Contracts\Activity;
 
 class InstallPrerequisites
 {
@@ -11,7 +14,7 @@ class InstallPrerequisites
 
     public string $jobQueue = 'high';
 
-    public function handle(Server $server)
+    public function handle(Server $server): Activity
     {
         $supported_os_type = $server->validateOS();
         if (! $supported_os_type) {

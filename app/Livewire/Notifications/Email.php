@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Notifications;
 
 use App\Models\EmailNotificationSettings;
 use App\Models\Team;
 use App\Notifications\Test;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Attributes\Locked;
@@ -376,7 +380,7 @@ class Email extends Component
 
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.notifications.email');
     }

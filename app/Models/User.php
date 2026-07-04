@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Actions\User\RevokeUserTeamTokens;
@@ -10,9 +12,12 @@ use App\Notifications\TransactionalEmails\ResetPassword as TransactionalEmailsRe
 use App\Services\ChangelogService;
 use App\Traits\DeletesUserSessions;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -29,6 +34,54 @@ use OpenApi\Attributes as OA;
 
 /**
  * @property-read Team|null $currentTeam
+ * @property-read TeamUserPivot|null $pivot
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property Carbon|null $email_verified_at
+ * @property string|null $password
+ * @property string|null $remember_token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $two_factor_secret
+ * @property string|null $two_factor_recovery_codes
+ * @property string|null $two_factor_confirmed_at
+ * @property bool $force_password_reset
+ * @property bool $marketing_emails
+ * @property string|null $pending_email
+ * @property string|null $email_change_code
+ * @property Carbon|null $email_change_code_expires_at
+ * @property-read Collection<int, UserChangelogRead> $changelogReads
+ * @property-read int|null $changelog_reads_count
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
+ * @property-read int|null $notifications_count
+ * @property-read Collection<int, Team> $teams
+ * @property-read int|null $teams_count
+ * @property-read Collection<int, PersonalAccessToken> $tokens
+ * @property-read int|null $tokens_count
+ *
+ * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailChangeCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailChangeCodeExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereForcePasswordReset($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereMarketingEmails($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePendingEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorConfirmedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorRecoveryCodes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereTwoFactorSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
  */
 #[OA\Schema(
     description: 'User model',
@@ -254,9 +307,14 @@ class User extends Authenticatable implements SendsEmail
         return new NewAccessToken($token, data_get($token, 'id').'|'.$plainTextToken);
     }
 
+    /**
+     * @return BelongsToMany<Team, $this, TeamUserPivot>
+     */
     public function teams(): BelongsToMany
     {
-        return $this->belongsToMany(Team::class)->withPivot('role');
+        return $this->belongsToMany(Team::class)
+            ->using(TeamUserPivot::class)
+            ->withPivot('role');
     }
 
     public function changelogReads()

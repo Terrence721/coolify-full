@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('postgrest image is detected as application not database', function () {
     $result = isDatabaseImage('postgrest/postgrest:latest');
     expect($result)->toBeFalse();

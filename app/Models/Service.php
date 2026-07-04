@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\ProcessStatus;
@@ -8,10 +10,12 @@ use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes as OA;
@@ -20,6 +24,72 @@ use Spatie\Url\Url;
 use Symfony\Component\Yaml\Yaml;
 use Visus\Cuid2\Cuid2;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property int $environment_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property int|null $server_id
+ * @property string|null $description
+ * @property string $docker_compose_raw
+ * @property string|null $docker_compose
+ * @property string|null $destination_type
+ * @property int|null $destination_id
+ * @property Carbon|null $deleted_at
+ * @property bool $connect_to_docker_network
+ * @property string|null $config_hash
+ * @property string|null $service_type
+ * @property bool $is_container_label_escape_enabled
+ * @property string $compose_parsing_version
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ServiceApplication> $applications
+ * @property-read int|null $applications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ServiceDatabase> $databases
+ * @property-read int|null $databases_count
+ * @property-read StandaloneDocker|SwarmDocker|null $destination
+ * @property-read Environment|null $environment
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $environment_variables
+ * @property-read int|null $environment_variables_count
+ * @property-read string $status
+ * @property-read mixed $image
+ * @property-read mixed $is_deployable
+ * @property-read mixed $sanitized_name
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ScheduledTask> $scheduled_tasks
+ * @property-read int|null $scheduled_tasks_count
+ * @property-read Server|null $server
+ * @property-read mixed $server_status
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Tag> $tags
+ * @property-read int|null $tags_count
+ *
+ * @method static \Database\Factories\ServiceFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereComposeParsingVersion($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereConfigHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereConnectToDockerNetwork($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereDestinationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereDestinationType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereDockerCompose($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereDockerComposeRaw($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereEnvironmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereIsContainerLabelEscapeEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereServiceType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereUuid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service withoutTrashed()
+ *
+ * @mixin \Eloquent
+ */
 #[OA\Schema(
     description: 'Service model',
     type: 'object',
@@ -48,7 +118,7 @@ class Service extends BaseModel
 {
     use ClearsGlobalSearchCache, HasFactory, HasSafeStringAttribute, SoftDeletes;
 
-    private static $parserVersion = '5';
+    private static string $parserVersion = '5';
 
     protected $fillable = [
         'uuid',
@@ -1475,11 +1545,17 @@ class Service extends BaseModel
         return $this->getRequiredPort() !== null;
     }
 
+    /**
+     * @return HasMany<ServiceApplication, $this>
+     */
     public function applications(): HasMany
     {
         return $this->hasMany(ServiceApplication::class);
     }
 
+    /**
+     * @return HasMany<ServiceDatabase, $this>
+     */
     public function databases(): HasMany
     {
         return $this->hasMany(ServiceDatabase::class);
@@ -1490,11 +1566,17 @@ class Service extends BaseModel
         return $this->morphTo();
     }
 
+    /**
+     * @return BelongsTo<Environment, $this>
+     */
     public function environment(): BelongsTo
     {
         return $this->belongsTo(Environment::class);
     }
 
+    /**
+     * @return BelongsTo<Server, $this>
+     */
     public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
@@ -1528,6 +1610,9 @@ class Service extends BaseModel
         return null;
     }
 
+    /**
+     * @return HasMany<ScheduledTask, $this>
+     */
     public function scheduled_tasks(): HasMany
     {
         return $this->hasMany(ScheduledTask::class)->orderBy('name', 'asc');

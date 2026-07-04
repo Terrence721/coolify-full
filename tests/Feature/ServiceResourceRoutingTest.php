@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Database\Import as DatabaseImport;
 use App\Livewire\Project\Service\Heading;
 use App\Models\Environment;

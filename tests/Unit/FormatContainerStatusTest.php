@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 describe('formatContainerStatus helper', function () {
     describe('colon-delimited format parsing', function () {
         it('transforms running:healthy to Running (healthy)', function () {

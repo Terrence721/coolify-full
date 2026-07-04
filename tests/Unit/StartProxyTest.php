@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Test the proxy restart container cleanup logic
 it('ensures container cleanup includes wait loop in command sequence', function () {
     // This test verifies that the StartProxy action includes proper container

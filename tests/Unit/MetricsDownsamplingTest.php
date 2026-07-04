@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Tests for the downsampleLTTB helper function used for metrics downsampling.
  * This function implements the Largest-Triangle-Three-Buckets algorithm.

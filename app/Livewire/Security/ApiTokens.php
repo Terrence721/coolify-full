@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Security;
 
 use App\Models\InstanceSettings;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Laravel\Sanctum\PersonalAccessToken;
 use Livewire\Attributes\Locked;
@@ -36,7 +40,7 @@ class ApiTokens extends Component
     #[Locked]
     public bool $canUseWritePermissions = false;
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.security.api-tokens');
     }

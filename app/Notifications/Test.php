@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use App\Notifications\Channels\DiscordChannel;
@@ -21,7 +23,7 @@ class Test extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 5;
+    public int $tries = 5;
 
     public bool $isTestNotification = true;
 
@@ -49,7 +51,7 @@ class Test extends Notification implements ShouldQueue
         return $channels;
     }
 
-    public function middleware(object $notifiable, string $channel)
+    public function middleware(object $notifiable, string $channel): array
     {
         return match ($channel) {
             EmailChannel::class => [new RateLimited('email')],

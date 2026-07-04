@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Docker\GetContainersStatus;
 use App\Livewire\Project\Shared\Destination;
 use App\Models\Application;

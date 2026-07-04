@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('keeps sentinel restarted events from re-syncing editable form fields', function () {
     $componentSource = file_get_contents(app_path('Livewire/Server/Sentinel.php'));
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Application\CleanupPreviewDeployment;
 use App\Models\Application;
 use App\Models\ApplicationPreview;

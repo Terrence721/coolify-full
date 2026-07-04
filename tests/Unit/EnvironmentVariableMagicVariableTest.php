@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Shared\EnvironmentVariable\Show;
 use App\Models\EnvironmentVariable;
 

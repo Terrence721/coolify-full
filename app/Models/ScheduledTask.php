@@ -1,15 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property bool $enabled
+ * @property string $name
+ * @property string $command
+ * @property string $frequency
+ * @property string|null $container
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property int|null $application_id
+ * @property int|null $service_id
+ * @property int $team_id
+ * @property int $timeout
+ * @property-read Application|null $application
+ * @property-read Collection<int, ScheduledTaskExecution> $executions
+ * @property-read int|null $executions_count
+ * @property-read mixed $image
+ * @property-read ScheduledTaskExecution|null $latest_log
+ * @property-read mixed $sanitized_name
+ * @property-read Service|null $service
+ * @property-write mixed $description
+ *
+ * @method static \Database\Factories\ScheduledTaskFactory factory($count = null, $state = [])
+ * @method static Builder<static>|ScheduledTask newModelQuery()
+ * @method static Builder<static>|ScheduledTask newQuery()
+ * @method static Builder<static>|ScheduledTask query()
+ * @method static Builder<static>|ScheduledTask whereApplicationId($value)
+ * @method static Builder<static>|ScheduledTask whereCommand($value)
+ * @method static Builder<static>|ScheduledTask whereContainer($value)
+ * @method static Builder<static>|ScheduledTask whereCreatedAt($value)
+ * @method static Builder<static>|ScheduledTask whereEnabled($value)
+ * @method static Builder<static>|ScheduledTask whereFrequency($value)
+ * @method static Builder<static>|ScheduledTask whereId($value)
+ * @method static Builder<static>|ScheduledTask whereName($value)
+ * @method static Builder<static>|ScheduledTask whereServiceId($value)
+ * @method static Builder<static>|ScheduledTask whereTeamId($value)
+ * @method static Builder<static>|ScheduledTask whereTimeout($value)
+ * @method static Builder<static>|ScheduledTask whereUpdatedAt($value)
+ * @method static Builder<static>|ScheduledTask whereUuid($value)
+ *
+ * @mixin \Eloquent
+ */
 #[OA\Schema(
     description: 'Scheduled Task model',
     type: 'object',
@@ -60,21 +107,33 @@ class ScheduledTask extends BaseModel
         ];
     }
 
+    /**
+     * @return BelongsTo<Service, $this>
+     */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @return BelongsTo<Application, $this>
+     */
     public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }
 
+    /**
+     * @return HasOne<ScheduledTaskExecution, $this>
+     */
     public function latest_log(): HasOne
     {
         return $this->hasOne(ScheduledTaskExecution::class)->latest();
     }
 
+    /**
+     * @return HasMany<ScheduledTaskExecution, $this>
+     */
     public function executions(): HasMany
     {
         // Last execution first

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('adds profile navigation with an appearance tab and route', function () {
     $routes = file_get_contents(base_path('routes/web.php'));
     $profileNavbar = file_get_contents(resource_path('views/components/profile/navbar.blade.php'));

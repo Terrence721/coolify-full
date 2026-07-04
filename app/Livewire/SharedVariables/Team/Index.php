@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\SharedVariables\Team;
 
 use App\Models\Team;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -113,7 +117,7 @@ class Index extends Component
         }
     }
 
-    private function deleteRemovedVariables($variables)
+    private function deleteRemovedVariables($variables): int
     {
         $variablesToDelete = $this->team->environment_variables()->whereNotIn('key', array_keys($variables))->get();
 
@@ -164,7 +168,7 @@ class Index extends Component
         $this->getDevView();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.shared-variables.team.index');
     }

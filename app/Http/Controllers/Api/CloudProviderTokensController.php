@@ -1,18 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CloudProviderToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
 class CloudProviderTokensController extends Controller
 {
-    private function removeSensitiveData($token)
+    private function removeSensitiveData($token): Collection
     {
         $token->makeHidden([
             'id',
@@ -102,7 +105,7 @@ class CloudProviderTokensController extends Controller
             ),
         ]
     )]
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -162,7 +165,7 @@ class CloudProviderTokensController extends Controller
             ),
         ]
     )]
-    public function show(Request $request)
+    public function show(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -235,7 +238,7 @@ class CloudProviderTokensController extends Controller
             ),
         ]
     )]
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $allowedFields = ['provider', 'token', 'name'];
 
@@ -353,7 +356,7 @@ class CloudProviderTokensController extends Controller
             ),
         ]
     )]
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $allowedFields = ['name'];
 
@@ -459,7 +462,7 @@ class CloudProviderTokensController extends Controller
             ),
         ]
     )]
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -533,7 +536,7 @@ class CloudProviderTokensController extends Controller
             ),
         ]
     )]
-    public function validateToken(Request $request)
+    public function validateToken(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

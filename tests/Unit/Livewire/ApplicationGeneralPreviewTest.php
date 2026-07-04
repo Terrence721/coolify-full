@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\ApplicationDeploymentJob;
 use App\Livewire\Project\Application\General;
 

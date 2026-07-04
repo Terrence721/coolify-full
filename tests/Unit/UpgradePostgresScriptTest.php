@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function assertBashSyntaxIsValid(string $path): void
 {
     $process = proc_open(

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Test the proxy stop container cleanup logic
 it('ensures stop proxy includes wait loop for container removal', function () {
     // This test verifies that StopProxy waits for container to be fully removed

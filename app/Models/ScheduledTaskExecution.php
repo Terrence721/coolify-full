@@ -1,10 +1,48 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $status
+ * @property string|null $message
+ * @property int $scheduled_task_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $finished_at
+ * @property Carbon|null $started_at
+ * @property int $retry_count
+ * @property numeric|null $duration Duration in seconds
+ * @property string|null $error_details
+ * @property-read mixed $image
+ * @property-read mixed $sanitized_name
+ * @property-read ScheduledTask|null $scheduledTask
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereDuration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereErrorDetails($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereFinishedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereRetryCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereScheduledTaskId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereStartedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskExecution whereUuid($value)
+ *
+ * @mixin \Eloquent
+ */
 #[OA\Schema(
     description: 'Scheduled Task Execution model',
     type: 'object',
@@ -43,6 +81,9 @@ class ScheduledTaskExecution extends BaseModel
         ];
     }
 
+    /**
+     * @return BelongsTo<ScheduledTask, $this>
+     */
     public function scheduledTask(): BelongsTo
     {
         return $this->belongsTo(ScheduledTask::class);

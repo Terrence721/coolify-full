@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Docker\GetContainersStatus;
@@ -1114,7 +1116,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             if ($this->use_build_server) {
                 $this->server = $this->mainServer;
             }
-            $readme = generate_readme_file($this->application->name, $this->application_deployment_queue->updated_at);
+            $readme = generate_readme_file($this->application->name, $this->application_deployment_queue->updated_at->toIso8601String());
 
             $mainDir = $this->configuration_dir;
             if ($this->appSettings()->is_raw_compose_deployment_enabled) {

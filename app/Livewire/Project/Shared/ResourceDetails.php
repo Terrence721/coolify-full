@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared;
 
 use App\Models\Service;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -84,7 +88,7 @@ class ResourceDetails extends Component
         return null;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.shared.resource-details');
     }

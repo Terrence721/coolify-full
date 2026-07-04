@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\ServerLimitCheckJob;
 use App\Jobs\StripeProcessJob;
 use App\Jobs\SubscriptionInvoiceFailedJob;

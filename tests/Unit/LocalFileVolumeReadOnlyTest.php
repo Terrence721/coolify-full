@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify LocalFileVolume::isReadOnlyVolume() correctly detects
  * read-only volumes in both short-form and long-form Docker Compose syntax.

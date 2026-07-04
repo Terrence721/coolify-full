@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Server\DeleteServer;
@@ -15,12 +17,13 @@ use App\Rules\ValidServerIp;
 use App\Support\ValidationPatterns;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 use Stringable;
 
 class ServersController extends Controller
 {
-    private function removeSensitiveDataFromSettings(mixed $settings)
+    private function removeSensitiveDataFromSettings(mixed $settings): Collection
     {
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $settings = $settings->makeHidden([
@@ -31,7 +34,7 @@ class ServersController extends Controller
         return serializeApiResponse($settings);
     }
 
-    private function removeSensitiveData(ModelsServer $server)
+    private function removeSensitiveData(ModelsServer $server): Collection
     {
         $server->makeHidden([
             'id',
@@ -75,7 +78,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function servers(Request $request)
+    public function servers(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -137,7 +140,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function server_by_uuid(Request $request)
+    public function server_by_uuid(Request $request): JsonResponse
     {
         $with_resources = $request->query('resources');
         $teamId = getTeamIdFromToken();
@@ -218,7 +221,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function resources_by_server(Request $request)
+    public function resources_by_server(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -286,7 +289,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function domains_by_server(Request $request)
+    public function domains_by_server(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -469,7 +472,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function create_server(Request $request)
+    public function create_server(Request $request): JsonResponse
     {
         $allowedFields = ['name', 'description', 'ip', 'port', 'user', 'private_key_uuid', 'is_build_server', 'instant_validate', 'proxy_type'];
 
@@ -650,7 +653,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function update_server(Request $request)
+    public function update_server(Request $request): JsonResponse
     {
         $allowedFields = ['name', 'description', 'ip', 'port', 'user', 'private_key_uuid', 'is_build_server', 'instant_validate', 'proxy_type', 'concurrent_builds', 'dynamic_timeout', 'deployment_queue_limit', 'server_disk_usage_notification_threshold', 'server_disk_usage_check_frequency', 'connection_timeout'];
 
@@ -810,7 +813,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function delete_server(Request $request)
+    public function delete_server(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -909,7 +912,7 @@ class ServersController extends Controller
             ),
         ]
     )]
-    public function validate_server(Request $request)
+    public function validate_server(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

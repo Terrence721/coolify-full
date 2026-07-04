@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify the parser logic for detecting port-specific SERVICE variables.
  * These tests simulate the logic used in bootstrap/helpers/parsers.php without database operations.

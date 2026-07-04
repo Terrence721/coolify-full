@@ -1,13 +1,119 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
 
+/**
+ * @property int $id
+ * @property bool $is_swarm_manager
+ * @property bool $is_jump_server
+ * @property bool $is_build_server
+ * @property bool $is_reachable
+ * @property bool $is_usable
+ * @property int $server_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $wildcard_domain
+ * @property bool $is_cloudflare_tunnel
+ * @property bool $is_logdrain_newrelic_enabled
+ * @property string|null $logdrain_newrelic_license_key
+ * @property string|null $logdrain_newrelic_base_uri
+ * @property bool $is_logdrain_highlight_enabled
+ * @property string|null $logdrain_highlight_project_id
+ * @property bool $is_logdrain_axiom_enabled
+ * @property string|null $logdrain_axiom_dataset_name
+ * @property string|null $logdrain_axiom_api_key
+ * @property bool $is_swarm_worker
+ * @property bool $is_logdrain_custom_enabled
+ * @property string|null $logdrain_custom_config
+ * @property string|null $logdrain_custom_config_parser
+ * @property int $concurrent_builds
+ * @property int $dynamic_timeout
+ * @property bool $force_disabled
+ * @property bool $is_metrics_enabled
+ * @property bool $generate_exact_labels
+ * @property bool $force_docker_cleanup
+ * @property string $docker_cleanup_frequency
+ * @property int $docker_cleanup_threshold
+ * @property string $server_timezone
+ * @property bool $delete_unused_volumes
+ * @property bool $delete_unused_networks
+ * @property bool $is_sentinel_enabled
+ * @property string|null $sentinel_token
+ * @property int $sentinel_metrics_refresh_rate_seconds
+ * @property int $sentinel_metrics_history_days
+ * @property int $sentinel_push_interval_seconds
+ * @property string|null $sentinel_custom_url
+ * @property int $server_disk_usage_notification_threshold
+ * @property bool $is_sentinel_debug_enabled
+ * @property string $server_disk_usage_check_frequency
+ * @property bool $is_terminal_enabled
+ * @property int $deployment_queue_limit
+ * @property bool $disable_application_image_retention
+ * @property int $connection_timeout
+ * @property-read Server|null $server
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereConcurrentBuilds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereConnectionTimeout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDeleteUnusedNetworks($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDeleteUnusedVolumes($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDeploymentQueueLimit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDisableApplicationImageRetention($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDockerCleanupFrequency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDockerCleanupThreshold($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereDynamicTimeout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereForceDisabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereForceDockerCleanup($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereGenerateExactLabels($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsBuildServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsCloudflareTunnel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsJumpServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsLogdrainAxiomEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsLogdrainCustomEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsLogdrainHighlightEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsLogdrainNewrelicEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsMetricsEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsReachable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsSentinelDebugEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsSentinelEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsSwarmManager($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsSwarmWorker($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsTerminalEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereIsUsable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainAxiomApiKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainAxiomDatasetName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainCustomConfig($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainCustomConfigParser($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainHighlightProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainNewrelicBaseUri($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereLogdrainNewrelicLicenseKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereSentinelCustomUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereSentinelMetricsHistoryDays($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereSentinelMetricsRefreshRateSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereSentinelPushIntervalSeconds($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereSentinelToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereServerDiskUsageCheckFrequency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereServerDiskUsageNotificationThreshold($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereServerTimezone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ServerSetting whereWildcardDomain($value)
+ *
+ * @mixin \Eloquent
+ */
 #[OA\Schema(
     description: 'Server Settings model',
     type: 'object',

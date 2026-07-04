@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\PullChangelog;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;

@@ -1,16 +1,62 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Rules\SafeWebhookUrl;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $description
+ * @property string|null $region
+ * @property string $key
+ * @property string $secret
+ * @property string|null $bucket
+ * @property string|null $endpoint
+ * @property int $team_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $is_usable
+ * @property bool $unusable_email_sent
+ * @property-read mixed $image
+ * @property-write string|null $path
+ * @property-read mixed $sanitized_name
+ * @property-read Collection<int, ScheduledDatabaseBackup> $scheduledBackups
+ * @property-read int|null $scheduled_backups_count
+ * @property-read Team|null $team
+ *
+ * @method static Builder<static>|S3Storage newModelQuery()
+ * @method static Builder<static>|S3Storage newQuery()
+ * @method static Builder<static>|S3Storage query()
+ * @method static Builder<static>|S3Storage whereBucket($value)
+ * @method static Builder<static>|S3Storage whereCreatedAt($value)
+ * @method static Builder<static>|S3Storage whereDescription($value)
+ * @method static Builder<static>|S3Storage whereEndpoint($value)
+ * @method static Builder<static>|S3Storage whereId($value)
+ * @method static Builder<static>|S3Storage whereIsUsable($value)
+ * @method static Builder<static>|S3Storage whereKey($value)
+ * @method static Builder<static>|S3Storage whereName($value)
+ * @method static Builder<static>|S3Storage whereRegion($value)
+ * @method static Builder<static>|S3Storage whereSecret($value)
+ * @method static Builder<static>|S3Storage whereTeamId($value)
+ * @method static Builder<static>|S3Storage whereUnusableEmailSent($value)
+ * @method static Builder<static>|S3Storage whereUpdatedAt($value)
+ * @method static Builder<static>|S3Storage whereUuid($value)
+ *
+ * @mixin \Eloquent
+ */
 class S3Storage extends BaseModel
 {
     use HasFactory, HasSafeStringAttribute;

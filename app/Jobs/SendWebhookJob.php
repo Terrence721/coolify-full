@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Rules\SafeWebhookUrl;
@@ -24,7 +26,7 @@ class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
      */
     public $tries = 5;
 
-    public $backoff = 10;
+    public int $backoff = 10;
 
     /**
      * The maximum number of unhandled exceptions to allow before failing.

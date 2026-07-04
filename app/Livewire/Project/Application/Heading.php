@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Application;
 
 use App\Actions\Application\StopApplication;
 use App\Actions\Docker\GetContainersStatus;
 use App\Models\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Visus\Cuid2\Cuid2;
@@ -168,7 +172,7 @@ class Heading extends Component
         ], navigate: false);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.application.heading', [
             'checkboxes' => [

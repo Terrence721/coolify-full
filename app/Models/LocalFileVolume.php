@@ -1,13 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Events\FileStorageChanged;
 use App\Jobs\ServerStorageSaveJob;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $fs_path
+ * @property string|null $mount_path
+ * @property string|null $content
+ * @property string|null $resource_type
+ * @property int|null $resource_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $is_directory
+ * @property string|null $chown
+ * @property string|null $chmod
+ * @property bool $is_based_on_git
+ * @property bool $is_preview_suffix_enabled
+ * @property-read mixed $image
+ * @property-read mixed $is_binary
+ * @property-read mixed $is_too_large
+ * @property mixed $plain_mount_path
+ * @property-read mixed $sanitized_name
+ * @property-read Model|\Eloquent|null $service
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereChmod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereChown($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereFsPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereIsBasedOnGit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereIsDirectory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereIsPreviewSuffixEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereMountPath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume wherePlainMountPath($path)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereResourceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereResourceType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume whereUuid($value)
+ *
+ * @mixin \Eloquent
+ */
 class LocalFileVolume extends BaseModel
 {
     public const MAX_CONTENT_SIZE = 5_242_880;
@@ -159,7 +206,7 @@ class LocalFileVolume extends BaseModel
         }
     }
 
-    public function saveStorageOnServer()
+    public function saveStorageOnServer(): ?string
     {
         $this->load(['service']);
         $isService = data_get($this->resource, 'service');

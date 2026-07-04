@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use Carbon\Carbon;
@@ -17,7 +19,7 @@ class PullChangelog implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 30;
+    public int $timeout = 30;
 
     public function __construct()
     {

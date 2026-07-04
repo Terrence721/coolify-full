@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\InstanceSettings;
 use App\Models\Project;
 use App\Models\Server;

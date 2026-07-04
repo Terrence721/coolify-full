@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server\Proxy;
 
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -51,7 +55,7 @@ class DynamicConfigurationNavbar extends Component
         $this->dispatch('refresh');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.proxy.dynamic-configuration-navbar');
     }

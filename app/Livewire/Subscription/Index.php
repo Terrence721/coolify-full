@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Subscription;
 
 use App\Models\InstanceSettings;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Stripe\StripeClient;
 
@@ -84,7 +88,7 @@ class Index extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.subscription.index');
     }

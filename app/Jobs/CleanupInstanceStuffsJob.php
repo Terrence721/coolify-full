@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\ScheduledDatabaseBackup;
@@ -20,7 +22,7 @@ class CleanupInstanceStuffsJob implements ShouldBeEncrypted, ShouldBeUnique, Sho
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 60;
+    public int $timeout = 60;
 
     public function __construct() {}
 
@@ -40,7 +42,7 @@ class CleanupInstanceStuffsJob implements ShouldBeEncrypted, ShouldBeUnique, Sho
         }
     }
 
-    private function cleanupInvitationLink()
+    private function cleanupInvitationLink(): void
     {
         $invitation = TeamInvitation::all();
         foreach ($invitation as $item) {
@@ -48,7 +50,7 @@ class CleanupInstanceStuffsJob implements ShouldBeEncrypted, ShouldBeUnique, Sho
         }
     }
 
-    private function cleanupExpiredEmailChangeRequests()
+    private function cleanupExpiredEmailChangeRequests(): void
     {
         User::whereNotNull('email_change_code_expires_at')
             ->where('email_change_code_expires_at', '<', now())

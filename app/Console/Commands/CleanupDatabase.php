@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -11,7 +13,7 @@ class CleanupDatabase extends Command
 
     protected $description = 'Cleanup database';
 
-    public function handle()
+    public function handle(): void
     {
         if ($this->option('yes')) {
             echo "Running database cleanup...\n";

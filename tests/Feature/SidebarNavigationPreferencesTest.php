@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\SettingsDropdown;
 
 it('keeps changelog and the theme switcher in the sidebar without the old preferences trigger', function () {

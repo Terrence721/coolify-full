@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function renderedDataLineTextValue(string $logContent): string
 {
     $escapedContent = e($logContent);

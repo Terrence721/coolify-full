@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\EnvironmentVariable;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\Log;

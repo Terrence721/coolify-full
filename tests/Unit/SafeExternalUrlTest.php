@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Rules\SafeExternalUrl;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;

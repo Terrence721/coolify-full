@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Admin;
 
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -87,7 +91,7 @@ class Index extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.admin.index');
     }

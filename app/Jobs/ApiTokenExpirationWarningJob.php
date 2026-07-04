@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\PersonalAccessToken;
@@ -18,9 +20,9 @@ class ApiTokenExpirationWarningJob implements ShouldBeEncrypted, ShouldQueue, Si
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 120;
+    public int $timeout = 120;
 
     public function handle(): void
     {

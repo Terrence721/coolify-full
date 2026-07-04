@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\GithubApp;
@@ -15,7 +17,7 @@ class GithubAppPermissionJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 4;
+    public int $tries = 4;
 
     public function backoff(): int
     {
@@ -24,7 +26,7 @@ class GithubAppPermissionJob implements ShouldBeEncrypted, ShouldQueue
 
     public function __construct(public GithubApp $github_app) {}
 
-    public function handle()
+    public function handle(): void
     {
         try {
             $github_access_token = generateGithubJwt($this->github_app);

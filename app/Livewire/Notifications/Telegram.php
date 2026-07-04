@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Notifications;
 
 use App\Models\Team;
 use App\Models\TelegramNotificationSettings;
 use App\Notifications\Test;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
@@ -264,7 +268,7 @@ class Telegram extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.notifications.telegram');
     }

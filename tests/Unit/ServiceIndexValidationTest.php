@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Service\Index;
 
 test('service database proxy timeout requires a minimum of one second', function () {

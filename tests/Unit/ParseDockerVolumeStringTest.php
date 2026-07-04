@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('parses simple volume mappings', function () {
     // Simple named volume
     $result = parseDockerVolumeString('gitea:/data');

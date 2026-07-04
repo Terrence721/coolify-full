@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Application\StopApplication;
@@ -43,7 +45,7 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
         $this->onQueue('high');
     }
 
-    public function handle()
+    public function handle(): void
     {
         try {
             // Handle ApplicationPreview instances separately
@@ -116,7 +118,7 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    private function deleteApplicationPreview()
+    private function deleteApplicationPreview(): void
     {
         $application = $this->resource->application;
         $server = $application->destination->server;
@@ -181,7 +183,7 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
         $this->resource->forceDelete();
     }
 
-    private function stopPreviewContainers(array $containers, $server, int $timeout = 30)
+    private function stopPreviewContainers(array $containers, $server, int $timeout = 30): void
     {
         if (empty($containers)) {
             return;

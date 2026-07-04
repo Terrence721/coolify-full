@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\CoolifyTask;
 
 use App\Enums\ActivityTypes;
@@ -21,24 +23,24 @@ class RunRemoteProcess
 
     public bool $ignore_errors;
 
-    public $call_event_on_finish = null;
+    public ?string $call_event_on_finish = null;
 
-    public $call_event_data = null;
+    public mixed $call_event_data = null;
 
-    protected $time_start;
+    protected int $time_start = 0;
 
-    protected $current_time;
+    protected int $current_time = 0;
 
-    protected $last_write_at = 0;
+    protected int $last_write_at = 0;
 
-    protected $throttle_interval_ms = 200;
+    protected int $throttle_interval_ms = 200;
 
     protected int $counter = 1;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Activity $activity, bool $hide_from_output = false, bool $ignore_errors = false, $call_event_on_finish = null, $call_event_data = null)
+    public function __construct(Activity $activity, bool $hide_from_output = false, bool $ignore_errors = false, ?string $call_event_on_finish = null, mixed $call_event_data = null)
     {
         if ($activity->getExtraProperty('type') !== ActivityTypes::INLINE->value && $activity->getExtraProperty('type') !== ActivityTypes::COMMAND->value) {
             throw new \RuntimeException('Incompatible Activity to run a remote command.');
@@ -58,6 +60,7 @@ class RunRemoteProcess
         }
 
         try {
+            /** @var array<int, array{order: int, output: string}> $decoded */
             $decoded = json_decode(
                 data_get($activity, 'description'),
                 associative: true,
@@ -130,7 +133,7 @@ class RunRemoteProcess
         return SshMultiplexingHelper::generateSshCommand($server, $command);
     }
 
-    protected function handleOutput(string $type, string $output)
+    protected function handleOutput(string $type, string $output): void
     {
         if ($this->hide_from_output) {
             return;
@@ -153,7 +156,7 @@ class RunRemoteProcess
         return intval($timeMs);
     }
 
-    public function encodeOutput($type, $output)
+    public function encodeOutput(string $type, string $output): string
     {
         $outputStack = json_decode($this->activity->description, associative: true, flags: JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         $outputStack[] = [
@@ -179,10 +182,8 @@ class RunRemoteProcess
 
     /**
      * Determines if it's time to write again to database.
-     *
-     * @return bool
      */
-    protected function isAfterLastThrottle()
+    protected function isAfterLastThrottle(): bool
     {
         // If DB was never written, then we immediately decide we have to write.
         if ($this->last_write_at === 0) {

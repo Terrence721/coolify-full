@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('validateDockerComposeForInjection blocks malicious service names', function () {
     $maliciousCompose = <<<'YAML'
 services:

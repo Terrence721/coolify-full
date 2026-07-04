@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class VerifyEmail extends Component
@@ -20,7 +24,7 @@ class VerifyEmail extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.verify-email');
     }

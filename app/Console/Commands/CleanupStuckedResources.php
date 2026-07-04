@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Jobs\CleanupHelperContainersJob;
@@ -31,12 +33,12 @@ class CleanupStuckedResources extends Command
 
     protected $description = 'Cleanup Stucked Resources';
 
-    public function handle()
+    public function handle(): void
     {
         $this->cleanup_stucked_resources();
     }
 
-    private function cleanup_stucked_resources()
+    private function cleanup_stucked_resources(): void
     {
         try {
             $teams = Team::all()->filter(function ($team) {

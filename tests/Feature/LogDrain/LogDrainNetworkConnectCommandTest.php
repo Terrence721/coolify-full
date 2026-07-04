@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Server\StartLogDrain;
 use App\Actions\Service\StartService;
 use App\Models\Environment;

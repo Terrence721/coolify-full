@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Application\StopApplication;
 use App\Models\Application;
 use App\Notifications\Application\RestartLimitReached;

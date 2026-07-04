@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('generate_application_name strips owner from git repository', function () {
     $name = generate_application_name('coollabsio/coolify', 'main', 'test123');
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // To prevent github actions from failing
 function env()
 {

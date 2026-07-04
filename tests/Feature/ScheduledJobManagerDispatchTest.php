@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\ScheduledJobManager;
 use App\Jobs\ScheduledTaskJob;
 use App\Models\Application;

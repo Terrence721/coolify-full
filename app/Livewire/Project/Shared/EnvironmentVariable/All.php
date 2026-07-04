@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared\EnvironmentVariable;
 
 use App\Models\Application;
@@ -81,12 +83,12 @@ class All extends Component
         }
     }
 
-    public function getEnvironmentVariablesProperty()
+    public function getEnvironmentVariablesProperty(): Collection
     {
         return $this->getEnvironmentVariables(false);
     }
 
-    public function getEnvironmentVariablesPreviewProperty()
+    public function getEnvironmentVariablesPreviewProperty(): Collection
     {
         return $this->getEnvironmentVariables(true);
     }

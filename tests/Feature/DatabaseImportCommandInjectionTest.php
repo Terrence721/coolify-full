@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Database\ImportForm;
 use App\Support\ValidationPatterns;
 use Livewire\Attributes\Locked;

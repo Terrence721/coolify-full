@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Notifications\Server\HetznerDeletionFailed;
 
 afterEach(function () {

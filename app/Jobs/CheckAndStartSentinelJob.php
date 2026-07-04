@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Server\StartSentinel;
@@ -15,7 +17,7 @@ class CheckAndStartSentinelJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 120;
+    public int $timeout = 120;
 
     public function __construct(public Server $server) {}
 

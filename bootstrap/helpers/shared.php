@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ApplicationDeploymentStatus;
 use App\Enums\ProxyTypes;
 use App\Jobs\ServerFilesFromServerJob;
@@ -3751,7 +3753,7 @@ function convertGitUrl(string $gitRepository, string $deploymentType, GithubApp|
     ];
 }
 
-function getJobStatus(?string $jobId = null)
+function getJobStatus(?string $jobId = null): string
 {
     if (blank($jobId)) {
         return 'unknown';

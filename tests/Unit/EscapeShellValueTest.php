@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('wraps a simple value in single quotes', function () {
     expect(escapeShellValue('hello'))->toBe("'hello'");
 });

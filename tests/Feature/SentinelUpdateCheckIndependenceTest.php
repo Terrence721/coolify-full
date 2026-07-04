@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CheckAndStartSentinelJob;
 use App\Jobs\ServerManagerJob;
 use App\Models\InstanceSettings;

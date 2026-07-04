@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Proxy\GetProxyConfiguration;
@@ -20,9 +22,9 @@ class RestartProxyJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 120;
+    public int $timeout = 120;
 
     public ?int $activity_id = null;
 
@@ -33,7 +35,7 @@ class RestartProxyJob implements ShouldBeEncrypted, ShouldQueue
 
     public function __construct(public Server $server) {}
 
-    public function handle()
+    public function handle(): mixed
     {
         try {
             // Set status to restarting

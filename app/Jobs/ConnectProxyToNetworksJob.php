@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Server;
@@ -22,9 +24,9 @@ class ConnectProxyToNetworksJob implements ShouldBeEncrypted, ShouldQueue, Silen
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 60;
+    public int $timeout = 60;
 
     public function middleware(): array
     {
@@ -38,7 +40,7 @@ class ConnectProxyToNetworksJob implements ShouldBeEncrypted, ShouldQueue, Silen
 
     public function __construct(public Server $server) {}
 
-    public function handle()
+    public function handle(): void
     {
         if (! $this->server->isFunctional()) {
             return;

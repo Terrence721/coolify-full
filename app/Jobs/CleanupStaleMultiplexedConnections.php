@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Server;
@@ -17,7 +19,7 @@ class CleanupStaleMultiplexedConnections implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function handle()
+    public function handle(): void
     {
         $this->cleanupStaleConnections();
         $this->cleanupNonExistentServerConnections();
@@ -149,7 +151,7 @@ class CleanupStaleMultiplexedConnections implements ShouldQueue
         return $processes;
     }
 
-    private function cleanupStaleConnections()
+    private function cleanupStaleConnections(): void
     {
         $muxFiles = Storage::disk('ssh-mux')->files();
 
@@ -181,7 +183,7 @@ class CleanupStaleMultiplexedConnections implements ShouldQueue
         }
     }
 
-    private function cleanupNonExistentServerConnections()
+    private function cleanupNonExistentServerConnections(): void
     {
         $muxFiles = Storage::disk('ssh-mux')->files();
         $existingServerUuids = Server::query()->pluck('uuid')->toArray();
@@ -194,7 +196,7 @@ class CleanupStaleMultiplexedConnections implements ShouldQueue
         }
     }
 
-    private function extractServerUuidFromMuxFile($muxFile)
+    private function extractServerUuidFromMuxFile($muxFile): string
     {
         return substr($muxFile, 4);
     }

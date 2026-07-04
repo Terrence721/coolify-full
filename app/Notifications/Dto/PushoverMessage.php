@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications\Dto;
 
 use Illuminate\Support\Facades\Log;

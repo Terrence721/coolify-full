@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ProxyTypes;
 use App\Jobs\ServerFilesFromServerJob;
 use App\Models\Application;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that applications and services with all containers
  * excluded from health checks (exclude_from_hc: true) show correct status.

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\SettingsDropdown;
 use App\Models\User;
 use App\Services\ChangelogService;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function getServerTimezone($server = null)
 {
     if (! $server) {
@@ -9,7 +11,7 @@ function getServerTimezone($server = null)
     return data_get($server, 'settings.server_timezone', 'UTC');
 }
 
-function formatDateInServerTimezone($date, $server = null)
+function formatDateInServerTimezone($date, $server = null): string
 {
     $serverTimezone = getServerTimezone($server);
     $dateObj = new DateTime($date);

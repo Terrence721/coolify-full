@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -49,7 +53,7 @@ class DeploymentsIndicator extends Component
         $this->expanded = ! $this->expanded;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.deployments-indicator');
     }

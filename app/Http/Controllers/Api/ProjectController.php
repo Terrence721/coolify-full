@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -44,7 +46,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function projects(Request $request)
+    public function projects(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -87,7 +89,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function project_by_uuid(Request $request)
+    public function project_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -141,7 +143,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function environment_details(Request $request)
+    public function environment_details(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -225,7 +227,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function create_project(Request $request)
+    public function create_project(Request $request): JsonResponse
     {
         $allowedFields = ['name', 'description'];
 
@@ -344,7 +346,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function update_project(Request $request)
+    public function update_project(Request $request): JsonResponse
     {
         $allowedFields = ['name', 'description'];
 
@@ -455,7 +457,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function delete_project(Request $request)
+    public function delete_project(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -529,7 +531,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function get_environments(Request $request)
+    public function get_environments(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -612,7 +614,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function create_environment(Request $request)
+    public function create_environment(Request $request): JsonResponse
     {
         $allowedFields = ['name'];
 
@@ -720,7 +722,7 @@ class ProjectController extends Controller
             ),
         ]
     )]
-    public function delete_environment(Request $request)
+    public function delete_environment(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

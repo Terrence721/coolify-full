@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Models\EnvironmentVariable as ModelsEnvironmentVariable;
@@ -7,6 +9,7 @@ use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 
 /**
@@ -18,6 +21,51 @@ use OpenApi\Attributes as OA;
  * @property bool $is_shared
  * @property mixed $resourceable
  * @property-read string|null $real_value
+ * @property int $id
+ * @property bool $is_preview
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $is_shown_once
+ * @property string $version
+ * @property string $uuid
+ * @property int|null $order
+ * @property string|null $resourceable_type
+ * @property int|null $resourceable_id
+ * @property bool $is_runtime
+ * @property bool $is_buildtime
+ * @property string|null $comment
+ * @property-read mixed $image
+ * @property-read mixed $is_buildpack_control
+ * @property-read mixed $is_coolify
+ * @property-read mixed $is_really_required
+ * @property-read mixed $sanitized_name
+ * @property-read Service|null $service
+ *
+ * @method static Builder<static>|EnvironmentVariable newModelQuery()
+ * @method static Builder<static>|EnvironmentVariable newQuery()
+ * @method static Builder<static>|EnvironmentVariable query()
+ * @method static Builder<static>|EnvironmentVariable whereComment($value)
+ * @method static Builder<static>|EnvironmentVariable whereCreatedAt($value)
+ * @method static Builder<static>|EnvironmentVariable whereId($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsBuildtime($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsLiteral($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsMultiline($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsPreview($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsRequired($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsRuntime($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsShared($value)
+ * @method static Builder<static>|EnvironmentVariable whereIsShownOnce($value)
+ * @method static Builder<static>|EnvironmentVariable whereKey($value)
+ * @method static Builder<static>|EnvironmentVariable whereOrder($value)
+ * @method static Builder<static>|EnvironmentVariable whereResourceableId($value)
+ * @method static Builder<static>|EnvironmentVariable whereResourceableType($value)
+ * @method static Builder<static>|EnvironmentVariable whereUpdatedAt($value)
+ * @method static Builder<static>|EnvironmentVariable whereUuid($value)
+ * @method static Builder<static>|EnvironmentVariable whereValue($value)
+ * @method static Builder<static>|EnvironmentVariable whereVersion($value)
+ * @method static Builder<static>|EnvironmentVariable withoutBuildpackControlVariables()
+ *
+ * @mixin \Eloquent
  */
 #[OA\Schema(
     description: 'Environment Variable model',

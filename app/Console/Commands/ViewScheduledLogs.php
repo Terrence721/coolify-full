@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -25,7 +27,7 @@ class ViewScheduledLogs extends Command
 
     protected $description = 'View scheduled backups and tasks logs with optional filtering';
 
-    public function handle()
+    public function handle(): ?int
     {
         $date = $this->option('date') ?: now()->format('Y-m-d');
         if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
@@ -38,7 +40,7 @@ class ViewScheduledLogs extends Command
         if (empty($logPaths)) {
             $this->showAvailableLogFiles($date);
 
-            return;
+            return null;
         }
 
         $lines = $this->option('lines');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Events\ServerReachabilityChanged;
 use App\Jobs\ServerCheckJob;
 use App\Jobs\ServerConnectionCheckJob;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use function PHPUnit\Framework\assertEquals;
 
 test('removes exclude_from_hc from service level', function () {

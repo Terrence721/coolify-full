@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Shared;
 
 use App\Models\Application;
@@ -12,7 +14,7 @@ class ComplexStatusCheck
     use AsAction;
     use CalculatesExcludedStatus;
 
-    public function handle(Application $application)
+    public function handle(Application $application): void
     {
         $servers = $application->additional_servers;
         $servers->push($application->destination->server);
@@ -61,7 +63,7 @@ class ComplexStatusCheck
         }
     }
 
-    private function aggregateContainerStatuses($application, $containers)
+    private function aggregateContainerStatuses($application, $containers): string
     {
         $dockerComposeRaw = data_get($application, 'docker_compose_raw');
         $excludedContainers = $this->getExcludedContainersFromDockerCompose($dockerComposeRaw);

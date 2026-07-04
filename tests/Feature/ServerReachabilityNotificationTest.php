@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Events\ServerReachabilityChanged;
 use App\Models\Server;
 use App\Models\Team;

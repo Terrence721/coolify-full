@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('positions the deployments indicator from the sidebar collapsed state', function () {
     $indicatorView = file_get_contents(resource_path('views/livewire/deployments-indicator.blade.php'));
     $layoutView = file_get_contents(resource_path('views/layouts/app.blade.php'));

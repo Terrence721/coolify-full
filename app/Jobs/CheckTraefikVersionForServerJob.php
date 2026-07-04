@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Events\ProxyStatusChangedUI;
@@ -16,9 +18,9 @@ class CheckTraefikVersionForServerJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 3;
+    public int $tries = 3;
 
-    public $timeout = 60;
+    public int $timeout = 60;
 
     /**
      * Create a new job instance.

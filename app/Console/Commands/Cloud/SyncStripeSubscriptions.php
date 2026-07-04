@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\Cloud;
 
 use App\Jobs\SyncStripeSubscriptionsJob;

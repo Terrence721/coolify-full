@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\Server;
@@ -19,9 +21,9 @@ class ServerStorageCheckJob implements ShouldBeEncrypted, ShouldQueue, Silenced
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 60;
+    public int $timeout = 60;
 
     public function backoff(): int
     {
@@ -43,7 +45,7 @@ class ServerStorageCheckJob implements ShouldBeEncrypted, ShouldQueue, Silenced
         }
     }
 
-    public function handle()
+    public function handle(): mixed
     {
         try {
             if ($this->server->isFunctional() === false) {

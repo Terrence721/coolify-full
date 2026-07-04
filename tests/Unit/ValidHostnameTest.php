@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Rules\ValidHostname;
 
 it('accepts valid RFC 1123 hostnames', function (string $hostname) {

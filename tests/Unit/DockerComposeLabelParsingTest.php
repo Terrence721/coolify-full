@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that docker compose label parsing correctly handles
  * labels defined as YAML key-value pairs (e.g., "traefik.enable: true")

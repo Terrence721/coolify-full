@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Source\Github\Create;
 use App\Models\GithubApp;
 use App\Models\Team;

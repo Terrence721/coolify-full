@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Architecture tests to prevent use of insecure PRNGs in application code.
  *

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Destination\New\Docker;
 use App\Livewire\Server\Destinations;
 use App\Models\InstanceSettings;

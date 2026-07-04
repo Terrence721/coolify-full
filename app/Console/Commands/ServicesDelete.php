@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Jobs\DeleteResourceJob;
@@ -39,7 +41,7 @@ class ServicesDelete extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $resource = select(
             'What service do you want to delete?',
@@ -56,7 +58,7 @@ class ServicesDelete extends Command
         }
     }
 
-    private function deleteServer()
+    private function deleteServer(): void
     {
         $servers = Server::all();
         if ($servers->count() === 0) {
@@ -82,7 +84,7 @@ class ServicesDelete extends Command
         }
     }
 
-    private function deleteApplication()
+    private function deleteApplication(): void
     {
         $applications = Application::all();
         if ($applications->count() === 0) {
@@ -108,7 +110,7 @@ class ServicesDelete extends Command
         }
     }
 
-    private function deleteDatabase()
+    private function deleteDatabase(): void
     {
         // Collect all databases from all types with unique identifiers
         $allDatabases = collect();
@@ -194,7 +196,7 @@ class ServicesDelete extends Command
         }
     }
 
-    private function deleteService()
+    private function deleteService(): void
     {
         $services = Service::all();
         if ($services->count() === 0) {

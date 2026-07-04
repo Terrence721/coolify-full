@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Server\New\ByHetzner;
 use App\Models\Team;
 use App\Models\User;

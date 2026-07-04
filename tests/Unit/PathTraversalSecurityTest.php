@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Security tests for isSafeTmpPath() function to prevent path traversal attacks.
  */

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that Configuration component properly listens to
  * refresh events dispatched when compose file or domain changes.

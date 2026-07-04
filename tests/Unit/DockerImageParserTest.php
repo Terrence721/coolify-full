@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Services\DockerImageParser;
 
 it('parses regular image with tag', function () {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that docker_compose_raw only has content: removed from volumes,
  * while docker_compose contains all Coolify additions (labels, environment variables, networks).

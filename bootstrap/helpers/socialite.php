@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\OauthSetting;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\BitbucketProvider;

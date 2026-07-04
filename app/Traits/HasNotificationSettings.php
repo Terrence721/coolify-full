@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Traits;
 
 use App\Notifications\Channels\DiscordChannel;
@@ -12,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 
 trait HasNotificationSettings
 {
-    protected $alwaysSendEvents = [
+    protected array $alwaysSendEvents = [
         'server_force_enabled',
         'server_force_disabled',
         'general',

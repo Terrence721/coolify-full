@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Metrics extends Component
@@ -52,7 +56,7 @@ class Metrics extends Component
         $this->loadData();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.shared.metrics');
     }

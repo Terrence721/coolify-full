@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use App\Jobs\PullChangelog;
 use App\Services\ChangelogService;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -18,7 +23,7 @@ class SettingsDropdown extends Component
         return Auth::user()->getUnreadChangelogCount();
     }
 
-    public function getEntriesProperty()
+    public function getEntriesProperty(): Collection
     {
         $user = Auth::user();
 
@@ -64,7 +69,7 @@ class SettingsDropdown extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.settings-dropdown', [
             'entries' => $this->getEntriesProperty(),

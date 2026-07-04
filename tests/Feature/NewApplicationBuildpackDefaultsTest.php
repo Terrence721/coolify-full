@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\New\GithubPrivateRepository;
 use App\Livewire\Project\New\GithubPrivateRepositoryDeployKey;
 use App\Livewire\Project\New\PublicGitRepository;

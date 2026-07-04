@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Application;
 
 use App\Models\Application;
@@ -10,10 +12,10 @@ class StopApplicationOneServer
 {
     use AsAction;
 
-    public function handle(Application $application, Server $server)
+    public function handle(Application $application, Server $server): ?string
     {
         if ($application->destination->server->isSwarm()) {
-            return;
+            return null;
         }
         if (! $server->isFunctional()) {
             return 'Server is not functional';
@@ -39,5 +41,7 @@ class StopApplicationOneServer
         } catch (\Exception $e) {
             return $e->getMessage();
         }
+
+        return null;
     }
 }

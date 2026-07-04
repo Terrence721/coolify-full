@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications\TransactionalEmails;
 
 use App\Models\InstanceSettings;
@@ -9,31 +11,31 @@ use Illuminate\Notifications\Notification;
 
 class ResetPassword extends Notification
 {
-    public static $createUrlCallback;
+    public static ?\Closure $createUrlCallback = null;
 
-    public static $toMailCallback;
+    public static ?\Closure $toMailCallback = null;
 
-    public $token;
+    public string $token;
 
     public InstanceSettings $settings;
 
-    public function __construct($token, public bool $isTransactionalEmail = true)
+    public function __construct(string $token, public bool $isTransactionalEmail = true)
     {
         $this->settings = instanceSettings();
         $this->token = $token;
     }
 
-    public static function createUrlUsing($callback)
+    public static function createUrlUsing(?\Closure $callback): void
     {
         static::$createUrlCallback = $callback;
     }
 
-    public static function toMailUsing($callback)
+    public static function toMailUsing(?\Closure $callback): void
     {
         static::$toMailCallback = $callback;
     }
 
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         $type = set_transanctional_email_settings();
         if (blank($type)) {
@@ -43,7 +45,7 @@ class ResetPassword extends Notification
         return ['mail'];
     }
 
-    public function toMail($notifiable)
+    public function toMail($notifiable): mixed
     {
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable, $this->token);
@@ -52,7 +54,7 @@ class ResetPassword extends Notification
         return $this->buildMailMessage($this->resetUrl($notifiable));
     }
 
-    protected function buildMailMessage($url)
+    protected function buildMailMessage($url): MailMessage
     {
         $mail = new MailMessage;
         $mail->subject('Coolify: Reset Password');
@@ -61,7 +63,7 @@ class ResetPassword extends Notification
         return $mail;
     }
 
-    protected function resetUrl($notifiable)
+    protected function resetUrl($notifiable): mixed
     {
         if (static::$createUrlCallback) {
             return call_user_func(static::$createUrlCallback, $notifiable, $this->token);

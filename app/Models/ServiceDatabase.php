@@ -1,15 +1,83 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property-read Service $service
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $human_name
+ * @property string|null $description
+ * @property string|null $ports
+ * @property string|null $exposes
+ * @property string $status
+ * @property int $service_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property bool $exclude_from_status
+ * @property string|null $image
+ * @property int|null $public_port
+ * @property bool $is_public
+ * @property bool $is_log_drain_enabled
+ * @property bool $is_include_timestamps
+ * @property Carbon|null $deleted_at
+ * @property bool $is_gzip_enabled
+ * @property bool $is_stripprefix_enabled
+ * @property string $last_online_at
+ * @property bool $is_migrated
+ * @property string|null $custom_type
+ * @property int|null $public_port_timeout
+ * @property-read Collection<int, LocalFileVolume> $fileStorages
+ * @property-read int|null $file_storages_count
+ * @property-read Collection<int, LocalPersistentVolume> $persistentStorages
+ * @property-read int|null $persistent_storages_count
+ * @property-read mixed $sanitized_name
+ * @property-read Collection<int, ScheduledDatabaseBackup> $scheduledBackups
+ * @property-read int|null $scheduled_backups_count
+ *
+ * @method static Builder<static>|ServiceDatabase newModelQuery()
+ * @method static Builder<static>|ServiceDatabase newQuery()
+ * @method static Builder<static>|ServiceDatabase onlyTrashed()
+ * @method static Builder<static>|ServiceDatabase query()
+ * @method static Builder<static>|ServiceDatabase whereCreatedAt($value)
+ * @method static Builder<static>|ServiceDatabase whereCustomType($value)
+ * @method static Builder<static>|ServiceDatabase whereDeletedAt($value)
+ * @method static Builder<static>|ServiceDatabase whereDescription($value)
+ * @method static Builder<static>|ServiceDatabase whereExcludeFromStatus($value)
+ * @method static Builder<static>|ServiceDatabase whereExposes($value)
+ * @method static Builder<static>|ServiceDatabase whereHumanName($value)
+ * @method static Builder<static>|ServiceDatabase whereId($value)
+ * @method static Builder<static>|ServiceDatabase whereImage($value)
+ * @method static Builder<static>|ServiceDatabase whereIsGzipEnabled($value)
+ * @method static Builder<static>|ServiceDatabase whereIsIncludeTimestamps($value)
+ * @method static Builder<static>|ServiceDatabase whereIsLogDrainEnabled($value)
+ * @method static Builder<static>|ServiceDatabase whereIsMigrated($value)
+ * @method static Builder<static>|ServiceDatabase whereIsPublic($value)
+ * @method static Builder<static>|ServiceDatabase whereIsStripprefixEnabled($value)
+ * @method static Builder<static>|ServiceDatabase whereLastOnlineAt($value)
+ * @method static Builder<static>|ServiceDatabase whereName($value)
+ * @method static Builder<static>|ServiceDatabase wherePorts($value)
+ * @method static Builder<static>|ServiceDatabase wherePublicPort($value)
+ * @method static Builder<static>|ServiceDatabase wherePublicPortTimeout($value)
+ * @method static Builder<static>|ServiceDatabase whereServiceId($value)
+ * @method static Builder<static>|ServiceDatabase whereStatus($value)
+ * @method static Builder<static>|ServiceDatabase whereUpdatedAt($value)
+ * @method static Builder<static>|ServiceDatabase whereUuid($value)
+ * @method static Builder<static>|ServiceDatabase withTrashed(bool $withTrashed = true)
+ * @method static Builder<static>|ServiceDatabase withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 class ServiceDatabase extends BaseModel
 {
@@ -175,16 +243,25 @@ class ServiceDatabase extends BaseModel
         return service_configuration_dir()."/{$this->service->uuid}";
     }
 
+    /**
+     * @return BelongsTo<Service, $this>
+     */
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @return MorphMany<LocalPersistentVolume, $this>
+     */
     public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
+    /**
+     * @return MorphMany<LocalFileVolume, $this>
+     */
     public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
@@ -195,6 +272,9 @@ class ServiceDatabase extends BaseModel
         getFilesystemVolumesFromServer($this, $isInit);
     }
 
+    /**
+     * @return MorphMany<ScheduledDatabaseBackup, $this>
+     */
     public function scheduledBackups(): MorphMany
     {
         return $this->morphMany(ScheduledDatabaseBackup::class, 'database');

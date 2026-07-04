@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared\EnvironmentVariable;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class ShowHardcoded extends Component
@@ -24,7 +28,7 @@ class ShowHardcoded extends Component
         $this->serviceName = $this->env['service_name'] ?? null;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.shared.environment-variable.show-hardcoded');
     }

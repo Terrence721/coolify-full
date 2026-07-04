@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\Generate;
 
 use Illuminate\Console\Command;
@@ -12,7 +14,7 @@ class OpenApi extends Command
 
     protected $description = 'Generate OpenApi file.';
 
-    public function handle()
+    public function handle(): void
     {
         // Generate OpenAPI documentation
         echo "Generating OpenAPI documentation.\n";

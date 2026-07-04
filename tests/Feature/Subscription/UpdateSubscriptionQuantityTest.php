@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Stripe\UpdateSubscriptionQuantity;
 use App\Jobs\ServerLimitCheckJob;
 use App\Models\Subscription;

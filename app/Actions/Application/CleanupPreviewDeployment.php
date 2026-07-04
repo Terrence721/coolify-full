@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Application;
 
 use App\Enums\ApplicationDeploymentStatus;
@@ -7,16 +9,21 @@ use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\ApplicationPreview;
+use App\Models\Server;
+use App\Models\StandaloneDocker;
+use App\Models\SwarmDocker;
 use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CleanupPreviewDeployment
 {
-
     use AsAction;
 
     public string $jobQueue = 'high';
 
+    /**
+     * @return array{cancelled_deployments: int, killed_containers: int, status: string, message?: string}
+     */
     public function handle(
         Application $application,
         int $pull_request_id,
@@ -36,7 +43,9 @@ class CleanupPreviewDeployment
             ];
         }
 
-        $server = $application->destination->server;
+        /** @var StandaloneDocker|SwarmDocker $destination */
+        $destination = $application->destination;
+        $server = $destination->server;
 
         if (! $server || ! $server->isFunctional()) {
             return [
@@ -74,7 +83,7 @@ class CleanupPreviewDeployment
     private function cancelActiveDeployments(
         Application $application,
         int $pull_request_id,
-        $server
+        Server $server
     ): int {
         $activeDeployments = ApplicationDeploymentQueue::where('application_id', $application->id)
             ->where('pull_request_id', $pull_request_id)
@@ -106,7 +115,7 @@ class CleanupPreviewDeployment
         return $cancelled;
     }
 
-    private function killHelperContainer(string $deployment_uuid, $server): void
+    private function killHelperContainer(string $deployment_uuid, Server $server): void
     {
         try {
             $escapedUuid = escapeshellarg($deployment_uuid);
@@ -124,7 +133,7 @@ class CleanupPreviewDeployment
     private function stopRunningContainers(
         Application $application,
         int $pull_request_id,
-        $server
+        Server $server
     ): int {
         $killed = 0;
 

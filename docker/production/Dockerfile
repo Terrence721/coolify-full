@@ -54,11 +54,11 @@ USER www-data
 FROM node:24-alpine AS static-assets
 
 WORKDIR /app
-COPY package*.json vite.config.js postcss.config.cjs ./
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci
+COPY package.json yarn.lock vite.config.js postcss.config.cjs ./
+RUN --mount=type=cache,target=/usr/local/share/.cache/yarn \
+    yarn install --frozen-lockfile
 COPY . .
-RUN npm run build
+RUN yarn build
 
 # =================================================================
 # Stage 3: Get MinIO client

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('declares explicit authorization on database import form controls', function () {
     $view = file_get_contents(resource_path('views/livewire/project/database/import-form.blade.php'));
 

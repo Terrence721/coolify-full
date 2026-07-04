@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('Hostname', function () {
     $input = '--hostname=test';
     $output = convertDockerRunToCompose($input);

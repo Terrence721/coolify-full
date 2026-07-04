@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Database;
 
 use App\Actions\Database\RestartDatabase;
@@ -7,6 +9,8 @@ use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Actions\Docker\GetContainersStatus;
 use App\Events\ServiceStatusChanged;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -104,7 +108,7 @@ class Heading extends Component
         $this->dispatch('activityMonitor', $activity->id, ServiceStatusChanged::class);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.database.heading', [
             'checkboxes' => [

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
 use App\Models\Application;
@@ -15,6 +17,8 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Component;
 
@@ -1507,7 +1511,7 @@ class GlobalSearch extends Component
         return $cachedServices;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.global-search');
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\ServiceDatabase;
 
 use function PHPUnit\Framework\assertTrue;

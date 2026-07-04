@@ -1,13 +1,57 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Support\ValidationPatterns;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $server_id
  * @property string $network
  * @property-read Server|null $server
+ * @property int $id
+ * @property string $name
+ * @property string $uuid
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Application> $applications
+ * @property-read int|null $applications_count
+ * @property-read Collection<int, StandaloneClickhouse> $clickhouses
+ * @property-read int|null $clickhouses_count
+ * @property-read Collection<int, StandaloneDragonfly> $dragonflies
+ * @property-read int|null $dragonflies_count
+ * @property-read mixed $image
+ * @property-read Collection<int, StandaloneKeydb> $keydbs
+ * @property-read int|null $keydbs_count
+ * @property-read Collection<int, StandaloneMariadb> $mariadbs
+ * @property-read int|null $mariadbs_count
+ * @property-read Collection<int, StandaloneMongodb> $mongodbs
+ * @property-read int|null $mongodbs_count
+ * @property-read Collection<int, StandaloneMysql> $mysqls
+ * @property-read int|null $mysqls_count
+ * @property-read Collection<int, StandalonePostgresql> $postgresqls
+ * @property-read int|null $postgresqls_count
+ * @property-read Collection<int, StandaloneRedis> $redis
+ * @property-read int|null $redis_count
+ * @property-read mixed $sanitized_name
+ * @property-read Collection<int, Service> $services
+ * @property-read int|null $services_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereNetwork($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SwarmDocker whereUuid($value)
+ *
+ * @mixin \Eloquent
  */
 class SwarmDocker extends BaseModel
 {

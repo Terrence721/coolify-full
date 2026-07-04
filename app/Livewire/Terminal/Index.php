@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Terminal;
 
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -84,7 +88,7 @@ class Index extends Component
         );
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.terminal.index');
     }

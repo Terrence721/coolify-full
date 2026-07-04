@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Application;
 
 use App\Models\Application;
@@ -9,7 +11,10 @@ class GenerateConfig
 {
     use AsAction;
 
-    public function handle(Application $application, bool $is_json = false)
+    /**
+     * @return string|array<string, mixed>
+     */
+    public function handle(Application $application, bool $is_json = false): string|array
     {
         return $application->generateConfig(is_json: $is_json);
     }

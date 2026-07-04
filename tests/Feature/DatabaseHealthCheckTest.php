@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Database\Health;
 use App\Models\StandalonePostgresql;
 use Illuminate\Auth\Access\AuthorizationException;

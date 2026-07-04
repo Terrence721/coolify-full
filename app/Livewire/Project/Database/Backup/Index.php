@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Database\Backup;
 
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
 use App\Models\StandaloneRedis;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Index extends Component
@@ -42,7 +46,7 @@ class Index extends Component
         $this->database = $database;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.database.backup.index');
     }

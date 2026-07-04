@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Jobs\DatabaseBackupJob;
@@ -21,7 +23,7 @@ class RunScheduledJobsManually extends Command
 
     protected $description = 'Manually run scheduled database backups and tasks when cron fails';
 
-    public function handle()
+    public function handle(): void
     {
         $type = $this->option('type');
         $frequency = $this->option('frequency');

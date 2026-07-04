@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\LocalPersistentVolume;
@@ -28,7 +30,7 @@ class VolumeCloneJob implements ShouldBeEncrypted, ShouldQueue
         $this->onQueue('high');
     }
 
-    public function handle()
+    public function handle(): void
     {
         try {
             if (! $this->targetServer || $this->targetServer->id === $this->sourceServer->id) {
@@ -42,7 +44,7 @@ class VolumeCloneJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    protected function cloneLocalVolume()
+    protected function cloneLocalVolume(): void
     {
         $srcVol = escapeshellarg($this->sourceVolume);
         $tgtVol = escapeshellarg($this->targetVolume);
@@ -53,7 +55,7 @@ class VolumeCloneJob implements ShouldBeEncrypted, ShouldQueue
         ], $this->sourceServer);
     }
 
-    protected function cloneRemoteVolume()
+    protected function cloneRemoteVolume(): void
     {
         $srcVol = escapeshellarg($this->sourceVolume);
         $tgtVol = escapeshellarg($this->targetVolume);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project;
 
 use App\Actions\Database\StartDatabase;
@@ -11,6 +13,8 @@ use App\Models\Environment;
 use App\Models\Project;
 use App\Models\Server;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Visus\Cuid2\Cuid2;
@@ -70,7 +74,7 @@ class CloneMe extends Component
         $this->cloneVolumeData = $value;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.clone-me');
     }

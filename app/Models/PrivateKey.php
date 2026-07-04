@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
 use DanHarrin\LivewireRateLimiting\WithRateLimiting;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +15,45 @@ use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
 use phpseclib3\Crypt\PublicKeyLoader;
 
+/**
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $description
+ * @property string $private_key
+ * @property bool $is_git_related
+ * @property int $team_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $fingerprint
+ * @property-read Collection<int, Application> $applications
+ * @property-read int|null $applications_count
+ * @property-read mixed $public_key
+ * @property-read Collection<int, GithubApp> $githubApps
+ * @property-read int|null $github_apps_count
+ * @property-read Collection<int, GitlabApp> $gitlabApps
+ * @property-read int|null $gitlab_apps_count
+ * @property-read mixed $image
+ * @property-read mixed $sanitized_name
+ * @property-read Collection<int, Server> $servers
+ * @property-read int|null $servers_count
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereFingerprint($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereIsGitRelated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey wherePrivateKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PrivateKey whereUuid($value)
+ *
+ * @mixin \Eloquent
+ */
 #[OA\Schema(
     description: 'Private Key model',
     type: 'object',

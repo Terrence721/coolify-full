@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\StandaloneClickhouse;
 
 test('clickhouse uses clickhouse_db field in internal connection string', function () {

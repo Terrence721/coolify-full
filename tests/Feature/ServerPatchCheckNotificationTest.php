@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\InstanceSettings;
 use App\Models\Server;
 use App\Notifications\Server\ServerPatchCheck;

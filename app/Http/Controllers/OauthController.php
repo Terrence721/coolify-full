@@ -1,21 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class OauthController extends Controller
 {
-    public function redirect(string $provider)
+    public function redirect(string $provider): mixed
     {
         $socialite_provider = get_socialite_provider($provider);
 
         return $socialite_provider->redirect();
     }
 
-    public function callback(string $provider)
+    public function callback(string $provider): RedirectResponse
     {
         try {
             $oauthUser = get_socialite_provider($provider)->user();

@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Settings;
 
 use App\Models\InstanceSettings;
 use App\Rules\ValidDnsServers;
 use App\Rules\ValidIpOrCidr;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -189,7 +193,7 @@ class Advanced extends Component
         return true;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.settings.advanced');
     }

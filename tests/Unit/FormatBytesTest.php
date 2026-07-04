@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('formats zero bytes correctly', function () {
     expect(formatBytes(0))->toBe('0 B');
 });

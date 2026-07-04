@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Proxy\StartProxy;
 use App\Models\Server;

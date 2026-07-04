@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ProxyStatus;
 use App\Enums\ProxyTypes;
 use App\Models\Application;

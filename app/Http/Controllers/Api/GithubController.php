@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,13 +11,14 @@ use App\Rules\SafeExternalUrl;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use OpenApi\Attributes as OA;
 
 class GithubController extends Controller
 {
-    private function removeSensitiveData($githubApp)
+    private function removeSensitiveData($githubApp): Collection
     {
         $githubApp->makeHidden([
             'client_secret',
@@ -78,7 +81,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function list_github_apps(Request $request)
+    public function list_github_apps(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -177,7 +180,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function create_github_app(Request $request)
+    public function create_github_app(Request $request): mixed
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -333,7 +336,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function load_repositories($github_app_id)
+    public function load_repositories($github_app_id): mixed
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -450,7 +453,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function load_branches($github_app_id, $owner, $repo)
+    public function load_branches($github_app_id, $owner, $repo): mixed
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -553,7 +556,7 @@ class GithubController extends Controller
             new OA\Response(response: 422, ref: '#/components/responses/422'),
         ]
     )]
-    public function update_github_app(Request $request, $github_app_id)
+    public function update_github_app(Request $request, $github_app_id): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -726,7 +729,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function delete_github_app($github_app_id)
+    public function delete_github_app($github_app_id): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

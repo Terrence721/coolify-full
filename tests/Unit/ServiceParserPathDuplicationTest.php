@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that serviceParser() correctly handles path appending
  * to prevent duplication when SERVICE_URL/SERVICE_FQDN variables have path values.

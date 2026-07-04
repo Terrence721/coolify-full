@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Settings;
 
 use App\Models\DockerCleanupExecution;
@@ -18,6 +20,8 @@ use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
 use App\Services\SchedulerLogParser;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -98,7 +102,7 @@ class ScheduledJobs extends Component
         $this->loadData();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.settings.scheduled-jobs', [
             'executions' => $this->executions,

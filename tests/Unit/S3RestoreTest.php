@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('S3 path is cleaned correctly', function () {
     // Test that leading slashes are removed
     $path = '/backups/database.gz';

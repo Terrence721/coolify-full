@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('extracts simple environment variables from docker-compose', function () {
     $yaml = <<<'YAML'
 services:

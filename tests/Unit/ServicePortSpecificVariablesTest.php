@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that SERVICE_URL_* and SERVICE_FQDN_* variables
  * with port suffixes are properly handled and populated.

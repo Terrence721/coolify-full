@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Storage;
 
 use App\Models\S3Storage;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Index extends Component
@@ -14,7 +18,7 @@ class Index extends Component
         $this->s3 = S3Storage::ownedByCurrentTeam()->get();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.storage.index');
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\New\DockerImage;
 
 it('auto-parses complete docker image reference with tag', function () {

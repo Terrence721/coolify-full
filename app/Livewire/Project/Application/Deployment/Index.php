@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Application\Deployment;
 
 use App\Models\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
@@ -160,7 +164,7 @@ class Index extends Component
         $this->currentPage = intval($this->skip / $this->defaultTake) + 1;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.application.deployment.index');
     }

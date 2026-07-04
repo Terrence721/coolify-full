@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Database\StartDatabaseProxy;
 use App\Models\StandalonePostgresql;
 use App\Models\Team;

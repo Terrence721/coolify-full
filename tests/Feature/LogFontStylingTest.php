@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('registers geist mono from a local asset for log surfaces', function () {
     $fontsCss = file_get_contents(resource_path('css/fonts.css'));
     $appCss = file_get_contents(resource_path('css/app.css'));

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Rules\ValidCloudInitYaml;
 
 it('accepts valid cloud-config YAML with header', function () {

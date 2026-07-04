@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Server;
 use Illuminate\Support\Once;
 use Tests\TestCase;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\ApplicationPreview;
@@ -37,7 +39,7 @@ class ApplicationPreviewPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, ApplicationPreview $applicationPreview)
+    public function update(User $user, ApplicationPreview $applicationPreview): bool
     {
         // if ($user->isAdmin()) {
         //    return Response::allow();

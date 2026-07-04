@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Models\Server;
@@ -9,7 +11,7 @@ class RestartContainer
 {
     use AsAction;
 
-    public function handle(Server $server, string $containerName)
+    public function handle(Server $server, string $containerName): void
     {
         $server->restartContainer($containerName);
     }

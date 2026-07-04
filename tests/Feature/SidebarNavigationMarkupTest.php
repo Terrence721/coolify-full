@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('initializes persisted sidebar state before enabling layout transitions', function () {
     $layout = file_get_contents(resource_path('views/layouts/app.blade.php'));
 

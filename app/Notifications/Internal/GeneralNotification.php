@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications\Internal;
 
 use App\Notifications\Dto\DiscordMessage;
@@ -13,7 +15,7 @@ class GeneralNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $tries = 1;
+    public int $tries = 1;
 
     public function __construct(public string $message)
     {

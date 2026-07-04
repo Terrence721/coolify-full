@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Feature tests to verify that FQDN updates don't cause path duplication
  * for services with path-based SERVICE_URL/SERVICE_FQDN template variables.

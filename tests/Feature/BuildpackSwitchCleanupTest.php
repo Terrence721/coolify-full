@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\Application\General;
 use App\Models\Application;
 use App\Models\Environment;

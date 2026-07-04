@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('hex magic variables generate valid hex strings with expected lengths', function (string $command, int $expectedLength) {
     $value = generateEnvValue($command);
 

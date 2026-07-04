@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Storage;
 
 use App\Models\S3Storage;
 use App\Models\ScheduledDatabaseBackup;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Resources extends Component
@@ -69,7 +73,7 @@ class Resources extends Component
         $this->dispatch('success', 'Backup moved.', "Moved to {$newStorage->name}.");
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         $backups = ScheduledDatabaseBackup::where('s3_storage_id', $this->storage->id)
             ->where('save_s3', true)

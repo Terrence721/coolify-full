@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\User;
@@ -36,7 +38,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, $database)
+    public function update(User $user, $database): bool
     {
         // if ($user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id)) {
         //    return Response::allow();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Webhook;
 
 use App\Actions\Application\CleanupPreviewDeployment;
@@ -17,7 +19,7 @@ class Bitbucket extends Controller
     use DetectsSkipDeployCommits;
     use MatchesManualWebhookApplications;
 
-    public function manual(Request $request)
+    public function manual(Request $request): mixed
     {
         try {
             $return_payloads = collect([]);

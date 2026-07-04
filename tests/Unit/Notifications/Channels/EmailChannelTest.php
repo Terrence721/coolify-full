@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Exceptions\NonReportableException;
 use App\Models\EmailNotificationSettings;
 use App\Models\Team;

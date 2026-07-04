@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\NotifyOutdatedTraefikServersJob;
 
 it('has correct queue and retry configuration', function () {

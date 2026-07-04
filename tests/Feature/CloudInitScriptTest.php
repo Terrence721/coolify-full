@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // Note: These tests verify cloud-init script logic without database setup
 
 it('validates cloud-init script is included in server params when provided', function () {

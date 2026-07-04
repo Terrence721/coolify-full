@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Events\BackupCreated;
@@ -33,7 +35,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $maxExceptions = 1;
+    public int $maxExceptions = 1;
 
     public ?Team $team = null;
 
@@ -71,7 +73,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
 
     public ?S3Storage $s3 = null;
 
-    public $timeout = 3600;
+    public int $timeout = 3600;
 
     public ?string $backup_log_uuid = null;
 
@@ -660,7 +662,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    private function calculate_size()
+    private function calculate_size(): ?string
     {
         return instant_remote_process(["du -b $this->backup_location | cut -f1"], $this->server, false, false, null, disableMultiplexing: true);
     }

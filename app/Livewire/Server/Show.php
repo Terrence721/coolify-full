@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server;
 
 use App\Actions\Server\StartSentinel;
@@ -10,6 +12,8 @@ use App\Models\Server;
 use App\Rules\ValidServerIp;
 use App\Services\HetznerService;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -658,7 +662,7 @@ class Show extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.show');
     }

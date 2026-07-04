@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Models\User;
@@ -27,7 +29,7 @@ class RootResetPassword extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('You are about to reset the root password.');
         $password = password('Give me a new password for root user: ');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Stripe\ResumeSubscription;
 use App\Models\Subscription;
 use App\Models\Team;

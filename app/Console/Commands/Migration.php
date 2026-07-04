@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -10,7 +12,7 @@ class Migration extends Command
 
     protected $description = 'Start Migration';
 
-    public function handle()
+    public function handle(): void
     {
         if (config('constants.migration.is_migration_enabled')) {
             $this->info('Migration is enabled on this server.');

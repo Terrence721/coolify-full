@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Application;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Yaml\Yaml;

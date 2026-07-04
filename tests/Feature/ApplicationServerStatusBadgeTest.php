@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 function renderApplicationServerStatusBadge(?bool $serverStatus, string $status = 'running', bool $hasAdditionalServers = false): string
 {
     $application = new class($serverStatus, $status, $hasAdditionalServers)

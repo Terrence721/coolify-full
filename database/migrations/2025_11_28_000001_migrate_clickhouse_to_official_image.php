@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\LocalPersistentVolume;
 use App\Models\StandaloneClickhouse;
 use Illuminate\Database\Migrations\Migration;

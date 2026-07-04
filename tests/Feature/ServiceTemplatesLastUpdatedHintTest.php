@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Project\New\Select;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;

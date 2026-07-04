@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Test to verify that custom Docker Compose build commands properly inject flags.
  *

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'provider' => env('SUBSCRIPTION_PROVIDER', null), // stripe
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Symfony\Component\Yaml\Yaml;
 
 test('demonstrates array-format volumes from YAML parsing', function () {

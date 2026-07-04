@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Service;
 
 use App\Actions\Docker\GetContainersStatus;
@@ -7,6 +9,8 @@ use App\Actions\Service\StartService;
 use App\Actions\Service\StopService;
 use App\Enums\ProcessStatus;
 use App\Models\Service;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Spatie\Activitylog\Models\Activity;
@@ -192,7 +196,7 @@ class Heading extends Component
         $this->authorize($ability, $this->service);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.service.heading', [
             'checkboxes' => [

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Helpers\SshMultiplexingHelper;
@@ -15,9 +17,9 @@ class ServerCleanupMux implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 1;
+    public int $tries = 1;
 
-    public $timeout = 60;
+    public int $timeout = 60;
 
     public function backoff(): int
     {
@@ -26,7 +28,7 @@ class ServerCleanupMux implements ShouldBeEncrypted, ShouldQueue
 
     public function __construct(public Server $server) {}
 
-    public function handle()
+    public function handle(): mixed
     {
         try {
             if ($this->server->serverStatus() === false) {

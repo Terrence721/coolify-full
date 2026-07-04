@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Application\Deployment;
 
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 class Show extends Component
@@ -103,7 +108,7 @@ class Show extends Component
         }
     }
 
-    public function getLogLinesProperty()
+    public function getLogLinesProperty(): Collection
     {
         return decode_remote_command_output($this->application_deployment_queue);
     }
@@ -127,7 +132,7 @@ class Show extends Component
         return sanitizeLogsForExport($logs);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.application.deployment.show');
     }

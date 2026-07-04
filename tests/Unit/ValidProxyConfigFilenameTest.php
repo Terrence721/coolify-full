@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Rules\ValidProxyConfigFilename;
 
 test('allows valid proxy config filenames', function () {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('parseEnvFormatToArray parses simple KEY=VALUE pairs', function () {
     $input = "KEY1=value1\nKEY2=value2";
     $result = parseEnvFormatToArray($input);

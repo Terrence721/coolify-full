@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Database\StartDatabaseProxy;
@@ -511,9 +513,10 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
 
     /**
      * @template TModel of Model
-     * @param Builder<TModel> $query
-     * @param Collection<int, int> $standaloneDockerIds
-     * @param Collection<int, int> $swarmDockerIds
+     *
+     * @param  Builder<TModel>  $query
+     * @param  Collection<int, int>  $standaloneDockerIds
+     * @param  Collection<int, int>  $swarmDockerIds
      */
     private function scopeDestination(Builder $query, Collection $standaloneDockerIds, Collection $swarmDockerIds): void
     {
@@ -615,9 +618,9 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             // If all containers are excluded, calculate status from excluded containers
             if ($relevantStatuses->isEmpty()) {
                 $aggregatedStatus = $this->calculateExcludedStatusFromStrings($containerStatuses);
-                    if ($aggregatedStatus && data_get($subResource, 'status') !== $aggregatedStatus) {
-                        $subResource->setAttribute('status', $aggregatedStatus);
-                        $subResource->save();
+                if ($aggregatedStatus && data_get($subResource, 'status') !== $aggregatedStatus) {
+                    $subResource->setAttribute('status', $aggregatedStatus);
+                    $subResource->save();
                 }
 
                 continue;

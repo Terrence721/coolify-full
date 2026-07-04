@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ProxyTypes;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
@@ -1264,14 +1266,14 @@ function getContainerLogs(Server $server, string $container_id, int $lines = 100
 
     return $output;
 }
-function escapeEnvVariables($value)
+function escapeEnvVariables($value): string|array
 {
     $search = ['\\', "\r", "\t", "\x0", '"', "'"];
     $replace = ['\\\\', '\\r', '\\t', '\\0', '\"', "\'"];
 
     return str_replace($search, $replace, $value);
 }
-function escapeDollarSign($value)
+function escapeDollarSign($value): string|array
 {
     $search = ['$'];
     $replace = ['$$'];

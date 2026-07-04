@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('uses Alpine entangle to switch add value field immediately when multiline is enabled', function () {
     $view = file_get_contents(resource_path('views/livewire/project/shared/environment-variable/add.blade.php'));
 

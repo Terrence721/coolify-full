@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Stripe\UpdateSubscriptionQuantity;
@@ -15,11 +17,11 @@ class StripeProcessJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Queueable;
 
-    public $type;
+    public ?string $type = null;
 
-    public $webhook;
+    public mixed $webhook = null;
 
-    public $tries = 3;
+    public int $tries = 3;
 
     public function __construct(public $event)
     {

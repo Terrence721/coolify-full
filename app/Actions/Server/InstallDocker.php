@@ -1,17 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Server;
 
 use App\Helpers\SslHelper;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\Activitylog\Contracts\Activity;
 
 class InstallDocker
 {
     use AsAction;
 
-    public function handle(Server $server)
+    public function handle(Server $server): Activity
     {
         $supported_os_type = $server->validateOS();
         if (! $supported_os_type) {

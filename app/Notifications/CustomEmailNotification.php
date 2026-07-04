@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
@@ -10,9 +12,9 @@ class CustomEmailNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $backoff = [10, 20, 30, 40, 50];
+    public array $backoff = [10, 20, 30, 40, 50];
 
-    public $tries = 5;
+    public int $tries = 5;
 
-    public $maxExceptions = 5;
+    public int $maxExceptions = 5;
 }

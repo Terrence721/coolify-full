@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('DockerCompose handles array format from parseEnvFormatToArray', function () {
     // Simulate the array format that parseEnvFormatToArray returns
     $variables = [

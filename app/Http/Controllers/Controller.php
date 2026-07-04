@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Events\TestEvent;
@@ -8,10 +10,14 @@ use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +31,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    public function realtime_test()
+    public function realtime_test(): Redirector|RedirectResponse|string
     {
         if (data_get(currentTeam(), 'id') !== 0) {
             return redirect(RouteServiceProvider::HOME);
@@ -35,12 +41,12 @@ class Controller extends BaseController
         return 'Look at your other tab.';
     }
 
-    public function verify()
+    public function verify(): Factory|View
     {
         return view('auth.verify-email');
     }
 
-    public function email_verify(Request $request)
+    public function email_verify(Request $request): Redirector|RedirectResponse
     {
         if (! $request->hasValidSignature()) {
             abort(403);
@@ -67,7 +73,7 @@ class Controller extends BaseController
         return redirect(RouteServiceProvider::HOME);
     }
 
-    public function forgot_password(Request $request)
+    public function forgot_password(Request $request): mixed
     {
         if (is_transactional_emails_enabled()) {
             $arrayOfRequest = $request->only(Fortify::email());
@@ -95,7 +101,7 @@ class Controller extends BaseController
         return response()->json(['message' => 'Transactional emails are not active'], 400);
     }
 
-    public function link()
+    public function link(): RedirectResponse
     {
         $token = request()->get('token');
         if ($token) {
@@ -155,7 +161,7 @@ class Controller extends BaseController
         return redirect()->route('login')->with('error', 'Invalid credentials.');
     }
 
-    public function showInvitation()
+    public function showInvitation(): Factory|View
     {
         $invitationUuid = request()->route('uuid');
         $invitation = TeamInvitation::whereUuid($invitationUuid)->firstOrFail();
@@ -183,7 +189,7 @@ class Controller extends BaseController
         ]);
     }
 
-    public function acceptInvitation()
+    public function acceptInvitation(): RedirectResponse
     {
         $invitationUuid = request()->route('uuid');
 

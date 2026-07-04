@@ -98,7 +98,7 @@ services:
       - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
     volumes:
       - .:/var/www/html/:cached
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "yarn install && yarn dev"
     networks:
       - coolify
   testing-host:

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server\Security;
 
 use App\Actions\Server\CheckUpdates;
@@ -7,6 +9,8 @@ use App\Actions\Server\UpdatePackage;
 use App\Events\ServerPackageUpdated;
 use App\Models\Server;
 use App\Notifications\Server\ServerPatchCheck;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -183,7 +187,7 @@ class Patches extends Component
         ];
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.security.patches');
     }

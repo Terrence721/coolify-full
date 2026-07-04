@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\SharedVariables\Environment\Show;
 use App\Livewire\SharedVariables\Team\Index;
 use App\Models\Environment;

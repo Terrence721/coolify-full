@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server;
 
 use App\Models\CloudProviderToken;
 use App\Models\PrivateKey;
 use App\Models\Team;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Create extends Component
@@ -31,7 +35,7 @@ class Create extends Component
             ->exists();
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.create');
     }

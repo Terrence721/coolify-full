@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ApplicationDeploymentStatus;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\GlobalSearch;

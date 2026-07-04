@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Helpers\SshMultiplexingHelper;
 use App\Jobs\CleanupStaleMultiplexedConnections;
 use App\Models\PrivateKey;

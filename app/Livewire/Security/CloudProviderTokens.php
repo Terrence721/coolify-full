@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Security;
 
 use App\Models\CloudProviderToken;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Http;
 use Livewire\Component;
@@ -108,7 +112,7 @@ class CloudProviderTokens extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.security.cloud-provider-tokens');
     }

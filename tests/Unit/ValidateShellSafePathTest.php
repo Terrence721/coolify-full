@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('allows safe paths without special characters', function () {
     $safePaths = [
         '/var/lib/data',

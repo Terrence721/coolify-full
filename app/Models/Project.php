@@ -1,13 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 use Visus\Cuid2\Cuid2;
 
+/**
+ * @property-read Team $team
+ * @property int $id
+ * @property string $uuid
+ * @property string $name
+ * @property string|null $description
+ * @property int $team_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Application> $applications
+ * @property-read int|null $applications_count
+ * @property-read Collection<int, StandaloneClickhouse> $clickhouses
+ * @property-read int|null $clickhouses_count
+ * @property-read Collection<int, StandaloneDragonfly> $dragonflies
+ * @property-read int|null $dragonflies_count
+ * @property-read Collection<int, SharedEnvironmentVariable> $environment_variables
+ * @property-read int|null $environment_variables_count
+ * @property-read Collection<int, Environment> $environments
+ * @property-read int|null $environments_count
+ * @property-read mixed $image
+ * @property-read Collection<int, StandaloneKeydb> $keydbs
+ * @property-read int|null $keydbs_count
+ * @property-read Collection<int, StandaloneMariadb> $mariadbs
+ * @property-read int|null $mariadbs_count
+ * @property-read Collection<int, StandaloneMongodb> $mongodbs
+ * @property-read int|null $mongodbs_count
+ * @property-read Collection<int, StandaloneMysql> $mysqls
+ * @property-read int|null $mysqls_count
+ * @property-read Collection<int, StandalonePostgresql> $postgresqls
+ * @property-read int|null $postgresqls_count
+ * @property-read Collection<int, StandaloneRedis> $redis
+ * @property-read int|null $redis_count
+ * @property-read mixed $sanitized_name
+ * @property-read Collection<int, Service> $services
+ * @property-read int|null $services_count
+ * @property-read ProjectSetting|null $settings
+ *
+ * @method static \Database\Factories\ProjectFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereTeamId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereUuid($value)
+ *
+ * @mixin \Eloquent
+ */
 #[OA\Schema(
     description: 'Project model',
     type: 'object',
@@ -87,7 +143,10 @@ class Project extends BaseModel
         return $this->hasOne(ProjectSetting::class);
     }
 
-    public function team()
+    /**
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
@@ -161,7 +220,7 @@ class Project extends BaseModel
         return $this->postgresqls()->get()->merge($this->redis()->get())->merge($this->mongodbs()->get())->merge($this->mysqls()->get())->merge($this->mariadbs()->get())->merge($this->keydbs()->get())->merge($this->dragonflies()->get())->merge($this->clickhouses()->get());
     }
 
-    public function navigateTo()
+    public function navigateTo(): string
     {
         if ($this->environments->count() === 1) {
             return route('project.resource.index', [

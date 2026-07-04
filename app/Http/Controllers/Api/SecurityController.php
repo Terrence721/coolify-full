@@ -1,16 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PrivateKey;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
 class SecurityController extends Controller
 {
-    private function removeSensitiveData($team)
+    private function removeSensitiveData($team): Collection
     {
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $team->makeHidden([
@@ -53,7 +56,7 @@ class SecurityController extends Controller
             ),
         ]
     )]
-    public function keys(Request $request)
+    public function keys(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -96,7 +99,7 @@ class SecurityController extends Controller
             ),
         ]
     )]
-    public function key_by_uuid(Request $request)
+    public function key_by_uuid(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -170,7 +173,7 @@ class SecurityController extends Controller
             ),
         ]
     )]
-    public function create_key(Request $request)
+    public function create_key(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -300,7 +303,7 @@ class SecurityController extends Controller
             ),
         ]
     )]
-    public function update_key(Request $request)
+    public function update_key(Request $request): JsonResponse
     {
         $allowedFields = ['name', 'description', 'private_key'];
         $teamId = getTeamIdFromToken();
@@ -407,7 +410,7 @@ class SecurityController extends Controller
                 ]),
         ]
     )]
-    public function delete_key(Request $request)
+    public function delete_key(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

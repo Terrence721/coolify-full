@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Service;
 
 use App\Models\Application;
@@ -14,6 +16,8 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -215,7 +219,7 @@ class FileStorage extends Component
         $this->dispatch('success', 'File updated.');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.service.file-storage', [
             'directoryDeletionCheckboxes' => [

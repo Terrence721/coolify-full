@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,6 +11,7 @@ use App\Models\ServerSetting;
 use App\Models\Team;
 use Exception;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
@@ -23,7 +26,7 @@ class SentinelController extends Controller
      * server per minute, the job is only dispatched when the container state hash
      * changes, or when the force window has elapsed.
      */
-    public function push(Request $request)
+    public function push(Request $request): JsonResponse
     {
         $token = $request->header('Authorization');
         if (! $token) {

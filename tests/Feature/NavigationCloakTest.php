@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 it('strips leftover x-cloak after wire:navigate to prevent blank page', function () {
     $appJs = file_get_contents(resource_path('js/app.js'));
 

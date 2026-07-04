@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\EnvironmentVariable;
 
 test('fillable array contains all fields used in mass assignment across codebase', function () {

@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared;
 
 use App\Models\Application;
 use App\Models\Server;
 use App\Models\Service;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -230,7 +234,7 @@ class ExecuteContainerCommand extends Component
         }
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.shared.execute-container-command');
     }

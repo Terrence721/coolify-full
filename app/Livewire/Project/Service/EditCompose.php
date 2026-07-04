@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Service;
 
 use App\Models\Service;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class EditCompose extends Component
@@ -87,7 +91,7 @@ class EditCompose extends Component
         $this->dispatch('success', 'Service updated successfully');
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.service.edit-compose');
     }

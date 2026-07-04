@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CoolifyTask;
 use App\Jobs\DatabaseBackupJob;
 use App\Jobs\ScheduledTaskJob;

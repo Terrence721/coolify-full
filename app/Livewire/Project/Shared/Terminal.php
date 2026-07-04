@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Project\Shared;
 
 use App\Helpers\SshMultiplexingHelper;
 use App\Models\Server;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -111,7 +115,7 @@ class Terminal extends Component
         $this->isTerminalConnected = true;
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.project.shared.terminal');
     }

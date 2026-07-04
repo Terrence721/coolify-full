@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify consistent handling of all-excluded containers
  * across PushServerUpdateJob, GetContainersStatus, and ComplexStatusCheck.

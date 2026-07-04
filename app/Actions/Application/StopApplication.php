@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Application;
 
 use App\Actions\Server\CleanupDocker;
 use App\Events\ServiceStatusChanged;
 use App\Models\Application;
+use App\Models\StandaloneDocker;
+use App\Models\SwarmDocker;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StopApplication
@@ -13,10 +17,12 @@ class StopApplication
 
     public string $jobQueue = 'high';
 
-    public function handle(Application $application, bool $previewDeployments = false, bool $dockerCleanup = true, bool $resetRestartCount = true)
+    public function handle(Application $application, bool $previewDeployments = false, bool $dockerCleanup = true, bool $resetRestartCount = true): ?string
     {
-        $servers = collect([$application->destination->server]);
-        if ($application?->additional_servers?->count() > 0) {
+        /** @var StandaloneDocker|SwarmDocker $destination */
+        $destination = $application->destination;
+        $servers = collect([$destination->server]);
+        if ($application->additional_servers->count() > 0) {
             $servers = $servers->merge($application->additional_servers);
         }
         foreach ($servers as $server) {
@@ -28,7 +34,7 @@ class StopApplication
                 if ($server->isSwarm()) {
                     instant_remote_process(["docker stack rm {$application->uuid}"], $server);
 
-                    return;
+                    return null;
                 }
 
                 $containers = $previewDeployments
@@ -70,5 +76,7 @@ class StopApplication
         }
 
         ServiceStatusChanged::dispatch($application->environment->project->team->id);
+
+        return null;
     }
 }

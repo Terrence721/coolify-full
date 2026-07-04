@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CoolifyTask;
 use App\Models\Server;
 use Illuminate\Foundation\Testing\RefreshDatabase;

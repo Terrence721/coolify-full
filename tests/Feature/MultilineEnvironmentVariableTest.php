@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('generateDockerBuildArgs returns only keys without values', function () {
     $variables = [
         ['key' => 'SSH_PRIVATE_KEY', 'value' => "'some-ssh-key'", 'is_multiline' => true],

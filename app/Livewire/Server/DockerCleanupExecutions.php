@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server;
 
 use App\Models\DockerCleanupExecution;
 use App\Models\Server;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
@@ -125,7 +129,7 @@ class DockerCleanupExecutions extends Component
         return $lines->count() > ($this->currentPage * $this->logsPerPage);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.docker-cleanup-executions');
     }

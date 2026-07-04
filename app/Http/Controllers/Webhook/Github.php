@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Webhook;
 
 use App\Http\Controllers\Controller;
@@ -24,7 +26,7 @@ class Github extends Controller
     use DetectsSkipDeployCommits;
     use MatchesManualWebhookApplications;
 
-    public function manual(Request $request)
+    public function manual(Request $request): mixed
     {
         try {
             $return_payloads = collect([]);
@@ -256,7 +258,7 @@ class Github extends Controller
         }
     }
 
-    public function normal(Request $request)
+    public function normal(Request $request): mixed
     {
         try {
             $return_payloads = collect([]);
@@ -516,7 +518,7 @@ class Github extends Controller
         return false;
     }
 
-    public function redirect(Request $request)
+    public function redirect(Request $request): RedirectResponse
     {
         $code = (string) $request->query('code', '');
         abort_if(blank($code), 422, 'Missing GitHub App manifest code.');
@@ -564,7 +566,7 @@ class Github extends Controller
         return redirect()->route('source.github.show', ['github_app_uuid' => $github_app->uuid]);
     }
 
-    public function install(Request $request)
+    public function install(Request $request): RedirectResponse
     {
         $setup_action = (string) $request->query('setup_action', '');
         abort_unless(in_array($setup_action, ['install', 'update'], true), 422, 'Invalid GitHub App setup action.');

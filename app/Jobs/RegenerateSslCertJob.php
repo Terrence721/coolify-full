@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Helpers\SslHelper;
@@ -18,9 +20,9 @@ class RegenerateSslCertJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 3;
+    public int $tries = 3;
 
-    public $backoff = 60;
+    public int $backoff = 60;
 
     public function __construct(
         protected ?Team $team = null,
@@ -28,7 +30,7 @@ class RegenerateSslCertJob implements ShouldBeEncrypted, ShouldQueue
         protected bool $force_regeneration = false,
     ) {}
 
-    public function handle()
+    public function handle(): void
     {
         $query = SslCertificate::query();
 

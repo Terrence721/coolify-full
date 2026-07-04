@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Livewire\Storage\Resources as StorageResources;
 use App\Models\InstanceSettings;
 use App\Models\S3Storage;

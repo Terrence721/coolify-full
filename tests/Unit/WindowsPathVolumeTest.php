@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 test('parseDockerVolumeString correctly handles Windows paths with drive letters', function () {
     $windowsVolume = 'C:\\host\\path:/container';
 

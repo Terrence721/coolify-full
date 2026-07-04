@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Server;
 
 use App\Actions\Proxy\CheckProxy;
@@ -9,6 +11,8 @@ use App\Enums\ProxyTypes;
 use App\Jobs\RestartProxyJob;
 use App\Models\Server;
 use App\Services\ProxyDashboardCacheService;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -219,7 +223,7 @@ class Navbar extends Component
         return ! empty($outdatedInfo) && isset($outdatedInfo['type']);
     }
 
-    public function render()
+    public function render(): Factory|View
     {
         return view('livewire.server.navbar');
     }

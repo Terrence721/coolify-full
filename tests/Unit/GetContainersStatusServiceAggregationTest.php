@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests for GetContainersStatus service aggregation logic (SSH path).
  *

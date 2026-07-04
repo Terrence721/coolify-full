@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Unit tests to verify that updateCompose() correctly handles abbreviated
  * SERVICE_URL and SERVICE_FQDN variable names from templates.

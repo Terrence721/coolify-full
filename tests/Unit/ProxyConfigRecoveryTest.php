@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Proxy\GetProxyConfiguration;
 use Illuminate\Log\LogManager;
 use Illuminate\Support\Facades\Cache;

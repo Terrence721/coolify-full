@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use App\Enums\ActivityTypes;
@@ -17,6 +19,7 @@ use App\Models\StandalonePostgresql;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -27,11 +30,11 @@ class Init extends Command
 
     protected $description = 'Cleanup instance related stuffs';
 
-    public $servers = null;
+    public ?Collection $servers = null;
 
     public InstanceSettings $settings;
 
-    public function handle()
+    public function handle(): void
     {
         Artisan::call('optimize:clear');
         Artisan::call('optimize');
@@ -154,12 +157,12 @@ class Init extends Command
         }
     }
 
-    private function pullHelperImage()
+    private function pullHelperImage(): void
     {
         CheckHelperImageJob::dispatch();
     }
 
-    private function pullTemplatesFromCDN()
+    private function pullTemplatesFromCDN(): void
     {
         $response = Http::retry(3, 1000)->get(config('constants.services.official'));
         if ($response->successful()) {
@@ -168,7 +171,7 @@ class Init extends Command
         }
     }
 
-    private function pullChangelogFromGitHub()
+    private function pullChangelogFromGitHub(): void
     {
         try {
             PullChangelog::dispatch();
@@ -178,7 +181,7 @@ class Init extends Command
         }
     }
 
-    private function updateUserEmails()
+    private function updateUserEmails(): void
     {
         try {
             User::query()->whereRaw('email ~ \'[A-Z]\'')->get()->each(function (User $user) {
@@ -189,7 +192,7 @@ class Init extends Command
         }
     }
 
-    private function updateTraefikLabels()
+    private function updateTraefikLabels(): void
     {
         try {
             Server::query()->where('proxy->type', 'TRAEFIK_V2')->update(['proxy->type' => 'TRAEFIK']);
@@ -198,7 +201,7 @@ class Init extends Command
         }
     }
 
-    private function cleanupUnusedNetworkFromCoolifyProxy()
+    private function cleanupUnusedNetworkFromCoolifyProxy(): void
     {
         foreach ($this->servers as $server) {
             if (! $server->isFunctional()) {
@@ -238,7 +241,7 @@ class Init extends Command
         }
     }
 
-    private function restoreCoolifyDbBackup()
+    private function restoreCoolifyDbBackup(): void
     {
         if (version_compare('4.0.0-beta.179', config('constants.coolify.version'), '<=')) {
             try {
@@ -264,7 +267,7 @@ class Init extends Command
         }
     }
 
-    private function sendAliveSignal()
+    private function sendAliveSignal(): void
     {
         $id = config('app.id');
         $version = config('constants.coolify.version');
@@ -275,7 +278,7 @@ class Init extends Command
         }
     }
 
-    private function replaceSlashInEnvironmentName()
+    private function replaceSlashInEnvironmentName(): void
     {
         if (version_compare('4.0.0-beta.298', config('constants.coolify.version'), '<=')) {
             $environments = Environment::all();

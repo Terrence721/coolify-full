@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Actions\Server\ValidateServer;
@@ -88,7 +90,7 @@ class HetznerController extends Controller
             ),
         ]
     )]
-    public function locations(Request $request)
+    public function locations(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -209,7 +211,7 @@ class HetznerController extends Controller
             ),
         ]
     )]
-    public function serverTypes(Request $request)
+    public function serverTypes(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -308,7 +310,7 @@ class HetznerController extends Controller
             ),
         ]
     )]
-    public function images(Request $request)
+    public function images(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -417,7 +419,7 @@ class HetznerController extends Controller
             ),
         ]
     )]
-    public function sshKeys(Request $request)
+    public function sshKeys(Request $request): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -529,7 +531,7 @@ class HetznerController extends Controller
             ),
         ]
     )]
-    public function createServer(Request $request)
+    public function createServer(Request $request): JsonResponse
     {
         $allowedFields = [
             'cloud_provider_token_uuid',

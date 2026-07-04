@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Test to verify that empty .env files are created for build packs that require them.
  *

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -8,11 +10,12 @@ use App\Models\ScheduledTask;
 use App\Models\Service;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use OpenApi\Attributes as OA;
 
 class ScheduledTasksController extends Controller
 {
-    private function removeSensitiveData($task)
+    private function removeSensitiveData($task): Collection
     {
         $task->makeHidden([
             'id',

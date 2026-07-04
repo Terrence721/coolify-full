@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Actions\Server\UpdateCoolify;
@@ -16,7 +18,7 @@ class UpdateCoolifyJob implements ShouldBeEncrypted, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 600;
+    public int $timeout = 600;
 
     public function __construct()
     {

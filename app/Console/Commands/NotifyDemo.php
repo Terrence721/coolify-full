@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -27,7 +29,7 @@ class NotifyDemo extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $channel = $this->argument('channel');
 
@@ -38,7 +40,7 @@ class NotifyDemo extends Command
         }
     }
 
-    private function showHelp()
+    private function showHelp(): void
     {
         style('coolify')->color('#9333EA');
         style('title-box')->apply('mt-1 px-2 py-1 bg-coolify');
