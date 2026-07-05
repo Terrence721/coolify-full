@@ -63,8 +63,9 @@ class UpdateSubscriptionQuantity
             $taxDescription = null;
             if (! empty($upcomingInvoice->total_tax_amounts)) {
                 $taxAmount = $upcomingInvoice->total_tax_amounts[0] ?? null;
-                if ($taxAmount?->tax_rate) {
-                    $taxRate = $this->stripe->taxRates->retrieve($taxAmount->tax_rate);
+                $taxRateId = data_get($taxAmount, 'tax_rate');
+                if ($taxRateId) {
+                    $taxRate = $this->stripe->taxRates->retrieve($taxRateId);
                     $taxPercentage = (float) ($taxRate->percentage ?? 0);
                     $taxDescription = $taxRate->display_name.' ('.$taxRate->jurisdiction.') '.$taxRate->percentage.'%';
                 }
@@ -199,12 +200,5 @@ class UpdateSubscriptionQuantity
 
             return ['success' => false, 'error' => 'An unexpected error occurred. Please contact support.'];
         }
-    }
-
-    private function formatAmount(int $cents, string $currency): string
-    {
-        return strtoupper($currency) === 'USD'
-            ? '$'.number_format($cents / 100, 2)
-            : number_format($cents / 100, 2).' '.$currency;
     }
 }

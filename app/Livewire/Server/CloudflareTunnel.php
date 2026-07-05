@@ -59,7 +59,7 @@ class CloudflareTunnel extends Component
     {
         try {
             $this->authorize('update', $this->server);
-            remote_process(['docker rm -f coolify-cloudflared'], $this->server, false, 10);
+            remote_process(['docker rm -f coolify-cloudflared'], $this->server);
             $this->isCloudflareTunnelsEnabled = false;
             $this->server->settings->is_cloudflare_tunnel = false;
             $this->server->settings->save();

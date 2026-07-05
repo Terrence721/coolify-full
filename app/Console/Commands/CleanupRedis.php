@@ -195,7 +195,8 @@ class CleanupRedis extends Command
             }
 
             // If both have timestamps, prefer the newer one
-            if ($aHasTimestamp && $bHasTimestamp) {
+            // (the earlier guards already ruled out exactly one of them having a timestamp)
+            if ($aHasTimestamp) {
                 preg_match('/(\d{10})/', $a, $aMatches);
                 preg_match('/(\d{10})/', $b, $bMatches);
 

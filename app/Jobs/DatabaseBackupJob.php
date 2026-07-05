@@ -428,8 +428,10 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                 }
 
                 // Step 2: Upload to S3 if enabled (independent of local backup)
+                // ($localBackupSucceeded is always true here: the try block above either
+                // sets it to true or throws, and the catch path continues the loop.)
                 $localStorageDeleted = false;
-                if ($this->backup->save_s3 && $localBackupSucceeded) {
+                if ($this->backup->save_s3) {
                     try {
                         $this->upload_to_s3();
 
@@ -644,15 +646,6 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
         } catch (Throwable $e) {
             $this->add_to_error_output($e->getMessage());
             throw $e;
-        }
-    }
-
-    private function add_to_backup_output(string $output): void
-    {
-        if ($this->backup_output) {
-            $this->backup_output = $this->backup_output."\n".$output;
-        } else {
-            $this->backup_output = $output;
         }
     }
 

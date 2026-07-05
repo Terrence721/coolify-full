@@ -78,7 +78,7 @@ use OpenApi\Attributes as OA;
  * @property string|null $configuration_hash
  * @property array|null $configuration_snapshot
  * @property array|null $configuration_diff
- * @property-read mixed $server
+ * @property-read Server|null $server
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ApplicationDeploymentQueue newQuery()

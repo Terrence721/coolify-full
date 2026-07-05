@@ -43,7 +43,7 @@ class DeleteService
                 if (! empty($commands)) {
                     foreach ($commands as $command) {
                         $result = instant_remote_process([$command], $server, false);
-                        if ($result !== null && $result !== 0) {
+                        if ($result !== null) {
                             Log::error('Error deleting volumes: '.$result);
                         }
                     }

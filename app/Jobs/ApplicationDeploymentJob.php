@@ -130,7 +130,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
     /** @var Collection<int, string>|string */
     private Collection|string $build_args;
 
-    /** @var Collection<int, string>|string|null */
+    /** @var Collection<string, string>|string|null */
     private Collection|string|null $env_args = '';
 
     /** @var Collection<int, string>|string|null */

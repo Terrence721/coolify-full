@@ -116,7 +116,7 @@ class Emails extends Command
                 }
                 break;
             case 'emails-test':
-                $this->mail = (new Test)->toMail($this->resolveNotifiable());
+                $this->mail = (new Test)->toMail();
                 $this->sendEmail();
                 break;
             case 'application-deployment-success-daily':
@@ -153,7 +153,7 @@ class Emails extends Command
                 break;
             case 'application-status-changed':
                 $application = Application::query()->first();
-                $this->mail = (new StatusChanged($application))->toMail($this->resolveNotifiable());
+                $this->mail = (new StatusChanged($application))->toMail();
                 $this->sendEmail();
                 break;
             case 'backup-failed':
@@ -170,7 +170,7 @@ class Emails extends Command
                     ]);
                 }
                 $output = 'Because of an error, the backup of the database '.$db->name.' failed.';
-                $this->mail = (new BackupFailed($backup, $db, $output, $backup->database_name ?? 'unknown'))->toMail($this->resolveNotifiable());
+                $this->mail = (new BackupFailed($backup, $db, $output, $backup->database_name ?? 'unknown'))->toMail();
                 $this->sendEmail();
                 break;
             case 'backup-success':

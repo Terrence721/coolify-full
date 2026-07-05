@@ -22,11 +22,6 @@ class PrivateKeyPolicy
      */
     public function view(User $user, PrivateKey $privateKey): bool
     {
-        // Handle null team_id
-        if ($privateKey->team_id === null) {
-            return false;
-        }
-
         // System resource (team_id=0): Only root team admins/owners can access
         if ($privateKey->team_id === 0) {
             return $user->canAccessSystemResources();
@@ -51,11 +46,6 @@ class PrivateKeyPolicy
      */
     public function update(User $user, PrivateKey $privateKey): bool
     {
-        // Handle null team_id
-        if ($privateKey->team_id === null) {
-            return false;
-        }
-
         // System resource (team_id=0): Only root team admins/owners can update
         if ($privateKey->team_id === 0) {
             return $user->canAccessSystemResources();
@@ -71,11 +61,6 @@ class PrivateKeyPolicy
      */
     public function delete(User $user, PrivateKey $privateKey): bool
     {
-        // Handle null team_id
-        if ($privateKey->team_id === null) {
-            return false;
-        }
-
         // System resource (team_id=0): Only root team admins/owners can delete
         if ($privateKey->team_id === 0) {
             return $user->canAccessSystemResources();

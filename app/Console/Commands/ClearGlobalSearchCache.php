@@ -31,7 +31,7 @@ class ClearGlobalSearchCache extends Command
         }
 
         if ($teamId = $this->option('team')) {
-            return $this->clearTeamCache($teamId);
+            return $this->clearTeamCache((int) $teamId);
         }
 
         // If no options provided, clear cache for current user's team

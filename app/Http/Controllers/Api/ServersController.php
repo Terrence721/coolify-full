@@ -371,7 +371,7 @@ class ServersController extends Controller
 
                             return str(str($f[0])->explode(':')[0]);
                         })->filter(function (Stringable $fqdn) {
-                            return $fqdn !== '';
+                            return $fqdn->isNotEmpty();
                         });
                         $serviceIp = $server->ip;
                         if ($serviceIp === 'host.docker.internal') {

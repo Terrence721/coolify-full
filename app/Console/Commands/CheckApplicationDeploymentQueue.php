@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Enums\ApplicationDeploymentStatus;
 use App\Models\ApplicationDeploymentQueue;
+use App\Models\Server;
 use Illuminate\Console\Command;
 
 class CheckApplicationDeploymentQueue extends Command
@@ -16,7 +17,7 @@ class CheckApplicationDeploymentQueue extends Command
 
     public function handle(): void
     {
-        $seconds = $this->option('seconds');
+        $seconds = (int) $this->option('seconds');
         $deployments = ApplicationDeploymentQueue::whereIn('status', [
             ApplicationDeploymentStatus::IN_PROGRESS,
             ApplicationDeploymentStatus::QUEUED,
@@ -45,8 +46,9 @@ class CheckApplicationDeploymentQueue extends Command
     private function cancelDeployment(ApplicationDeploymentQueue $deployment): void
     {
         $deployment->update(['status' => ApplicationDeploymentStatus::FAILED]);
-        if ($deployment->server?->isFunctional()) {
-            remote_process(['docker rm -f '.$deployment->deployment_uuid], $deployment->server, false);
+        $server = Server::find($deployment->server_id);
+        if ($server?->isFunctional()) {
+            remote_process(['docker rm -f '.$deployment->deployment_uuid], $server, ignore_errors: false);
         }
     }
 }
