@@ -187,7 +187,7 @@ class ScheduledJobs extends Component
                 $backup = $backups->get($skip['context']['backup_id'] ?? null);
                 if ($backup) {
                     $database = $backup->database;
-                    $skip['resource_name'] = $database?->name ?? 'Database backup';
+                    $skip['resource_name'] = $database->name ?? 'Database backup';
 
                     if ($database instanceof ServiceDatabase) {
                         $service = $database->service()->first();
@@ -272,7 +272,7 @@ class ScheduledJobs extends Component
                 'status' => $execution->status ?? 'unknown',
                 'resource_name' => data_get($database, 'name', 'Deleted database'),
                 'resource_type' => $database ? class_basename($database) : null,
-                'server_name' => $server?->name ?? 'Unknown',
+                'server_name' => $server->name ?? 'Unknown',
                 'server_id' => $server?->id,
                 'team_id' => data_get($backup, 'team_id'),
                 'created_at' => $execution->created_at,

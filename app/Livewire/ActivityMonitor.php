@@ -118,7 +118,7 @@ class ActivityMonitor extends Component
                         $user = User::find($causer_id);
                         if ($user) {
                             $teamId = data_get($this->activity, 'properties.team_id')
-                                ?? $user->currentTeam()?->id
+                                ?? $user->currentTeam()->id
                                 ?? $user->teams->first()?->id;
                             if ($teamId && ! self::$eventDispatched) {
                                 if (filled($this->eventData)) {

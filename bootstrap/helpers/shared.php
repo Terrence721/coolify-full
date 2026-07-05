@@ -332,7 +332,7 @@ function isInstanceAdmin()
     return $user->isInstanceAdmin();
 }
 
-function currentTeam()
+function currentTeam(): ?Team
 {
     $user = Auth::user();
 

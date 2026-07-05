@@ -163,9 +163,9 @@ class DeployController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Deployment cancelled successfully.'],
-                                'deployment_uuid' => ['type' => 'string', 'example' => 'cm37r6cqj000008jm0veg5tkm'],
-                                'status' => ['type' => 'string', 'example' => 'cancelled-by-user'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Deployment cancelled successfully.'),
+                                new OA\Property(property: 'deployment_uuid', type: 'string', example: 'cm37r6cqj000008jm0veg5tkm'),
+                                new OA\Property(property: 'status', type: 'string', example: 'cancelled-by-user'),
                             ]
                         )
                     ),
@@ -179,7 +179,7 @@ class DeployController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Deployment cannot be cancelled. Current status: finished'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Deployment cannot be cancelled. Current status: finished'),
                             ]
                         )
                     ),
@@ -197,7 +197,7 @@ class DeployController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'You do not have permission to cancel this deployment.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'You do not have permission to cancel this deployment.'),
                             ]
                         )
                     ),
@@ -340,9 +340,9 @@ class DeployController extends Controller
                                     items: new OA\Items(
                                         type: 'object',
                                         properties: [
-                                            'message' => ['type' => 'string'],
-                                            'resource_uuid' => ['type' => 'string'],
-                                            'deployment_uuid' => ['type' => 'string'],
+                                            new OA\Property(property: 'message', type: 'string'),
+                                            new OA\Property(property: 'resource_uuid', type: 'string'),
+                                            new OA\Property(property: 'deployment_uuid', type: 'string'),
                                         ]
                                     ),
                                 ),
@@ -520,7 +520,7 @@ class DeployController extends Controller
                 $deployment_uuid = new Cuid2;
                 $result = queue_application_deployment(
                     application: $resource,
-                    deployment_uuid: $deployment_uuid,
+                    deployment_uuid: $deployment_uuid->toString(),
                     force_rebuild: $force,
                     pull_request_id: $pr,
                     is_api: true,

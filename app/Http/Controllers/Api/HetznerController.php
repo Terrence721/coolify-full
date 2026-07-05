@@ -68,13 +68,13 @@ class HetznerController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'id' => ['type' => 'integer'],
-                                    'name' => ['type' => 'string'],
-                                    'description' => ['type' => 'string'],
-                                    'country' => ['type' => 'string'],
-                                    'city' => ['type' => 'string'],
-                                    'latitude' => ['type' => 'number'],
-                                    'longitude' => ['type' => 'number'],
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'description', type: 'string'),
+                                    new OA\Property(property: 'country', type: 'string'),
+                                    new OA\Property(property: 'city', type: 'string'),
+                                    new OA\Property(property: 'latitude', type: 'number'),
+                                    new OA\Property(property: 'longitude', type: 'number'),
                                 ]
                             )
                         )
@@ -167,35 +167,13 @@ class HetznerController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'id' => ['type' => 'integer'],
-                                    'name' => ['type' => 'string'],
-                                    'description' => ['type' => 'string'],
-                                    'cores' => ['type' => 'integer'],
-                                    'memory' => ['type' => 'number'],
-                                    'disk' => ['type' => 'integer'],
-                                    'prices' => [
-                                        'type' => 'array',
-                                        'items' => [
-                                            'type' => 'object',
-                                            'properties' => [
-                                                'location' => ['type' => 'string', 'description' => 'Datacenter location name'],
-                                                'price_hourly' => [
-                                                    'type' => 'object',
-                                                    'properties' => [
-                                                        'net' => ['type' => 'string'],
-                                                        'gross' => ['type' => 'string'],
-                                                    ],
-                                                ],
-                                                'price_monthly' => [
-                                                    'type' => 'object',
-                                                    'properties' => [
-                                                        'net' => ['type' => 'string'],
-                                                        'gross' => ['type' => 'string'],
-                                                    ],
-                                                ],
-                                            ],
-                                        ],
-                                    ],
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'description', type: 'string'),
+                                    new OA\Property(property: 'cores', type: 'integer'),
+                                    new OA\Property(property: 'memory', type: 'number'),
+                                    new OA\Property(property: 'disk', type: 'integer'),
+                                    new OA\Property(property: 'prices', type: 'array', items: new OA\Items(type: 'object', properties: [new OA\Property(property: 'location', type: 'string', description: 'Datacenter location name'), new OA\Property(property: 'price_hourly', type: 'object', properties: [new OA\Property(property: 'net', type: 'string'), new OA\Property(property: 'gross', type: 'string')]), new OA\Property(property: 'price_monthly', type: 'object', properties: [new OA\Property(property: 'net', type: 'string'), new OA\Property(property: 'gross', type: 'string')])])),
                                 ]
                             )
                         )
@@ -288,13 +266,13 @@ class HetznerController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'id' => ['type' => 'integer'],
-                                    'name' => ['type' => 'string'],
-                                    'description' => ['type' => 'string'],
-                                    'type' => ['type' => 'string'],
-                                    'os_flavor' => ['type' => 'string'],
-                                    'os_version' => ['type' => 'string'],
-                                    'architecture' => ['type' => 'string'],
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'description', type: 'string'),
+                                    new OA\Property(property: 'type', type: 'string'),
+                                    new OA\Property(property: 'os_flavor', type: 'string'),
+                                    new OA\Property(property: 'os_version', type: 'string'),
+                                    new OA\Property(property: 'architecture', type: 'string'),
                                 ]
                             )
                         )
@@ -400,10 +378,10 @@ class HetznerController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'id' => ['type' => 'integer'],
-                                    'name' => ['type' => 'string'],
-                                    'fingerprint' => ['type' => 'string'],
-                                    'public_key' => ['type' => 'string'],
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'fingerprint', type: 'string'),
+                                    new OA\Property(property: 'public_key', type: 'string'),
                                 ]
                             )
                         )
@@ -476,18 +454,18 @@ class HetznerController extends Controller
                     type: 'object',
                     required: ['location', 'server_type', 'image', 'private_key_uuid'],
                     properties: [
-                        'cloud_provider_token_uuid' => ['type' => 'string', 'example' => 'abc123', 'description' => 'Cloud provider token UUID. Required if cloud_provider_token_id is not provided.'],
-                        'cloud_provider_token_id' => ['type' => 'string', 'example' => 'abc123', 'description' => 'Deprecated: Use cloud_provider_token_uuid instead. Cloud provider token UUID.', 'deprecated' => true],
-                        'location' => ['type' => 'string', 'example' => 'nbg1', 'description' => 'Hetzner location name'],
-                        'server_type' => ['type' => 'string', 'example' => 'cx11', 'description' => 'Hetzner server type name'],
-                        'image' => ['type' => 'integer', 'example' => 15512617, 'description' => 'Hetzner image ID'],
-                        'name' => ['type' => 'string', 'example' => 'my-server', 'description' => 'Server name (auto-generated if not provided)'],
-                        'private_key_uuid' => ['type' => 'string', 'example' => 'xyz789', 'description' => 'Private key UUID'],
-                        'enable_ipv4' => ['type' => 'boolean', 'example' => true, 'description' => 'Enable IPv4 (default: true)'],
-                        'enable_ipv6' => ['type' => 'boolean', 'example' => true, 'description' => 'Enable IPv6 (default: true)'],
-                        'hetzner_ssh_key_ids' => ['type' => 'array', 'items' => ['type' => 'integer'], 'description' => 'Additional Hetzner SSH key IDs'],
-                        'cloud_init_script' => ['type' => 'string', 'description' => 'Cloud-init YAML script (optional)'],
-                        'instant_validate' => ['type' => 'boolean', 'example' => false, 'description' => 'Validate server immediately after creation'],
+                        new OA\Property(property: 'cloud_provider_token_uuid', type: 'string', example: 'abc123', description: 'Cloud provider token UUID. Required if cloud_provider_token_id is not provided.'),
+                        new OA\Property(property: 'cloud_provider_token_id', type: 'string', example: 'abc123', description: 'Deprecated: Use cloud_provider_token_uuid instead. Cloud provider token UUID.', deprecated: true),
+                        new OA\Property(property: 'location', type: 'string', example: 'nbg1', description: 'Hetzner location name'),
+                        new OA\Property(property: 'server_type', type: 'string', example: 'cx11', description: 'Hetzner server type name'),
+                        new OA\Property(property: 'image', type: 'integer', example: 15512617, description: 'Hetzner image ID'),
+                        new OA\Property(property: 'name', type: 'string', example: 'my-server', description: 'Server name (auto-generated if not provided)'),
+                        new OA\Property(property: 'private_key_uuid', type: 'string', example: 'xyz789', description: 'Private key UUID'),
+                        new OA\Property(property: 'enable_ipv4', type: 'boolean', example: true, description: 'Enable IPv4 (default: true)'),
+                        new OA\Property(property: 'enable_ipv6', type: 'boolean', example: true, description: 'Enable IPv6 (default: true)'),
+                        new OA\Property(property: 'hetzner_ssh_key_ids', type: 'array', items: new OA\Items(type: 'integer'), description: 'Additional Hetzner SSH key IDs'),
+                        new OA\Property(property: 'cloud_init_script', type: 'string', description: 'Cloud-init YAML script (optional)'),
+                        new OA\Property(property: 'instant_validate', type: 'boolean', example: false, description: 'Validate server immediately after creation'),
                     ],
                 ),
             ),
@@ -502,9 +480,9 @@ class HetznerController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'uuid' => ['type' => 'string', 'example' => 'og888os', 'description' => 'The UUID of the server.'],
-                                'hetzner_server_id' => ['type' => 'integer', 'description' => 'The Hetzner server ID.'],
-                                'ip' => ['type' => 'string', 'description' => 'The server IP address.'],
+                                new OA\Property(property: 'uuid', type: 'string', example: 'og888os', description: 'The UUID of the server.'),
+                                new OA\Property(property: 'hetzner_server_id', type: 'integer', description: 'The Hetzner server ID.'),
+                                new OA\Property(property: 'ip', type: 'string', description: 'The server IP address.'),
                             ]
                         )
                     ),
@@ -740,7 +718,7 @@ class HetznerController extends Controller
         } catch (RateLimitException $e) {
             $response = response()->json(['message' => $e->getMessage()], 429);
             if ($e->retryAfter !== null) {
-                $response->header('Retry-After', $e->retryAfter);
+                $response->header('Retry-After', (string) $e->retryAfter);
             }
 
             return $response;

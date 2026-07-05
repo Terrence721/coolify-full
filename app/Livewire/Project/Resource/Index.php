@@ -190,7 +190,7 @@ class Index extends Component
             'hrefLink' => $item->hrefLink ?? '',
             'destination' => [
                 'server' => [
-                    'name' => $item->destination?->server?->name ?? 'Unknown',
+                    'name' => $item->destination?->server->name ?? 'Unknown',
                 ],
             ],
             'tags' => $item->tags->map(fn ($tag) => [

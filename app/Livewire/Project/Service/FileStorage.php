@@ -60,7 +60,7 @@ class FileStorage extends Component
     {
         $this->resource = $this->fileStorage->service;
         if (str($this->fileStorage->fs_path)->startsWith('.')) {
-            $this->workdir = $this->resource->service?->workdir();
+            $this->workdir = $this->resource->service->workdir();
             $this->fs_path = str($this->fileStorage->fs_path)->after('.');
         } else {
             $this->workdir = null;

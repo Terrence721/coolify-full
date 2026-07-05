@@ -64,12 +64,12 @@ use OpenApi\Attributes as OA;
     description: 'Environment model',
     type: 'object',
     properties: [
-        'id' => ['type' => 'integer'],
-        'name' => ['type' => 'string'],
-        'project_id' => ['type' => 'integer'],
-        'created_at' => ['type' => 'string'],
-        'updated_at' => ['type' => 'string'],
-        'description' => ['type' => 'string'],
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'project_id', type: 'integer'),
+        new OA\Property(property: 'created_at', type: 'string'),
+        new OA\Property(property: 'updated_at', type: 'string'),
+        new OA\Property(property: 'description', type: 'string'),
     ]
 )]
 class Environment extends BaseModel

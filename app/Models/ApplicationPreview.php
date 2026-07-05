@@ -161,7 +161,7 @@ class ApplicationPreview extends BaseModel
             $port = $portInt !== null ? ':'.$portInt : '';
             $urlPath = $url->getPath();
             $path = ($urlPath !== '' && $urlPath !== '/') ? $urlPath : '';
-            $random = new Cuid2;
+            $random = (string) new Cuid2;
             $preview_fqdn = str_replace('{{random}}', $random, $template);
             $preview_fqdn = str_replace('{{domain}}', $host, $preview_fqdn);
             $preview_fqdn = str_replace('{{pr_id}}', $this->pull_request_id, $preview_fqdn);
@@ -223,7 +223,7 @@ class ApplicationPreview extends BaseModel
                 $port = $portInt !== null ? ':'.$portInt : '';
                 $urlPath = $url->getPath();
                 $path = ($urlPath !== '' && $urlPath !== '/') ? $urlPath : '';
-                $random = new Cuid2;
+                $random = (string) new Cuid2;
                 $preview_fqdn = str_replace('{{random}}', $random, $template);
                 $preview_fqdn = str_replace('{{domain}}', $host, $preview_fqdn);
                 $preview_fqdn = str_replace('{{pr_id}}', $this->pull_request_id, $preview_fqdn);

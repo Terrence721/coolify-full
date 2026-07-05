@@ -43,7 +43,7 @@ class Danger extends Component
     public function mount()
     {
         $parameters = get_route_parameters();
-        $this->modalId = new Cuid2;
+        $this->modalId = (string) new Cuid2;
         $this->projectUuid = data_get($parameters, 'project_uuid');
         $this->environmentUuid = data_get($parameters, 'environment_uuid');
 

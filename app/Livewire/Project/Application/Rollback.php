@@ -58,7 +58,7 @@ class Rollback extends Component
 
         $result = queue_application_deployment(
             application: $this->application,
-            deployment_uuid: $deployment_uuid,
+            deployment_uuid: $deployment_uuid->toString(),
             commit: $commit,
             rollback: true,
             force_rebuild: false,

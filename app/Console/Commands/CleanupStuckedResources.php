@@ -227,7 +227,7 @@ class CleanupStuckedResources extends Command
                 try {
                     $server = $scheduled_backup->server();
                     if (! $server) {
-                        echo "Deleting stuck scheduledbackup: {$scheduled_backup->name}\n";
+                        echo "Deleting stuck scheduledbackup: {$scheduled_backup->uuid}\n";
                         $scheduled_backup->delete();
                     }
                 } catch (\Throwable $e) {

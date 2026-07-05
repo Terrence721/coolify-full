@@ -203,7 +203,7 @@ class Actions extends Component
         }
 
         try {
-            $this->refundAlreadyUsed = currentTeam()->subscription?->stripe_refunded_at !== null;
+            $this->refundAlreadyUsed = currentTeam()->subscription->stripe_refunded_at !== null;
             $result = (new RefundSubscription)->checkEligibility(currentTeam());
             $this->isRefundEligible = $result['eligible'];
             $this->refundDaysRemaining = $result['days_remaining'];

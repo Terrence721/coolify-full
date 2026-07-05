@@ -52,22 +52,22 @@ class GithubController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'id' => ['type' => 'integer'],
-                                    'uuid' => ['type' => 'string'],
-                                    'name' => ['type' => 'string'],
-                                    'organization' => ['type' => 'string', 'nullable' => true],
-                                    'api_url' => ['type' => 'string'],
-                                    'html_url' => ['type' => 'string'],
-                                    'custom_user' => ['type' => 'string'],
-                                    'custom_port' => ['type' => 'integer'],
-                                    'app_id' => ['type' => 'integer'],
-                                    'installation_id' => ['type' => 'integer'],
-                                    'client_id' => ['type' => 'string'],
-                                    'private_key_id' => ['type' => 'integer'],
-                                    'is_system_wide' => ['type' => 'boolean'],
-                                    'is_public' => ['type' => 'boolean'],
-                                    'team_id' => ['type' => 'integer'],
-                                    'type' => ['type' => 'string'],
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'uuid', type: 'string'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'organization', type: 'string', nullable: true),
+                                    new OA\Property(property: 'api_url', type: 'string'),
+                                    new OA\Property(property: 'html_url', type: 'string'),
+                                    new OA\Property(property: 'custom_user', type: 'string'),
+                                    new OA\Property(property: 'custom_port', type: 'integer'),
+                                    new OA\Property(property: 'app_id', type: 'integer'),
+                                    new OA\Property(property: 'installation_id', type: 'integer'),
+                                    new OA\Property(property: 'client_id', type: 'string'),
+                                    new OA\Property(property: 'private_key_id', type: 'integer'),
+                                    new OA\Property(property: 'is_system_wide', type: 'boolean'),
+                                    new OA\Property(property: 'is_public', type: 'boolean'),
+                                    new OA\Property(property: 'team_id', type: 'integer'),
+                                    new OA\Property(property: 'type', type: 'string'),
                                 ]
                             )
                         )
@@ -121,19 +121,19 @@ class GithubController extends Controller
                     schema: new OA\Schema(
                         type: 'object',
                         properties: [
-                            'name' => ['type' => 'string', 'description' => 'Name of the GitHub app.'],
-                            'organization' => ['type' => 'string', 'nullable' => true, 'description' => 'Organization to associate the app with.'],
-                            'api_url' => ['type' => 'string', 'description' => 'API URL for the GitHub app (e.g., https://api.github.com).'],
-                            'html_url' => ['type' => 'string', 'description' => 'HTML URL for the GitHub app (e.g., https://github.com).'],
-                            'custom_user' => ['type' => 'string', 'description' => 'Custom user for SSH access (default: git).'],
-                            'custom_port' => ['type' => 'integer', 'description' => 'Custom port for SSH access (default: 22).'],
-                            'app_id' => ['type' => 'integer', 'description' => 'GitHub App ID from GitHub.'],
-                            'installation_id' => ['type' => 'integer', 'description' => 'GitHub Installation ID.'],
-                            'client_id' => ['type' => 'string', 'description' => 'GitHub OAuth App Client ID.'],
-                            'client_secret' => ['type' => 'string', 'description' => 'GitHub OAuth App Client Secret.'],
-                            'webhook_secret' => ['type' => 'string', 'description' => 'Webhook secret for GitHub webhooks.'],
-                            'private_key_uuid' => ['type' => 'string', 'description' => 'UUID of an existing private key for GitHub App authentication.'],
-                            'is_system_wide' => ['type' => 'boolean', 'description' => 'Is this app system-wide (cloud only).'],
+                            new OA\Property(property: 'name', type: 'string', description: 'Name of the GitHub app.'),
+                            new OA\Property(property: 'organization', type: 'string', nullable: true, description: 'Organization to associate the app with.'),
+                            new OA\Property(property: 'api_url', type: 'string', description: 'API URL for the GitHub app (e.g., https://api.github.com).'),
+                            new OA\Property(property: 'html_url', type: 'string', description: 'HTML URL for the GitHub app (e.g., https://github.com).'),
+                            new OA\Property(property: 'custom_user', type: 'string', description: 'Custom user for SSH access (default: git).'),
+                            new OA\Property(property: 'custom_port', type: 'integer', description: 'Custom port for SSH access (default: 22).'),
+                            new OA\Property(property: 'app_id', type: 'integer', description: 'GitHub App ID from GitHub.'),
+                            new OA\Property(property: 'installation_id', type: 'integer', description: 'GitHub Installation ID.'),
+                            new OA\Property(property: 'client_id', type: 'string', description: 'GitHub OAuth App Client ID.'),
+                            new OA\Property(property: 'client_secret', type: 'string', description: 'GitHub OAuth App Client Secret.'),
+                            new OA\Property(property: 'webhook_secret', type: 'string', description: 'Webhook secret for GitHub webhooks.'),
+                            new OA\Property(property: 'private_key_uuid', type: 'string', description: 'UUID of an existing private key for GitHub App authentication.'),
+                            new OA\Property(property: 'is_system_wide', type: 'boolean', description: 'Is this app system-wide (cloud only).'),
                         ],
                         required: ['name', 'api_url', 'html_url', 'app_id', 'installation_id', 'client_id', 'client_secret', 'private_key_uuid'],
                     ),
@@ -150,20 +150,20 @@ class GithubController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'id' => ['type' => 'integer'],
-                                'uuid' => ['type' => 'string'],
-                                'name' => ['type' => 'string'],
-                                'organization' => ['type' => 'string', 'nullable' => true],
-                                'api_url' => ['type' => 'string'],
-                                'html_url' => ['type' => 'string'],
-                                'custom_user' => ['type' => 'string'],
-                                'custom_port' => ['type' => 'integer'],
-                                'app_id' => ['type' => 'integer'],
-                                'installation_id' => ['type' => 'integer'],
-                                'client_id' => ['type' => 'string'],
-                                'private_key_id' => ['type' => 'integer'],
-                                'is_system_wide' => ['type' => 'boolean'],
-                                'team_id' => ['type' => 'integer'],
+                                new OA\Property(property: 'id', type: 'integer'),
+                                new OA\Property(property: 'uuid', type: 'string'),
+                                new OA\Property(property: 'name', type: 'string'),
+                                new OA\Property(property: 'organization', type: 'string', nullable: true),
+                                new OA\Property(property: 'api_url', type: 'string'),
+                                new OA\Property(property: 'html_url', type: 'string'),
+                                new OA\Property(property: 'custom_user', type: 'string'),
+                                new OA\Property(property: 'custom_port', type: 'integer'),
+                                new OA\Property(property: 'app_id', type: 'integer'),
+                                new OA\Property(property: 'installation_id', type: 'integer'),
+                                new OA\Property(property: 'client_id', type: 'string'),
+                                new OA\Property(property: 'private_key_id', type: 'integer'),
+                                new OA\Property(property: 'is_system_wide', type: 'boolean'),
+                                new OA\Property(property: 'team_id', type: 'integer'),
                             ]
                         )
                     ),
@@ -522,19 +522,19 @@ class GithubController extends Controller
                 schema: new OA\Schema(
                     type: 'object',
                     properties: [
-                        'name' => ['type' => 'string', 'description' => 'GitHub App name'],
-                        'organization' => ['type' => 'string', 'nullable' => true, 'description' => 'GitHub organization'],
-                        'api_url' => ['type' => 'string', 'description' => 'GitHub API URL'],
-                        'html_url' => ['type' => 'string', 'description' => 'GitHub HTML URL'],
-                        'custom_user' => ['type' => 'string', 'description' => 'Custom user for SSH'],
-                        'custom_port' => ['type' => 'integer', 'description' => 'Custom port for SSH'],
-                        'app_id' => ['type' => 'integer', 'description' => 'GitHub App ID'],
-                        'installation_id' => ['type' => 'integer', 'description' => 'GitHub Installation ID'],
-                        'client_id' => ['type' => 'string', 'description' => 'GitHub Client ID'],
-                        'client_secret' => ['type' => 'string', 'description' => 'GitHub Client Secret'],
-                        'webhook_secret' => ['type' => 'string', 'description' => 'GitHub Webhook Secret'],
-                        'private_key_uuid' => ['type' => 'string', 'description' => 'Private key UUID'],
-                        'is_system_wide' => ['type' => 'boolean', 'description' => 'Is system wide (non-cloud instances only)'],
+                        new OA\Property(property: 'name', type: 'string', description: 'GitHub App name'),
+                        new OA\Property(property: 'organization', type: 'string', nullable: true, description: 'GitHub organization'),
+                        new OA\Property(property: 'api_url', type: 'string', description: 'GitHub API URL'),
+                        new OA\Property(property: 'html_url', type: 'string', description: 'GitHub HTML URL'),
+                        new OA\Property(property: 'custom_user', type: 'string', description: 'Custom user for SSH'),
+                        new OA\Property(property: 'custom_port', type: 'integer', description: 'Custom port for SSH'),
+                        new OA\Property(property: 'app_id', type: 'integer', description: 'GitHub App ID'),
+                        new OA\Property(property: 'installation_id', type: 'integer', description: 'GitHub Installation ID'),
+                        new OA\Property(property: 'client_id', type: 'string', description: 'GitHub Client ID'),
+                        new OA\Property(property: 'client_secret', type: 'string', description: 'GitHub Client Secret'),
+                        new OA\Property(property: 'webhook_secret', type: 'string', description: 'GitHub Webhook Secret'),
+                        new OA\Property(property: 'private_key_uuid', type: 'string', description: 'Private key UUID'),
+                        new OA\Property(property: 'is_system_wide', type: 'boolean', description: 'Is system wide (non-cloud instances only)'),
                     ]
                 )
             )
@@ -548,8 +548,8 @@ class GithubController extends Controller
                     schema: new OA\Schema(
                         type: 'object',
                         properties: [
-                            'message' => ['type' => 'string', 'example' => 'GitHub app updated successfully'],
-                            'data' => ['type' => 'object', 'description' => 'Updated GitHub app data'],
+                            new OA\Property(property: 'message', type: 'string', example: 'GitHub app updated successfully'),
+                            new OA\Property(property: 'data', type: 'object', description: 'Updated GitHub app data'),
                         ]
                     )
                 )
@@ -710,7 +710,7 @@ class GithubController extends Controller
                     schema: new OA\Schema(
                         type: 'object',
                         properties: [
-                            'message' => ['type' => 'string', 'example' => 'GitHub app deleted successfully'],
+                            new OA\Property(property: 'message', type: 'string', example: 'GitHub app deleted successfully'),
                         ]
                     )
                 )
@@ -725,7 +725,7 @@ class GithubController extends Controller
                     schema: new OA\Schema(
                         type: 'object',
                         properties: [
-                            'message' => ['type' => 'string', 'example' => 'This GitHub app is being used by 5 application(s). Please delete all applications first.'],
+                            new OA\Property(property: 'message', type: 'string', example: 'This GitHub app is being used by 5 application(s). Please delete all applications first.'),
                         ]
                     )
                 )

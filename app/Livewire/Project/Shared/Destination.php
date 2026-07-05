@@ -81,7 +81,7 @@ class Destination extends Component
             $server = Server::ownedByCurrentTeam()->findOrFail($server_id);
             $destination = $server->standaloneDockers->where('id', $network_id)->firstOrFail();
             $result = queue_application_deployment(
-                deployment_uuid: $deployment_uuid,
+                deployment_uuid: $deployment_uuid->toString(),
                 application: $this->resource,
                 server: $server,
                 destination: $destination,

@@ -206,13 +206,13 @@ class ServersController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'id' => ['type' => 'integer'],
-                                    'uuid' => ['type' => 'string'],
-                                    'name' => ['type' => 'string'],
-                                    'type' => ['type' => 'string'],
-                                    'created_at' => ['type' => 'string'],
-                                    'updated_at' => ['type' => 'string'],
-                                    'status' => ['type' => 'string'],
+                                    new OA\Property(property: 'id', type: 'integer'),
+                                    new OA\Property(property: 'uuid', type: 'string'),
+                                    new OA\Property(property: 'name', type: 'string'),
+                                    new OA\Property(property: 'type', type: 'string'),
+                                    new OA\Property(property: 'created_at', type: 'string'),
+                                    new OA\Property(property: 'updated_at', type: 'string'),
+                                    new OA\Property(property: 'status', type: 'string'),
                                 ]
                             )
                         )),
@@ -279,8 +279,8 @@ class ServersController extends Controller
                             items: new OA\Items(
                                 type: 'object',
                                 properties: [
-                                    'ip' => ['type' => 'string'],
-                                    'domains' => ['type' => 'array', 'items' => ['type' => 'string']],
+                                    new OA\Property(property: 'ip', type: 'string'),
+                                    new OA\Property(property: 'domains', type: 'array', items: new OA\Items(type: 'string')),
                                 ]
                             )
                         )),
@@ -432,15 +432,15 @@ class ServersController extends Controller
                 schema: new OA\Schema(
                     type: 'object',
                     properties: [
-                        'name' => ['type' => 'string', 'example' => 'My Server', 'description' => 'The name of the server.'],
-                        'description' => ['type' => 'string', 'example' => 'My Server Description', 'description' => 'The description of the server.'],
-                        'ip' => ['type' => 'string', 'example' => '127.0.0.1', 'description' => 'The IP of the server.'],
-                        'port' => ['type' => 'integer', 'example' => 22, 'description' => 'The port of the server.'],
-                        'user' => ['type' => 'string', 'example' => 'root', 'description' => 'The user of the server.'],
-                        'private_key_uuid' => ['type' => 'string', 'example' => 'og888os', 'description' => 'The UUID of the private key.'],
-                        'is_build_server' => ['type' => 'boolean', 'example' => false, 'description' => 'Is build server.'],
-                        'instant_validate' => ['type' => 'boolean', 'example' => false, 'description' => 'Instant validate.'],
-                        'proxy_type' => ['type' => 'string', 'enum' => ['traefik', 'caddy', 'none'], 'example' => 'traefik', 'description' => 'The proxy type.'],
+                        new OA\Property(property: 'name', type: 'string', example: 'My Server', description: 'The name of the server.'),
+                        new OA\Property(property: 'description', type: 'string', example: 'My Server Description', description: 'The description of the server.'),
+                        new OA\Property(property: 'ip', type: 'string', example: '127.0.0.1', description: 'The IP of the server.'),
+                        new OA\Property(property: 'port', type: 'integer', example: 22, description: 'The port of the server.'),
+                        new OA\Property(property: 'user', type: 'string', example: 'root', description: 'The user of the server.'),
+                        new OA\Property(property: 'private_key_uuid', type: 'string', example: 'og888os', description: 'The UUID of the private key.'),
+                        new OA\Property(property: 'is_build_server', type: 'boolean', example: false, description: 'Is build server.'),
+                        new OA\Property(property: 'instant_validate', type: 'boolean', example: false, description: 'Instant validate.'),
+                        new OA\Property(property: 'proxy_type', type: 'string', enum: ['traefik', 'caddy', 'none'], example: 'traefik', description: 'The proxy type.'),
                     ],
                 ),
             ),
@@ -455,7 +455,7 @@ class ServersController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'uuid' => ['type' => 'string', 'example' => 'og888os', 'description' => 'The UUID of the server.'],
+                                new OA\Property(property: 'uuid', type: 'string', example: 'og888os', description: 'The UUID of the server.'),
                             ]
                         )
                     ),
@@ -610,21 +610,21 @@ class ServersController extends Controller
                 schema: new OA\Schema(
                     type: 'object',
                     properties: [
-                        'name' => ['type' => 'string', 'description' => 'The name of the server.'],
-                        'description' => ['type' => 'string', 'description' => 'The description of the server.'],
-                        'ip' => ['type' => 'string', 'description' => 'The IP of the server.'],
-                        'port' => ['type' => 'integer', 'description' => 'The port of the server.'],
-                        'user' => ['type' => 'string', 'description' => 'The user of the server.'],
-                        'private_key_uuid' => ['type' => 'string', 'description' => 'The UUID of the private key.'],
-                        'is_build_server' => ['type' => 'boolean', 'description' => 'Is build server.'],
-                        'instant_validate' => ['type' => 'boolean', 'description' => 'Instant validate.'],
-                        'proxy_type' => ['type' => 'string', 'enum' => ['traefik', 'caddy', 'none'], 'description' => 'The proxy type.'],
-                        'concurrent_builds' => ['type' => 'integer', 'description' => 'Number of concurrent builds.'],
-                        'dynamic_timeout' => ['type' => 'integer', 'description' => 'Deployment timeout in seconds.'],
-                        'deployment_queue_limit' => ['type' => 'integer', 'description' => 'Maximum number of queued deployments.'],
-                        'server_disk_usage_notification_threshold' => ['type' => 'integer', 'description' => 'Server disk usage notification threshold (%).'],
-                        'server_disk_usage_check_frequency' => ['type' => 'string', 'description' => 'Cron expression for disk usage check frequency.'],
-                        'connection_timeout' => ['type' => 'integer', 'description' => 'SSH connection timeout in seconds (1-300). Default: 10.'],
+                        new OA\Property(property: 'name', type: 'string', description: 'The name of the server.'),
+                        new OA\Property(property: 'description', type: 'string', description: 'The description of the server.'),
+                        new OA\Property(property: 'ip', type: 'string', description: 'The IP of the server.'),
+                        new OA\Property(property: 'port', type: 'integer', description: 'The port of the server.'),
+                        new OA\Property(property: 'user', type: 'string', description: 'The user of the server.'),
+                        new OA\Property(property: 'private_key_uuid', type: 'string', description: 'The UUID of the private key.'),
+                        new OA\Property(property: 'is_build_server', type: 'boolean', description: 'Is build server.'),
+                        new OA\Property(property: 'instant_validate', type: 'boolean', description: 'Instant validate.'),
+                        new OA\Property(property: 'proxy_type', type: 'string', enum: ['traefik', 'caddy', 'none'], description: 'The proxy type.'),
+                        new OA\Property(property: 'concurrent_builds', type: 'integer', description: 'Number of concurrent builds.'),
+                        new OA\Property(property: 'dynamic_timeout', type: 'integer', description: 'Deployment timeout in seconds.'),
+                        new OA\Property(property: 'deployment_queue_limit', type: 'integer', description: 'Maximum number of queued deployments.'),
+                        new OA\Property(property: 'server_disk_usage_notification_threshold', type: 'integer', description: 'Server disk usage notification threshold (%).'),
+                        new OA\Property(property: 'server_disk_usage_check_frequency', type: 'string', description: 'Cron expression for disk usage check frequency.'),
+                        new OA\Property(property: 'connection_timeout', type: 'integer', description: 'SSH connection timeout in seconds (1-300). Default: 10.'),
                     ],
                 ),
             ),
@@ -796,7 +796,7 @@ class ServersController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Server deleted.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Server deleted.'),
                             ]
                         )
                     ),
@@ -895,7 +895,7 @@ class ServersController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Validation started.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Validation started.'),
                             ]
                         )
                     ),

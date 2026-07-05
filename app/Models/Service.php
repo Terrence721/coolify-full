@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -94,24 +95,24 @@ use Visus\Cuid2\Cuid2;
     description: 'Service model',
     type: 'object',
     properties: [
-        'id' => ['type' => 'integer', 'description' => 'The unique identifier of the service. Only used for database identification.'],
-        'uuid' => ['type' => 'string', 'description' => 'The unique identifier of the service.'],
-        'name' => ['type' => 'string', 'description' => 'The name of the service.'],
-        'environment_id' => ['type' => 'integer', 'description' => 'The unique identifier of the environment where the service is attached to.'],
-        'server_id' => ['type' => 'integer', 'description' => 'The unique identifier of the server where the service is running.'],
-        'description' => ['type' => 'string', 'description' => 'The description of the service.'],
-        'docker_compose_raw' => ['type' => 'string', 'description' => 'The raw docker-compose.yml file of the service.'],
-        'docker_compose' => ['type' => 'string', 'description' => 'The docker-compose.yml file that is parsed and modified by Coolify.'],
-        'destination_type' => ['type' => 'string', 'description' => 'Destination type.'],
-        'destination_id' => ['type' => 'integer', 'description' => 'The unique identifier of the destination where the service is running.'],
-        'connect_to_docker_network' => ['type' => 'boolean', 'description' => 'The flag to connect the service to the predefined Docker network.'],
-        'is_container_label_escape_enabled' => ['type' => 'boolean', 'description' => 'The flag to enable the container label escape.'],
-        'is_container_label_readonly_enabled' => ['type' => 'boolean', 'description' => 'The flag to enable the container label readonly.'],
-        'config_hash' => ['type' => 'string', 'description' => 'The hash of the service configuration.'],
-        'service_type' => ['type' => 'string', 'description' => 'The type of the service.'],
-        'created_at' => ['type' => 'string', 'description' => 'The date and time when the service was created.'],
-        'updated_at' => ['type' => 'string', 'description' => 'The date and time when the service was last updated.'],
-        'deleted_at' => ['type' => 'string', 'description' => 'The date and time when the service was deleted.'],
+        new OA\Property(property: 'id', type: 'integer', description: 'The unique identifier of the service. Only used for database identification.'),
+        new OA\Property(property: 'uuid', type: 'string', description: 'The unique identifier of the service.'),
+        new OA\Property(property: 'name', type: 'string', description: 'The name of the service.'),
+        new OA\Property(property: 'environment_id', type: 'integer', description: 'The unique identifier of the environment where the service is attached to.'),
+        new OA\Property(property: 'server_id', type: 'integer', description: 'The unique identifier of the server where the service is running.'),
+        new OA\Property(property: 'description', type: 'string', description: 'The description of the service.'),
+        new OA\Property(property: 'docker_compose_raw', type: 'string', description: 'The raw docker-compose.yml file of the service.'),
+        new OA\Property(property: 'docker_compose', type: 'string', description: 'The docker-compose.yml file that is parsed and modified by Coolify.'),
+        new OA\Property(property: 'destination_type', type: 'string', description: 'Destination type.'),
+        new OA\Property(property: 'destination_id', type: 'integer', description: 'The unique identifier of the destination where the service is running.'),
+        new OA\Property(property: 'connect_to_docker_network', type: 'boolean', description: 'The flag to connect the service to the predefined Docker network.'),
+        new OA\Property(property: 'is_container_label_escape_enabled', type: 'boolean', description: 'The flag to enable the container label escape.'),
+        new OA\Property(property: 'is_container_label_readonly_enabled', type: 'boolean', description: 'The flag to enable the container label readonly.'),
+        new OA\Property(property: 'config_hash', type: 'string', description: 'The hash of the service configuration.'),
+        new OA\Property(property: 'service_type', type: 'string', description: 'The type of the service.'),
+        new OA\Property(property: 'created_at', type: 'string', description: 'The date and time when the service was created.'),
+        new OA\Property(property: 'updated_at', type: 'string', description: 'The date and time when the service was last updated.'),
+        new OA\Property(property: 'deleted_at', type: 'string', description: 'The date and time when the service was deleted.'),
     ],
 )]
 class Service extends BaseModel
@@ -236,7 +237,10 @@ class Service extends BaseModel
         return data_get($this, 'environment.project.team');
     }
 
-    public function tags()
+    /**
+     * @return MorphToMany<Tag, $this>
+     */
+    public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable');
     }

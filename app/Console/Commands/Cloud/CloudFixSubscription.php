@@ -651,7 +651,7 @@ class CloudFixSubscription extends Command
                             'error',
                             implode(', ', $memberEmails),
                             "https://dashboard.stripe.com/customers/{$subscription->stripe_customer_id}",
-                            $subscription->stripe_subscription_id ? "https://dashboard.stripe.com/subscriptions/{$subscription->stripe_subscription_id}" : 'N/A',
+                            "https://dashboard.stripe.com/subscriptions/{$subscription->stripe_subscription_id}",
                         ]);
                     }
                 } catch (\Exception $e) {

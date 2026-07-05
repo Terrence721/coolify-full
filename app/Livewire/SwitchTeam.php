@@ -13,7 +13,7 @@ class SwitchTeam extends Component
 
     public function mount()
     {
-        $this->selectedTeamId = currentTeam()->id;
+        $this->selectedTeamId = (string) currentTeam()->id;
     }
 
     public function updatedSelectedTeamId()

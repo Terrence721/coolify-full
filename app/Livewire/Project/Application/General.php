@@ -551,7 +551,7 @@ class General extends Component
         try {
             $this->authorize('update', $this->application);
 
-            $uuid = new Cuid2;
+            $uuid = (string) new Cuid2;
             $domain = generateUrl(server: $this->application->destination->server, random: $uuid);
             $sanitizedKey = str($serviceName)->replace('-', '_')->replace('.', '_')->toString();
             $this->parsedServiceDomains[$sanitizedKey]['domain'] = $domain;

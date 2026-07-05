@@ -6,9 +6,11 @@ namespace App\Providers;
 
 use App\Models\PersonalAccessToken;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
@@ -30,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configurePasswords();
         $this->configureSanctumModel();
         $this->configureGitHubHttp();
-
+        $this->configureBunnyCdnHttp();
     }
 
     private function configureCommands(): void
@@ -79,6 +81,35 @@ class AppServiceProvider extends ServiceProvider
                     'Accept' => 'application/vnd.github.v3+json',
                 ])->baseUrl($api_url);
             }
+        });
+    }
+
+    private function configureBunnyCdnHttp(): void
+    {
+        PendingRequest::macro('storage', function (string $fileName) {
+            $headers = [
+                'AccessKey' => config('constants.bunny.storage_api_key'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/octet-stream',
+            ];
+            $fileStream = fopen($fileName, 'r');
+            $file = fread($fileStream, filesize($fileName));
+            Log::info('Uploading to BunnyCDN: '.$fileName);
+
+            return Http::baseUrl('https://storage.bunnycdn.com')->withHeaders($headers)->withBody($file)->throw();
+        });
+
+        PendingRequest::macro('purge', function (string $url) {
+            $headers = [
+                'AccessKey' => config('constants.bunny.api_key'),
+                'Accept' => 'application/json',
+            ];
+            Log::info('Purging BunnyCDN: '.$url);
+
+            return Http::withHeaders($headers)->get('https://api.bunny.net/purge', [
+                'url' => $url,
+                'async' => false,
+            ]);
         });
     }
 }

@@ -163,7 +163,7 @@ class ProcessGithubPullRequestWebhook implements ShouldBeEncrypted, ShouldQueue
         queue_application_deployment(
             application: $application,
             pull_request_id: $this->pullRequestId,
-            deployment_uuid: $deployment_uuid,
+            deployment_uuid: $deployment_uuid->toString(),
             force_rebuild: false,
             commit: $this->commitSha,
             is_webhook: true,

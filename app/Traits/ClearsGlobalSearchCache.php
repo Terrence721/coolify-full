@@ -104,7 +104,7 @@ trait ClearsGlobalSearchCache
 
             // For Environment models (get team_id through project)
             if ($this instanceof Environment) {
-                return $this->project?->team_id;
+                return $this->project->team_id;
             }
 
             // For database models, team is accessed through environment.project.team

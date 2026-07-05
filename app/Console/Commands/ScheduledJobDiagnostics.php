@@ -135,7 +135,7 @@ class ScheduledJobDiagnostics extends Command
             $rows[] = [
                 $backup->id,
                 $backup->database_type ?? 'unknown',
-                $server?->name ?? 'N/A',
+                $server->name ?? 'N/A',
                 $frequency,
                 $cacheValue ?? '<missing>',
                 $wouldFire ? 'YES' : 'no',
@@ -178,7 +178,7 @@ class ScheduledJobDiagnostics extends Command
             $rows[] = [
                 $task->id,
                 $task->name,
-                $server?->name ?? 'N/A',
+                $server->name ?? 'N/A',
                 $frequency,
                 $cacheValue ?? '<missing>',
                 $wouldFire ? 'YES' : 'no',

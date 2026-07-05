@@ -68,10 +68,10 @@ use Visus\Cuid2\Cuid2;
     description: 'Project model',
     type: 'object',
     properties: [
-        'id' => ['type' => 'integer'],
-        'uuid' => ['type' => 'string'],
-        'name' => ['type' => 'string'],
-        'description' => ['type' => 'string'],
+        new OA\Property(property: 'id', type: 'integer'),
+        new OA\Property(property: 'uuid', type: 'string'),
+        new OA\Property(property: 'name', type: 'string'),
+        new OA\Property(property: 'description', type: 'string'),
     ]
 )]
 class Project extends BaseModel

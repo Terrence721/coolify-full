@@ -74,7 +74,7 @@ class ServicesDelete extends Command
         foreach ($serversToDelete as $server) {
             $toDelete = $servers->where('id', $server)->first();
             if ($toDelete) {
-                $this->info($toDelete);
+                $this->info("Deleting: {$toDelete->name}");
                 $confirmed = confirm('Are you sure you want to delete all selected resources?');
                 if (! $confirmed) {
                     break;
@@ -100,7 +100,7 @@ class ServicesDelete extends Command
         foreach ($applicationsToDelete as $application) {
             $toDelete = $applications->where('id', $application)->first();
             if ($toDelete) {
-                $this->info($toDelete);
+                $this->info("Deleting: {$toDelete->name}");
                 $confirmed = confirm('Are you sure you want to delete all selected resources? ');
                 if (! $confirmed) {
                     break;
@@ -186,7 +186,7 @@ class ServicesDelete extends Command
         foreach ($databasesToDelete as $databaseKey) {
             $toDelete = $allDatabases->get($databaseKey);
             if ($toDelete) {
-                $this->info($toDelete);
+                $this->info("Deleting: {$toDelete->name}");
                 $confirmed = confirm('Are you sure you want to delete all selected resources?');
                 if (! $confirmed) {
                     return;
@@ -212,7 +212,7 @@ class ServicesDelete extends Command
         foreach ($servicesToDelete as $service) {
             $toDelete = $services->where('id', $service)->first();
             if ($toDelete) {
-                $this->info($toDelete);
+                $this->info("Deleting: {$toDelete->name}");
                 $confirmed = confirm('Are you sure you want to delete all selected resources?');
                 if (! $confirmed) {
                     return;

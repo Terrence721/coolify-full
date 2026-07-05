@@ -318,12 +318,12 @@ class ScheduledTasksController extends Controller
                     type: 'object',
                     required: ['name', 'command', 'frequency'],
                     properties: [
-                        'name' => ['type' => 'string', 'description' => 'The name of the scheduled task.'],
-                        'command' => ['type' => 'string', 'description' => 'The command to execute.'],
-                        'frequency' => ['type' => 'string', 'description' => 'The frequency of the scheduled task.'],
-                        'container' => ['type' => 'string', 'nullable' => true, 'description' => 'The container where the command should be executed.'],
-                        'timeout' => ['type' => 'integer', 'description' => 'The timeout of the scheduled task in seconds.', 'default' => 300],
-                        'enabled' => ['type' => 'boolean', 'description' => 'The flag to indicate if the scheduled task is enabled.', 'default' => true],
+                        new OA\Property(property: 'name', type: 'string', description: 'The name of the scheduled task.'),
+                        new OA\Property(property: 'command', type: 'string', description: 'The command to execute.'),
+                        new OA\Property(property: 'frequency', type: 'string', description: 'The frequency of the scheduled task.'),
+                        new OA\Property(property: 'container', type: 'string', nullable: true, description: 'The container where the command should be executed.'),
+                        new OA\Property(property: 'timeout', type: 'integer', description: 'The timeout of the scheduled task in seconds.', default: 300),
+                        new OA\Property(property: 'enabled', type: 'boolean', description: 'The flag to indicate if the scheduled task is enabled.', default: true),
                     ],
                 ),
             )
@@ -405,12 +405,12 @@ class ScheduledTasksController extends Controller
                 schema: new OA\Schema(
                     type: 'object',
                     properties: [
-                        'name' => ['type' => 'string', 'description' => 'The name of the scheduled task.'],
-                        'command' => ['type' => 'string', 'description' => 'The command to execute.'],
-                        'frequency' => ['type' => 'string', 'description' => 'The frequency of the scheduled task.'],
-                        'container' => ['type' => 'string', 'nullable' => true, 'description' => 'The container where the command should be executed.'],
-                        'timeout' => ['type' => 'integer', 'description' => 'The timeout of the scheduled task in seconds.', 'default' => 300],
-                        'enabled' => ['type' => 'boolean', 'description' => 'The flag to indicate if the scheduled task is enabled.', 'default' => true],
+                        new OA\Property(property: 'name', type: 'string', description: 'The name of the scheduled task.'),
+                        new OA\Property(property: 'command', type: 'string', description: 'The command to execute.'),
+                        new OA\Property(property: 'frequency', type: 'string', description: 'The frequency of the scheduled task.'),
+                        new OA\Property(property: 'container', type: 'string', nullable: true, description: 'The container where the command should be executed.'),
+                        new OA\Property(property: 'timeout', type: 'integer', description: 'The timeout of the scheduled task in seconds.', default: 300),
+                        new OA\Property(property: 'enabled', type: 'boolean', description: 'The flag to indicate if the scheduled task is enabled.', default: true),
                     ],
                 ),
             )
@@ -494,7 +494,7 @@ class ScheduledTasksController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Scheduled task deleted.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Scheduled task deleted.'),
                             ]
                         )
                     ),
@@ -681,12 +681,12 @@ class ScheduledTasksController extends Controller
                     type: 'object',
                     required: ['name', 'command', 'frequency'],
                     properties: [
-                        'name' => ['type' => 'string', 'description' => 'The name of the scheduled task.'],
-                        'command' => ['type' => 'string', 'description' => 'The command to execute.'],
-                        'frequency' => ['type' => 'string', 'description' => 'The frequency of the scheduled task.'],
-                        'container' => ['type' => 'string', 'nullable' => true, 'description' => 'The container where the command should be executed.'],
-                        'timeout' => ['type' => 'integer', 'description' => 'The timeout of the scheduled task in seconds.', 'default' => 300],
-                        'enabled' => ['type' => 'boolean', 'description' => 'The flag to indicate if the scheduled task is enabled.', 'default' => true],
+                        new OA\Property(property: 'name', type: 'string', description: 'The name of the scheduled task.'),
+                        new OA\Property(property: 'command', type: 'string', description: 'The command to execute.'),
+                        new OA\Property(property: 'frequency', type: 'string', description: 'The frequency of the scheduled task.'),
+                        new OA\Property(property: 'container', type: 'string', nullable: true, description: 'The container where the command should be executed.'),
+                        new OA\Property(property: 'timeout', type: 'integer', description: 'The timeout of the scheduled task in seconds.', default: 300),
+                        new OA\Property(property: 'enabled', type: 'boolean', description: 'The flag to indicate if the scheduled task is enabled.', default: true),
                     ],
                 ),
             )
@@ -768,12 +768,12 @@ class ScheduledTasksController extends Controller
                 schema: new OA\Schema(
                     type: 'object',
                     properties: [
-                        'name' => ['type' => 'string', 'description' => 'The name of the scheduled task.'],
-                        'command' => ['type' => 'string', 'description' => 'The command to execute.'],
-                        'frequency' => ['type' => 'string', 'description' => 'The frequency of the scheduled task.'],
-                        'container' => ['type' => 'string', 'nullable' => true, 'description' => 'The container where the command should be executed.'],
-                        'timeout' => ['type' => 'integer', 'description' => 'The timeout of the scheduled task in seconds.', 'default' => 300],
-                        'enabled' => ['type' => 'boolean', 'description' => 'The flag to indicate if the scheduled task is enabled.', 'default' => true],
+                        new OA\Property(property: 'name', type: 'string', description: 'The name of the scheduled task.'),
+                        new OA\Property(property: 'command', type: 'string', description: 'The command to execute.'),
+                        new OA\Property(property: 'frequency', type: 'string', description: 'The frequency of the scheduled task.'),
+                        new OA\Property(property: 'container', type: 'string', nullable: true, description: 'The container where the command should be executed.'),
+                        new OA\Property(property: 'timeout', type: 'integer', description: 'The timeout of the scheduled task in seconds.', default: 300),
+                        new OA\Property(property: 'enabled', type: 'boolean', description: 'The flag to indicate if the scheduled task is enabled.', default: true),
                     ],
                 ),
             )
@@ -857,7 +857,7 @@ class ScheduledTasksController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Scheduled task deleted.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Scheduled task deleted.'),
                             ]
                         )
                     ),

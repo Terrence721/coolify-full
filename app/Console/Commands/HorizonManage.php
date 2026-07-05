@@ -68,13 +68,13 @@ class HorizonManage extends Command
             }
             foreach ($pendingJobs as $pendingJob) {
                 $pendingJobsTable[] = [
-                    'id' => $pendingJob->id,
-                    'name' => $pendingJob->name,
-                    'status' => $pendingJob->status,
-                    'reserved_at' => $pendingJob->reserved_at ? now()->parse($pendingJob->reserved_at)->format('Y-m-d H:i:s') : null,
+                    (string) $pendingJob->id,
+                    (string) $pendingJob->name,
+                    (string) $pendingJob->status,
+                    $pendingJob->reserved_at ? now()->parse($pendingJob->reserved_at)->format('Y-m-d H:i:s') : '',
                 ];
             }
-            table($pendingJobsTable);
+            table(['ID', 'Name', 'Status', 'Reserved At'], $pendingJobsTable);
         }
 
         if ($action === 'failed') {
@@ -87,12 +87,12 @@ class HorizonManage extends Command
             }
             foreach ($failedJobs as $failedJob) {
                 $failedJobsTable[] = [
-                    'id' => $failedJob->id,
-                    'name' => $failedJob->name,
-                    'failed_at' => $failedJob->failed_at ? now()->parse($failedJob->failed_at)->format('Y-m-d H:i:s') : null,
+                    (string) $failedJob->id,
+                    (string) $failedJob->name,
+                    $failedJob->failed_at ? now()->parse($failedJob->failed_at)->format('Y-m-d H:i:s') : '',
                 ];
             }
-            table($failedJobsTable);
+            table(['ID', 'Name', 'Failed At'], $failedJobsTable);
         }
 
         if ($action === 'failed-delete') {
@@ -131,12 +131,12 @@ class HorizonManage extends Command
             }
             foreach ($runningJobs as $runningJob) {
                 $runningJobsTable[] = [
-                    'id' => $runningJob->id,
-                    'name' => $runningJob->name,
-                    'reserved_at' => $runningJob->reserved_at ? now()->parse($runningJob->reserved_at)->format('Y-m-d H:i:s') : null,
+                    (string) $runningJob->id,
+                    (string) $runningJob->name,
+                    $runningJob->reserved_at ? now()->parse($runningJob->reserved_at)->format('Y-m-d H:i:s') : '',
                 ];
             }
-            table($runningJobsTable);
+            table(['ID', 'Name', 'Reserved At'], $runningJobsTable);
         }
 
         if ($action === 'workers') {
@@ -145,10 +145,10 @@ class HorizonManage extends Command
             $workersTable = [];
             foreach ($workers as $worker) {
                 $workersTable[] = [
-                    'name' => $worker->name,
+                    (string) $worker->name,
                 ];
             }
-            table($workersTable);
+            table(['Name'], $workersTable);
         }
 
         if ($action === 'purge-queues') {

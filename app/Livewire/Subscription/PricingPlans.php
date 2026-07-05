@@ -62,7 +62,7 @@ class PricingPlans extends Component
             'cancel_url' => route('subscription.index', ['cancelled' => true]),
         ];
 
-        $customer = currentTeam()->subscription?->stripe_customer_id ?? null;
+        $customer = currentTeam()->subscription->stripe_customer_id ?? null;
         if ($customer) {
             $payload['customer'] = $customer;
             $payload['customer_update'] = [

@@ -140,7 +140,7 @@ class PublicGitRepository extends Component
             if (str($this->repository_url)->startsWith('git@')) {
                 $github_instance = str($this->repository_url)->after('git@')->before(':');
                 $repository = str($this->repository_url)->after(':')->before('.git');
-                $this->repository_url = 'https://'.str($github_instance).'/'.$repository;
+                $this->repository_url = 'https://'.$github_instance.'/'.$repository;
             }
             if (
                 (str($this->repository_url)->startsWith('https://') ||
@@ -208,7 +208,7 @@ class PublicGitRepository extends Component
 
         if ($this->repository_url_parsed->getSegment(3) === 'tree') {
             $path = str($this->repository_url_parsed->getPath())->trim('/');
-            $this->git_branch = str($path)->after('tree/')->value();
+            $this->git_branch = $path->after('tree/')->value();
             $this->base_directory = '/';
         } else {
             $this->git_branch = 'main';

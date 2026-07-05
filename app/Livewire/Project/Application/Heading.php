@@ -125,7 +125,7 @@ class Heading extends Component
 
     protected function setDeploymentUuid()
     {
-        $this->deploymentUuid = new Cuid2;
+        $this->deploymentUuid = (string) new Cuid2;
         $this->parameters['deployment_uuid'] = $this->deploymentUuid;
     }
 

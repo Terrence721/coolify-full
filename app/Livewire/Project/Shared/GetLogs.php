@@ -73,7 +73,7 @@ class GetLogs extends Component
                     $this->showTimeStamps = $this->resource->is_include_timestamps;
                 }
             }
-            if ($this->resource?->getMorphClass() === Application::class) {
+            if ($this->resource->getMorphClass() === Application::class) {
                 if (str($this->container)->contains('-pr-')) {
                     $this->pull_request = 'Pull Request: '.str($this->container)->afterLast('-pr-')->beforeLast('_')->value();
                 }

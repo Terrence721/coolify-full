@@ -124,8 +124,8 @@ class Previews extends Component
 
                 if (! empty($fqdn)) {
                     $fqdn = str($fqdn)->replaceEnd(',', '')->trim();
-                    $fqdn = str($fqdn)->replaceStart(',', '')->trim();
-                    $fqdn = str($fqdn)->trim()->lower();
+                    $fqdn = $fqdn->replaceStart(',', '')->trim();
+                    $fqdn = $fqdn->trim()->lower();
                     $this->previewFqdns[$previewKey] = $fqdn;
 
                     if (! validateDNSEntry($fqdn, $this->application->destination->server)) {
@@ -307,7 +307,7 @@ class Previews extends Component
 
     protected function setDeploymentUuid()
     {
-        $this->deployment_uuid = new Cuid2;
+        $this->deployment_uuid = (string) new Cuid2;
         $this->parameters['deployment_uuid'] = $this->deployment_uuid;
     }
 

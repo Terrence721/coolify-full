@@ -13,23 +13,6 @@ class GenerateTestingSchema extends Command
 
     protected $description = 'Generate SQLite testing schema from the PostgreSQL database';
 
-    /** @var array<string, string> */
-    private array $typeMap = [
-        '/\bbigint\b/' => 'INTEGER',
-        '/\binteger\b/' => 'INTEGER',
-        '/\bsmallint\b/' => 'INTEGER',
-        '/\bboolean\b/' => 'INTEGER',
-        '/character varying\(\d+\)/' => 'TEXT',
-        '/timestamp\(\d+\) without time zone/' => 'TEXT',
-        '/timestamp\(\d+\) with time zone/' => 'TEXT',
-        '/\bjsonb\b/' => 'TEXT',
-        '/\bjson\b/' => 'TEXT',
-        '/\buuid\b/' => 'TEXT',
-        '/double precision/' => 'REAL',
-        '/numeric\(\d+,\d+\)/' => 'REAL',
-        '/\bdate\b/' => 'TEXT',
-    ];
-
     /** @var array<int, string> */
     private array $castRemovals = [
         '::character varying',

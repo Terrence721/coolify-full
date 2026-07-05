@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Http;
 
@@ -32,7 +31,6 @@ class SyncBunny extends Command
      */
     public function handle(): void
     {
-        $that = $this;
         $only_template = $this->option('templates');
         $only_version = $this->option('release');
         $nightly = $this->option('nightly');
@@ -59,30 +57,6 @@ class SyncBunny extends Command
         $production_env_location = "$parent_dir/.env.production";
         $versions_location = "$parent_dir/$versions";
 
-        PendingRequest::macro('storage', function ($fileName) use ($that) {
-            $headers = [
-                'AccessKey' => config('constants.bunny.storage_api_key'),
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/octet-stream',
-            ];
-            $fileStream = fopen($fileName, 'r');
-            $file = fread($fileStream, filesize($fileName));
-            $that->info('Uploading: '.$fileName);
-
-            return Http::baseUrl('https://storage.bunnycdn.com')->withHeaders($headers)->withBody($file)->throw();
-        });
-        PendingRequest::macro('purge', function ($url) use ($that) {
-            $headers = [
-                'AccessKey' => config('constants.bunny.api_key'),
-                'Accept' => 'application/json',
-            ];
-            $that->info('Purging: '.$url);
-
-            return Http::withHeaders($headers)->get('https://api.bunny.net/purge', [
-                'url' => $url,
-                'async' => false,
-            ]);
-        });
         try {
             if ($nightly) {
                 $bunny_cdn_path = 'coolify-nightly';
@@ -175,6 +149,8 @@ class SyncBunny extends Command
                 if (! $confirmed) {
                     return;
                 }
+                $this->info("Uploading: $parent_dir/templates/$service_template");
+                $this->info("Purging: $bunny_cdn/$bunny_cdn_path/$service_template");
                 Http::pool(fn (Pool $pool) => [
                     $pool->storage(fileName: "$parent_dir/templates/$service_template")->put("/$bunny_cdn_storage_name/$bunny_cdn_path/$service_template"),
                     $pool->purge("$bunny_cdn/$bunny_cdn_path/$service_template"),
@@ -203,6 +179,8 @@ class SyncBunny extends Command
                 }
 
                 $this->info('Syncing versions.json to BunnyCDN...');
+                $this->info("Uploading: $versions_location");
+                $this->info("Purging: $bunny_cdn/$bunny_cdn_path/$versions");
                 Http::pool(fn (Pool $pool) => [
                     $pool->storage(fileName: $versions_location)->put("/$bunny_cdn_storage_name/$bunny_cdn_path/$versions"),
                     $pool->purge("$bunny_cdn/$bunny_cdn_path/$versions"),
@@ -216,6 +194,16 @@ class SyncBunny extends Command
                 return;
             }
 
+            foreach ([
+                $compose_file_location,
+                $compose_file_prod_location,
+                $production_env_location,
+                $upgrade_script_location,
+                $upgrade_postgres_script_location,
+                $install_script_location,
+            ] as $fileToUpload) {
+                $this->info('Uploading: '.$fileToUpload);
+            }
             Http::pool(fn (Pool $pool) => [
                 $pool->storage(fileName: "$compose_file_location")->put("/$bunny_cdn_storage_name/$bunny_cdn_path/$compose_file"),
                 $pool->storage(fileName: "$compose_file_prod_location")->put("/$bunny_cdn_storage_name/$bunny_cdn_path/$compose_file_prod"),
@@ -224,6 +212,17 @@ class SyncBunny extends Command
                 $pool->storage(fileName: "$upgrade_postgres_script_location")->put("/$bunny_cdn_storage_name/$bunny_cdn_path/$upgrade_postgres_script"),
                 $pool->storage(fileName: "$install_script_location")->put("/$bunny_cdn_storage_name/$bunny_cdn_path/$install_script"),
             ]);
+
+            foreach ([
+                "$bunny_cdn/$bunny_cdn_path/$compose_file",
+                "$bunny_cdn/$bunny_cdn_path/$compose_file_prod",
+                "$bunny_cdn/$bunny_cdn_path/$production_env",
+                "$bunny_cdn/$bunny_cdn_path/$upgrade_script",
+                "$bunny_cdn/$bunny_cdn_path/$upgrade_postgres_script",
+                "$bunny_cdn/$bunny_cdn_path/$install_script",
+            ] as $urlToPurge) {
+                $this->info('Purging: '.$urlToPurge);
+            }
             Http::pool(fn (Pool $pool) => [
                 $pool->purge("$bunny_cdn/$bunny_cdn_path/$compose_file"),
                 $pool->purge("$bunny_cdn/$bunny_cdn_path/$compose_file_prod"),

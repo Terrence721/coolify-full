@@ -123,10 +123,10 @@ class RunScheduledJobsManually extends Command
             foreach ($chunk as $scheduled_backup) {
                 try {
                     if ($dryRun) {
-                        $this->info("🔍 Would dispatch backup job for: {$scheduled_backup->name} (ID: {$scheduled_backup->id}, Frequency: {$scheduled_backup->frequency})");
+                        $this->info("🔍 Would dispatch backup job for: {$scheduled_backup->uuid} (ID: {$scheduled_backup->id}, Frequency: {$scheduled_backup->frequency})");
                     } else {
                         DatabaseBackupJob::dispatch($scheduled_backup);
-                        $this->info("✓ Dispatched backup job for: {$scheduled_backup->name} (ID: {$scheduled_backup->id}, Frequency: {$scheduled_backup->frequency})");
+                        $this->info("✓ Dispatched backup job for: {$scheduled_backup->uuid} (ID: {$scheduled_backup->id}, Frequency: {$scheduled_backup->frequency})");
                     }
                 } catch (\Exception $e) {
                     $this->error("✗ Failed to dispatch backup job for {$scheduled_backup->id}: ".$e->getMessage());

@@ -183,13 +183,13 @@ class Gitlab extends Controller
                             $deployment_uuid = new Cuid2;
                             $result = queue_application_deployment(
                                 application: $application,
-                                deployment_uuid: $deployment_uuid,
+                                deployment_uuid: $deployment_uuid->toString(),
                                 commit: data_get($payload, 'after', 'HEAD'),
                                 force_rebuild: false,
                                 is_webhook: true,
                             );
                             if ($result['status'] === 'queue_full') {
-                                return response($result['message'], 429)->header('Retry-After', 60);
+                                return response($result['message'], 429)->header('Retry-After', '60');
                             } elseif ($result['status'] === 'skipped') {
                                 $return_payloads->push([
                                     'status' => $result['status'],
@@ -273,14 +273,14 @@ class Gitlab extends Controller
                             $result = queue_application_deployment(
                                 application: $application,
                                 pull_request_id: $pull_request_id,
-                                deployment_uuid: $deployment_uuid,
+                                deployment_uuid: $deployment_uuid->toString(),
                                 commit: data_get($payload, 'object_attributes.last_commit.id', 'HEAD'),
                                 force_rebuild: false,
                                 is_webhook: true,
                                 git_type: 'gitlab'
                             );
                             if ($result['status'] === 'queue_full') {
-                                return response($result['message'], 429)->header('Retry-After', 60);
+                                return response($result['message'], 429)->header('Retry-After', '60');
                             } elseif ($result['status'] === 'skipped') {
                                 $return_payloads->push([
                                     'application' => $application->name,

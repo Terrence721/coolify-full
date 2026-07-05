@@ -104,7 +104,7 @@ class ServicesController extends Controller
 
             if (filled($containerUrls)) {
                 $containerUrls = str($containerUrls)->replaceStart(',', '')->replaceEnd(',', '')->trim();
-                $containerUrls = str($containerUrls)->explode(',')->map(fn ($url) => str(trim($url))->lower());
+                $containerUrls = $containerUrls->explode(',')->map(fn ($url) => str(trim($url))->lower());
 
                 $result = checkIfDomainIsAlreadyUsedViaAPI($containerUrls, $teamId, (string) data_get($application, 'uuid'));
                 if (isset($result['error'])) {
@@ -210,29 +210,19 @@ class ServicesController extends Controller
                     type: 'object',
                     required: ['server_uuid', 'project_uuid', 'environment_name', 'environment_uuid'],
                     properties: [
-                        'type' => ['description' => 'The one-click service type (e.g. "actualbudget", "calibre-web", "gitea-with-mysql" ...)', 'type' => 'string'],
-                        'name' => ['type' => 'string', 'maxLength' => 255, 'description' => 'Name of the service.'],
-                        'description' => ['type' => 'string', 'nullable' => true, 'description' => 'Description of the service.'],
-                        'project_uuid' => ['type' => 'string', 'description' => 'Project UUID.'],
-                        'environment_name' => ['type' => 'string', 'description' => 'Environment name. You need to provide at least one of environment_name or environment_uuid.'],
-                        'environment_uuid' => ['type' => 'string', 'description' => 'Environment UUID. You need to provide at least one of environment_name or environment_uuid.'],
-                        'server_uuid' => ['type' => 'string', 'description' => 'Server UUID.'],
-                        'destination_uuid' => ['type' => 'string', 'description' => 'Destination UUID. Required if server has multiple destinations.'],
-                        'instant_deploy' => ['type' => 'boolean', 'default' => false, 'description' => 'Start the service immediately after creation.'],
-                        'docker_compose_raw' => ['type' => 'string', 'description' => 'The base64 encoded Docker Compose content.'],
-                        'urls' => [
-                            'type' => 'array',
-                            'description' => 'Array of URLs to be applied to containers of a service.',
-                            'items' => new OA\Schema(
-                                type: 'object',
-                                properties: [
-                                    'name' => ['type' => 'string', 'description' => 'The service name as defined in docker-compose.'],
-                                    'url' => ['type' => 'string', 'description' => 'Comma-separated list of URLs (e.g. "https://app.coolify.io,https://app2.coolify.io").'],
-                                ],
-                            ),
-                        ],
-                        'force_domain_override' => ['type' => 'boolean', 'default' => false, 'description' => 'Force domain override even if conflicts are detected.'],
-                        'is_container_label_escape_enabled' => ['type' => 'boolean', 'default' => true, 'description' => 'Escape special characters in labels. By default, $ (and other chars) is escaped. If you want to use env variables inside the labels, turn this off.'],
+                        new OA\Property(property: 'type', description: 'The one-click service type (e.g. "actualbudget", "calibre-web", "gitea-with-mysql" ...)', type: 'string'),
+                        new OA\Property(property: 'name', type: 'string', maxLength: 255, description: 'Name of the service.'),
+                        new OA\Property(property: 'description', type: 'string', nullable: true, description: 'Description of the service.'),
+                        new OA\Property(property: 'project_uuid', type: 'string', description: 'Project UUID.'),
+                        new OA\Property(property: 'environment_name', type: 'string', description: 'Environment name. You need to provide at least one of environment_name or environment_uuid.'),
+                        new OA\Property(property: 'environment_uuid', type: 'string', description: 'Environment UUID. You need to provide at least one of environment_name or environment_uuid.'),
+                        new OA\Property(property: 'server_uuid', type: 'string', description: 'Server UUID.'),
+                        new OA\Property(property: 'destination_uuid', type: 'string', description: 'Destination UUID. Required if server has multiple destinations.'),
+                        new OA\Property(property: 'instant_deploy', type: 'boolean', default: false, description: 'Start the service immediately after creation.'),
+                        new OA\Property(property: 'docker_compose_raw', type: 'string', description: 'The base64 encoded Docker Compose content.'),
+                        new OA\Property(property: 'urls', type: 'array', description: 'Array of URLs to be applied to containers of a service.', items: new OA\Items(type: 'object', properties: [new OA\Property(property: 'name', type: 'string', description: 'The service name as defined in docker-compose.'), new OA\Property(property: 'url', type: 'string', description: 'Comma-separated list of URLs (e.g. "https://app.coolify.io,https://app2.coolify.io").')])),
+                        new OA\Property(property: 'force_domain_override', type: 'boolean', default: false, description: 'Force domain override even if conflicts are detected.'),
+                        new OA\Property(property: 'is_container_label_escape_enabled', type: 'boolean', default: true, description: 'Escape special characters in labels. By default, $ (and other chars) is escaped. If you want to use env variables inside the labels, turn this off.'),
                     ],
                 ),
             ),
@@ -247,8 +237,8 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'uuid' => ['type' => 'string', 'description' => 'Service UUID.'],
-                                'domains' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Service domains.'],
+                                new OA\Property(property: 'uuid', type: 'string', description: 'Service UUID.'),
+                                new OA\Property(property: 'domains', type: 'array', items: new OA\Items(type: 'string'), description: 'Service domains.'),
                             ]
                         )
                     ),
@@ -271,21 +261,9 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Domain conflicts detected. Use force_domain_override=true to proceed.'],
-                                'warning' => ['type' => 'string', 'example' => 'Using the same domain for multiple resources can cause routing conflicts and unpredictable behavior.'],
-                                'conflicts' => [
-                                    'type' => 'array',
-                                    'items' => new OA\Schema(
-                                        type: 'object',
-                                        properties: [
-                                            'domain' => ['type' => 'string', 'example' => 'example.com'],
-                                            'resource_name' => ['type' => 'string', 'example' => 'My Application'],
-                                            'resource_uuid' => ['type' => 'string', 'nullable' => true, 'example' => 'abc123-def456'],
-                                            'resource_type' => ['type' => 'string', 'enum' => ['application', 'service', 'instance'], 'example' => 'application'],
-                                            'message' => ['type' => 'string', 'example' => 'Domain example.com is already in use by application \'My Application\''],
-                                        ]
-                                    ),
-                                ],
+                                new OA\Property(property: 'message', type: 'string', example: 'Domain conflicts detected. Use force_domain_override=true to proceed.'),
+                                new OA\Property(property: 'warning', type: 'string', example: 'Using the same domain for multiple resources can cause routing conflicts and unpredictable behavior.'),
+                                new OA\Property(property: 'conflicts', type: 'array', items: new OA\Items(type: 'object', properties: [new OA\Property(property: 'domain', type: 'string', example: 'example.com'), new OA\Property(property: 'resource_name', type: 'string', example: 'My Application'), new OA\Property(property: 'resource_uuid', type: 'string', nullable: true, example: 'abc123-def456'), new OA\Property(property: 'resource_type', type: 'string', enum: ['application', 'service', 'instance'], example: 'application'), new OA\Property(property: 'message', type: 'string', example: 'Domain example.com is already in use by application \'My Application\'')])),
                             ]
                         )
                     ),
@@ -774,7 +752,7 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Service deletion request queued.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Service deletion request queued.'),
                             ],
                         )
                     ),
@@ -858,29 +836,19 @@ class ServicesController extends Controller
                     schema: new OA\Schema(
                         type: 'object',
                         properties: [
-                            'name' => ['type' => 'string', 'description' => 'The service name.'],
-                            'description' => ['type' => 'string', 'description' => 'The service description.'],
-                            'project_uuid' => ['type' => 'string', 'description' => 'The project UUID.'],
-                            'environment_name' => ['type' => 'string', 'description' => 'The environment name.'],
-                            'environment_uuid' => ['type' => 'string', 'description' => 'The environment UUID.'],
-                            'server_uuid' => ['type' => 'string', 'description' => 'The server UUID.'],
-                            'destination_uuid' => ['type' => 'string', 'description' => 'The destination UUID.'],
-                            'instant_deploy' => ['type' => 'boolean', 'description' => 'The flag to indicate if the service should be deployed instantly.'],
-                            'connect_to_docker_network' => ['type' => 'boolean', 'default' => false, 'description' => 'Connect the service to the predefined docker network.'],
-                            'docker_compose_raw' => ['type' => 'string', 'description' => 'The base64 encoded Docker Compose content.'],
-                            'urls' => [
-                                'type' => 'array',
-                                'description' => 'Array of URLs to be applied to containers of a service.',
-                                'items' => new OA\Schema(
-                                    type: 'object',
-                                    properties: [
-                                        'name' => ['type' => 'string', 'description' => 'The service name as defined in docker-compose.'],
-                                        'url' => ['type' => 'string', 'description' => 'Comma-separated list of URLs (e.g. "https://app.coolify.io,https://app2.coolify.io").'],
-                                    ],
-                                ),
-                            ],
-                            'force_domain_override' => ['type' => 'boolean', 'default' => false, 'description' => 'Force domain override even if conflicts are detected.'],
-                            'is_container_label_escape_enabled' => ['type' => 'boolean', 'default' => true, 'description' => 'Escape special characters in labels. By default, $ (and other chars) is escaped. If you want to use env variables inside the labels, turn this off.'],
+                            new OA\Property(property: 'name', type: 'string', description: 'The service name.'),
+                            new OA\Property(property: 'description', type: 'string', description: 'The service description.'),
+                            new OA\Property(property: 'project_uuid', type: 'string', description: 'The project UUID.'),
+                            new OA\Property(property: 'environment_name', type: 'string', description: 'The environment name.'),
+                            new OA\Property(property: 'environment_uuid', type: 'string', description: 'The environment UUID.'),
+                            new OA\Property(property: 'server_uuid', type: 'string', description: 'The server UUID.'),
+                            new OA\Property(property: 'destination_uuid', type: 'string', description: 'The destination UUID.'),
+                            new OA\Property(property: 'instant_deploy', type: 'boolean', description: 'The flag to indicate if the service should be deployed instantly.'),
+                            new OA\Property(property: 'connect_to_docker_network', type: 'boolean', default: false, description: 'Connect the service to the predefined docker network.'),
+                            new OA\Property(property: 'docker_compose_raw', type: 'string', description: 'The base64 encoded Docker Compose content.'),
+                            new OA\Property(property: 'urls', type: 'array', description: 'Array of URLs to be applied to containers of a service.', items: new OA\Items(type: 'object', properties: [new OA\Property(property: 'name', type: 'string', description: 'The service name as defined in docker-compose.'), new OA\Property(property: 'url', type: 'string', description: 'Comma-separated list of URLs (e.g. "https://app.coolify.io,https://app2.coolify.io").')])),
+                            new OA\Property(property: 'force_domain_override', type: 'boolean', default: false, description: 'Force domain override even if conflicts are detected.'),
+                            new OA\Property(property: 'is_container_label_escape_enabled', type: 'boolean', default: true, description: 'Escape special characters in labels. By default, $ (and other chars) is escaped. If you want to use env variables inside the labels, turn this off.'),
                         ],
                     )
                 ),
@@ -896,8 +864,8 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'uuid' => ['type' => 'string', 'description' => 'Service UUID.'],
-                                'domains' => ['type' => 'array', 'items' => ['type' => 'string'], 'description' => 'Service domains.'],
+                                new OA\Property(property: 'uuid', type: 'string', description: 'Service UUID.'),
+                                new OA\Property(property: 'domains', type: 'array', items: new OA\Items(type: 'string'), description: 'Service domains.'),
                             ]
                         )
                     ),
@@ -924,21 +892,9 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Domain conflicts detected. Use force_domain_override=true to proceed.'],
-                                'warning' => ['type' => 'string', 'example' => 'Using the same domain for multiple resources can cause routing conflicts and unpredictable behavior.'],
-                                'conflicts' => [
-                                    'type' => 'array',
-                                    'items' => new OA\Schema(
-                                        type: 'object',
-                                        properties: [
-                                            'domain' => ['type' => 'string', 'example' => 'example.com'],
-                                            'resource_name' => ['type' => 'string', 'example' => 'My Application'],
-                                            'resource_uuid' => ['type' => 'string', 'nullable' => true, 'example' => 'abc123-def456'],
-                                            'resource_type' => ['type' => 'string', 'enum' => ['application', 'service', 'instance'], 'example' => 'application'],
-                                            'message' => ['type' => 'string', 'example' => 'Domain example.com is already in use by application \'My Application\''],
-                                        ]
-                                    ),
-                                ],
+                                new OA\Property(property: 'message', type: 'string', example: 'Domain conflicts detected. Use force_domain_override=true to proceed.'),
+                                new OA\Property(property: 'warning', type: 'string', example: 'Using the same domain for multiple resources can cause routing conflicts and unpredictable behavior.'),
+                                new OA\Property(property: 'conflicts', type: 'array', items: new OA\Items(type: 'object', properties: [new OA\Property(property: 'domain', type: 'string', example: 'example.com'), new OA\Property(property: 'resource_name', type: 'string', example: 'My Application'), new OA\Property(property: 'resource_uuid', type: 'string', nullable: true, example: 'abc123-def456'), new OA\Property(property: 'resource_type', type: 'string', enum: ['application', 'service', 'instance'], example: 'application'), new OA\Property(property: 'message', type: 'string', example: 'Domain example.com is already in use by application \'My Application\'')])),
                             ]
                         )
                     ),
@@ -1201,12 +1157,12 @@ class ServicesController extends Controller
                         type: 'object',
                         required: ['key', 'value'],
                         properties: [
-                            'key' => ['type' => 'string', 'description' => 'The key of the environment variable.'],
-                            'value' => ['type' => 'string', 'description' => 'The value of the environment variable.'],
-                            'is_preview' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is used in preview deployments.'],
-                            'is_literal' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is a literal, nothing espaced.'],
-                            'is_multiline' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is multiline.'],
-                            'is_shown_once' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable\'s value is shown on the UI.'],
+                            new OA\Property(property: 'key', type: 'string', description: 'The key of the environment variable.'),
+                            new OA\Property(property: 'value', type: 'string', description: 'The value of the environment variable.'),
+                            new OA\Property(property: 'is_preview', type: 'boolean', description: 'The flag to indicate if the environment variable is used in preview deployments.'),
+                            new OA\Property(property: 'is_literal', type: 'boolean', description: 'The flag to indicate if the environment variable is a literal, nothing espaced.'),
+                            new OA\Property(property: 'is_multiline', type: 'boolean', description: 'The flag to indicate if the environment variable is multiline.'),
+                            new OA\Property(property: 'is_shown_once', type: 'boolean', description: 'The flag to indicate if the environment variable\'s value is shown on the UI.'),
                         ],
                     ),
                 ),
@@ -1334,20 +1290,7 @@ class ServicesController extends Controller
                         type: 'object',
                         required: ['data'],
                         properties: [
-                            'data' => [
-                                'type' => 'array',
-                                'items' => new OA\Schema(
-                                    type: 'object',
-                                    properties: [
-                                        'key' => ['type' => 'string', 'description' => 'The key of the environment variable.'],
-                                        'value' => ['type' => 'string', 'description' => 'The value of the environment variable.'],
-                                        'is_preview' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is used in preview deployments.'],
-                                        'is_literal' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is a literal, nothing espaced.'],
-                                        'is_multiline' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is multiline.'],
-                                        'is_shown_once' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable\'s value is shown on the UI.'],
-                                    ],
-                                ),
-                            ],
+                            new OA\Property(property: 'data', type: 'array', items: new OA\Items(type: 'object', properties: [new OA\Property(property: 'key', type: 'string', description: 'The key of the environment variable.'), new OA\Property(property: 'value', type: 'string', description: 'The value of the environment variable.'), new OA\Property(property: 'is_preview', type: 'boolean', description: 'The flag to indicate if the environment variable is used in preview deployments.'), new OA\Property(property: 'is_literal', type: 'boolean', description: 'The flag to indicate if the environment variable is a literal, nothing espaced.'), new OA\Property(property: 'is_multiline', type: 'boolean', description: 'The flag to indicate if the environment variable is multiline.'), new OA\Property(property: 'is_shown_once', type: 'boolean', description: 'The flag to indicate if the environment variable\'s value is shown on the UI.')])),
                         ],
                     ),
                 ),
@@ -1467,12 +1410,12 @@ class ServicesController extends Controller
                 schema: new OA\Schema(
                     type: 'object',
                     properties: [
-                        'key' => ['type' => 'string', 'description' => 'The key of the environment variable.'],
-                        'value' => ['type' => 'string', 'description' => 'The value of the environment variable.'],
-                        'is_preview' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is used in preview deployments.'],
-                        'is_literal' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is a literal, nothing espaced.'],
-                        'is_multiline' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable is multiline.'],
-                        'is_shown_once' => ['type' => 'boolean', 'description' => 'The flag to indicate if the environment variable\'s value is shown on the UI.'],
+                        new OA\Property(property: 'key', type: 'string', description: 'The key of the environment variable.'),
+                        new OA\Property(property: 'value', type: 'string', description: 'The value of the environment variable.'),
+                        new OA\Property(property: 'is_preview', type: 'boolean', description: 'The flag to indicate if the environment variable is used in preview deployments.'),
+                        new OA\Property(property: 'is_literal', type: 'boolean', description: 'The flag to indicate if the environment variable is a literal, nothing espaced.'),
+                        new OA\Property(property: 'is_multiline', type: 'boolean', description: 'The flag to indicate if the environment variable is multiline.'),
+                        new OA\Property(property: 'is_shown_once', type: 'boolean', description: 'The flag to indicate if the environment variable\'s value is shown on the UI.'),
                     ],
                 ),
             ),
@@ -1487,7 +1430,7 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'uuid' => ['type' => 'string', 'example' => 'nc0k04gk8g0cgsk440g0koko'],
+                                new OA\Property(property: 'uuid', type: 'string', example: 'nc0k04gk8g0cgsk440g0koko'),
                             ]
                         )
                     ),
@@ -1607,7 +1550,7 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Environment variable deleted.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Environment variable deleted.'),
                             ]
                         )
                     ),
@@ -1694,7 +1637,7 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Service starting request queued.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Service starting request queued.'),
                             ]
                         )
                     ),
@@ -1789,7 +1732,7 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Service stopping request queued.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Service stopping request queued.'),
                             ]
                         )
                     ),
@@ -1887,7 +1830,7 @@ class ServicesController extends Controller
                         schema: new OA\Schema(
                             type: 'object',
                             properties: [
-                                'message' => ['type' => 'string', 'example' => 'Service restaring request queued.'],
+                                new OA\Property(property: 'message', type: 'string', example: 'Service restaring request queued.'),
                             ]
                         )
                     ),
@@ -2062,14 +2005,14 @@ class ServicesController extends Controller
                         type: 'object',
                         required: ['type', 'mount_path', 'resource_uuid'],
                         properties: [
-                            'type' => ['type' => 'string', 'enum' => ['persistent', 'file'], 'description' => 'The type of storage.'],
-                            'resource_uuid' => ['type' => 'string', 'description' => 'UUID of the service application or database sub-resource.'],
-                            'name' => ['type' => 'string', 'description' => 'Volume name (persistent only, required for persistent).'],
-                            'mount_path' => ['type' => 'string', 'description' => 'The container mount path.'],
-                            'host_path' => ['type' => 'string', 'nullable' => true, 'description' => 'The host path (persistent only, optional).'],
-                            'content' => ['type' => 'string', 'nullable' => true, 'description' => 'File content (file only, optional).'],
-                            'is_directory' => ['type' => 'boolean', 'description' => 'Whether this is a directory mount (file only, default false).'],
-                            'fs_path' => ['type' => 'string', 'description' => 'Host directory path (required when is_directory is true).'],
+                            new OA\Property(property: 'type', type: 'string', enum: ['persistent', 'file'], description: 'The type of storage.'),
+                            new OA\Property(property: 'resource_uuid', type: 'string', description: 'UUID of the service application or database sub-resource.'),
+                            new OA\Property(property: 'name', type: 'string', description: 'Volume name (persistent only, required for persistent).'),
+                            new OA\Property(property: 'mount_path', type: 'string', description: 'The container mount path.'),
+                            new OA\Property(property: 'host_path', type: 'string', nullable: true, description: 'The host path (persistent only, optional).'),
+                            new OA\Property(property: 'content', type: 'string', nullable: true, description: 'File content (file only, optional).'),
+                            new OA\Property(property: 'is_directory', type: 'boolean', description: 'Whether this is a directory mount (file only, default false).'),
+                            new OA\Property(property: 'fs_path', type: 'string', description: 'Host directory path (required when is_directory is true).'),
                         ],
                         additionalProperties: false,
                     ),
@@ -2262,14 +2205,14 @@ class ServicesController extends Controller
                         type: 'object',
                         required: ['type'],
                         properties: [
-                            'uuid' => ['type' => 'string', 'description' => 'The UUID of the storage (preferred).'],
-                            'id' => ['type' => 'integer', 'description' => 'The ID of the storage (deprecated, use uuid instead).'],
-                            'type' => ['type' => 'string', 'enum' => ['persistent', 'file'], 'description' => 'The type of storage: persistent or file.'],
-                            'is_preview_suffix_enabled' => ['type' => 'boolean', 'description' => 'Whether to add -pr-N suffix for preview deployments.'],
-                            'name' => ['type' => 'string', 'description' => 'The volume name (persistent only, not allowed for read-only storages).'],
-                            'mount_path' => ['type' => 'string', 'description' => 'The container mount path (not allowed for read-only storages).'],
-                            'host_path' => ['type' => 'string', 'nullable' => true, 'description' => 'The host path (persistent only, not allowed for read-only storages).'],
-                            'content' => ['type' => 'string', 'nullable' => true, 'description' => 'The file content (file only, not allowed for read-only storages).'],
+                            new OA\Property(property: 'uuid', type: 'string', description: 'The UUID of the storage (preferred).'),
+                            new OA\Property(property: 'id', type: 'integer', description: 'The ID of the storage (deprecated, use uuid instead).'),
+                            new OA\Property(property: 'type', type: 'string', enum: ['persistent', 'file'], description: 'The type of storage: persistent or file.'),
+                            new OA\Property(property: 'is_preview_suffix_enabled', type: 'boolean', description: 'Whether to add -pr-N suffix for preview deployments.'),
+                            new OA\Property(property: 'name', type: 'string', description: 'The volume name (persistent only, not allowed for read-only storages).'),
+                            new OA\Property(property: 'mount_path', type: 'string', description: 'The container mount path (not allowed for read-only storages).'),
+                            new OA\Property(property: 'host_path', type: 'string', nullable: true, description: 'The host path (persistent only, not allowed for read-only storages).'),
+                            new OA\Property(property: 'content', type: 'string', nullable: true, description: 'The file content (file only, not allowed for read-only storages).'),
                         ],
                         additionalProperties: false,
                     ),

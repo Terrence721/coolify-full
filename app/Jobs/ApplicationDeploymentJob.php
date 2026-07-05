@@ -111,8 +111,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
 
     private string $container_name;
 
-    private ?string $currently_running_container_name = null;
-
     private string $basedir;
 
     private string $workdir;
@@ -124,8 +122,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
     private string $build_image_name;
 
     private string $production_image_name;
-
-    private bool $is_debug_enabled;
 
     /** @var Collection<int, string>|string */
     private Collection|string $build_args;
@@ -171,8 +167,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
 
     private ?string $full_healthcheck_url = null;
 
-    private string $serverUser = 'root';
-
     private string $serverUserHomeDir = '/root';
 
     private string $dockerConfigFileExists = 'NOK';
@@ -194,8 +188,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
     private bool $dockerBuildxAvailable = false;
 
     private bool $dockerSecretsSupported = false;
-
-    private bool $skip_build = false;
 
     /** @var Collection<int, string>|string */
     private Collection|string $build_secrets;
@@ -307,7 +299,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         $this->timeout = $this->server->settings->dynamic_timeout;
         $this->destination = $this->server->destinations()->where('id', $this->application_deployment_queue->destination_id)->first();
         $this->server = $this->mainServer = $this->destination->server;
-        $this->serverUser = $this->server->user;
         $this->is_this_additional_server = $this->application->additional_servers()->wherePivot('server_id', $this->server->id)->count() > 0;
         $this->preserveRepository = $this->appSettings()->is_preserve_repository_enabled;
 
@@ -318,7 +309,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         }
         $this->workdir = "{$this->basedir}".rtrim($baseDir, '/');
         $this->configuration_dir = application_configuration_dir()."/{$this->application->uuid}";
-        $this->is_debug_enabled = $this->appSettings()->is_debug_enabled;
 
         $this->container_name = generateApplicationContainerName($this->application, $this->pull_request_id);
         if ($this->appSettings()->custom_internal_name && ! $this->appSettings()->is_consistent_container_name_enabled) {
@@ -1322,7 +1312,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
     {
         if (str($this->saved_outputs->get('local_image_found'))->isNotEmpty()) {
             if ($this->is_this_additional_server) {
-                $this->skip_build = true;
                 $this->application_deployment_queue->addLogEntry("Image found ({$this->production_image_name}) with the same Git Commit SHA. Build step skipped.");
                 $this->generate_compose_file();
 
@@ -1337,7 +1326,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             $configurationDiff = $this->application->pendingDeploymentConfigurationDiff();
             if (! $configurationDiff->requiresBuild()) {
                 $this->application_deployment_queue->addLogEntry("No build configuration changed & image found ({$this->production_image_name}) with the same Git Commit SHA. Build step skipped.");
-                $this->skip_build = true;
                 $this->generate_compose_file();
 
                 // Save runtime environment variables even when skipping build
@@ -2276,7 +2264,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             }
             $deployment_uuid = new Cuid2;
             queue_application_deployment(
-                deployment_uuid: $deployment_uuid,
+                deployment_uuid: $deployment_uuid->toString(),
                 application: $this->application,
                 server: $server,
                 destination: $destination,
