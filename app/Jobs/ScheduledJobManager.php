@@ -47,6 +47,8 @@ class ScheduledJobManager implements ShouldQueue
 
     /**
      * Get the middleware the job should pass through.
+     *
+     * @return array<int, WithoutOverlapping>
      */
     public function middleware(): array
     {
@@ -179,6 +181,9 @@ class ScheduledJobManager implements ShouldQueue
         }
     }
 
+    /**
+     * @return Builder<ScheduledDatabaseBackup>
+     */
     private function scheduledBackupQuery(int $lastBackupId): Builder
     {
         return ScheduledDatabaseBackup::with(['database', 'team.subscription'])
@@ -188,6 +193,9 @@ class ScheduledJobManager implements ShouldQueue
             ->limit(self::CHUNK_SIZE);
     }
 
+    /**
+     * @return Builder<ScheduledTask>
+     */
     private function scheduledTaskQuery(int $lastTaskId): Builder
     {
         return ScheduledTask::with([
@@ -456,6 +464,9 @@ class ScheduledJobManager implements ShouldQueue
         }
     }
 
+    /**
+     * @return Builder<Server>
+     */
     private function getServersForCleanupQuery(): Builder
     {
         $query = Server::with('settings')
@@ -490,6 +501,9 @@ class ScheduledJobManager implements ShouldQueue
         return null;
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     private function logSkip(string $type, string $reason, array $context = []): void
     {
         Log::channel('scheduled')->info(ucfirst(str_replace('_', ' ', $type)).' skipped', array_merge([

@@ -40,7 +40,7 @@ class CleanupHelperContainersJob implements ShouldBeEncrypted, ShouldBeUnique, S
             ]);
 
             $containers = instant_remote_process_with_timeout(['docker container ps --format \'{{json .}}\' | jq -s \'map(select(.Image | contains("'.config('constants.coolify.registry_url').'/coollabsio/coolify-helper")))\''], $this->server, false);
-            $helperContainers = collect(json_decode($containers));
+            $helperContainers = collect((array) json_decode($containers));
 
             if ($helperContainers->count() > 0) {
                 foreach ($helperContainers as $container) {

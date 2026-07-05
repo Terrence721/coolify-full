@@ -7,6 +7,7 @@ namespace App\Actions\Proxy;
 use App\Enums\ProxyTypes;
 use App\Helpers\SshMultiplexingHelper;
 use App\Models\Server;
+use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,7 +18,7 @@ class CheckProxy
     use AsAction;
 
     // It should return if the proxy should be started (true) or not (false)
-    public function handle(Server $server, $fromUI = false): bool
+    public function handle(Server $server, bool $fromUI = false): bool
     {
         if (! $server->isFunctional()) {
             return false;
@@ -119,6 +120,9 @@ class CheckProxy
     /**
      * Check multiple ports for conflicts in parallel
      * Returns an array with port => conflict_status mapping
+     *
+     * @param  array<int, string>  $ports
+     * @return array<string, bool>
      */
     private function checkPortConflictsInParallel(Server $server, array $ports, string $proxyContainerName): array
     {
@@ -165,6 +169,8 @@ class CheckProxy
 
     /**
      * Build the SSH command for checking a specific port
+     *
+     * @return array{ssh_command: string, script: string}
      */
     private function buildPortCheckCommands(Server $server, string $port, string $proxyContainerName): array
     {
@@ -244,7 +250,7 @@ class CheckProxy
     /**
      * Parse the result from port check command
      */
-    private function parsePortCheckResult($processResult, string $port, string $proxyContainerName): bool
+    private function parsePortCheckResult(ProcessResult $processResult, string $port, string $proxyContainerName): bool
     {
         $exitCode = $processResult->exitCode();
         $output = trim($processResult->output());

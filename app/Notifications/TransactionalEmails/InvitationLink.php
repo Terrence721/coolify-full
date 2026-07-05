@@ -13,6 +13,9 @@ use Illuminate\Notifications\Messages\MailMessage;
 
 class InvitationLink extends CustomEmailNotification
 {
+    /**
+     * @return array<int, class-string>
+     */
     public function via(): array
     {
         return [TransactionalEmailChannel::class];

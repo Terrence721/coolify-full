@@ -64,6 +64,9 @@ class ServerManagerJob implements ShouldBeEncrypted, ShouldQueue
         $this->processScheduledTasks($servers);
     }
 
+    /**
+     * @return Collection<int, Server>
+     */
     private function getServers(): Collection
     {
         $allServers = Server::with('settings')->where('ip', '!=', '1.2.3.4');
@@ -78,6 +81,9 @@ class ServerManagerJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
+    /**
+     * @param  Collection<int, Server>  $servers
+     */
     private function dispatchConnectionChecks(Collection $servers): void
     {
 
@@ -103,6 +109,9 @@ class ServerManagerJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
+    /**
+     * @param  Collection<int, Server>  $servers
+     */
     private function processScheduledTasks(Collection $servers): void
     {
         foreach ($servers as $server) {

@@ -18,6 +18,9 @@ class ContainerStopped extends CustomEmailNotification
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('status_change');
@@ -51,6 +54,9 @@ class ContainerStopped extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = "Coolify: A resource ($this->name) has been stopped unexpectedly on {$this->server->name}";
@@ -105,6 +111,9 @@ class ContainerStopped extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $data = [

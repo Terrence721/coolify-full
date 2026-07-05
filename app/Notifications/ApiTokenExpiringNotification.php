@@ -26,6 +26,9 @@ class ApiTokenExpiringNotification extends CustomEmailNotification
         $this->manageUrl = route('security.api-tokens');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('api_token_expiring');
@@ -57,6 +60,9 @@ class ApiTokenExpiringNotification extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = "Coolify: API token '{$this->tokenName}' expires on {$this->expiresAt}.\n\nAction Required: Rotate this token before it expires to avoid API outages.";

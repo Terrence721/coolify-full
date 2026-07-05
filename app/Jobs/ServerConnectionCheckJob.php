@@ -33,6 +33,9 @@ class ServerConnectionCheckJob implements ShouldBeEncrypted, ShouldQueue
         public bool $disableMux = true
     ) {}
 
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('server-connection-check-'.$this->server->uuid))->expireAfter(25)->dontRelease()];

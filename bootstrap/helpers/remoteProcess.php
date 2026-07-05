@@ -17,7 +17,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
-use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Activity;
 
 function remote_process(
     Collection|array $command,
@@ -65,6 +65,10 @@ function remote_process(
     }
 
     $activity = $activityLog->log('[]');
+
+    if (! $activity instanceof Activity) {
+        throw new Exception('Failed to create activity log entry.');
+    }
 
     dispatch(new CoolifyTask(
         activity: $activity,

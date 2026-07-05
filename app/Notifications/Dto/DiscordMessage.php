@@ -6,6 +6,7 @@ namespace App\Notifications\Dto;
 
 class DiscordMessage
 {
+    /** @var array<int, array{name: string, value: string, inline: bool}> */
     private array $fields = [];
 
     public function __construct(
@@ -46,6 +47,9 @@ class DiscordMessage
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toPayload(): array
     {
         $footerText = 'Coolify v'.config('constants.coolify.version');
@@ -72,6 +76,10 @@ class DiscordMessage
         return $payload;
     }
 
+    /**
+     * @param  array<int, array{name: string, value: string, inline: bool}>  $fields
+     * @return array<int, array{name: string, value: string, inline: bool}>
+     */
     private function addTimestampToFields(array $fields): array
     {
         $fields[] = [

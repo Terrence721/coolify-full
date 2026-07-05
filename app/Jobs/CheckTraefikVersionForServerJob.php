@@ -24,6 +24,8 @@ class CheckTraefikVersionForServerJob implements ShouldBeEncrypted, ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * @param  array<string, string>  $traefikVersions
      */
     public function __construct(
         public Server $server,
@@ -117,6 +119,8 @@ class CheckTraefikVersionForServerJob implements ShouldBeEncrypted, ShouldQueue
 
     /**
      * Get information about newer branches if available.
+     *
+     * @return array{target: string, latest: string}|null
      */
     private function getNewerBranchInfo(string $currentBranch): ?array
     {
@@ -145,6 +149,8 @@ class CheckTraefikVersionForServerJob implements ShouldBeEncrypted, ShouldQueue
 
     /**
      * Store outdated information in database and send immediate notification.
+     *
+     * @param  array{target: string, latest: string}|null  $newerBranchInfo
      */
     private function storeOutdatedInfo(string $current, string $latest, string $type, ?string $upgradeTarget = null, ?array $newerBranchInfo = null): void
     {
@@ -174,6 +180,8 @@ class CheckTraefikVersionForServerJob implements ShouldBeEncrypted, ShouldQueue
 
     /**
      * Send notification to team about outdated Traefik.
+     *
+     * @param  array{current: string, latest: string, type: string, checked_at: string, upgrade_target?: string, newer_branch_target?: string, newer_branch_latest?: string}  $outdatedInfo
      */
     private function sendNotification(array $outdatedInfo): void
     {

@@ -57,6 +57,8 @@ class StopService
             if ($dockerCleanup) {
                 CleanupDocker::dispatch($server, false, false);
             }
+
+            return null;
         } catch (\Exception $e) {
             return $e->getMessage();
         } finally {
@@ -64,6 +66,9 @@ class StopService
         }
     }
 
+    /**
+     * @param  array<int, string>  $containersToStop
+     */
     private function stopContainersInParallel(array $containersToStop, Server $server): void
     {
         $timeout = count($containersToStop) > 5 ? 10 : 30;

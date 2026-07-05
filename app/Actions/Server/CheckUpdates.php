@@ -14,6 +14,9 @@ class CheckUpdates
 
     public string $jobQueue = 'high';
 
+    /**
+     * @return array<string, mixed>
+     */
     public function handle(Server $server): array
     {
         $osId = 'unknown';
@@ -128,6 +131,9 @@ class CheckUpdates
         }
     }
 
+    /**
+     * @return array{total_updates: int, updates: array<int, array<string, string>>, error?: string}
+     */
     private function parseZypperOutput(string $output): array
     {
         $updates = [];
@@ -170,6 +176,9 @@ class CheckUpdates
         }
     }
 
+    /**
+     * @return array{total_updates: int, updates: array<int, array<string, string>>}
+     */
     private function parseDnfOutput(string $output): array
     {
         $updates = [];
@@ -207,6 +216,9 @@ class CheckUpdates
         ];
     }
 
+    /**
+     * @return array{total_updates: int, updates: array<int, array<string, string>>}
+     */
     private function parseAptOutput(string $output): array
     {
         $updates = [];
@@ -236,6 +248,9 @@ class CheckUpdates
         ];
     }
 
+    /**
+     * @return array{total_updates: int, updates: array<int, array<string, string>>, unparsed_lines?: array<int, string>}
+     */
     private function parsePacmanOutput(string $output): array
     {
         $updates = [];

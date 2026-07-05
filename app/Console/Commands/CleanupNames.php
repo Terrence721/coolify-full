@@ -36,6 +36,7 @@ class CleanupNames extends Command
 
     protected $description = 'Sanitize name fields by removing dangerous characters';
 
+    /** @var array<string, class-string> */
     protected array $modelsToClean = [
         'Project' => Project::class,
         'Environment' => Environment::class,
@@ -57,6 +58,7 @@ class CleanupNames extends Command
         'ScheduledTask' => ScheduledTask::class,
     ];
 
+    /** @var array<int, array<string, mixed>> */
     protected array $changes = [];
 
     protected int $totalProcessed = 0;

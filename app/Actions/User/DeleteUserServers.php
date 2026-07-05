@@ -21,6 +21,9 @@ class DeleteUserServers
         $this->isDryRun = $isDryRun;
     }
 
+    /**
+     * @return Collection<int, Server>
+     */
     public function getServersPreview(): Collection
     {
         $servers = collect();
@@ -41,6 +44,9 @@ class DeleteUserServers
         return $servers->unique('id');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function execute(): array
     {
         if ($this->isDryRun) {

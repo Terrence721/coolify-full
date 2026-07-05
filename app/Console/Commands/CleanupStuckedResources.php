@@ -248,7 +248,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $application->destination()) {
+                if (! $application->destination) {
                     echo 'Application without destination: '.$application->name.'\n';
                     DeleteResourceJob::dispatch($application);
 
@@ -376,7 +376,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $mariadb->destination()) {
+                if (! $mariadb->destination) {
                     echo 'Mariadb without destination: '.$mariadb->name.'\n';
                     DeleteResourceJob::dispatch($mariadb);
 
@@ -402,7 +402,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $service->destination()) {
+                if (! $service->destination) {
                     echo 'Service without destination: '.$service->name.'\n';
                     DeleteResourceJob::dispatch($service);
 

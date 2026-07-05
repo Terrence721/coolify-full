@@ -19,6 +19,7 @@ class VerifyStripeSubscriptionStatusJob implements ShouldBeEncrypted, ShouldQueu
 
     public int $tries = 3;
 
+    /** @var array<int, int> */
     public array $backoff = [10, 30, 60];
 
     public function __construct(public Subscription $subscription)

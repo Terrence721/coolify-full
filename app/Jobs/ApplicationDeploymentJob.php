@@ -202,6 +202,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
 
     private ?ApplicationSetting $applicationSettings = null;
 
+    /** @var array<int, string>|null */
     private ?array $portsMappings = null;
 
     private function appSettings(): ApplicationSetting
@@ -249,7 +250,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             }
         }
 
-        $this->portsMappings = collect($portsMappings)
+        $this->portsMappings = collect((array) $portsMappings)
             ->filter(fn ($port): bool => is_string($port) && $port !== '')
             ->values()
             ->all();
@@ -257,6 +258,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         return $this->portsMappings;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function tags(): array
     {
         // Do not remove this one, it needs to properly identify which worker is running the job
@@ -749,7 +753,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         } else {
             $composeFile = $this->application->parse(pull_request_id: $this->pull_request_id, preview_id: data_get($this->preview, 'id'), commit: $this->commit);
             // Always add .env file to services
-            $services = collect(data_get($composeFile, 'services', []));
+            $services = collect((array) data_get($composeFile, 'services', []));
             $services = $services->map(function ($service, $name) {
                 $service['env_file'] = ['.env'];
 
@@ -1257,7 +1261,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                 $this->production_image_name = "{$this->application->uuid}:{$previewImageTag}";
             }
         } else {
-            $this->dockerImageTag = str($this->commit)->substr(0, 128);
+            $this->dockerImageTag = str($this->commit)->substr(0, 128)->value();
             // if ($this->application->docker_registry_image_tag) {
             //     $this->dockerImageTag = $this->application->docker_registry_image_tag;
             // }
@@ -1401,7 +1405,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         if ($this->pull_request_id === 0) {
             // Generate SERVICE_ variables first for dockercompose
             if ($this->build_pack === 'dockercompose') {
-                $domains = collect(json_decode($this->application->docker_compose_domains)) ?? collect([]);
+                $domains = collect((array) json_decode($this->application->docker_compose_domains)) ?? collect([]);
 
                 // Generate SERVICE_FQDN & SERVICE_URL for dockercompose
                 foreach ($domains as $forServiceName => $domain) {
@@ -1471,7 +1475,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         } else {
             // Generate SERVICE_ variables first for dockercompose preview
             if ($this->build_pack === 'dockercompose') {
-                $domains = collect(json_decode(data_get($this->preview, 'docker_compose_domains'))) ?? collect([]);
+                $domains = collect((array) json_decode(data_get($this->preview, 'docker_compose_domains'))) ?? collect([]);
 
                 // Generate SERVICE_FQDN & SERVICE_URL for dockercompose
                 foreach ($domains as $forServiceName => $domain) {
@@ -1721,7 +1725,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                 }
 
                 // Generate SERVICE_FQDN & SERVICE_URL for non-PR deployments
-                $domains = collect(json_decode($this->application->docker_compose_domains)) ?? collect([]);
+                $domains = collect((array) json_decode($this->application->docker_compose_domains)) ?? collect([]);
                 foreach ($domains as $forServiceName => $domain) {
                     $parsedDomain = data_get($domain, 'domain');
                     if (filled($parsedDomain)) {
@@ -1743,7 +1747,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                 }
 
                 // Generate SERVICE_FQDN & SERVICE_URL for preview deployments with PR-specific domains
-                $domains = collect(json_decode(data_get($this->preview, 'docker_compose_domains'))) ?? collect([]);
+                $domains = collect((array) json_decode(data_get($this->preview, 'docker_compose_domains'))) ?? collect([]);
                 foreach ($domains as $forServiceName => $domain) {
                     $parsedDomain = data_get($domain, 'domain');
                     if (filled($parsedDomain)) {
@@ -2058,11 +2062,11 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                             ],
                         );
                         $this->application_deployment_queue->addLogEntry("Attempt {$counter} of {$this->application->health_check_retries} | Healthcheck status: {$this->saved_outputs->get('health_check')}");
-                        $health_check_logs = data_get(collect(json_decode($this->saved_outputs->get('health_check_logs')))->last(), 'Output', '(no logs)');
+                        $health_check_logs = data_get(collect((array) json_decode($this->saved_outputs->get('health_check_logs')))->last(), 'Output', '(no logs)');
                         if (empty($health_check_logs)) {
                             $health_check_logs = '(no logs)';
                         }
-                        $health_check_return_code = data_get(collect(json_decode($this->saved_outputs->get('health_check_logs')))->last(), 'ExitCode', '(no return code)');
+                        $health_check_return_code = data_get(collect((array) json_decode($this->saved_outputs->get('health_check_logs')))->last(), 'ExitCode', '(no return code)');
                         if ($health_check_logs !== '(no logs)' || $health_check_return_code !== '(no return code)') {
                             $this->application_deployment_queue->addLogEntry("Healthcheck logs: {$health_check_logs} | Return code: {$health_check_return_code}");
                         }
@@ -2498,7 +2502,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                 // Do any modifications here
                 // We need to generate envs here because nixpacks need to know to generate a proper Dockerfile
                 $this->generate_env_variables();
-                $merged_envs = collect(data_get($parsed, 'variables', []))->merge($this->env_args);
+                $merged_envs = collect((array) data_get($parsed, 'variables', []))->merge($this->env_args);
                 $aptPkgs = data_get($parsed, 'phases.setup.aptPkgs', []);
                 if (count($aptPkgs) === 0) {
                     $aptPkgs = ['curl', 'wget'];
@@ -2532,7 +2536,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                     }
                 }
                 $this->nixpacks_plan = json_encode($parsed, JSON_PRETTY_PRINT);
-                $this->nixpacks_plan_json = collect($parsed);
+                $this->nixpacks_plan_json = collect((array) $parsed);
 
                 if (isDev()) {
                     $this->application_deployment_queue->addLogEntry("Final Nixpacks plan: {$this->nixpacks_plan}", hidden: true);
@@ -2601,6 +2605,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         $this->env_nixpacks_args = $this->env_nixpacks_args->implode(' ');
     }
 
+    /**
+     * @return Collection<string, string>
+     */
     private function generate_railpack_env_variables(): Collection
     {
         $variables = $this->railpack_build_variables();
@@ -2637,6 +2644,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
      * (unlike Nixpacks, which bakes variables into the plan), this `--env` → `--secret`
      * channel is the only way user-defined buildtime variables become available to
      * commands declared with `useSecrets: true`.
+     */
+    /**
+     * @return Collection<string, string>
      */
     private function railpack_build_variables(): Collection
     {
@@ -2676,6 +2686,10 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         return $variables;
     }
 
+    /**
+     * @param  Collection<string, string>  $variables
+     * @return Collection<string, string>
+     */
     private function merge_railpack_deploy_apt_packages(Collection $variables): Collection
     {
         $packages = collect(preg_split('/\s+/', trim((string) $variables->get('RAILPACK_DEPLOY_APT_PACKAGES', ''))) ?: [])
@@ -2693,6 +2707,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         return $variables;
     }
 
+    /**
+     * @param  Collection<string, string>  $variables
+     */
     private function railpack_build_environment_prefix(Collection $variables): string
     {
         if ($variables->isEmpty()) {
@@ -2706,6 +2723,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             ->implode(' ').' ';
     }
 
+    /**
+     * @param  Collection<string, string>  $variables
+     */
     private function railpack_build_secret_flags(Collection $variables): string
     {
         if ($variables->isEmpty()) {
@@ -2719,6 +2739,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             ->implode(' ');
     }
 
+    /**
+     * @param  Collection<string, string>  $variables
+     */
     private function railpack_build_command(string $imageName, Collection $variables): string
     {
         $cacheArgs = '';
@@ -2749,6 +2772,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             ." {$this->workdir}";
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function decode_railpack_config(string $config, string $source): array
     {
         try {
@@ -2764,6 +2790,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         return $decoded;
     }
 
+    /**
+     * @param  array<array-key, mixed>  $value
+     */
     private function is_assoc_array(array $value): bool
     {
         if ($value === []) {
@@ -2773,6 +2802,11 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         return array_keys($value) !== range(0, count($value) - 1);
     }
 
+    /**
+     * @param  array<string, mixed>  $base
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
     private function merge_railpack_config(array $base, array $overrides): array
     {
         foreach ($overrides as $key => $value) {
@@ -2792,6 +2826,9 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         return $base;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function railpack_config_overrides(): array
     {
         return [];
@@ -3003,6 +3040,9 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
         );
     }
 
+    /**
+     * @return Collection<string, string>
+     */
     protected function generate_coolify_env_variables(bool $forBuildTime = false): Collection
     {
         $coolify_envs = collect([]);
@@ -4046,7 +4086,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
     private function generate_build_env_variables(): void
     {
         if ($this->application->build_pack === 'nixpacks') {
-            $variables = collect($this->nixpacks_plan_json->get('variables'));
+            $variables = collect((array) $this->nixpacks_plan_json->get('variables'));
         } else {
             $this->generate_env_variables();
             $variables = collect([])->merge($this->env_args);
@@ -4131,6 +4171,9 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
         return $env_flags;
     }
 
+    /**
+     * @param  Collection<string, string>  $variables
+     */
     private function generate_build_secrets(Collection $variables): void
     {
         if ($variables->isEmpty()) {
@@ -4178,6 +4221,9 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
         return hash_hmac('sha256', $secrets_string, $this->secrets_hash_key);
     }
 
+    /**
+     * @return array<int, int>
+     */
     protected function findFromInstructionLines(mixed $dockerfile): array
     {
         $fromLines = [];
@@ -4640,6 +4686,10 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
      * For multi-container apps, matches by the user-specified container name.
      * If no container name is specified for multi-container apps, logs available containers and returns null.
      */
+    /**
+     * @param  Collection<int, array<string, mixed>>  $containers
+     * @return array<string, mixed>|null
+     */
     private function resolveCommandContainer(Collection $containers, ?string $specifiedContainerName, string $commandType): ?array
     {
         if ($containers->count() === 0) {
@@ -4882,7 +4932,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
      */
     private function sendDeploymentNotification(string $notificationClass): void
     {
-        $this->application->environment->project->team?->notify(
+        $this->application->environment->project->team->notify(
             new $notificationClass($this->application, $this->deployment_uuid, $this->preview)
         );
     }

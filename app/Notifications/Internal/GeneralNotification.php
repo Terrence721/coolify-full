@@ -22,6 +22,9 @@ class GeneralNotification extends Notification implements ShouldQueue
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('general');
@@ -36,6 +39,9 @@ class GeneralNotification extends Notification implements ShouldQueue
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [

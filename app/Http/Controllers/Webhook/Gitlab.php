@@ -77,7 +77,7 @@ class Gitlab extends Controller
                 $added_files = data_get($payload, 'commits.*.added');
                 $removed_files = data_get($payload, 'commits.*.removed');
                 $modified_files = data_get($payload, 'commits.*.modified');
-                $changed_files = collect($added_files)->concat($removed_files)->concat($modified_files)->unique()->flatten();
+                $changed_files = collect((array) $added_files)->concat((array) $removed_files)->concat((array) $modified_files)->unique()->flatten();
                 $skip_deploy_commits = self::shouldSkipDeploy(data_get($payload, 'commits.*.message', []));
             }
             if ($x_gitlab_event === 'merge_request') {

@@ -39,6 +39,9 @@ class StatusChanged extends CustomEmailNotification
         $this->resource_url = base_url()."/project/{$this->project_uuid}/environment/{$this->environment_uuid}/application/{$this->resource->uuid}";
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('status_change');
@@ -68,6 +71,9 @@ class StatusChanged extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = 'Coolify: '.$this->resource_name.' has been stopped.';
@@ -116,6 +122,9 @@ class StatusChanged extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         return [

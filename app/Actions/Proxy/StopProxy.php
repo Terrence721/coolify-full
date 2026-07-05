@@ -40,6 +40,8 @@ class StopProxy
             $server->proxy->force_stop = $forceStop;
             $server->proxy->status = 'exited';
             $server->save();
+
+            return null;
         } catch (\Throwable $e) {
             return handleError($e);
         } finally {

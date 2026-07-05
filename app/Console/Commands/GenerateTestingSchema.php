@@ -13,6 +13,7 @@ class GenerateTestingSchema extends Command
 
     protected $description = 'Generate SQLite testing schema from the PostgreSQL database';
 
+    /** @var array<string, string> */
     private array $typeMap = [
         '/\bbigint\b/' => 'INTEGER',
         '/\binteger\b/' => 'INTEGER',
@@ -29,6 +30,7 @@ class GenerateTestingSchema extends Command
         '/\bdate\b/' => 'TEXT',
     ];
 
+    /** @var array<int, string> */
     private array $castRemovals = [
         '::character varying',
         '::text',
@@ -96,6 +98,9 @@ class GenerateTestingSchema extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getTables(string $connection): array
     {
         return collect(DB::connection($connection)->select(
@@ -103,6 +108,9 @@ class GenerateTestingSchema extends Command
         ))->pluck('tablename')->toArray();
     }
 
+    /**
+     * @return array<int, object>
+     */
     private function getColumns(string $connection, string $table): array
     {
         return DB::connection($connection)->select(
@@ -115,6 +123,9 @@ class GenerateTestingSchema extends Command
         );
     }
 
+    /**
+     * @param  array<int, object>  $columns
+     */
     private function generateCreateTable(string $table, array $columns): string
     {
         $lines = [];
@@ -183,6 +194,10 @@ class GenerateTestingSchema extends Command
         return $default;
     }
 
+    /**
+     * @param  array<int, string>  $tables
+     * @return array<int, string>
+     */
     private function getIndexes(string $connection, array $tables): array
     {
         $results = [];

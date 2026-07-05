@@ -176,7 +176,7 @@ class ScheduledDatabaseBackup extends BaseModel
         ];
     }
 
-    public function server()
+    public function server(): ?Server
     {
         if ($this->database) {
             if ($this->database instanceof ServiceDatabase) {

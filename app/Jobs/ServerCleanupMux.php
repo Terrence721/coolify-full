@@ -35,6 +35,8 @@ class ServerCleanupMux implements ShouldBeEncrypted, ShouldQueue
                 return 'Server is not reachable or not ready.';
             }
             SshMultiplexingHelper::removeMuxFile($this->server);
+
+            return null;
         } catch (\Throwable $e) {
             return handleError($e);
         }

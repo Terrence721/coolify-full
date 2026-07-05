@@ -515,7 +515,7 @@ class GetContainersStatus
                 if ($restartLimitReached) {
                     $application->refresh();
                     StopApplication::dispatch($application, false, true, false);
-                    $application->environment->project->team?->notify(new ApplicationRestartLimitReached($application));
+                    $application->environment->project->team->notify(new ApplicationRestartLimitReached($application));
                 }
             }
         }

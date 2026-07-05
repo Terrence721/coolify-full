@@ -20,6 +20,9 @@ class DeleteUserTeams
         $this->isDryRun = $isDryRun;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getTeamsPreview(): array
     {
         $teamsToDelete = collect();
@@ -91,6 +94,9 @@ class DeleteUserTeams
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function execute(): array
     {
         if ($this->isDryRun) {

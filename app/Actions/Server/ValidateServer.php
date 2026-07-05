@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Server;
 
 use App\Models\Server;
+use Illuminate\Support\Stringable;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ValidateServer
@@ -13,17 +14,17 @@ class ValidateServer
 
     public string $jobQueue = 'high';
 
-    public ?string $uptime = null;
+    public bool $uptime = false;
 
     public ?string $error = null;
 
-    public ?string $supported_os_type = null;
+    public bool|Stringable $supported_os_type = false;
 
-    public ?string $docker_installed = null;
+    public bool $docker_installed = false;
 
-    public ?string $docker_compose_installed = null;
+    public bool $docker_compose_installed = false;
 
-    public ?string $docker_version = null;
+    public bool $docker_version = false;
 
     public function handle(Server $server): string
     {

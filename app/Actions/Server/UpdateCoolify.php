@@ -20,7 +20,7 @@ class UpdateCoolify
 
     public ?string $currentVersion = null;
 
-    public function handle($manual_update = false): void
+    public function handle(bool $manual_update = false): void
     {
         if (isDev()) {
             Sleep::for(10)->seconds();

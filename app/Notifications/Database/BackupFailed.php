@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace App\Notifications\Database;
 
 use App\Models\ScheduledDatabaseBackup;
+use App\Models\ServiceDatabase;
+use App\Models\StandaloneMariadb;
+use App\Models\StandaloneMongodb;
+use App\Models\StandaloneMysql;
+use App\Models\StandalonePostgresql;
 use App\Notifications\CustomEmailNotification;
 use App\Notifications\Dto\DiscordMessage;
 use App\Notifications\Dto\PushoverMessage;
@@ -17,13 +22,16 @@ class BackupFailed extends CustomEmailNotification
 
     public string $frequency;
 
-    public function __construct(ScheduledDatabaseBackup $backup, public $database, public $output, public $database_name)
+    public function __construct(ScheduledDatabaseBackup $backup, public StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|ServiceDatabase $database, public string $output, public string $database_name)
     {
         $this->onQueue('high');
         $this->name = $database->name;
         $this->frequency = $backup->frequency;
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('backup_failure');
@@ -58,6 +66,9 @@ class BackupFailed extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = "Coolify: Database backup for {$this->name} (db:{$this->database_name}) with frequency of {$this->frequency} was FAILED.\n\nReason:\n{$this->output}";
@@ -91,6 +102,9 @@ class BackupFailed extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $url = base_url().'/project/'.data_get($this->database, 'environment.project.uuid').'/environment/'.data_get($this->database, 'environment.uuid').'/database/'.$this->database->uuid;

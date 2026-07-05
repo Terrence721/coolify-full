@@ -1,0 +1,62 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/php:8.4-node
+    environment:
+      # .env.testing already has APP_KEY, sqlite in-memory DB, and array
+      # cache/session/queue drivers — Laravel auto-loads it over .env
+      # whenever APP_ENV=testing, so no manual .env setup step is needed.
+      APP_ENV: testing
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - composer-v1-{{ checksum "composer.lock" }}
+            - composer-v1-
+
+      - run:
+          name: Install PHP dependencies
+          command: composer install --no-interaction --prefer-dist --no-progress
+
+      - save_cache:
+          key: composer-v1-{{ checksum "composer.lock" }}
+          paths:
+            - vendor
+
+      - restore_cache:
+          keys:
+            - yarn-v1-{{ checksum "yarn.lock" }}
+            - yarn-v1-
+
+      - run:
+          name: Install JS dependencies
+          command: yarn install --frozen-lockfile
+
+      - save_cache:
+          key: yarn-v1-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+
+      - run:
+          name: Build frontend assets
+          command: yarn build
+
+      - run:
+          name: Pint (code style)
+          command: vendor/bin/pint --test
+
+      - run:
+          name: PHPStan (static analysis)
+          command: vendor/bin/phpstan analyse --no-progress --memory-limit=2G
+
+      - run:
+          name: Pest / PHPUnit test suite
+          command: php artisan test --compact
+
+workflows:
+  build-and-test:
+    jobs:
+      - test

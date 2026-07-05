@@ -18,7 +18,10 @@ use OpenApi\Attributes as OA;
 
 class GithubController extends Controller
 {
-    private function removeSensitiveData($githubApp): Collection
+    /**
+     * @return Collection<string, mixed>
+     */
+    private function removeSensitiveData(GithubApp $githubApp): Collection
     {
         $githubApp->makeHidden([
             'client_secret',
@@ -336,7 +339,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function load_repositories($github_app_id): mixed
+    public function load_repositories(string $github_app_id): mixed
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -453,7 +456,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function load_branches($github_app_id, $owner, $repo): mixed
+    public function load_branches(string $github_app_id, string $owner, string $repo): mixed
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -556,7 +559,7 @@ class GithubController extends Controller
             new OA\Response(response: 422, ref: '#/components/responses/422'),
         ]
     )]
-    public function update_github_app(Request $request, $github_app_id): JsonResponse
+    public function update_github_app(Request $request, string $github_app_id): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
@@ -729,7 +732,7 @@ class GithubController extends Controller
             ),
         ]
     )]
-    public function delete_github_app($github_app_id): JsonResponse
+    public function delete_github_app(string $github_app_id): JsonResponse
     {
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {

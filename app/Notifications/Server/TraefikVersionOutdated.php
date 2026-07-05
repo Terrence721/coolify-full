@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications\Server;
 
+use App\Models\Server;
 use App\Notifications\CustomEmailNotification;
 use App\Notifications\Dto\DiscordMessage;
 use App\Notifications\Dto\PushoverMessage;
@@ -13,11 +14,17 @@ use Illuminate\Support\Collection;
 
 class TraefikVersionOutdated extends CustomEmailNotification
 {
+    /**
+     * @param  Collection<int, Server>  $servers
+     */
     public function __construct(public Collection $servers)
     {
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('traefik_outdated');
@@ -29,6 +36,9 @@ class TraefikVersionOutdated extends CustomEmailNotification
         return str_starts_with($version, 'v') ? $version : "v{$version}";
     }
 
+    /**
+     * @param  array<string, mixed>  $info
+     */
     private function getUpgradeTarget(array $info): string
     {
         // For minor upgrades, use the upgrade_target field (e.g., "v3.6")
@@ -40,7 +50,7 @@ class TraefikVersionOutdated extends CustomEmailNotification
         return $this->formatVersion($info['latest'] ?? 'unknown');
     }
 
-    public function toMail($notifiable = null): MailMessage
+    public function toMail(mixed $notifiable = null): MailMessage
     {
         $mail = new MailMessage;
         $count = $this->servers->count();
@@ -107,6 +117,9 @@ class TraefikVersionOutdated extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $count = $this->servers->count();
@@ -236,6 +249,9 @@ class TraefikVersionOutdated extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $servers = $this->servers->map(function ($server) {

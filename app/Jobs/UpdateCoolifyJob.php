@@ -36,7 +36,7 @@ class UpdateCoolifyJob implements ShouldBeEncrypted, ShouldQueue
                 return;
             }
 
-            $server = Server::findOrFail(0);
+            $server = Server::find(0);
             if (! $server) {
                 Log::error('Server not found. Cannot proceed with update.');
 

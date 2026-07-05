@@ -14,6 +14,9 @@ class UpdatePackage
 
     public string $jobQueue = 'high';
 
+    /**
+     * @return Activity|array<string, mixed>
+     */
     public function handle(Server $server, string $osId, ?string $package = null, ?string $packageManager = null, bool $all = false): Activity|array
     {
         try {

@@ -32,6 +32,9 @@ class Test extends Notification implements ShouldQueue
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         if ($this->channel) {
@@ -51,6 +54,9 @@ class Test extends Notification implements ShouldQueue
         return $channels;
     }
 
+    /**
+     * @return array<int, mixed>
+     */
     public function middleware(object $notifiable, string $channel): array
     {
         return match ($channel) {
@@ -82,6 +88,9 @@ class Test extends Notification implements ShouldQueue
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [
@@ -117,6 +126,9 @@ class Test extends Notification implements ShouldQueue
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         return [

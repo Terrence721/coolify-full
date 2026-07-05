@@ -17,6 +17,9 @@ class HetznerDeletionFailed extends CustomEmailNotification
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         ray('hello');
@@ -46,6 +49,9 @@ class HetznerDeletionFailed extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [

@@ -32,6 +32,9 @@ class RevokeUserTeamTokens
             ->delete();
     }
 
+    /**
+     * @return Builder<PersonalAccessToken>
+     */
     private static function baseQuery(): Builder
     {
         return PersonalAccessToken::query()

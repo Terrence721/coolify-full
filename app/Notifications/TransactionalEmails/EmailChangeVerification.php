@@ -12,6 +12,9 @@ use Illuminate\Support\Carbon;
 
 class EmailChangeVerification extends CustomEmailNotification
 {
+    /**
+     * @return array<int, class-string>
+     */
     public function via(): array
     {
         return [TransactionalEmailChannel::class];

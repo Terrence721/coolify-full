@@ -15,7 +15,10 @@ use OpenApi\Attributes as OA;
 
 class CloudProviderTokensController extends Controller
 {
-    private function removeSensitiveData($token): Collection
+    /**
+     * @return Collection<string, mixed>
+     */
+    private function removeSensitiveData(CloudProviderToken $token): Collection
     {
         $token->makeHidden([
             'id',

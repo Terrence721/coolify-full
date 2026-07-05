@@ -49,6 +49,9 @@ class DeploymentSuccess extends CustomEmailNotification
         $this->deployment_url = base_url()."/project/{$this->project_uuid}/environment/{$this->environment_uuid}/application/{$this->application->uuid}/deployment/{$this->deployment_uuid}";
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('deployment_success');
@@ -113,6 +116,9 @@ class DeploymentSuccess extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         if ($this->preview) {
@@ -208,6 +214,9 @@ class DeploymentSuccess extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $data = [

@@ -30,6 +30,7 @@ class Init extends Command
 
     protected $description = 'Cleanup instance related stuffs';
 
+    /** @var Collection<int, Server>|null */
     public ?Collection $servers = null;
 
     public InstanceSettings $settings;
@@ -221,7 +222,7 @@ class Init extends Command
                         $commands->push("docker network disconnect {$safe} coolify-proxy >/dev/null 2>&1 || true");
                         $commands->push("docker network rm {$safe} >/dev/null 2>&1 || true");
                     } else {
-                        $data = collect(json_decode($out, true));
+                        $data = collect((array) json_decode($out, true));
                         if ($data->count() === 1) {
                             // If only coolify-proxy itself is connected to that network (it should not be possible, but who knows)
                             $isCoolifyProxyItself = data_get($data->first(), 'Name') === 'coolify-proxy';

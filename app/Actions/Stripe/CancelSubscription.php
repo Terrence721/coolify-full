@@ -29,6 +29,9 @@ class CancelSubscription
         }
     }
 
+    /**
+     * @return Collection<int, Subscription>
+     */
     public function getSubscriptionsPreview(): Collection
     {
         $subscriptions = collect();
@@ -56,7 +59,7 @@ class CancelSubscription
     /**
      * Verify subscriptions exist and are active in Stripe API
      *
-     * @return array ['verified' => Collection, 'not_found' => Collection, 'errors' => array]
+     * @return array<string, mixed>
      */
     public function verifySubscriptionsInStripe(): array
     {
@@ -111,6 +114,9 @@ class CancelSubscription
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function execute(): array
     {
         if ($this->isDryRun) {

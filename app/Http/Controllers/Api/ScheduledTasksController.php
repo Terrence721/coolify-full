@@ -15,7 +15,10 @@ use OpenApi\Attributes as OA;
 
 class ScheduledTasksController extends Controller
 {
-    private function removeSensitiveData($task): Collection
+    /**
+     * @return Collection<string, mixed>
+     */
+    private function removeSensitiveData(ScheduledTask $task): Collection
     {
         $task->makeHidden([
             'id',

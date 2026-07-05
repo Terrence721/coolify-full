@@ -13,7 +13,11 @@ use OpenApi\Attributes as OA;
 
 class SecurityController extends Controller
 {
-    private function removeSensitiveData($team): Collection
+    /**
+     * @param  PrivateKey|Collection<int, PrivateKey>  $team
+     * @return Collection<array-key, mixed>
+     */
+    private function removeSensitiveData(PrivateKey|Collection $team): Collection
     {
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $team->makeHidden([

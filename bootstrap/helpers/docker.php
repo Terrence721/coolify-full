@@ -75,6 +75,9 @@ function getCurrentServiceContainerStatus(Server $server, int $id): Collection
     return $containers;
 }
 
+/**
+ * @return Collection<int, array<string, mixed>>
+ */
 function format_docker_command_output_to_json($rawOutput): Collection
 {
     $outputLines = explode(PHP_EOL, $rawOutput);

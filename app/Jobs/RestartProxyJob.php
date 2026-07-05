@@ -28,6 +28,9 @@ class RestartProxyJob implements ShouldBeEncrypted, ShouldQueue
 
     public ?int $activity_id = null;
 
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('restart-proxy-'.$this->server->uuid))->expireAfter(120)->dontRelease()];
@@ -59,6 +62,7 @@ class RestartProxyJob implements ShouldBeEncrypted, ShouldQueue
             $this->activity_id = $activity->id;
             ProxyStatusChangedUI::dispatch($this->server->team_id, $this->activity_id);
 
+            return null;
         } catch (\Throwable $e) {
             // Set error status
             $this->server->proxy->status = 'error';
@@ -77,6 +81,9 @@ class RestartProxyJob implements ShouldBeEncrypted, ShouldQueue
     /**
      * Build combined stop + start commands for proxy restart.
      * This creates a single command sequence that shows all logs in one activity.
+     */
+    /**
+     * @return array<int, string>
      */
     private function buildRestartCommands(): array
     {

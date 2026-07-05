@@ -7,6 +7,7 @@ namespace App\Actions\Shared;
 use App\Models\Application;
 use App\Services\ContainerStatusAggregator;
 use App\Traits\CalculatesExcludedStatus;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ComplexStatusCheck
@@ -63,7 +64,10 @@ class ComplexStatusCheck
         }
     }
 
-    private function aggregateContainerStatuses($application, $containers): string
+    /**
+     * @param  Collection<int, array<string, mixed>>  $containers
+     */
+    private function aggregateContainerStatuses(Application $application, Collection $containers): string
     {
         $dockerComposeRaw = data_get($application, 'docker_compose_raw');
         $excludedContainers = $this->getExcludedContainersFromDockerCompose($dockerComposeRaw);

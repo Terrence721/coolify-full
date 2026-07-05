@@ -13,6 +13,7 @@ use App\Enums\ApplicationDeploymentStatus;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\ApplicationPreview;
+use App\Models\Server;
 use App\Models\Service;
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
@@ -183,7 +184,10 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
         $this->resource->forceDelete();
     }
 
-    private function stopPreviewContainers(array $containers, $server, int $timeout = 30): void
+    /**
+     * @param  array<int, array<string, mixed>>  $containers
+     */
+    private function stopPreviewContainers(array $containers, Server $server, int $timeout = 30): void
     {
         if (empty($containers)) {
             return;

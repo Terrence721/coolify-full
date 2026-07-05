@@ -23,8 +23,8 @@ class Services extends Command
     public function handle(): int
     {
         $serviceTemplatesJson = collect(array_merge(
-            glob(base_path('templates/compose/*.yaml')),
-            glob(base_path('templates/compose/*.yml'))
+            glob(base_path('templates/compose/*.yaml')) ?: [],
+            glob(base_path('templates/compose/*.yml')) ?: []
         ))
             ->mapWithKeys(function ($file): array {
                 $file = basename($file);
@@ -43,6 +43,9 @@ class Services extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<string, mixed>|false
+     */
     private function processFile(string $file): false|array
     {
         $content = file_get_contents(base_path("templates/compose/$file"));
@@ -104,8 +107,8 @@ class Services extends Command
     private function generateServiceTemplatesWithFqdn(): void
     {
         $serviceTemplatesWithFqdn = collect(array_merge(
-            glob(base_path('templates/compose/*.yaml')),
-            glob(base_path('templates/compose/*.yml'))
+            glob(base_path('templates/compose/*.yaml')) ?: [],
+            glob(base_path('templates/compose/*.yml')) ?: []
         ))
             ->mapWithKeys(function ($file): array {
                 $file = basename($file);
@@ -122,6 +125,9 @@ class Services extends Command
         // $this->generateServiceTemplatesRaw();
     }
 
+    /**
+     * @return array<string, mixed>|false
+     */
     private function processFileWithFqdn(string $file): false|array
     {
         $content = file_get_contents(base_path("templates/compose/$file"));
@@ -184,8 +190,8 @@ class Services extends Command
     private function generateServiceTemplatesRaw(): void
     {
         $serviceTemplatesRaw = collect(array_merge(
-            glob(base_path('templates/compose/*.yaml')),
-            glob(base_path('templates/compose/*.yml'))
+            glob(base_path('templates/compose/*.yaml')) ?: [],
+            glob(base_path('templates/compose/*.yml')) ?: []
         ))
             ->mapWithKeys(function ($file): array {
                 $file = basename($file);
@@ -199,6 +205,9 @@ class Services extends Command
         file_put_contents(base_path('templates/service-templates-raw.json'), $serviceTemplatesRaw.PHP_EOL);
     }
 
+    /**
+     * @return array<string, mixed>|false
+     */
     private function processFileWithFqdnRaw(string $file): false|array
     {
         $content = file_get_contents(base_path("templates/compose/$file"));

@@ -12,6 +12,7 @@ class CustomEmailNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
+    /** @var array<int, int> */
     public array $backoff = [10, 20, 30, 40, 50];
 
     public int $tries = 5;

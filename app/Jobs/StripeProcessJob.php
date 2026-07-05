@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Str;
+use Stripe\Event;
 use Stripe\StripeClient;
 
 class StripeProcessJob implements ShouldBeEncrypted, ShouldQueue
@@ -23,7 +24,10 @@ class StripeProcessJob implements ShouldBeEncrypted, ShouldQueue
 
     public int $tries = 3;
 
-    public function __construct(public $event)
+    /**
+     * @param  Event|array<string, mixed>  $event
+     */
+    public function __construct(public Event|array $event)
     {
         $this->onQueue('high');
     }

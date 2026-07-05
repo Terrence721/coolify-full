@@ -20,6 +20,9 @@ class DeleteUserResources
         $this->isDryRun = $isDryRun;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getResourcesPreview(): array
     {
         $applications = collect();
@@ -78,6 +81,9 @@ class DeleteUserResources
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function execute(): array
     {
         if ($this->isDryRun) {

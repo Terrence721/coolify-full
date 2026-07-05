@@ -97,8 +97,13 @@ class ViewScheduledLogs extends Command
                 }
             }
         }
+
+        return null;
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function getLogPaths(string $date): array
     {
         $paths = [];

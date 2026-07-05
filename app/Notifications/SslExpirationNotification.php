@@ -13,10 +13,15 @@ use Spatie\Url\Url;
 
 class SslExpirationNotification extends CustomEmailNotification
 {
+    /** @var Collection<int, mixed> */
     protected Collection $resources;
 
+    /** @var array<string, string> */
     protected array $urls = [];
 
+    /**
+     * @param  array<int, mixed>|Collection<int, mixed>  $resources
+     */
     public function __construct(array|Collection $resources)
     {
         $this->onQueue('high');
@@ -56,6 +61,9 @@ class SslExpirationNotification extends CustomEmailNotification
         });
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('ssl_certificate_renewal');
@@ -90,6 +98,9 @@ class SslExpirationNotification extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $resourceNames = $this->resources->pluck('name')->join(', ');

@@ -14,13 +14,13 @@ class DecideWhatToDoWithUser
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()?->user()?->teams?->count() === 0) {
-            $currentTeam = auth()->user()?->recreate_personal_team();
+        if (auth()->user()?->teams?->count() === 0) {
+            $currentTeam = auth()->user()->recreate_personal_team();
             refreshSession($currentTeam);
         }
-        if (auth()?->user()?->currentTeam()) {
+        if (auth()->user()?->currentTeam()) {
             refreshSession(currentTeam());
-        } elseif (auth()?->user()?->teams?->count() > 0) {
+        } elseif (auth()->user()?->teams?->count() > 0) {
             // User's session team is invalid (e.g., removed from team), switch to first available team
             refreshSession(auth()->user()->teams->first());
         }

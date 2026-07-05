@@ -72,6 +72,8 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
             } else {
                 $this->create_comment();
             }
+
+            return null;
         } catch (\Throwable $e) {
             return $e;
         }

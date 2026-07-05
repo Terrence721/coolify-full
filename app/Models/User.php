@@ -33,7 +33,7 @@ use Laravel\Sanctum\NewAccessToken;
 use OpenApi\Attributes as OA;
 
 /**
- * @property-read Team|null $currentTeam
+ * @property Team|null $currentTeam
  * @property-read TeamUserPivot|null $pivot
  * @property int $id
  * @property string $name

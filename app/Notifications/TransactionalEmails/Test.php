@@ -17,6 +17,9 @@ class Test extends CustomEmailNotification
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(): array
     {
         return [EmailChannel::class];

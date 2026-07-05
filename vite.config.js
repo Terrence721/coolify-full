@@ -9,6 +9,13 @@ export default defineConfig(({ mode }) => {
     return {
         server: {
             watch: {
+                // Docker Desktop on Windows doesn't reliably forward native
+                // filesystem change events from the bind-mounted volume into
+                // the container, so chokidar's default fs.watch-based
+                // detection never fires for host-side edits. Polling works
+                // around that at the cost of a bit of CPU.
+                usePolling: true,
+                interval: 300,
                 ignored: [
                     "**/dev_*_data/**",
                     "**/storage/**",

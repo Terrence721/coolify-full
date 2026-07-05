@@ -25,6 +25,9 @@ class TaskFailed extends CustomEmailNotification
         }
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('scheduled_task_failure');
@@ -58,6 +61,9 @@ class TaskFailed extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = "Coolify: Scheduled task ({$this->task->name}) failed with output: {$this->output}";
@@ -117,6 +123,9 @@ class TaskFailed extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $data = [

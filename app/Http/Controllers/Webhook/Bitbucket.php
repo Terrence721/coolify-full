@@ -50,8 +50,8 @@ class Bitbucket extends Controller
                 // Bitbucket webhooks ship up to 5 commits per change. Larger pushes
                 // are evaluated only on the visible 5.
                 $skip_deploy_commits = self::shouldSkipDeploy(
-                    collect(data_get($payload, 'push.changes', []))
-                        ->flatMap(fn ($change) => data_get($change, 'commits', []))
+                    collect((array) data_get($payload, 'push.changes', []))
+                        ->flatMap(fn ($change) => (array) data_get($change, 'commits', []))
                         ->pluck('message')
                         ->filter()
                         ->values()

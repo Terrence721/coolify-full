@@ -18,6 +18,9 @@ class ForceEnabled extends CustomEmailNotification
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('server_force_enabled');
@@ -43,6 +46,9 @@ class ForceEnabled extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [

@@ -1072,7 +1072,7 @@ class ApplicationsController extends Controller
             $application->fill($request->only($allowedFields));
             $dockerComposeDomainsJson = collect();
             if ($request->has('docker_compose_domains')) {
-                $dockerComposeDomains = collect($request->docker_compose_domains);
+                $dockerComposeDomains = collect((array) $request->docker_compose_domains);
 
                 // Collect all URLs from all docker_compose_domains items
                 $urls = $dockerComposeDomains->flatMap(function ($item) {
@@ -1136,7 +1136,7 @@ class ApplicationsController extends Controller
                 $request->offsetUnset('docker_compose_domains');
             }
             if ($dockerComposeDomainsJson->count() > 0) {
-                $application->docker_compose_domains = $dockerComposeDomainsJson;
+                $application->docker_compose_domains = $dockerComposeDomainsJson->toJson();
             }
             $repository_url_parsed = Url::fromString($request->git_repository);
             $git_host = $repository_url_parsed->getHost();
@@ -1185,7 +1185,7 @@ class ApplicationsController extends Controller
                 $application->save();
             }
             if ($application->settings->is_container_label_readonly_enabled) {
-                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
                 $application->save();
             }
             $application->isConfigurationChanged(true);
@@ -1309,7 +1309,7 @@ class ApplicationsController extends Controller
 
             $dockerComposeDomainsJson = collect();
             if ($request->has('docker_compose_domains')) {
-                $dockerComposeDomains = collect($request->docker_compose_domains);
+                $dockerComposeDomains = collect((array) $request->docker_compose_domains);
 
                 // Collect all URLs from all docker_compose_domains items
                 $urls = $dockerComposeDomains->flatMap(function ($item) {
@@ -1373,7 +1373,7 @@ class ApplicationsController extends Controller
                 $request->offsetUnset('docker_compose_domains');
             }
             if ($dockerComposeDomainsJson->count() > 0) {
-                $application->docker_compose_domains = $dockerComposeDomainsJson;
+                $application->docker_compose_domains = $dockerComposeDomainsJson->toJson();
             }
             $application->fqdn = $fqdn;
             $application->git_repository = str($gitRepository)->trim()->toString();
@@ -1420,7 +1420,7 @@ class ApplicationsController extends Controller
             $application->settings->is_preserve_repository_enabled = $isPreserveRepositoryEnabled;
             $application->settings->save();
             if ($application->settings->is_container_label_readonly_enabled) {
-                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
                 $application->save();
             }
             $application->isConfigurationChanged(true);
@@ -1518,7 +1518,7 @@ class ApplicationsController extends Controller
 
             $dockerComposeDomainsJson = collect();
             if ($request->has('docker_compose_domains')) {
-                $dockerComposeDomains = collect($request->docker_compose_domains);
+                $dockerComposeDomains = collect((array) $request->docker_compose_domains);
 
                 // Collect all URLs from all docker_compose_domains items
                 $urls = $dockerComposeDomains->flatMap(function ($item) {
@@ -1582,7 +1582,7 @@ class ApplicationsController extends Controller
                 $request->offsetUnset('docker_compose_domains');
             }
             if ($dockerComposeDomainsJson->count() > 0) {
-                $application->docker_compose_domains = $dockerComposeDomainsJson;
+                $application->docker_compose_domains = $dockerComposeDomainsJson->toJson();
             }
             $application->fqdn = $fqdn;
             $application->private_key_id = $privateKey->id;
@@ -1625,7 +1625,7 @@ class ApplicationsController extends Controller
             $application->settings->is_preserve_repository_enabled = $isPreserveRepositoryEnabled;
             $application->settings->save();
             if ($application->settings->is_container_label_readonly_enabled) {
-                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
                 $application->save();
             }
             $application->isConfigurationChanged(true);
@@ -1712,7 +1712,7 @@ class ApplicationsController extends Controller
             $application = new Application;
             $application->fill($request->only($allowedFields));
             $application->fqdn = $fqdn;
-            $application->ports_exposes = $port;
+            $application->ports_exposes = (string) $port;
             $application->build_pack = 'dockerfile';
             $application->dockerfile = $dockerFile;
             $application->destination_id = $destination->id;
@@ -1743,7 +1743,7 @@ class ApplicationsController extends Controller
             $application->settings->is_container_label_escape_enabled = $isContainerLabelEscapeEnabled;
             $application->settings->save();
             if ($application->settings->is_container_label_readonly_enabled) {
-                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
                 $application->save();
             }
             $application->isConfigurationChanged(true);
@@ -1860,7 +1860,7 @@ class ApplicationsController extends Controller
             $application->settings->is_container_label_escape_enabled = $isContainerLabelEscapeEnabled;
             $application->settings->save();
             if ($application->settings->is_container_label_readonly_enabled) {
-                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+                $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
                 $application->save();
             }
             $application->isConfigurationChanged(true);
@@ -2446,7 +2446,7 @@ class ApplicationsController extends Controller
             }
         }
         if ($request->has('is_http_basic_auth_enabled') && $application->is_container_label_readonly_enabled === false) {
-            $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+            $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
             $application->save();
         }
 
@@ -2525,7 +2525,7 @@ class ApplicationsController extends Controller
                 ], 422);
             }
 
-            $dockerComposeDomains = collect($request->docker_compose_domains);
+            $dockerComposeDomains = collect((array) $request->docker_compose_domains);
 
             // Collect all URLs from all docker_compose_domains items
             $urls = $dockerComposeDomains->flatMap(function ($item) {
@@ -2652,7 +2652,7 @@ class ApplicationsController extends Controller
         }
         $application->fill($data);
         if ($application->settings->is_container_label_readonly_enabled && $requestHasDomains && $server->isProxyShouldRun()) {
-            $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+            $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
         }
         $application->save();
 
@@ -3082,8 +3082,8 @@ class ApplicationsController extends Controller
                 'message' => 'Bulk data is required.',
             ], 400);
         }
-        $bulk_data = collect($bulk_data)->map(function ($item) {
-            return collect($item)->only(['key', 'value', 'is_preview', 'is_literal', 'is_multiline', 'is_shown_once', 'is_runtime', 'is_buildtime', 'comment']);
+        $bulk_data = collect((array) $bulk_data)->map(function ($item) {
+            return collect((array) $item)->only(['key', 'value', 'is_preview', 'is_literal', 'is_multiline', 'is_shown_once', 'is_runtime', 'is_buildtime', 'comment']);
         });
         $returnedEnvs = collect();
         foreach ($bulk_data as $item) {

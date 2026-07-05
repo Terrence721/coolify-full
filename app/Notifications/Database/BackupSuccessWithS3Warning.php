@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace App\Notifications\Database;
 
 use App\Models\ScheduledDatabaseBackup;
+use App\Models\ServiceDatabase;
+use App\Models\StandaloneMariadb;
+use App\Models\StandaloneMongodb;
+use App\Models\StandaloneMysql;
+use App\Models\StandalonePostgresql;
 use App\Notifications\CustomEmailNotification;
 use App\Notifications\Dto\DiscordMessage;
 use App\Notifications\Dto\PushoverMessage;
@@ -19,7 +24,7 @@ class BackupSuccessWithS3Warning extends CustomEmailNotification
 
     public ?string $s3_storage_url = null;
 
-    public function __construct(ScheduledDatabaseBackup $backup, public $database, public $database_name, public $s3_error)
+    public function __construct(ScheduledDatabaseBackup $backup, public StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|ServiceDatabase $database, public string $database_name, public string $s3_error)
     {
         $this->onQueue('high');
 
@@ -31,6 +36,9 @@ class BackupSuccessWithS3Warning extends CustomEmailNotification
         }
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('backup_failure');
@@ -69,6 +77,9 @@ class BackupSuccessWithS3Warning extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = "Coolify: Database backup for {$this->name} (db:{$this->database_name}) with frequency of {$this->frequency} succeeded locally but failed to upload to S3.\n\nS3 Error:\n{$this->s3_error}";
@@ -116,6 +127,9 @@ class BackupSuccessWithS3Warning extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $url = base_url().'/project/'.data_get($this->database, 'environment.project.uuid').'/environment/'.data_get($this->database, 'environment.uuid').'/database/'.$this->database->uuid;

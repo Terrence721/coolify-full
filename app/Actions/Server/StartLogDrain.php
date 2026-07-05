@@ -34,9 +34,6 @@ class StartLogDrain
             if ($type === 'none') {
                 return 'No log drain is enabled.';
             } elseif ($type === 'newrelic') {
-                if (! $server->settings->is_logdrain_newrelic_enabled) {
-                    throw new \Exception('New Relic log drain is not enabled.');
-                }
                 $config = base64_encode("
 [SERVICE]
     Flush     5
@@ -69,9 +66,6 @@ class StartLogDrain
     base_uri \${BASE_URI}
 ");
             } elseif ($type === 'highlight') {
-                if (! $server->settings->is_logdrain_highlight_enabled) {
-                    throw new \Exception('Highlight log drain is not enabled.');
-                }
                 $config = base64_encode('
 [SERVICE]
     Flush     5
@@ -90,9 +84,6 @@ class StartLogDrain
     Port                24224
 ');
             } elseif ($type === 'axiom') {
-                if (! $server->settings->is_logdrain_axiom_enabled) {
-                    throw new \Exception('Axiom log drain is not enabled.');
-                }
                 $config = base64_encode("
 [SERVICE]
     Flush     5
@@ -130,9 +121,6 @@ class StartLogDrain
     tls On
 ");
             } elseif ($type === 'custom') {
-                if (! $server->settings->is_logdrain_custom_enabled) {
-                    throw new \Exception('Custom log drain is not enabled.');
-                }
                 $config = base64_encode($server->settings->logdrain_custom_config);
                 $parsers = base64_encode($server->settings->logdrain_custom_config_parser);
             } else {
@@ -212,6 +200,9 @@ Files:
         }
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function logDrainNetworkConnectCommands(Server $server): array
     {
         if (! $server->isLogDrainEnabled()) {

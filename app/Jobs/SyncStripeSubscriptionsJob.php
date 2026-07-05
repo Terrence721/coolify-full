@@ -26,6 +26,9 @@ class SyncStripeSubscriptionsJob implements ShouldBeEncrypted, ShouldQueue
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function handle(?\Closure $onProgress = null): array
     {
         if (! isCloud() || ! isStripe()) {

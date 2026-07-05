@@ -65,7 +65,7 @@ class Github extends Controller
                 $added_files = data_get($payload, 'commits.*.added');
                 $removed_files = data_get($payload, 'commits.*.removed');
                 $modified_files = data_get($payload, 'commits.*.modified');
-                $changed_files = collect($added_files)->concat($removed_files)->concat($modified_files)->unique()->flatten();
+                $changed_files = collect((array) $added_files)->concat((array) $removed_files)->concat((array) $modified_files)->unique()->flatten();
                 $skip_deploy_commits = self::shouldSkipDeploy(data_get($payload, 'commits.*.message', []));
             }
             if ($x_github_event === 'pull_request') {
@@ -105,7 +105,7 @@ class Github extends Controller
                 }
             }
             $applicationsByServer = $applications->groupBy(function ($app) {
-                return data_get($app, 'destination.server_id');
+                return (string) data_get($app, 'destination.server_id');
             });
 
             foreach ($applicationsByServer as $serverId => $serverApplications) {
@@ -320,7 +320,7 @@ class Github extends Controller
                 $added_files = data_get($payload, 'commits.*.added');
                 $removed_files = data_get($payload, 'commits.*.removed');
                 $modified_files = data_get($payload, 'commits.*.modified');
-                $changed_files = collect($added_files)->concat($removed_files)->concat($modified_files)->unique()->flatten();
+                $changed_files = collect((array) $added_files)->concat((array) $removed_files)->concat((array) $modified_files)->unique()->flatten();
                 $skip_deploy_commits = self::shouldSkipDeploy(data_get($payload, 'commits.*.message', []));
             }
             if ($x_github_event === 'pull_request') {
@@ -358,7 +358,7 @@ class Github extends Controller
                 }
             }
             $applicationsByServer = $applications->groupBy(function ($app) {
-                return data_get($app, 'destination.server_id');
+                return (string) data_get($app, 'destination.server_id');
             });
 
             foreach ($applicationsByServer as $serverId => $serverApplications) {
@@ -590,7 +590,7 @@ class Github extends Controller
             'GitHub App installation could not be verified.'
         );
 
-        $github_app->installation_id = $installation_id;
+        $github_app->installation_id = (int) $installation_id;
         $github_app->save();
 
         return redirect()->route('source.github.show', ['github_app_uuid' => $github_app->uuid]);

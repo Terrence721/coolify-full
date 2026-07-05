@@ -28,6 +28,9 @@ class ConnectProxyToNetworksJob implements ShouldBeEncrypted, ShouldQueue, Silen
 
     public int $timeout = 60;
 
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         // Prevent overlapping executions for the same server and throttle to max once per 10 seconds

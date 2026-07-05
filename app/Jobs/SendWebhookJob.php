@@ -33,6 +33,9 @@ class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
      */
     public int $maxExceptions = 5;
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public function __construct(
         public array $payload,
         public string $webhookUrl

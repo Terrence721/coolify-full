@@ -24,6 +24,9 @@ class ServerPatchCheckJob implements ShouldBeEncrypted, ShouldQueue
 
     public int $timeout = 600;
 
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('server-patch-check-'.$this->server->uuid))->expireAfter(600)->dontRelease()];

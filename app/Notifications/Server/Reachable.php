@@ -23,6 +23,9 @@ class Reachable extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         if ($this->isRateLimited) {
@@ -61,6 +64,9 @@ class Reachable extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [
@@ -77,6 +83,9 @@ class Reachable extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $url = base_url().'/server/'.$this->server->uuid;

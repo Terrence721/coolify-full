@@ -6,6 +6,7 @@ namespace App\Notifications\TransactionalEmails;
 
 use App\Models\InstanceSettings;
 use Exception;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -35,7 +36,10 @@ class ResetPassword extends Notification
         static::$toMailCallback = $callback;
     }
 
-    public function via($notifiable): array
+    /**
+     * @return array<int, string>
+     */
+    public function via(CanResetPassword $notifiable): array
     {
         $type = set_transanctional_email_settings();
         if (blank($type)) {
@@ -45,7 +49,7 @@ class ResetPassword extends Notification
         return ['mail'];
     }
 
-    public function toMail($notifiable): mixed
+    public function toMail(CanResetPassword $notifiable): mixed
     {
         if (static::$toMailCallback) {
             return call_user_func(static::$toMailCallback, $notifiable, $this->token);
@@ -54,7 +58,7 @@ class ResetPassword extends Notification
         return $this->buildMailMessage($this->resetUrl($notifiable));
     }
 
-    protected function buildMailMessage($url): MailMessage
+    protected function buildMailMessage(string $url): MailMessage
     {
         $mail = new MailMessage;
         $mail->subject('Coolify: Reset Password');
@@ -63,7 +67,7 @@ class ResetPassword extends Notification
         return $mail;
     }
 
-    protected function resetUrl($notifiable): mixed
+    protected function resetUrl(CanResetPassword $notifiable): mixed
     {
         if (static::$createUrlCallback) {
             return call_user_func(static::$createUrlCallback, $notifiable, $this->token);

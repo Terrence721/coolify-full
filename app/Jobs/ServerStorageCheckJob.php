@@ -76,6 +76,8 @@ class ServerStorageCheckJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             } else {
                 RateLimiter::hit('high-disk-usage:'.$this->server->id, 600);
             }
+
+            return null;
         } catch (\Throwable $e) {
             return handleError($e);
         }

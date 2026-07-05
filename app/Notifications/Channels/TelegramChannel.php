@@ -23,7 +23,7 @@ use App\Notifications\Server\Unreachable;
 
 class TelegramChannel
 {
-    public function send($notifiable, $notification): void
+    public function send(mixed $notifiable, mixed $notification): void
     {
         $data = $notification->toTelegram($notifiable);
         $settings = $notifiable->telegramNotificationSettings;

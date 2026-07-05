@@ -18,6 +18,9 @@ class HighDiskUsage extends CustomEmailNotification
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('server_disk_usage');
@@ -53,6 +56,9 @@ class HighDiskUsage extends CustomEmailNotification
         return $message;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [
@@ -67,8 +73,14 @@ class HighDiskUsage extends CustomEmailNotification
             level: 'warning',
             message: "Server '{$this->server->name}' high disk usage detected!<br/><br/><b>Disk usage:</b> {$this->disk_usage}%.<br/><b>Threshold:</b> {$this->server_disk_usage_notification_threshold}%.<br/>Please cleanup your disk to prevent data-loss.",
             buttons: [
-                'Change settings' => base_url().'/server/'.$this->server->uuid.'#advanced',
-                'Tips for cleanup' => 'https://coolify.io/docs/knowledge-base/server/automated-cleanup',
+                [
+                    'text' => 'Change settings',
+                    'url' => base_url().'/server/'.$this->server->uuid.'#advanced',
+                ],
+                [
+                    'text' => 'Tips for cleanup',
+                    'url' => 'https://coolify.io/docs/knowledge-base/server/automated-cleanup',
+                ],
             ],
         );
     }
@@ -91,6 +103,9 @@ class HighDiskUsage extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         return [

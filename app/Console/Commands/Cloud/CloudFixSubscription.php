@@ -735,6 +735,8 @@ class CloudFixSubscription extends Command
 
     /**
      * Search for subscriptions by customer ID
+     *
+     * @return array<string, mixed>|null
      */
     private function searchSubscriptionsByCustomer(StripeClient $stripe, string $customerId, bool $requireActive = false): ?array
     {
@@ -778,6 +780,7 @@ class CloudFixSubscription extends Command
      */
     /**
      * @param  array<int, string>  $emails
+     * @return array<string, mixed>|null
      */
     private function searchSubscriptionsByEmails(StripeClient $stripe, array $emails): ?array
     {

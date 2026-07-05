@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Server;
 
+use App\Models\Application;
 use App\Models\Server;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CleanupDocker
@@ -90,8 +92,11 @@ class CleanupDocker
      * Since docker image prune doesn't support excluding by repository name directly,
      * we use a shell script approach to delete unused images while preserving application images.
      */
+    /**
+     * @param  Collection<int, string>  $applicationImageRepos
+     */
     private function buildImagePruneCommand(
-        $applicationImageRepos,
+        Collection $applicationImageRepos,
         string $helperImageVersion,
         string $realtimeImageVersion
     ): string {
@@ -138,7 +143,11 @@ class CleanupDocker
         return implode(' && ', $commands);
     }
 
-    private function cleanupApplicationImages(Server $server, $applications = null): array
+    /**
+     * @param  Collection<int, Application>|null  $applications
+     * @return array<int, array<string, mixed>>
+     */
+    private function cleanupApplicationImages(Server $server, ?Collection $applications = null): array
     {
         $cleanupLog = [];
 
@@ -170,11 +179,11 @@ class CleanupDocker
                 ->filter()
                 ->map(function ($line) {
                     $parts = explode('#', $line);
-                    $imageRef = $parts[0] ?? '';
+                    $imageRef = $parts[0];
                     $tagParts = explode(':', $imageRef);
 
                     return [
-                        'repository' => $tagParts[0] ?? '',
+                        'repository' => $tagParts[0],
                         'tag' => $tagParts[1] ?? '',
                         'created_at' => $parts[1] ?? '',
                         'image_ref' => $imageRef,

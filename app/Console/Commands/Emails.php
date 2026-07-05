@@ -84,7 +84,7 @@ class Emails extends Command
         switch ($type) {
             case 'updates':
                 $teams = Team::all();
-                if (! $teams || $teams->isEmpty()) {
+                if ($teams->isEmpty()) {
                     echo 'No teams found.'.PHP_EOL;
 
                     return;
@@ -208,7 +208,7 @@ class Emails extends Command
                 $this->mail->view('emails.before-trial-conversion');
                 $this->mail->subject('Trial period has been added for all subscription plans.');
                 $teams = Team::doesntHave('subscription')->where('id', '!=', 0)->get();
-                if (! $teams || $teams->isEmpty()) {
+                if ($teams->isEmpty()) {
                     echo 'No teams found.'.PHP_EOL;
 
                     return;

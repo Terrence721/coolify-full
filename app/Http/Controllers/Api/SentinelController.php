@@ -129,6 +129,9 @@ class SentinelController extends Controller
      * Dispatches when: first push (no cached hash), the container state changed,
      * or the force window elapsed.
      */
+    /**
+     * @param  array<string, mixed>  $data
+     */
     private function shouldDispatchUpdate(Server $server, array $data): bool
     {
         $hash = $this->containerStateHash($data);
@@ -167,9 +170,12 @@ class SentinelController extends Controller
      * The force window still refreshes full state periodically. Sorted by name
      * so container ordering from Sentinel does not affect the hash.
      */
+    /**
+     * @param  array<string, mixed>  $data
+     */
     private function containerStateHash(array $data): string
     {
-        $containers = collect(data_get($data, 'containers', []))
+        $containers = collect((array) data_get($data, 'containers', []))
             ->map(fn ($c) => [
                 'name' => data_get($c, 'name'),
                 'state' => data_get($c, 'state'),

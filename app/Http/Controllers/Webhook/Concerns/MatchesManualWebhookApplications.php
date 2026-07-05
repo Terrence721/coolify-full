@@ -31,6 +31,7 @@ trait MatchesManualWebhookApplications
     }
 
     /**
+     * @param  Builder<Application>  $query
      * @return Collection<int, Application>
      */
     protected function manualWebhookApplications(Builder $query, string $fullName): Collection

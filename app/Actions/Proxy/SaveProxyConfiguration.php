@@ -17,7 +17,7 @@ class SaveProxyConfiguration
     {
         $proxy_path = $server->proxyPath();
         $docker_compose_yml_base64 = base64_encode($configuration);
-        $new_hash = str($docker_compose_yml_base64)->pipe('md5')->value;
+        $new_hash = str($docker_compose_yml_base64)->pipe('md5')->value();
 
         // Only create a backup if the configuration actually changed
         $old_hash = $server->proxy->get('last_saved_settings');

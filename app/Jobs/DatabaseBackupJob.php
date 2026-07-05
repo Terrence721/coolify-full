@@ -83,6 +83,9 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
         $this->timeout = $backup->timeout ?? 3600;
     }
 
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         $expireAfter = ($this->backup->timeout ?? 3600) + 300;
@@ -644,7 +647,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    private function add_to_backup_output($output): void
+    private function add_to_backup_output(string $output): void
     {
         if ($this->backup_output) {
             $this->backup_output = $this->backup_output."\n".$output;
@@ -653,7 +656,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
-    private function add_to_error_output($output): void
+    private function add_to_error_output(string $output): void
     {
         if ($this->error_output) {
             $this->error_output = $this->error_output."\n".$output;

@@ -40,7 +40,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
             if ($jobName === 'App\Jobs\ApplicationDeploymentJob') {
                 $tags = $payload['tags'];
                 $id = $payload['id'];
-                $deploymentQueueId = collect($tags)->first(function ($tag) {
+                $deploymentQueueId = collect((array) $tags)->first(function ($tag) {
                     return str_contains($tag, 'App\Models\ApplicationDeploymentQueue');
                 });
                 if (blank($deploymentQueueId)) {

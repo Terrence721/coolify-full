@@ -15,18 +15,24 @@ class ServerPatchCheck extends CustomEmailNotification
 {
     public string $serverUrl;
 
+    /**
+     * @param  array<string, mixed>  $patchData
+     */
     public function __construct(public Server $server, public array $patchData)
     {
         $this->onQueue('high');
         $this->serverUrl = base_url().'/server/'.$this->server->uuid.'/security/patches';
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('server_patch');
     }
 
-    public function toMail($notifiable = null): MailMessage
+    public function toMail(mixed $notifiable = null): MailMessage
     {
         $mail = new MailMessage;
 
@@ -81,7 +87,7 @@ class ServerPatchCheck extends CustomEmailNotification
         }
 
         $totalUpdates = $this->patchData['total_updates'] ?? 0;
-        $updates = $this->patchData['updates'] ?? [];
+        $updates = (array) ($this->patchData['updates'] ?? []);
         $osId = $this->patchData['osId'] ?? 'unknown';
         $packageManager = $this->patchData['package_manager'] ?? 'unknown';
 
@@ -124,6 +130,9 @@ class ServerPatchCheck extends CustomEmailNotification
 
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         // Handle error case
@@ -150,7 +159,7 @@ class ServerPatchCheck extends CustomEmailNotification
         }
 
         $totalUpdates = $this->patchData['total_updates'] ?? 0;
-        $updates = $this->patchData['updates'] ?? [];
+        $updates = (array) ($this->patchData['updates'] ?? []);
         $osId = $this->patchData['osId'] ?? 'unknown';
         $packageManager = $this->patchData['package_manager'] ?? 'unknown';
 
@@ -228,7 +237,7 @@ class ServerPatchCheck extends CustomEmailNotification
         }
 
         $totalUpdates = $this->patchData['total_updates'] ?? 0;
-        $updates = $this->patchData['updates'] ?? [];
+        $updates = (array) ($this->patchData['updates'] ?? []);
         $osId = $this->patchData['osId'] ?? 'unknown';
         $packageManager = $this->patchData['package_manager'] ?? 'unknown';
 
@@ -297,7 +306,7 @@ class ServerPatchCheck extends CustomEmailNotification
         }
 
         $totalUpdates = $this->patchData['total_updates'] ?? 0;
-        $updates = $this->patchData['updates'] ?? [];
+        $updates = (array) ($this->patchData['updates'] ?? []);
         $osId = $this->patchData['osId'] ?? 'unknown';
         $packageManager = $this->patchData['package_manager'] ?? 'unknown';
 
@@ -345,6 +354,9 @@ class ServerPatchCheck extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         // Handle error case
@@ -363,7 +375,7 @@ class ServerPatchCheck extends CustomEmailNotification
         }
 
         $totalUpdates = $this->patchData['total_updates'] ?? 0;
-        $updates = $this->patchData['updates'] ?? [];
+        $updates = (array) ($this->patchData['updates'] ?? []);
 
         // Check for critical packages
         $criticalPackages = collect($updates)->filter(function ($update) {

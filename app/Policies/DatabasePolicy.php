@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use App\Models\StandaloneClickhouse;
+use App\Models\StandaloneDragonfly;
+use App\Models\StandaloneKeydb;
+use App\Models\StandaloneMariadb;
+use App\Models\StandaloneMongodb;
+use App\Models\StandaloneMysql;
+use App\Models\StandalonePostgresql;
+use App\Models\StandaloneRedis;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
@@ -20,7 +28,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, $database): bool
+    public function view(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->teams->contains('id', $database->team()->first()->id);
         return true;
@@ -38,7 +46,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, $database): bool
+    public function update(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // if ($user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id)) {
         //    return Response::allow();
@@ -51,7 +59,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, $database): bool
+    public function delete(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
         return true;
@@ -60,7 +68,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, $database): bool
+    public function restore(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
         return true;
@@ -69,7 +77,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, $database): bool
+    public function forceDelete(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
         return true;
@@ -78,7 +86,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can start/stop the database.
      */
-    public function manage(User $user, $database): bool
+    public function manage(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
         return true;
@@ -87,7 +95,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can manage database backups.
      */
-    public function manageBackups(User $user, $database): bool
+    public function manageBackups(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
         return true;
@@ -96,7 +104,7 @@ class DatabasePolicy
     /**
      * Determine whether the user can manage environment variables.
      */
-    public function manageEnvironment(User $user, $database): bool
+    public function manageEnvironment(User $user, StandalonePostgresql|StandaloneMysql|StandaloneMariadb|StandaloneMongodb|StandaloneRedis|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): bool
     {
         // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
         return true;

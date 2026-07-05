@@ -53,7 +53,7 @@ class Input extends Component
         $this->modelBinding = $this->id;
 
         if (is_null($this->id)) {
-            $this->id = new Cuid2;
+            $this->id = (string) new Cuid2;
             // Don't create wire:model binding for auto-generated IDs
             $this->modelBinding = 'null';
         }

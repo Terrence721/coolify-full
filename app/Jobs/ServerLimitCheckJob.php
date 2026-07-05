@@ -48,6 +48,8 @@ class ServerLimitCheckJob implements ShouldBeEncrypted, ShouldQueue
                     }
                 });
             }
+
+            return null;
         } catch (\Throwable $e) {
             send_internal_notification('ServerLimitCheckJob failed with: '.$e->getMessage());
 

@@ -34,6 +34,9 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
 
     public function __construct() {}
 
+    /**
+     * @return array<int, WithoutOverlapping>
+     */
     public function middleware(): array
     {
         return [(new WithoutOverlapping('cleanup-orphaned-preview-containers'))->expireAfter(600)->dontRelease()];
@@ -55,6 +58,9 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
 
     /**
      * Get all functional servers to check for orphaned containers.
+     */
+    /**
+     * @return Collection<int, Server>
      */
     private function getServersToCheck(): Collection
     {
@@ -102,6 +108,9 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
     /**
      * Get all PR containers on a server (containers with pullRequestId > 0).
      */
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
     private function getPRContainersOnServer(Server $server): Collection
     {
         try {
@@ -130,7 +139,10 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
     /**
      * Extract pull request ID from container labels.
      */
-    private function extractPullRequestId($container): ?int
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    private function extractPullRequestId(array $container): ?int
     {
         $labels = data_get($container, 'Labels', '');
         if (preg_match('/coolify\.pullRequestId=(\d+)/', $labels, $matches)) {
@@ -143,7 +155,10 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
     /**
      * Extract application ID from container labels.
      */
-    private function extractApplicationId($container): ?int
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    private function extractApplicationId(array $container): ?int
     {
         $labels = data_get($container, 'Labels', '');
         if (preg_match('/coolify\.applicationId=(\d+)/', $labels, $matches)) {
@@ -156,7 +171,10 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
     /**
      * Check if a container is orphaned (no corresponding ApplicationPreview record).
      */
-    private function isOrphanedContainer($container): bool
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    private function isOrphanedContainer(array $container): bool
     {
         $applicationId = $this->extractApplicationId($container);
         $pullRequestId = $this->extractPullRequestId($container);
@@ -179,7 +197,10 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
     /**
      * Remove an orphaned container from the server.
      */
-    private function removeContainer($container, Server $server): void
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    private function removeContainer(array $container, Server $server): void
     {
         $containerName = data_get($container, 'Names');
 

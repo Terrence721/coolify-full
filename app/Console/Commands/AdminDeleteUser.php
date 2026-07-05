@@ -38,6 +38,7 @@ class AdminDeleteUser extends Command
 
     private ?Lock $lock = null;
 
+    /** @var array<string, bool> */
     private array $deletionState = [
         'phase_1_overview' => false,
         'phase_2_resources' => false,

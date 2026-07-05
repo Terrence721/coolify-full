@@ -58,6 +58,9 @@ class StartService
         return remote_process($commands, $service->server, type_uuid: $service->uuid, callEventOnFinish: 'ServiceStatusChanged');
     }
 
+    /**
+     * @return array<int, string>
+     */
     private function logDrainNetworkConnectCommands(Service $service): array
     {
         if (! data_get($service, 'connect_to_docker_network')) {

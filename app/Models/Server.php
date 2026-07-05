@@ -840,7 +840,10 @@ $schema://$host {
         // return instant_remote_process(["df /| tail -1 | awk '{ print $5}' | sed 's/%//g'"], $this, false);
     }
 
-    public function definedResources()
+    /**
+     * @return Collection<int, mixed>
+     */
+    public function definedResources(): Collection
     {
         $applications = $this->applications();
         $databases = $this->databases();
@@ -951,7 +954,10 @@ $schema://$host {
         return false;
     }
 
-    public function databases()
+    /**
+     * @return Collection<int, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse>
+     */
+    public function databases(): Collection
     {
         // Get destination IDs for this server in two efficient queries
         $standaloneDockerIds = StandaloneDocker::where('server_id', $this->id)->pluck('id');
@@ -988,7 +994,10 @@ $schema://$host {
             ->filter(fn ($item) => data_get($item, 'name') !== 'coolify-db');
     }
 
-    public function applications()
+    /**
+     * @return Collection<int, Application>
+     */
+    public function applications(): Collection
     {
         // Get destination IDs for this server in two efficient queries
         $standaloneDockerIds = StandaloneDocker::where('server_id', $this->id)->pluck('id');
@@ -1038,7 +1047,10 @@ $schema://$host {
         });
     }
 
-    public function services()
+    /**
+     * @return HasMany<Service, $this>
+     */
+    public function services(): HasMany
     {
         return $this->hasMany(Service::class);
     }

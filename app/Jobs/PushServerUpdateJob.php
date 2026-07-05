@@ -79,10 +79,10 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<string, Service> */
     public Collection $servicesById;
 
-    /** @var Collection<string, Model> */
+    /** @var Collection<string, ServiceApplication> */
     public Collection $serviceApplicationsById;
 
-    /** @var Collection<string, Model> */
+    /** @var Collection<string, ServiceDatabase> */
     public Collection $serviceDatabasesById;
 
     /** @var Collection<int, int> */

@@ -34,6 +34,9 @@ class SendMessageToTelegramJob implements ShouldBeEncrypted, ShouldQueue
      */
     public int $maxExceptions = 3;
 
+    /**
+     * @param  array<int, array{text?: string, url?: string}>  $buttons
+     */
     public function __construct(
         public string $text,
         public array $buttons,

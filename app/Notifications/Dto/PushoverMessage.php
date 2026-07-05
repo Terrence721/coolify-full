@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Log;
 
 class PushoverMessage
 {
+    /**
+     * @param  array<int, array{text?: string, url?: string}>  $buttons
+     */
     public function __construct(
         public string $title,
         public string $message,
@@ -25,6 +28,9 @@ class PushoverMessage
         };
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toPayload(string $token, string $user): array
     {
         $levelIcon = $this->getLevelIcon();

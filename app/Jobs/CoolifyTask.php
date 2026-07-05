@@ -40,8 +40,8 @@ class CoolifyTask implements ShouldBeEncrypted, ShouldQueue
     public function __construct(
         public Activity $activity,
         public bool $ignore_errors,
-        public $call_event_on_finish,
-        public $call_event_data,
+        public ?string $call_event_on_finish,
+        public mixed $call_event_data,
     ) {
 
         $this->onQueue('high');
@@ -64,6 +64,8 @@ class CoolifyTask implements ShouldBeEncrypted, ShouldQueue
 
     /**
      * Calculate the number of seconds to wait before retrying the job.
+     *
+     * @return array<int, int>
      */
     public function backoff(): array
     {

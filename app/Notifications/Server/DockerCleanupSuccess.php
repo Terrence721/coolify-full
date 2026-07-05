@@ -18,6 +18,9 @@ class DockerCleanupSuccess extends CustomEmailNotification
         $this->onQueue('high');
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('docker_cleanup_success');
@@ -44,6 +47,9 @@ class DockerCleanupSuccess extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         return [
@@ -69,6 +75,9 @@ class DockerCleanupSuccess extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         $url = base_url().'/server/'.$this->server->uuid;

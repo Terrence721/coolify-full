@@ -27,6 +27,7 @@ class ProcessGithubPullRequestWebhook implements ShouldBeEncrypted, ShouldQueue
 
     public int $timeout = 60;
 
+    /** @var array<int, int> */
     public array $backoff = [30, 60, 120];
 
     public function __construct(
@@ -114,7 +115,7 @@ class ProcessGithubPullRequestWebhook implements ShouldBeEncrypted, ShouldQueue
         // Get changed files for watch path filtering
         $changed_files = collect();
         $repository_parts = explode('/', $this->fullName);
-        $owner = $repository_parts[0] ?? '';
+        $owner = $repository_parts[0];
         $repo = $repository_parts[1] ?? '';
 
         if ($this->action === 'synchronize' && $this->beforeSha && $this->afterSha) {

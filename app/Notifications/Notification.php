@@ -20,5 +20,8 @@ interface Notification
 
     public function toSlack(): SlackMessage;
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function toTelegram(): ?array;
 }

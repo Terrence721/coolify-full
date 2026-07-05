@@ -14,7 +14,10 @@ use OpenApi\Attributes as OA;
 
 class TeamController extends Controller
 {
-    private function removeSensitiveData($team): Collection
+    /**
+     * @return Collection<string, mixed>
+     */
+    private function removeSensitiveData(Team $team): Collection
     {
         $team->makeHidden([
             'custom_server_limit',

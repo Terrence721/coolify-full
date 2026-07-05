@@ -238,6 +238,9 @@ class ScheduledJobDiagnostics extends Command
         $this->newLine();
     }
 
+    /**
+     * @return Collection<int, Server>
+     */
     private function getServers(?string $serverFilter): Collection
     {
         $query = Server::with('settings')->where('ip', '!=', '1.2.3.4');

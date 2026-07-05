@@ -46,6 +46,9 @@ class RestartLimitReached extends CustomEmailNotification
         $this->resource_url = $this->resource->link() ?? base_url()."/project/{$this->project_uuid}/environment/{$this->environment_uuid}/application/{$this->resource->uuid}";
     }
 
+    /**
+     * @return array<int, class-string>
+     */
     public function via(object $notifiable): array
     {
         return $notifiable->getEnabledChannels('status_change');
@@ -76,6 +79,9 @@ class RestartLimitReached extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toTelegram(): array
     {
         $message = "Coolify: {$this->resource_name} has been stopped after {$this->restart_count} restarts (limit: {$this->max_restart_count}).";
@@ -124,6 +130,9 @@ class RestartLimitReached extends CustomEmailNotification
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toWebhook(): array
     {
         return [

@@ -23,6 +23,9 @@ use Stringable;
 
 class ServersController extends Controller
 {
+    /**
+     * @return Collection<string, mixed>
+     */
     private function removeSensitiveDataFromSettings(mixed $settings): Collection
     {
         if (request()->attributes->get('can_read_sensitive', false) === false) {
@@ -34,6 +37,9 @@ class ServersController extends Controller
         return serializeApiResponse($settings);
     }
 
+    /**
+     * @return Collection<string, mixed>
+     */
     private function removeSensitiveData(ModelsServer $server): Collection
     {
         $server->makeHidden([

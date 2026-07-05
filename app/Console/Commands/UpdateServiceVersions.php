@@ -17,6 +17,7 @@ class UpdateServiceVersions extends Command
 
     protected $description = 'Update service template files with latest Docker image versions from registries';
 
+    /** @var array{total: int, updated: int, failed: int, skipped: int} */
     protected array $stats = [
         'total' => 0,
         'updated' => 0,
@@ -24,8 +25,10 @@ class UpdateServiceVersions extends Command
         'skipped' => 0,
     ];
 
+    /** @var array<string, array<int, array<string, mixed>>> */
     protected array $registryCache = [];
 
+    /** @var array<int, array{repository: string, current: string, current_major: int, available_major: int, registry_url: string|null}> */
     protected array $majorVersionUpdates = [];
 
     public function handle(): int
@@ -46,16 +49,19 @@ class UpdateServiceVersions extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @return array<int, string>
+     */
     protected function getTemplateFiles(): array
     {
         $pattern = base_path('templates/compose/*.yaml');
-        $files = glob($pattern);
+        $files = glob($pattern) ?: [];
 
         if ($service = $this->option('service')) {
             $files = array_filter($files, fn ($file) => basename($file) === "$service.yaml");
         }
 
-        return $files;
+        return array_values($files);
     }
 
     protected function processTemplate(string $filePath): void
@@ -217,6 +223,9 @@ class UpdateServiceVersions extends Command
         }
     }
 
+    /**
+     * @return array{0: string, 1: string}
+     */
     protected function parseImage(string $image): array
     {
         if (str_contains($image, ':')) {
@@ -281,6 +290,9 @@ class UpdateServiceVersions extends Command
         }
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $tags
+     */
     protected function findLatestTagDigest(array $tags, string $targetTag = 'latest'): ?string
     {
         // Find the digest/sha for the target tag (usually 'latest')
@@ -293,6 +305,10 @@ class UpdateServiceVersions extends Command
         return null;
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $tags
+     * @return array<int, string>
+     */
     protected function findVersionTagsForDigest(array $tags, string $digest): array
     {
         // Find all semantic version tags that share the same digest
@@ -457,6 +473,9 @@ class UpdateServiceVersions extends Command
         }
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $tags
+     */
     protected function findBestTag(array $tags, string $currentTag, string $repository): ?string
     {
         if (empty($tags)) {
@@ -571,6 +590,10 @@ class UpdateServiceVersions extends Command
         return null;
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $tags
+     * @return array<int, string>
+     */
     protected function filterSemanticVersionTags(array $tags): array
     {
         $semverTags = array_filter($tags, function ($tag) {
@@ -597,6 +620,10 @@ class UpdateServiceVersions extends Command
         return $this->sortSemanticVersions(array_column($semverTags, 'name'));
     }
 
+    /**
+     * @param  array<int, string>  $versions
+     * @return array<int, string>
+     */
     protected function sortSemanticVersions(array $versions): array
     {
         usort($versions, function ($a, $b) {
@@ -635,6 +662,9 @@ class UpdateServiceVersions extends Command
         return $versions;
     }
 
+    /**
+     * @param  array<int, string>  $versions
+     */
     protected function preferShorterVersion(array $versions): string
     {
         if (empty($versions)) {
@@ -671,6 +701,9 @@ class UpdateServiceVersions extends Command
         return $highest;
     }
 
+    /**
+     * @param  array<string, mixed>  $updatedYaml
+     */
     protected function updateYamlFile(string $filePath, string $originalContent, array $updatedYaml): void
     {
         // Preserve comments and formatting by updating the YAML content
@@ -717,6 +750,9 @@ class UpdateServiceVersions extends Command
         file_put_contents($filePath, implode("\n", $updatedLines));
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $tags
+     */
     protected function checkForMajorVersionUpdate(array $tags, string $currentTag, string $repository): void
     {
         // Only check semantic versions

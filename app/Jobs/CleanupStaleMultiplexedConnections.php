@@ -196,7 +196,7 @@ class CleanupStaleMultiplexedConnections implements ShouldQueue
         }
     }
 
-    private function extractServerUuidFromMuxFile($muxFile): string
+    private function extractServerUuidFromMuxFile(string $muxFile): string
     {
         return substr($muxFile, 4);
     }

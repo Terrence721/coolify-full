@@ -160,6 +160,8 @@ class HorizonManage extends Command
             $redisJobRepository = app(RedisJobRepository::class);
             $redisJobRepository->purge($queueName);
         }
+
+        return null;
     }
 
     public function isThereAJobInProgress(): bool

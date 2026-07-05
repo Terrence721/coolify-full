@@ -62,6 +62,10 @@ class PullChangelog implements ShouldBeEncrypted, ShouldQueue
         }
     }
 
+    /**
+     * @param  array<int, array<string, mixed>>  $releases
+     * @return array<int, array{tag_name: string, title: string, content: string, published_at: string}>
+     */
     private function transformReleasesToChangelog(array $releases): array
     {
         $entries = [];
@@ -87,6 +91,9 @@ class PullChangelog implements ShouldBeEncrypted, ShouldQueue
         return $entries;
     }
 
+    /**
+     * @param  array<int, array{tag_name: string, title: string, content: string, published_at: string}>  $entries
+     */
     private function saveChangelogEntries(array $entries): void
     {
         // Create changelogs directory if it doesn't exist
