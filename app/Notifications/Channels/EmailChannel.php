@@ -67,7 +67,7 @@ class EmailChannel
                 foreach ($recipients as $recipient) {
                     // Check if the recipient is part of the team
                     if (! $members->contains('email', $recipient)) {
-                        $emailSettings = $notifiable->emailNotificationSettings;
+                        $emailSettings = data_get($notifiable, 'emailNotificationSettings');
                         data_set($emailSettings, 'smtp_password', '********');
                         data_set($emailSettings, 'resend_api_key', '********');
                         send_internal_notification(sprintf(
@@ -101,7 +101,7 @@ class EmailChannel
             } elseif ($isSmtpEnabled) {
                 $encryption = match (strtolower($settings->smtp_encryption)) {
                     'starttls' => null,
-                    'tls' => 'tls',
+                    'tls' => true,
                     'none' => null,
                     default => null,
                 };

@@ -2460,10 +2460,6 @@ class DatabasesController extends Controller
 
             return response()->json(['message' => 'Failed to delete backup.'], 500);
         }
-
-        abort(400, 'Invalid database type requested.');
-
-        return response()->json(['message' => 'Invalid database type requested.'], 400);
     }
 
     #[OA\Delete(

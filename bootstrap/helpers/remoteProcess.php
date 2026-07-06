@@ -108,7 +108,7 @@ function instant_scp(string $source, string $dest, Server $server, $throwError =
     );
 }
 
-function instant_remote_process_with_timeout(Collection|array $command, Server $server, bool $throwError = true, bool $no_sudo = false): ?string
+function instant_remote_process_with_timeout(Collection|array $command, Server $server, bool $throwError = true, int $timeout = 30, bool $no_sudo = false): ?string
 {
     $command = $command instanceof Collection ? $command->toArray() : $command;
     if ($server->isNonRoot() && ! $no_sudo) {
@@ -117,9 +117,9 @@ function instant_remote_process_with_timeout(Collection|array $command, Server $
     $command_string = implode("\n", $command);
 
     return SshRetryHandler::retry(
-        function () use ($server, $command_string) {
+        function () use ($server, $command_string, $timeout) {
             $sshCommand = SshMultiplexingHelper::generateSshCommand($server, $command_string);
-            $process = Process::timeout(30)->run($sshCommand);
+            $process = Process::timeout($timeout)->run($sshCommand);
 
             $output = trim($process->output());
             $exitCode = $process->exitCode();

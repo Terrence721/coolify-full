@@ -379,14 +379,14 @@ class DeployController extends Controller
         if ($uuids && $tags) {
             return response()->json(['message' => 'You can only use uuid or tag, not both.'], 400);
         }
+        if ($dockerTag && $tags) {
+            return response()->json(['message' => 'You can only use tag or docker_tag, not both.'], 400);
+        }
         if ($tags && $pr) {
             return response()->json(['message' => 'You can only use tag or pr, not both.'], 400);
         }
         if ($dockerTag && $pr === 0) {
             return response()->json(['message' => 'docker_tag requires pull_request_id.'], 400);
-        }
-        if ($dockerTag && $tags) {
-            return response()->json(['message' => 'You can only use tag or docker_tag, not both.'], 400);
         }
         if ($tags) {
             return $this->by_tags($tags, $teamId, $force);
@@ -479,11 +479,11 @@ class DeployController extends Controller
                 if ($deployment_uuid) {
                     $deployments->push(['resource_uuid' => $resource->uuid, 'deployment_uuid' => $deployment_uuid->toString()]);
                 }
-                $message = $message->merge($return_message);
+                $message->push($return_message);
             }
             foreach ($services as $resource) {
                 ['message' => $return_message] = $this->deploy_resource($resource, $force);
-                $message = $message->merge($return_message);
+                $message->push($return_message);
             }
         }
         if ($message->count() > 0) {

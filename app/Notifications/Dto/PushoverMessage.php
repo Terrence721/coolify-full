@@ -25,6 +25,7 @@ class PushoverMessage
             'error' => '❌',
             'success' => '✅ ',
             'warning' => '⚠️',
+            default => 'ℹ️',
         };
     }
 

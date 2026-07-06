@@ -12,6 +12,8 @@ use App\Notifications\TransactionalEmails\ResetPassword as TransactionalEmailsRe
 use App\Services\ChangelogService;
 use App\Traits\DeletesUserSessions;
 use DateTimeInterface;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -98,9 +100,9 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'marketing_emails', type: 'boolean', description: 'The flag to receive marketing emails.'),
     ],
 )]
-class User extends Authenticatable implements SendsEmail
+class User extends Authenticatable implements MustVerifyEmail, SendsEmail
 {
-    use DeletesUserSessions, HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use DeletesUserSessions, HasApiTokens, HasFactory, MustVerifyEmailTrait, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',

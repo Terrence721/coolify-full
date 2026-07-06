@@ -220,13 +220,13 @@ class Server extends BaseModel
         static::saving(function ($server) {
             $payload = [];
             if ($server->user) {
-                $payload['user'] = str($server->user)->trim();
+                $payload['user'] = str($server->user)->trim()->value();
             }
             if ($server->ip) {
-                $payload['ip'] = str($server->ip)->trim();
+                $payload['ip'] = str($server->ip)->trim()->value();
 
-                // Update ip_previous when ip is being changed
-                if ($server->isDirty('ip') && $server->getOriginal('ip')) {
+                // Update ip_previous when ip is being changed on an existing server
+                if ($server->exists && $server->isDirty('ip') && $server->getOriginal('ip')) {
                     $payload['ip_previous'] = $server->getOriginal('ip');
                 }
             }
@@ -1508,11 +1508,9 @@ $schema://$host {
     public function validateDockerSwarm()
     {
         $swarmStatus = instant_remote_process(['docker info|grep -i swarm'], $this, false);
-        $swarmStatus = str($swarmStatus)->trim()->after(':')->trim();
+        $swarmStatus = str($swarmStatus)->trim()->after(':')->trim()->value();
         if ($swarmStatus === 'inactive') {
             throw new \Exception('Docker Swarm is not initiated. Please join the server to a swarm before continuing.');
-
-            return false;
         }
         $this->settings->is_usable = true;
         $this->settings->save();
@@ -1555,10 +1553,6 @@ $schema://$host {
 
     public function isNonRoot()
     {
-        if ($this->user instanceof Stringable) {
-            return $this->user->value() !== 'root';
-        }
-
         return $this->user !== 'root';
     }
 

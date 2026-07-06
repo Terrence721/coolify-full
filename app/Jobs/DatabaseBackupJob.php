@@ -39,9 +39,9 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
 
     public ?Team $team = null;
 
-    public Server $server;
+    public ?Server $server = null;
 
-    public StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|ServiceDatabase $database;
+    public StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|ServiceDatabase|null $database = null;
 
     public ?string $container_name = null;
 
@@ -323,7 +323,6 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                 } while ($exists);
 
                 $size = 0;
-                $localBackupSucceeded = false;
                 $s3UploadError = null;
 
                 // Step 1: Create local backup
@@ -398,9 +397,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                     $size = $this->calculate_size();
 
                     // Verify local backup succeeded
-                    if ($size > 0) {
-                        $localBackupSucceeded = true;
-                    } else {
+                    if ($size <= 0) {
                         throw new \Exception('Local backup file is empty or was not created');
                     }
                 } catch (Throwable $e) {
@@ -428,8 +425,6 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                 }
 
                 // Step 2: Upload to S3 if enabled (independent of local backup)
-                // ($localBackupSucceeded is always true here: the try block above either
-                // sets it to true or throws, and the catch path continues the loop.)
                 $localStorageDeleted = false;
                 if ($this->backup->save_s3) {
                     try {
@@ -447,38 +442,36 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                 }
 
                 // Step 3: Update status and send notifications based on results
-                if ($localBackupSucceeded) {
-                    $message = $this->backup_output;
+                $message = $this->backup_output;
 
+                if ($s3UploadError) {
+                    $message = $message
+                        ? $message."\n\nWarning: S3 upload failed: ".$s3UploadError
+                        : 'Warning: S3 upload failed: '.$s3UploadError;
+                }
+
+                $this->backup_log->update([
+                    'status' => 'success',
+                    'message' => $message,
+                    'size' => $size,
+                    's3_uploaded' => $this->backup->save_s3 ? $this->s3_uploaded : null,
+                    'local_storage_deleted' => $localStorageDeleted,
+                ]);
+
+                // Send appropriate notification (wrapped in try-catch so notification
+                // failures never affect backup status — see GitHub issue #9088)
+                try {
                     if ($s3UploadError) {
-                        $message = $message
-                            ? $message."\n\nWarning: S3 upload failed: ".$s3UploadError
-                            : 'Warning: S3 upload failed: '.$s3UploadError;
+                        $this->team->notify(new BackupSuccessWithS3Warning($this->backup, $this->database, $database, $s3UploadError));
+                    } else {
+                        $this->team->notify(new BackupSuccess($this->backup, $this->database, $database));
                     }
-
-                    $this->backup_log->update([
-                        'status' => 'success',
-                        'message' => $message,
-                        'size' => $size,
-                        's3_uploaded' => $this->backup->save_s3 ? $this->s3_uploaded : null,
-                        'local_storage_deleted' => $localStorageDeleted,
+                } catch (Throwable $e) {
+                    Log::channel('scheduled-errors')->warning('Failed to send backup success notification', [
+                        'backup_id' => $this->backup->uuid,
+                        'database' => $database,
+                        'error' => $e->getMessage(),
                     ]);
-
-                    // Send appropriate notification (wrapped in try-catch so notification
-                    // failures never affect backup status — see GitHub issue #9088)
-                    try {
-                        if ($s3UploadError) {
-                            $this->team->notify(new BackupSuccessWithS3Warning($this->backup, $this->database, $database, $s3UploadError));
-                        } else {
-                            $this->team->notify(new BackupSuccess($this->backup, $this->database, $database));
-                        }
-                    } catch (Throwable $e) {
-                        Log::channel('scheduled-errors')->warning('Failed to send backup success notification', [
-                            'backup_id' => $this->backup->uuid,
-                            'database' => $database,
-                            'error' => $e->getMessage(),
-                        ]);
-                    }
                 }
             }
             if ($this->backup_log && $this->backup_log->status === 'success') {
@@ -767,9 +760,9 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
         Log::channel('scheduled-errors')->error('DatabaseBackup permanently failed', [
             'job' => 'DatabaseBackupJob',
             'backup_id' => $this->backup->uuid,
-            'database' => $this->database?->name ?? 'unknown',
+            'database' => $this->database->name ?? 'unknown',
             'database_type' => get_class($this->database ?? new \stdClass),
-            'server' => $this->server?->name ?? 'unknown',
+            'server' => $this->server->name ?? 'unknown',
             'total_attempts' => $this->attempts(),
             'error' => $exception?->getMessage(),
             'trace' => $exception?->getTraceAsString(),

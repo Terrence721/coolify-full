@@ -5,11 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\JsonResponse;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
+use Symfony\Component\HttpFoundation\Response;
 
 class ApiAbility extends CheckForAnyAbility
 {
-    public function handle($request, $next, ...$abilities)
+    /**
+     * @return JsonResponse|Response
+     */
+    public function handle($request, $next, ...$abilities): Response
     {
         try {
             if ($request->user()->tokenCan('root')) {

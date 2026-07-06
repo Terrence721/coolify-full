@@ -55,7 +55,7 @@ class ResourcesController extends Controller
         $resources->push($projects->pluck('applications')->flatten());
         $resources->push($projects->pluck('services')->flatten());
         foreach (collect(DATABASE_TYPES) as $db) {
-            $resources->push($projects->pluck(str($db)->plural(2))->flatten());
+            $resources->push($projects->pluck(str($db)->plural(2)->value())->flatten());
         }
         $resources = $resources->flatten();
         $resources = $resources->map(function ($resource) {

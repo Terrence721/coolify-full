@@ -283,7 +283,7 @@ class Gitea extends Controller
                 }
             }
 
-            return response($return_payloads);
+            return response($return_payloads->all());
         } catch (Exception $e) {
             return handleError($e);
         }

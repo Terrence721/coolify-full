@@ -2332,7 +2332,7 @@ class ApplicationsController extends Controller
                 }
             }
         }
-        if ($request->has('is_http_basic_auth_enabled') && $application->is_container_label_readonly_enabled === false) {
+        if ($request->has('is_http_basic_auth_enabled') && $application->settings->is_container_label_readonly_enabled === false) {
             $application->custom_labels = str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n")->value();
             $application->save();
         }
@@ -2858,10 +2858,6 @@ class ApplicationsController extends Controller
                 ], 404);
             }
         }
-
-        return response()->json([
-            'message' => 'Something is not okay. Are you okay?',
-        ], 500);
     }
 
     #[OA\Patch(

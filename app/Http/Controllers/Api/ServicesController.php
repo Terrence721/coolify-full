@@ -1950,8 +1950,8 @@ class ServicesController extends Controller
         $fileStorages = collect();
 
         foreach ($service->applications as $app) {
-            $appPersistentStorages = method_exists($app, 'persistentStorages') ? $app->persistentStorages()->get() : collect();
-            $appFileStorages = method_exists($app, 'fileStorages') ? $app->fileStorages()->get() : collect();
+            $appPersistentStorages = $app->persistentStorages()->get();
+            $appFileStorages = $app->fileStorages()->get();
             $appUuid = (string) data_get($app, 'uuid');
             $persistentStorages = $persistentStorages->merge(
                 $appPersistentStorages->map(fn ($s) => $s->setAttribute('resource_uuid', $appUuid)->setAttribute('resource_type', 'application'))
@@ -1961,8 +1961,8 @@ class ServicesController extends Controller
             );
         }
         foreach ($service->databases as $db) {
-            $dbPersistentStorages = method_exists($db, 'persistentStorages') ? $db->persistentStorages()->get() : collect();
-            $dbFileStorages = method_exists($db, 'fileStorages') ? $db->fileStorages()->get() : collect();
+            $dbPersistentStorages = $db->persistentStorages()->get();
+            $dbFileStorages = $db->fileStorages()->get();
             $dbUuid = (string) data_get($db, 'uuid');
             $persistentStorages = $persistentStorages->merge(
                 $dbPersistentStorages->map(fn ($s) => $s->setAttribute('resource_uuid', $dbUuid)->setAttribute('resource_type', 'database'))
@@ -2309,14 +2309,14 @@ class ServicesController extends Controller
         $storage = null;
         if ($request->type === 'persistent') {
             foreach ($service->applications as $app) {
-                $storage = (method_exists($app, 'persistentStorages') ? $app->persistentStorages()->get() : collect())->where($lookupField, $lookupValue)->first();
+                $storage = $app->persistentStorages()->get()->where($lookupField, $lookupValue)->first();
                 if ($storage) {
                     break;
                 }
             }
             if (! $storage) {
                 foreach ($service->databases as $db) {
-                    $storage = (method_exists($db, 'persistentStorages') ? $db->persistentStorages()->get() : collect())->where($lookupField, $lookupValue)->first();
+                    $storage = $db->persistentStorages()->get()->where($lookupField, $lookupValue)->first();
                     if ($storage) {
                         break;
                     }
@@ -2324,14 +2324,14 @@ class ServicesController extends Controller
             }
         } else {
             foreach ($service->applications as $app) {
-                $storage = (method_exists($app, 'fileStorages') ? $app->fileStorages()->get() : collect())->where($lookupField, $lookupValue)->first();
+                $storage = $app->fileStorages()->get()->where($lookupField, $lookupValue)->first();
                 if ($storage) {
                     break;
                 }
             }
             if (! $storage) {
                 foreach ($service->databases as $db) {
-                    $storage = (method_exists($db, 'fileStorages') ? $db->fileStorages()->get() : collect())->where($lookupField, $lookupValue)->first();
+                    $storage = $db->fileStorages()->get()->where($lookupField, $lookupValue)->first();
                     if ($storage) {
                         break;
                     }
@@ -2465,14 +2465,14 @@ class ServicesController extends Controller
 
         $storage = null;
         foreach ($service->applications as $app) {
-            $storage = (method_exists($app, 'persistentStorages') ? $app->persistentStorages()->get() : collect())->where('uuid', $storageUuid)->first();
+            $storage = $app->persistentStorages()->get()->where('uuid', $storageUuid)->first();
             if ($storage) {
                 break;
             }
         }
         if (! $storage) {
             foreach ($service->databases as $db) {
-                $storage = (method_exists($db, 'persistentStorages') ? $db->persistentStorages()->get() : collect())->where('uuid', $storageUuid)->first();
+                $storage = $db->persistentStorages()->get()->where('uuid', $storageUuid)->first();
                 if ($storage) {
                     break;
                 }
@@ -2480,7 +2480,7 @@ class ServicesController extends Controller
         }
         if (! $storage) {
             foreach ($service->applications as $app) {
-                $storage = (method_exists($app, 'fileStorages') ? $app->fileStorages()->get() : collect())->where('uuid', $storageUuid)->first();
+                $storage = $app->fileStorages()->get()->where('uuid', $storageUuid)->first();
                 if ($storage) {
                     break;
                 }
@@ -2488,7 +2488,7 @@ class ServicesController extends Controller
         }
         if (! $storage) {
             foreach ($service->databases as $db) {
-                $storage = (method_exists($db, 'fileStorages') ? $db->fileStorages()->get() : collect())->where('uuid', $storageUuid)->first();
+                $storage = $db->fileStorages()->get()->where('uuid', $storageUuid)->first();
                 if ($storage) {
                     break;
                 }

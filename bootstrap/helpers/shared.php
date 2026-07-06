@@ -1503,7 +1503,7 @@ function generateEnvValue(string $command, Service|Application|null $service = n
             $algorithm = new Sha256;
             $tokenBuilder = (new Builder(new JoseEncoder, ChainedFormatter::default()));
             $now = CarbonImmutable::now();
-            $now = $now->setTime($now->format('H'), $now->format('i'));
+            $now = $now->setTime((int) $now->format('H'), (int) $now->format('i'));
             $token = $tokenBuilder
                 ->issuedBy('supabase')
                 ->issuedAt($now)
@@ -1523,7 +1523,7 @@ function generateEnvValue(string $command, Service|Application|null $service = n
             $algorithm = new Sha256;
             $tokenBuilder = (new Builder(new JoseEncoder, ChainedFormatter::default()));
             $now = CarbonImmutable::now();
-            $now = $now->setTime($now->format('H'), $now->format('i'));
+            $now = $now->setTime((int) $now->format('H'), (int) $now->format('i'));
             $token = $tokenBuilder
                 ->issuedBy('supabase')
                 ->issuedAt($now)

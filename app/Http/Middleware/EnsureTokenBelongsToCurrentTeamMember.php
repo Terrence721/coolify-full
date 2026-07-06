@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\PersonalAccessToken;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,7 +15,7 @@ class EnsureTokenBelongsToCurrentTeamMember
     {
         $user = $request->user();
         $token = $user?->currentAccessToken();
-        $teamId = $token?->team_id;
+        $teamId = $token instanceof PersonalAccessToken ? $token->team_id : null;
 
         if (! $user || ! $token || is_null($teamId)) {
             return response()->json(['message' => 'Invalid token.'], 401);

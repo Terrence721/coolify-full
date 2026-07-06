@@ -45,7 +45,7 @@ class Gitlab extends Controller
                     'message' => 'Event not allowed. Only push and merge_request events are allowed.',
                 ]);
 
-                return response($return_payloads);
+                return response($return_payloads->all());
             }
 
             if (empty($x_gitlab_token)) {
@@ -57,7 +57,7 @@ class Gitlab extends Controller
                     'message' => 'Invalid signature.',
                 ]);
 
-                return response($return_payloads);
+                return response($return_payloads->all());
             }
 
             if ($x_gitlab_event === 'push') {
@@ -72,7 +72,7 @@ class Gitlab extends Controller
                         'message' => 'Nothing to do. No branch found in the request.',
                     ]);
 
-                    return response($return_payloads);
+                    return response($return_payloads->all());
                 }
                 $added_files = data_get($payload, 'commits.*.added');
                 $removed_files = data_get($payload, 'commits.*.removed');
@@ -96,7 +96,7 @@ class Gitlab extends Controller
                         'message' => 'Nothing to do. No branch found in the request.',
                     ]);
 
-                    return response($return_payloads);
+                    return response($return_payloads->all());
                 }
             }
             $full_name = $this->manualWebhookRepositoryFullName($full_name);
@@ -106,7 +106,7 @@ class Gitlab extends Controller
                     'message' => 'Nothing to do. Invalid repository.',
                 ]);
 
-                return response($return_payloads);
+                return response($return_payloads->all());
             }
             $applications = Application::query();
             if ($x_gitlab_event === 'push') {
@@ -117,7 +117,7 @@ class Gitlab extends Controller
                         'message' => "Nothing to do. No applications found with deploy key set, branch is '$branch' and Git Repository name has $full_name.",
                     ]);
 
-                    return response($return_payloads);
+                    return response($return_payloads->all());
                 }
             }
             if ($x_gitlab_event === 'merge_request') {
@@ -128,7 +128,7 @@ class Gitlab extends Controller
                         'message' => "Nothing to do. No applications found with branch '$base_branch'.",
                     ]);
 
-                    return response($return_payloads);
+                    return response($return_payloads->all());
                 }
             }
             foreach ($applications as $application) {
@@ -330,7 +330,7 @@ class Gitlab extends Controller
                 }
             }
 
-            return response($return_payloads);
+            return response($return_payloads->all());
         } catch (Exception $e) {
             return handleError($e);
         }

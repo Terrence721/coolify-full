@@ -252,7 +252,7 @@ class Github extends Controller
                 }
             }
 
-            return response($return_payloads);
+            return response($return_payloads->all());
         } catch (Exception $e) {
             return handleError($e);
         }
@@ -478,7 +478,7 @@ class Github extends Controller
                 }
             }
 
-            return response($return_payloads);
+            return response($return_payloads->all());
         } catch (Exception $e) {
             return handleError($e);
         }
@@ -532,8 +532,7 @@ class Github extends Controller
         abort_if($this->githubAppHasManifestCredentials($github_app), 403, 'GitHub App credentials are already configured.');
 
         $api_url = data_get($github_app, 'api_url');
-        $data = Http::withBody(null)
-            ->accept('application/vnd.github+json')
+        $data = Http::accept('application/vnd.github+json')
             ->timeout(10)
             ->connectTimeout(5)
             ->post("$api_url/app-manifests/$code/conversions")
