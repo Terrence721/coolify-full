@@ -319,6 +319,29 @@
             <li class="success">It unsets healthcheck when disabled</li>
             <li class="success">It adds logging when server and db enable log drain</li>
         </ul>
+        <h2>Start Mariadb (Tests\Unit\Actions\Database\StartMariadb)</h2>
+        <ul>
+            <li class="success">It removes ssl dir and deletes certificates when ssl disabled</li>
+            <li class="success">It sets up ssl and generates certificate when missing</li>
+            <li class="success">It writes custom mariadb conf and includes chown when present</li>
+            <li class="success">It generates docker compose and includes persistent and file volumes</li>
+            <li class="success">It adds mariadb env vars when missing and preserves existing</li>
+            <li class="success">It unsets healthcheck when disabled</li>
+            <li class="success">It adds logging when server and db enable log drain</li>
+            <li class="success">It sets ssl command and chowns certs when ssl enabled</li>
+        </ul>
+        <h2>Start Mongodb (Tests\Unit\Actions\Database\StartMongodb)</h2>
+        <ul>
+            <li class="success">It removes ssl dir and deletes certificates when ssl disabled</li>
+            <li class="success">It sets up ssl and generates certificate when missing</li>
+            <li class="success">It writes mongo conf and sets command when mongo conf present</li>
+            <li class="success">It adds default database init files and volumes</li>
+            <li class="success">It generates docker compose and includes persistent and file volumes</li>
+            <li class="success">It builds ssl command for verify full mode</li>
+            <li class="success">It adds mongo env vars when missing and preserves existing</li>
+            <li class="success">It unsets healthcheck when disabled</li>
+            <li class="success">It adds logging when server and db enable log drain</li>
+        </ul>
         <h2>Stop Application (Tests\Unit\Actions\Application\StopApplication)</h2>
         <ul>
             <li class="success">It fails when server is not functional</li>

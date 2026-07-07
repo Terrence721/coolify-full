@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Application;
 
-require_once __DIR__.'/../../Support/Fakes/action_remote_process_overrides.php';
-
 use App\Actions\Application\StopApplicationOneServer;
 use App\Models\Application;
 use App\Models\ApplicationSetting;

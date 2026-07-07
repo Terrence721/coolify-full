@@ -95,7 +95,11 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "tests/Support/Fakes/action_remote_process_overrides.php",
+            "tests/Support/Fakes/database_action_overrides.php"
+        ]
     },
     "config": {
         "allow-plugins": {
@@ -114,6 +118,7 @@
         }
     },
     "scripts": {
+        "phpstan": "phpstan analyse",
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "Illuminate\\Foundation\\ComposerScripts::postUpdate"

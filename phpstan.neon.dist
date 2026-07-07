@@ -1,5 +1,6 @@
 includes:
     - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
 
 parameters:
     level: 6
@@ -10,9 +11,12 @@ parameters:
         - app/Http
         - app/Jobs
         - app/Listeners
+        - app/Livewire
+        - app/Models
         - app/Notifications
         - app/Policies
         - app/Providers
+        - app/Traits
 
     ignoreErrors:
         -

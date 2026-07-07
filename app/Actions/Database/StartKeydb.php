@@ -8,12 +8,13 @@ use App\Helpers\SslHelper;
 use App\Models\Server;
 use App\Models\SslCertificate;
 use App\Models\StandaloneKeydb;
+use App\Traits\GeneratesLocalPersistentVolumes;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Yaml\Yaml;
 
 class StartKeydb
 {
-    use AsAction;
+    use AsAction, GeneratesLocalPersistentVolumes;
 
     public StandaloneKeydb $database;
 
@@ -223,40 +224,6 @@ class StartKeydb
         $this->commands[] = "echo 'Database started.'";
 
         return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
-    }
-
-    /** @return array<int, string> */
-    private function generate_local_persistent_volumes(): array
-    {
-        $local_persistent_volumes = [];
-        foreach ($this->database->persistentStorages as $persistentStorage) {
-            if ($persistentStorage->host_path !== '' && $persistentStorage->host_path !== null) {
-                $local_persistent_volumes[] = $persistentStorage->host_path.':'.$persistentStorage->mount_path;
-            } else {
-                $volume_name = $persistentStorage->name;
-                $local_persistent_volumes[] = $volume_name.':'.$persistentStorage->mount_path;
-            }
-        }
-
-        return $local_persistent_volumes;
-    }
-
-    /** @return array<string, array{name: string, external: bool}> */
-    private function generate_local_persistent_volumes_only_volume_names(): array
-    {
-        $local_persistent_volumes_names = [];
-        foreach ($this->database->persistentStorages as $persistentStorage) {
-            if ($persistentStorage->host_path) {
-                continue;
-            }
-            $name = $persistentStorage->name;
-            $local_persistent_volumes_names[$name] = [
-                'name' => $name,
-                'external' => false,
-            ];
-        }
-
-        return $local_persistent_volumes_names;
     }
 
     /** @return array<int, string> */

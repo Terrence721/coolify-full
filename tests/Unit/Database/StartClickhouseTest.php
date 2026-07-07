@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
-require_once __DIR__.'/../../Support/Fakes/database_action_overrides.php';
-
 use App\Actions\Database\StartClickhouse;
 use App\Models\Server;
 use App\Models\StandaloneClickhouse;

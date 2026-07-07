@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
-use App\Actions\Database\StartKeydb;
-use App\Models\LocalFileVolume;
+use App\Actions\Database\StartMariadb;
 use App\Models\SslCertificate;
 use App\Models\StandaloneDocker;
-use App\Models\StandaloneKeydb;
+use App\Models\StandaloneMariadb;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Yaml\Yaml;
 use Tests\Support\Fakes\DatabaseActionFake;
@@ -18,12 +16,12 @@ use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\Support\InteractsWithDatabaseActions;
 use Tests\TestCase;
 
-final class StartKeydbTest extends TestCase
+final class StartMariadbTest extends TestCase
 {
     use InteractsWithDatabaseActions;
     use RefreshDatabase;
 
-    private StartKeydb $action;
+    private StartMariadb $action;
 
     protected function setUp(): void
     {
@@ -32,23 +30,26 @@ final class StartKeydbTest extends TestCase
         DatabaseActionFake::reset();
         RemoteProcessFake::reset();
 
-        $this->action = new StartKeydb;
+        $this->action = new StartMariadb;
     }
 
     /**
      * sslCertificates() and fileStorages() are called as chained relation methods
-     * in StartKeydb, not accessed as cached relation properties — so setRelation()
+     * in StartMariadb, not accessed as cached relation properties — so setRelation()
      * can't intercept them. A real, persisted model (with RefreshDatabase providing
      * the real, empty tables) is required instead.
      */
-    private function fakeDatabase(array $overrides = []): StandaloneKeydb
+    private function fakeDatabase(array $overrides = []): StandaloneMariadb
     {
-        $db = StandaloneKeydb::create(array_merge([
-            'uuid' => 'kb-123',
-            'name' => 'keydb',
-            'image' => 'keydb:latest',
-            'keydb_password' => 's3cr3t',
-            'keydb_conf' => null,
+        $db = StandaloneMariadb::create(array_merge([
+            'uuid' => 'maria-123',
+            'name' => 'mariadb',
+            'image' => 'mariadb:latest',
+            'mariadb_root_password' => 'rootpw',
+            'mariadb_database' => 'appdb',
+            'mariadb_user' => 'appuser',
+            'mariadb_password' => 'apppw',
+            'mariadb_conf' => null,
             'enable_ssl' => false,
             'destination_type' => StandaloneDocker::class,
             'destination_id' => 1,
@@ -65,67 +66,16 @@ final class StartKeydbTest extends TestCase
     }
 
     #[Test]
-    public function it_builds_start_command_without_keydb_conf_and_without_ssl()
+    public function it_removes_ssl_dir_and_deletes_certificates_when_ssl_disabled()
     {
-        $db = $this->fakeDatabase(['keydb_conf' => null, 'keydb_password' => 'pw']);
-        $this->action->handle($db);
-
-        $command = $this->callProtected($this->action, 'buildStartCommand');
-        $this->assertSame('keydb-server --requirepass pw --appendonly yes', $command);
-        $this->assertStringNotContainsString('--tls', $command);
-    }
-
-    #[Test]
-    public function it_builds_start_command_with_keydb_conf_that_contains_requirepass()
-    {
-        $db = new StandaloneKeydb([
-            'keydb_conf' => "bind 0.0.0.0\nrequirepass mypass\n",
-            'keydb_password' => 'pw',
-            'enable_ssl' => false,
-        ]);
-        $this->action->database = $db;
-
-        $command = $this->callProtected($this->action, 'buildStartCommand');
-        $this->assertSame('keydb-server /etc/keydb/keydb.conf', $command);
-    }
-
-    #[Test]
-    public function it_builds_start_command_with_keydb_conf_without_requirepass()
-    {
-        $db = new StandaloneKeydb([
-            'keydb_conf' => "bind 0.0.0.0\n",
-            'keydb_password' => 'pw',
-            'enable_ssl' => false,
-        ]);
-        $this->action->database = $db;
-
-        $command = $this->callProtected($this->action, 'buildStartCommand');
-        $this->assertSame('keydb-server /etc/keydb/keydb.conf --requirepass pw', $command);
-    }
-
-    #[Test]
-    public function it_appends_ssl_args_when_ssl_enabled()
-    {
-        $db = new StandaloneKeydb(['enable_ssl' => true, 'keydb_password' => 'pw']);
-        $this->action->database = $db;
-
-        $command = $this->callProtected($this->action, 'buildStartCommand');
-        $this->assertStringContainsString('--tls-port 6380', $command);
-        $this->assertStringContainsString('--tls-cert-file /etc/keydb/certs/server.crt', $command);
-        $this->assertStringContainsString('--tls-ca-cert-file /etc/keydb/certs/coolify-ca.crt', $command);
-    }
-
-    #[Test]
-    public function it_removes_ssl_files_and_deletes_certificates_when_ssl_disabled()
-    {
-        $db = $this->fakeDatabase(['enable_ssl' => false, 'uuid' => 'kb-ssl']);
-        $this->seedResourceCertificate($this->createTestServer(), StandaloneKeydb::class, $db->id, 'kb-ssl');
+        $db = $this->fakeDatabase(['enable_ssl' => false, 'uuid' => 'maria-ssl']);
+        $this->seedResourceCertificate($this->createTestServer(), StandaloneMariadb::class, $db->id, 'maria-ssl');
 
         $this->action->handle($db);
 
         $this->assertSame(
             0,
-            SslCertificate::where('resource_type', StandaloneKeydb::class)->where('resource_id', $db->id)->count(),
+            SslCertificate::where('resource_type', StandaloneMariadb::class)->where('resource_id', $db->id)->count(),
             'sslCertificates()->delete() should have removed the certificate'
         );
 
@@ -133,7 +83,7 @@ final class StartKeydbTest extends TestCase
         $this->assertNotEmpty($calls);
 
         $commands = $calls[0][0];
-        $this->assertStringContainsString('rm -rf /etc/coolify/databases/kb-ssl/ssl', implode("\n", $commands));
+        $this->assertStringContainsString('rm -rf /etc/coolify/databases/maria-ssl/ssl', implode("\n", $commands));
     }
 
     #[Test]
@@ -142,8 +92,8 @@ final class StartKeydbTest extends TestCase
         $server = $this->createTestServer();
         $this->seedCaCertificate($server);
 
-        $db = $this->fakeDatabase(['enable_ssl' => true, 'uuid' => 'kb-ssl-2']);
-        $this->seedResourceCertificate($server, StandaloneKeydb::class, $db->id, 'kb-ssl-2');
+        $db = $this->fakeDatabase(['enable_ssl' => true, 'uuid' => 'maria-ssl-2']);
+        $this->seedResourceCertificate($server, StandaloneMariadb::class, $db->id, 'maria-ssl-2');
         $db->setRelation('destination', $this->destinationWithServer($server));
 
         $this->action->handle($db);
@@ -157,55 +107,43 @@ final class StartKeydbTest extends TestCase
     }
 
     #[Test]
-    public function it_writes_keydb_conf_and_chowns_when_keydb_conf_present()
+    public function it_writes_custom_mariadb_conf_and_includes_chown_when_present()
     {
-        $db = $this->fakeDatabase(['keydb_conf' => "appendonly yes\n", 'uuid' => 'kb-conf']);
+        $db = $this->fakeDatabase(['mariadb_conf' => "[mysqld]\nmax_connections=100\n", 'uuid' => 'maria-conf']);
         $this->action->handle($db);
 
         $calls = DatabaseActionFake::$remoteProcessCalls;
         $this->assertNotEmpty($calls);
 
         $commands = $calls[0][0];
-        $joined = implode("\n", $commands);
-
-        $foundConfWrite = false;
+        $foundWrite = false;
         foreach ($commands as $cmd) {
-            if (str_contains($cmd, '/keydb.conf') && str_contains($cmd, 'base64 -d')) {
-                $foundConfWrite = true;
+            if (str_contains($cmd, 'custom-config.cnf')) {
+                $foundWrite = true;
+                $this->assertStringContainsString('base64 -d', $cmd);
             }
         }
-        $this->assertTrue($foundConfWrite, 'keydb.conf write command should be present');
-        $this->assertStringContainsString('chown 999:999 /etc/coolify/databases/kb-conf/keydb.conf', $joined);
+        $this->assertTrue($foundWrite, 'custom-config.cnf write command should be present');
+        $this->assertStringContainsString('docker compose -f', implode("\n", $commands));
     }
 
     #[Test]
     public function it_generates_docker_compose_and_includes_persistent_and_file_volumes()
     {
-        // LocalFileVolume::create() dispatches ServerStorageSaveJob on its "created" event
-        // unconditionally; fake the queue so it doesn't actually run against our fixture.
-        Queue::fake();
-
         $db = $this->fakeDatabase([
-            'uuid' => 'kb-999',
+            'uuid' => 'maria-999',
         ]);
 
         $db->setRelation('persistentStorages', collect([
             (object) [
                 'host_path' => '/host/path',
-                'mount_path' => '/data',
+                'mount_path' => '/var/lib/mysql',
                 'name' => 'vol1',
             ],
         ]));
         $db->setRelation('runtime_environment_variables', collect([
             (object) ['key' => 'FOO', 'real_value' => 'bar'],
         ]));
-
-        LocalFileVolume::create([
-            'fs_path' => '/fs/path',
-            'mount_path' => '/etc/keydb/certs/server.crt',
-            'resource_type' => StandaloneKeydb::class,
-            'resource_id' => $db->id,
-        ]);
 
         $this->action->handle($db);
 
@@ -221,8 +159,8 @@ final class StartKeydbTest extends TestCase
                     $decoded = base64_decode($m[1]);
                     $yaml = Yaml::parse($decoded);
                     $this->assertArrayHasKey('services', $yaml);
-                    $this->assertArrayHasKey('kb-999', $yaml['services']);
-                    $this->assertContains('/host/path:/data', $yaml['services']['kb-999']['volumes']);
+                    $this->assertArrayHasKey('maria-999', $yaml['services']);
+                    $this->assertContains('/host/path:/var/lib/mysql', $yaml['services']['maria-999']['volumes']);
                 }
                 break;
             }
@@ -231,9 +169,14 @@ final class StartKeydbTest extends TestCase
     }
 
     #[Test]
-    public function it_adds_redis_password_env_if_missing_and_preserves_existing_envs()
+    public function it_adds_mariadb_env_vars_when_missing_and_preserves_existing()
     {
-        $db = new StandaloneKeydb(['keydb_password' => 'pw123']);
+        $db = new StandaloneMariadb([
+            'mariadb_root_password' => 'rootpw',
+            'mariadb_database' => 'appdb',
+            'mariadb_user' => 'appuser',
+            'mariadb_password' => 'apppw',
+        ]);
         $db->setRelation('runtime_environment_variables', collect([
             (object) ['key' => 'BAR', 'real_value' => 'baz'],
         ]));
@@ -241,15 +184,18 @@ final class StartKeydbTest extends TestCase
         $this->action->database = $db;
         $env = $this->callProtected($this->action, 'generate_environment_variables');
 
-        $this->assertContains('REDIS_PASSWORD=pw123', $env);
+        $this->assertContains('MARIADB_ROOT_PASSWORD=rootpw', $env);
+        $this->assertContains('MARIADB_DATABASE=appdb', $env);
+        $this->assertContains('MARIADB_USER=appuser', $env);
+        $this->assertContains('MARIADB_PASSWORD=apppw', $env);
         $this->assertContains('BAR=baz', $env);
     }
 
     #[Test]
     public function it_unsets_healthcheck_when_disabled()
     {
-        $db = $this->fakeDatabase(['uuid' => 'kb-health']);
-        // No health_check_enabled column exists on standalone_keydbs; HasDatabaseHealthCheck
+        $db = $this->fakeDatabase(['uuid' => 'maria-health']);
+        // No health_check_enabled column exists on standalone_mariadbs; HasDatabaseHealthCheck
         // reads it as a plain dynamic attribute, so setting it directly is sufficient.
         $db->health_check_enabled = false;
 
@@ -263,8 +209,8 @@ final class StartKeydbTest extends TestCase
             if (preg_match("/echo '(.+)' \| base64 -d \| tee .*docker-compose.yml/", $cmd, $m)) {
                 $decoded = base64_decode($m[1]);
                 $yaml = Yaml::parse($decoded);
-                $this->assertArrayHasKey('kb-health', $yaml['services']);
-                $this->assertArrayNotHasKey('healthcheck', $yaml['services']['kb-health']);
+                $this->assertArrayHasKey('maria-health', $yaml['services']);
+                $this->assertArrayNotHasKey('healthcheck', $yaml['services']['maria-health']);
                 $found = true;
                 break;
             }
@@ -278,7 +224,7 @@ final class StartKeydbTest extends TestCase
         $server = $this->createTestServer();
         $server->settings->update(['is_logdrain_custom_enabled' => true]);
 
-        $db = $this->fakeDatabase(['uuid' => 'kb-log', 'is_log_drain_enabled' => true]);
+        $db = $this->fakeDatabase(['uuid' => 'maria-log', 'is_log_drain_enabled' => true]);
         $db->setRelation('destination', $this->destinationWithServer($server));
 
         $this->action->handle($db);
@@ -291,11 +237,46 @@ final class StartKeydbTest extends TestCase
             if (preg_match("/echo '(.+)' \| base64 -d \| tee .*docker-compose.yml/", $cmd, $m)) {
                 $decoded = base64_decode($m[1]);
                 $yaml = Yaml::parse($decoded);
-                $this->assertArrayHasKey('logging', $yaml['services']['kb-log']);
+                $this->assertArrayHasKey('logging', $yaml['services']['maria-log']);
                 $found = true;
                 break;
             }
         }
         $this->assertTrue($found, 'docker-compose write command should be present');
+    }
+
+    #[Test]
+    public function it_sets_ssl_command_and_chowns_certs_when_ssl_enabled()
+    {
+        $server = $this->createTestServer();
+        $this->seedCaCertificate($server);
+
+        $db = $this->fakeDatabase(['enable_ssl' => true, 'uuid' => 'maria-ssl-3']);
+        $this->seedResourceCertificate($server, StandaloneMariadb::class, $db->id, 'maria-ssl-3');
+        $db->setRelation('destination', $this->destinationWithServer($server));
+
+        $this->action->handle($db);
+
+        $calls = DatabaseActionFake::$remoteProcessCalls;
+        $this->assertNotEmpty($calls);
+
+        $commands = $calls[0][0];
+        $joined = implode("\n", $commands);
+        $this->assertStringContainsString("docker exec maria-ssl-3 bash -c 'chown mysql:mysql /etc/mysql/certs/server.crt /etc/mysql/certs/server.key'", $joined);
+
+        foreach ($commands as $cmd) {
+            if (preg_match("/echo '(.+)' \| base64 -d \| tee .*docker-compose.yml/", $cmd, $m)) {
+                $decoded = base64_decode($m[1]);
+                $yaml = Yaml::parse($decoded);
+                $this->assertSame([
+                    'mariadbd',
+                    '--ssl-cert=/etc/mysql/certs/server.crt',
+                    '--ssl-key=/etc/mysql/certs/server.key',
+                    '--ssl-ca=/etc/mysql/certs/coolify-ca.crt',
+                    '--require-secure-transport=1',
+                ], $yaml['services']['maria-ssl-3']['command']);
+                break;
+            }
+        }
     }
 }

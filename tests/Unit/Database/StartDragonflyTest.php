@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
-require_once __DIR__.'/../../Support/Fakes/database_action_overrides.php';
-
 use App\Actions\Database\StartDragonfly;
 use App\Models\LocalFileVolume;
-use App\Models\Server;
 use App\Models\SslCertificate;
 use App\Models\StandaloneDocker;
 use App\Models\StandaloneDragonfly;
@@ -18,10 +15,12 @@ use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Yaml\Yaml;
 use Tests\Support\Fakes\DatabaseActionFake;
 use Tests\Support\Fakes\RemoteProcessFake;
+use Tests\Support\InteractsWithDatabaseActions;
 use Tests\TestCase;
 
 final class StartDragonflyTest extends TestCase
 {
+    use InteractsWithDatabaseActions;
     use RefreshDatabase;
 
     private StartDragonfly $action;
@@ -34,12 +33,6 @@ final class StartDragonflyTest extends TestCase
         RemoteProcessFake::reset();
 
         $this->action = new StartDragonfly;
-    }
-
-    /** Invoke a protected/private method on $object via Reflection. */
-    private function callProtected(object $object, string $method, mixed ...$args): mixed
-    {
-        return (new \ReflectionMethod($object, $method))->invoke($object, ...$args);
     }
 
     /**
@@ -63,13 +56,7 @@ final class StartDragonflyTest extends TestCase
             'custom_docker_run_options' => '',
         ], $overrides));
 
-        $destination = new class
-        {
-            public string $network = 'net-1';
-
-            public ?Server $server = null;
-        };
-        $db->setRelation('destination', $destination);
+        $db->setRelation('destination', $this->destinationWithoutServer());
         $db->setRelation('persistentStorages', collect());
         $db->setRelation('runtime_environment_variables', collect());
 
@@ -90,47 +77,12 @@ final class StartDragonflyTest extends TestCase
     #[Test]
     public function it_builds_start_command_with_ssl()
     {
-        $server = Server::create([
-            'name' => 'srv-01',
-            'uuid' => 'srv-01-uuid',
-            'ip' => '127.0.0.1',
-            'team_id' => 1,
-            'private_key_id' => 1,
-        ]);
-
-        // Pre-seed a CA certificate so the SSL branch finds an existing one instead of
-        // calling Server::generateCaCertificate() -> SslHelper::generateSslCertificate(),
-        // which relies on openssl_pkey_new() — unavailable in this environment.
-        SslCertificate::create([
-            'ssl_certificate' => 'ca-cert',
-            'ssl_private_key' => 'ca-key',
-            'server_id' => $server->id,
-            'common_name' => 'Coolify CA Certificate',
-            'valid_until' => now()->addYears(10),
-            'is_ca_certificate' => true,
-        ]);
+        $server = $this->createTestServer();
+        $this->seedCaCertificate($server);
 
         $db = $this->fakeDatabase(['enable_ssl' => true, 'dragonfly_password' => 'pw']);
-
-        // Likewise, pre-seed the database's own certificate to avoid SslHelper::generateSslCertificate().
-        SslCertificate::create([
-            'ssl_certificate' => 'db-cert',
-            'ssl_private_key' => 'db-key',
-            'server_id' => $server->id,
-            'resource_type' => StandaloneDragonfly::class,
-            'resource_id' => $db->id,
-            'common_name' => 'df-123',
-            'valid_until' => now()->addYear(),
-            'is_ca_certificate' => false,
-        ]);
-
-        $destination = new class($server)
-        {
-            public string $network = 'net-1';
-
-            public function __construct(public Server $server) {}
-        };
-        $db->setRelation('destination', $destination);
+        $this->seedResourceCertificate($server, StandaloneDragonfly::class, $db->id, 'df-123');
+        $db->setRelation('destination', $this->destinationWithServer($server));
 
         $this->action->handle($db);
 
@@ -146,22 +98,7 @@ final class StartDragonflyTest extends TestCase
     public function it_removes_ssl_files_and_deletes_certificates_when_ssl_disabled()
     {
         $db = $this->fakeDatabase(['enable_ssl' => false, 'uuid' => 'df-123']);
-
-        SslCertificate::create([
-            'ssl_certificate' => 'cert',
-            'ssl_private_key' => 'key',
-            'server_id' => Server::create([
-                'name' => 'srv-02',
-                'uuid' => 'srv-02-uuid',
-                'ip' => '127.0.0.2',
-                'team_id' => 1,
-                'private_key_id' => 1,
-            ])->id,
-            'resource_type' => StandaloneDragonfly::class,
-            'resource_id' => $db->id,
-            'common_name' => 'df-123',
-            'valid_until' => now()->addYear(),
-        ]);
+        $this->seedResourceCertificate($this->createTestServer(), StandaloneDragonfly::class, $db->id, 'df-123');
 
         $this->action->handle($db);
 

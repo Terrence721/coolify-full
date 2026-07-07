@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Database\Mariadb;
 
-use App\Actions\Database\StartDatabaseProxy;
-use App\Actions\Database\StopDatabaseProxy;
-use App\Models\Server;
 use App\Models\StandaloneMariadb;
 use App\Support\ValidationPatterns;
-use Exception;
+use App\Traits\HasDatabaseGeneralForm;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -18,14 +15,9 @@ use Livewire\Component;
 class General extends Component
 {
     use AuthorizesRequests;
-
-    public ?Server $server = null;
+    use HasDatabaseGeneralForm;
 
     public StandaloneMariadb $database;
-
-    public string $name;
-
-    public ?string $description = null;
 
     public string $mariadbRootPassword;
 
@@ -36,20 +28,6 @@ class General extends Component
     public string $mariadbDatabase;
 
     public ?string $mariadbConf = null;
-
-    public string $image;
-
-    public ?string $portsMappings = null;
-
-    public ?bool $isPublic = null;
-
-    public mixed $publicPort = null;
-
-    public mixed $publicPortTimeout = 3600;
-
-    public bool $isLogDrainEnabled = false;
-
-    public ?string $customDockerRunOptions = null;
 
     protected function rules(): array
     {
@@ -116,22 +94,6 @@ class General extends Component
         'customDockerRunOptions' => 'Custom Docker Options',
     ];
 
-    public function mount()
-    {
-        try {
-            $this->authorize('view', $this->database);
-            $this->syncData();
-            $this->server = data_get($this->database, 'destination.server');
-            if (! $this->server) {
-                $this->dispatch('error', 'Database destination server is not configured.');
-
-                return;
-            }
-        } catch (Exception $e) {
-            return handleError($e, $this);
-        }
-    }
-
     public function syncData(bool $toModel = false)
     {
         if ($toModel) {
@@ -167,90 +129,6 @@ class General extends Component
             $this->isLogDrainEnabled = $this->database->is_log_drain_enabled;
             $this->customDockerRunOptions = $this->database->custom_docker_run_options;
         }
-    }
-
-    public function instantSaveAdvanced()
-    {
-        try {
-            $this->authorize('update', $this->database);
-
-            if (! $this->server->isLogDrainEnabled()) {
-                $this->isLogDrainEnabled = false;
-                $this->dispatch('error', 'Log drain is not enabled on the server. Please enable it first.');
-
-                return;
-            }
-            $this->syncData(true);
-            $this->dispatch('success', 'Database updated.');
-            $this->dispatch('success', 'You need to restart the service for the changes to take effect.');
-        } catch (Exception $e) {
-            return handleError($e, $this);
-        }
-    }
-
-    public function submit()
-    {
-        try {
-            $this->authorize('update', $this->database);
-
-            if ($this->portsMappings) {
-                $this->portsMappings = str($this->portsMappings)->replace(' ', '')->trim()->toString();
-            }
-            if (str($this->publicPort)->isEmpty()) {
-                $this->publicPort = null;
-            }
-            $this->syncData(true);
-            $this->dispatch('success', 'Database updated.');
-            $this->dispatch('databaseUpdated');
-        } catch (Exception $e) {
-            return handleError($e, $this);
-        } finally {
-            if (is_null($this->database->config_hash)) {
-                $this->database->isConfigurationChanged(true);
-            } else {
-                $this->dispatch('configurationChanged');
-            }
-        }
-    }
-
-    public function instantSave()
-    {
-        try {
-            $this->authorize('update', $this->database);
-
-            if ($this->isPublic && ! $this->publicPort) {
-                $this->dispatch('error', 'Public port is required.');
-                $this->isPublic = false;
-
-                return;
-            }
-            if ($this->isPublic && ! str($this->database->status)->startsWith('running')) {
-                $this->dispatch('error', 'Database must be started to be publicly accessible.');
-                $this->isPublic = false;
-
-                return;
-            }
-            $this->syncData(true);
-            if ($this->isPublic) {
-                StartDatabaseProxy::run($this->database);
-                $this->dispatch('success', 'Database is now publicly accessible.');
-            } else {
-                StopDatabaseProxy::run($this->database);
-                $this->dispatch('success', 'Database is no longer publicly accessible.');
-            }
-            $this->dispatch('databaseUpdated');
-        } catch (\Throwable $e) {
-            $this->isPublic = ! $this->isPublic;
-            $this->syncData(true);
-
-            return handleError($e, $this);
-        }
-    }
-
-    public function refresh(): void
-    {
-        $this->database->refresh();
-        $this->syncData();
     }
 
     public function render(): Factory|View
