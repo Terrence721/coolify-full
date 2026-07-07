@@ -14,6 +14,8 @@ class DockerImageParser
 
     private bool $isImageHash = false;
 
+    private bool $usesDigestFormat = false;
+
     public function parse(string $imageString): self
     {
         // Check for @sha256: format first (e.g., nginx@sha256:abc123...)
@@ -21,6 +23,7 @@ class DockerImageParser
             $mainPart = $matches[1];
             $this->tag = $matches[2];
             $this->isImageHash = true;
+            $this->usesDigestFormat = true;
         } else {
             // Split by : to handle the tag, but be careful with registry ports
             $lastColon = strrpos($imageString, ':');
@@ -80,7 +83,7 @@ class DockerImageParser
     {
         $imageName = $this->getFullImageNameWithoutTag();
 
-        if ($this->isImageHash) {
+        if ($this->usesDigestFormat) {
             return $imageName.'@sha256:'.$this->tag;
         }
 
@@ -119,7 +122,7 @@ class DockerImageParser
         }
         $parts[] = $this->imageName;
 
-        if ($this->isImageHash) {
+        if ($this->usesDigestFormat) {
             return implode('/', $parts).'@sha256:'.$this->tag;
         }
 

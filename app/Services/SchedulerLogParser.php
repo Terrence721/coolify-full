@@ -152,8 +152,9 @@ class SchedulerLogParser
         // For small files, read the whole thing
         if ($fileSize < 1024 * 1024) {
             $content = File::get($filePath);
+            $allLines = array_values(array_filter(explode("\n", $content), fn ($line) => $line !== ''));
 
-            return array_filter(explode("\n", $content), fn ($line) => $line !== '');
+            return array_slice($allLines, -$lines);
         }
 
         // For large files, read from the end

@@ -26,11 +26,8 @@ class IsHorizonQueueEmpty
                    in_array('server:'.$hostname, $tags);
         });
         if ($running->count() > 0) {
-            echo 'false';
-
             return false;
         }
-        echo 'true';
 
         return true;
     }

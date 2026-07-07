@@ -1059,7 +1059,7 @@ $schema://$host {
     {
         return Attribute::make(
             get: function ($value) {
-                return (int) preg_replace('/[^0-9]/', '', $value);
+                return (int) preg_replace('/[^0-9]/', '', (string) $value);
             },
             set: function ($value) {
                 return (int) preg_replace('/[^0-9]/', '', (string) $value);
@@ -1071,10 +1071,10 @@ $schema://$host {
     {
         return Attribute::make(
             get: function ($value) {
-                return preg_replace(ValidationPatterns::INVALID_SERVER_USERNAME_CHARACTERS_PATTERN, '', $value);
+                return $value === null ? null : preg_replace(ValidationPatterns::INVALID_SERVER_USERNAME_CHARACTERS_PATTERN, '', $value);
             },
             set: function ($value) {
-                return preg_replace(ValidationPatterns::INVALID_SERVER_USERNAME_CHARACTERS_PATTERN, '', $value);
+                return $value === null ? null : preg_replace(ValidationPatterns::INVALID_SERVER_USERNAME_CHARACTERS_PATTERN, '', $value);
             }
         );
     }

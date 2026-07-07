@@ -46,20 +46,20 @@ class HetznerService
 
                 // Exponential backoff for other retriable errors: 100ms, 200ms, 400ms
                 return $attempt * 100;
-            })
+            }, throw: false)
             ->{$method}($this->baseUrl.$endpoint, $data);
 
         if (! $response->successful()) {
             if ($response->status() === 429) {
                 $retryAfter = $response->header('Retry-After');
-                if ($retryAfter === null) {
+                if ($retryAfter === '') {
                     $resetTime = $response->header('RateLimit-Reset');
-                    $retryAfter = $resetTime ? max(0, (int) $resetTime - time()) : null;
+                    $retryAfter = $resetTime !== '' ? max(0, (int) $resetTime - time()) : null;
                 }
 
                 throw new RateLimitException(
                     'Rate limit exceeded. Please try again later.',
-                    $retryAfter !== null ? (int) $retryAfter : null
+                    $retryAfter !== null && $retryAfter !== '' ? (int) $retryAfter : null
                 );
             }
 
@@ -181,9 +181,9 @@ class HetznerService
                 return $server;
             }
 
-            // Check IPv6 (Hetzner returns the full /64 block)
+            // Check IPv6 (Hetzner returns the full /64 block, e.g. "2001:db8::/64")
             $ipv6 = data_get($server, 'public_net.ipv6.ip');
-            if ($ipv6 && str_starts_with($ip, rtrim($ipv6, '/'))) {
+            if ($ipv6 && str_starts_with($ip, strstr($ipv6, '/', true) ?: $ipv6)) {
                 return $server;
             }
         }

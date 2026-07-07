@@ -506,28 +506,28 @@ class Application extends BaseModel
                 $payload['fqdn'] = $application->fqdn;
             }
             if ($application->isDirty('install_command')) {
-                $payload['install_command'] = str($application->install_command)->trim();
+                $payload['install_command'] = str($application->install_command)->trim()->toString();
             }
             if ($application->isDirty('build_command')) {
-                $payload['build_command'] = str($application->build_command)->trim();
+                $payload['build_command'] = str($application->build_command)->trim()->toString();
             }
             if ($application->isDirty('start_command')) {
-                $payload['start_command'] = str($application->start_command)->trim();
+                $payload['start_command'] = str($application->start_command)->trim()->toString();
             }
             if ($application->isDirty('base_directory')) {
-                $payload['base_directory'] = str($application->base_directory)->trim();
+                $payload['base_directory'] = str($application->base_directory)->trim()->toString();
             }
             if ($application->isDirty('publish_directory')) {
-                $payload['publish_directory'] = str($application->publish_directory)->trim();
+                $payload['publish_directory'] = str($application->publish_directory)->trim()->toString();
             }
             if ($application->isDirty('git_repository')) {
-                $payload['git_repository'] = str($application->git_repository)->trim();
+                $payload['git_repository'] = str($application->git_repository)->trim()->toString();
             }
             if ($application->isDirty('git_branch')) {
-                $payload['git_branch'] = str($application->git_branch)->trim();
+                $payload['git_branch'] = str($application->git_branch)->trim()->toString();
             }
             if ($application->isDirty('git_commit_sha')) {
-                $payload['git_commit_sha'] = str($application->git_commit_sha)->trim();
+                $payload['git_commit_sha'] = str($application->git_commit_sha)->trim()->toString();
             }
             if ($application->isDirty('status')) {
                 $payload['last_online_at'] = now();

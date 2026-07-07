@@ -1,0 +1,97 @@
+id: 1
+name: MyApp
+uuid: app-uuid
+description: 'Test app'
+coolify_details:
+  project_uuid: project-uuid
+  environment_uuid: environment-uuid
+  destination_type: docker
+  destination_id: 10
+  source_type: git
+  source_id: 20
+  private_key_id: 30
+post_deployment_command: 'echo post'
+post_deployment_command_container: container-post
+pre_deployment_command: 'echo pre'
+pre_deployment_command_container: container-pre
+build:
+  type: node
+  static_image: 'nginx:latest'
+  base_directory: /var/www
+  publish_directory: /var/www/public
+  dockerfile: 'FROM node'
+  dockerfile_location: /docker/Dockerfile
+  dockerfile_target_build: builder
+  custom_docker_run_options: null
+  compose_parsing_version: '5'
+  docker_compose: '{}'
+  docker_compose_location: /compose/docker-compose.yml
+  docker_compose_raw: '{"raw":true}'
+  docker_compose_domains: '{"web":{"domain":"example.com"}}'
+  docker_compose_custom_start_command: 'npm start'
+  docker_compose_custom_build_command: 'npm build'
+  install_command: 'npm install'
+  build_command: 'npm run build'
+  start_command: 'npm start'
+  watch_paths: "src\nconfig"
+source:
+  git_repository: 'https://github.com/example/repo'
+  git_branch: main
+  git_commit_sha: abc123
+  repository_project_id: 99
+docker_registry_image:
+  image: myapp
+  tag: latest
+domains:
+  fqdn: myapp.example.com
+  ports_exposes: '80'
+  ports_mappings: '80:8080'
+  redirect: null
+  custom_nginx_configuration: 'server {}'
+environment_variables:
+  production:
+    -
+      key: APP_KEY
+      value: secret
+      is_preview: false
+      is_multiline: false
+  preview:
+    -
+      key: PREVIEW_KEY
+      value: preview-secret
+      is_preview: true
+      is_multiline: false
+settings:
+  baz: qux
+  foo: bar
+preview:
+  preview_url_template: 'https://preview.example.com/{branch}'
+limits:
+  limits_memory: null
+  limits_memory_swap: null
+  limits_memory_swappiness: null
+  limits_memory_reservation: null
+  limits_cpus: null
+  limits_cpuset: null
+  limits_cpu_shares: null
+health_check:
+  health_check_path: /health
+  health_check_port: 8080
+  health_check_host: localhost
+  health_check_method: GET
+  health_check_return_code: 200
+  health_check_scheme: http
+  health_check_response_text: OK
+  health_check_interval: 10
+  health_check_timeout: 5
+  health_check_retries: 3
+  health_check_start_period: 2
+  health_check_enabled: true
+webhooks_secrets:
+  manual_webhook_secret_github: gh-secret
+  manual_webhook_secret_gitlab: gl-secret
+  manual_webhook_secret_bitbucket: bb-secret
+  manual_webhook_secret_gitea: gitea-secret
+swarm:
+  swarm_replicas: 2
+  swarm_placement_constraints: bm9kZS5yb2xlPT13b3JrZXI=

@@ -261,8 +261,8 @@ class ApplicationDeploymentQueue extends Model
         if ($type === 'error') {
             $type = 'stderr';
         }
-        $message = str($message)->trim();
-        if ($message->startsWith('╔')) {
+        $message = str($message)->trim()->toString();
+        if (str($message)->startsWith('╔')) {
             $message = "\n".$message;
         }
         $newLogEntry = [
