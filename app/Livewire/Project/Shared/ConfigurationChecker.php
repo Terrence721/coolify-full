@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Shared;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
 
 class ConfigurationChecker extends Component
@@ -23,7 +17,7 @@ class ConfigurationChecker extends Component
 
     public array $configurationDiff = [];
 
-    public Application|Service|StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $resource;
+    public Application|Service|(Model&StandaloneDatabaseInstance) $resource;
 
     public function getListeners(): array
     {

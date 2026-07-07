@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Contracts\StandaloneDatabaseInstance;
+use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
@@ -203,21 +206,28 @@ class Project extends BaseModel
 
     public function isEmpty()
     {
-        return $this->applications()->count() == 0 &&
-            $this->redis()->count() == 0 &&
-            $this->postgresqls()->count() == 0 &&
-            $this->mysqls()->count() == 0 &&
-            $this->keydbs()->count() == 0 &&
-            $this->dragonflies()->count() == 0 &&
-            $this->clickhouses()->count() == 0 &&
-            $this->mariadbs()->count() == 0 &&
-            $this->mongodbs()->count() == 0 &&
-            $this->services()->count() == 0;
+        if ($this->applications()->count() > 0 || $this->services()->count() > 0) {
+            return false;
+        }
+
+        foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
+            if ($this->{$relationName}()->count() > 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public function databases()
+    /** @return Collection<int, Model&StandaloneDatabaseInstance> */
+    public function databases(): Collection
     {
-        return $this->postgresqls()->get()->merge($this->redis()->get())->merge($this->mongodbs()->get())->merge($this->mysqls()->get())->merge($this->mariadbs()->get())->merge($this->keydbs()->get())->merge($this->dragonflies()->get())->merge($this->clickhouses()->get());
+        $result = new Collection;
+        foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
+            $result = $result->concat($this->{$relationName}()->get());
+        }
+
+        return $result;
     }
 
     public function navigateTo(): string

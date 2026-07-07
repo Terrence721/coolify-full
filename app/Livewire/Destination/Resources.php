@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 namespace App\Livewire\Destination;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\BaseModel;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDocker;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -52,22 +46,19 @@ class Resources extends Component
      */
     public function loadResources(): void
     {
-        $this->resources = $this->collectResources([
+        $groups = [
             $this->destination->applications,
             $this->destination->services,
-            $this->destination->postgresqls,
-            $this->destination->redis,
-            $this->destination->mongodbs,
-            $this->destination->mysqls,
-            $this->destination->mariadbs,
-            $this->destination->keydbs,
-            $this->destination->dragonflies,
-            $this->destination->clickhouses,
-        ]);
+        ];
+        foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
+            $groups[] = $this->destination->{$relationName};
+        }
+
+        $this->resources = $this->collectResources($groups);
     }
 
     /**
-     * @param  array<int, iterable<Application|Service|StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse>>  $groups
+     * @param  array<int, iterable<Application|Service|StandaloneDatabaseInstance>>  $groups
      * @return array<int, array{uuid:string,type:string,name:string,project:string|null,environment:string|null,url:string|null,search:string}>
      */
     protected function collectResources(array $groups): array
@@ -83,7 +74,7 @@ class Resources extends Component
     }
 
     /**
-     * @param  Application|Service|StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse  $resource
+     * @param  Application|Service|StandaloneDatabaseInstance  $resource
      * @return array{uuid:string,type:string,name:string,project:string|null,environment:string|null,url:string|null,search:string}
      */
     protected function resourceRow(BaseModel $resource): array

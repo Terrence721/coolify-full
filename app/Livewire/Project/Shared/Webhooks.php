@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Shared;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 
@@ -22,7 +16,7 @@ class Webhooks extends Component
 {
     use AuthorizesRequests;
 
-    public Application|Service|StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $resource;
+    public Application|Service|(Model&StandaloneDatabaseInstance) $resource;
 
     public ?string $deploywebhook;
 

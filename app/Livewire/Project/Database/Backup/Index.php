@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Database\Backup;
 
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -32,12 +29,7 @@ class Index extends Component
             return redirect()->route('dashboard');
         }
         // No backups
-        if (
-            $database->getMorphClass() === StandaloneRedis::class ||
-            $database->getMorphClass() === StandaloneKeydb::class ||
-            $database->getMorphClass() === StandaloneDragonfly::class ||
-            $database->getMorphClass() === StandaloneClickhouse::class
-        ) {
+        if (! (DatabaseEngineRegistry::forInstance($database)?->supportsBackup ?? true)) {
             return redirect()->route('project.database.configuration', [
                 'project_uuid' => $project->uuid,
                 'environment_uuid' => $environment->uuid,

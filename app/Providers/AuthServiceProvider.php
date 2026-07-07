@@ -23,15 +23,7 @@ use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
 use App\Models\SharedEnvironmentVariable;
 use App\Models\SlackNotificationSettings;
-use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDocker;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Models\SwarmDocker;
 use App\Models\Team;
 use App\Models\TelegramNotificationSettings;
@@ -57,6 +49,7 @@ use App\Policies\SharedEnvironmentVariablePolicy;
 use App\Policies\StandaloneDockerPolicy;
 use App\Policies\SwarmDockerPolicy;
 use App\Policies\TeamPolicy;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -83,15 +76,9 @@ class AuthServiceProvider extends ServiceProvider
         Environment::class => EnvironmentPolicy::class,
         EnvironmentVariable::class => EnvironmentVariablePolicy::class,
         SharedEnvironmentVariable::class => SharedEnvironmentVariablePolicy::class,
-        // Database policies - all use the shared DatabasePolicy
-        StandalonePostgresql::class => DatabasePolicy::class,
-        StandaloneMysql::class => DatabasePolicy::class,
-        StandaloneMariadb::class => DatabasePolicy::class,
-        StandaloneMongodb::class => DatabasePolicy::class,
-        StandaloneRedis::class => DatabasePolicy::class,
-        StandaloneKeydb::class => DatabasePolicy::class,
-        StandaloneDragonfly::class => DatabasePolicy::class,
-        StandaloneClickhouse::class => DatabasePolicy::class,
+        // Database policies (all 8 engines, all use the shared DatabasePolicy) are
+        // added in the constructor from DatabaseEngineRegistry, so a 9th engine
+        // doesn't require editing this literal array.
 
         // Notification policies - all use the shared NotificationPolicy
         EmailNotificationSettings::class => NotificationPolicy::class,
@@ -114,6 +101,15 @@ class AuthServiceProvider extends ServiceProvider
         GithubApp::class => GithubAppPolicy::class,
 
     ];
+
+    public function __construct($app)
+    {
+        parent::__construct($app);
+
+        foreach (DatabaseEngineRegistry::modelClasses() as $modelClass) {
+            $this->policies[$modelClass] = DatabasePolicy::class;
+        }
+    }
 
     /**
      * Register any authentication / authorization services.

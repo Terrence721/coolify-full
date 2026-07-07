@@ -16,15 +16,13 @@ use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
 use App\Models\SslCertificate;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
 use App\Models\StandaloneMariadb;
 use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
 use App\Models\Team;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Console\Command;
 
 class CleanupStuckedResources extends Command
@@ -110,77 +108,17 @@ class CleanupStuckedResources extends Command
         } catch (\Throwable $e) {
             echo "Error in cleaning stuck application: {$e->getMessage()}\n";
         }
-        try {
-            $postgresqls = StandalonePostgresql::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($postgresqls as $postgresql) {
-                echo "Deleting stuck postgresql: {$postgresql->name}\n";
-                DeleteResourceJob::dispatch($postgresql);
+        foreach (DatabaseEngineRegistry::all() as $engine) {
+            try {
+                $modelClass = $engine->modelClass;
+                $stuckInstances = $modelClass::withTrashed()->whereNotNull('deleted_at')->get();
+                foreach ($stuckInstances as $instance) {
+                    echo "Deleting stuck {$engine->type}: {$instance->name}\n";
+                    DeleteResourceJob::dispatch($instance);
+                }
+            } catch (\Throwable $e) {
+                echo "Error in cleaning stuck {$engine->type}: {$e->getMessage()}\n";
             }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck postgresql: {$e->getMessage()}\n";
-        }
-        try {
-            $rediss = StandaloneRedis::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($rediss as $redis) {
-                echo "Deleting stuck redis: {$redis->name}\n";
-                DeleteResourceJob::dispatch($redis);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck redis: {$e->getMessage()}\n";
-        }
-        try {
-            $keydbs = StandaloneKeydb::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($keydbs as $keydb) {
-                echo "Deleting stuck keydb: {$keydb->name}\n";
-                DeleteResourceJob::dispatch($keydb);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck keydb: {$e->getMessage()}\n";
-        }
-        try {
-            $dragonflies = StandaloneDragonfly::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($dragonflies as $dragonfly) {
-                echo "Deleting stuck dragonfly: {$dragonfly->name}\n";
-                DeleteResourceJob::dispatch($dragonfly);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck dragonfly: {$e->getMessage()}\n";
-        }
-        try {
-            $clickhouses = StandaloneClickhouse::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($clickhouses as $clickhouse) {
-                echo "Deleting stuck clickhouse: {$clickhouse->name}\n";
-                DeleteResourceJob::dispatch($clickhouse);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck clickhouse: {$e->getMessage()}\n";
-        }
-        try {
-            $mongodbs = StandaloneMongodb::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($mongodbs as $mongodb) {
-                echo "Deleting stuck mongodb: {$mongodb->name}\n";
-                DeleteResourceJob::dispatch($mongodb);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck mongodb: {$e->getMessage()}\n";
-        }
-        try {
-            $mysqls = StandaloneMysql::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($mysqls as $mysql) {
-                echo "Deleting stuck mysql: {$mysql->name}\n";
-                DeleteResourceJob::dispatch($mysql);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck mysql: {$e->getMessage()}\n";
-        }
-        try {
-            $mariadbs = StandaloneMariadb::withTrashed()->whereNotNull('deleted_at')->get();
-            foreach ($mariadbs as $mariadb) {
-                echo "Deleting stuck mariadb: {$mariadb->name}\n";
-                DeleteResourceJob::dispatch($mariadb);
-            }
-        } catch (\Throwable $e) {
-            echo "Error in cleaning stuck mariadb: {$e->getMessage()}\n";
         }
         try {
             $services = Service::withTrashed()->whereNotNull('deleted_at')->get();

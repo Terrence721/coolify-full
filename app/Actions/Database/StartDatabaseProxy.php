@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Notifications\Container\ContainerRestarted;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Yaml\Yaml;
@@ -27,7 +21,7 @@ class StartDatabaseProxy
         $job->onQueue(deployment_queue());
     }
 
-    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse|ServiceDatabase $database): void
+    public function handle((Model&StandaloneDatabaseInstance)|ServiceDatabase $database): void
     {
         $databaseType = $database->database_type;
         $network = data_get($database, 'destination.network');

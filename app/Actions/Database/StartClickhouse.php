@@ -38,6 +38,19 @@ class StartClickhouse
         $volume_names = $this->generate_local_persistent_volumes_only_volume_names();
         $environment_variables = $this->generate_environment_variables();
 
+        $docker_compose = $this->build_docker_compose($container_name, $environment_variables, $persistent_storages, $persistent_file_volumes, $volume_names);
+
+        $server = data_get($this->database, 'destination.server');
+
+        $docker_compose = Yaml::dump($docker_compose, 10);
+        $this->build_commands($container_name, $docker_compose);
+
+        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
+    }
+
+    /** @return array<string, mixed> */
+    private function build_docker_compose(string $container_name, array $environment_variables, array $persistent_storages, $persistent_file_volumes, array $volume_names): array
+    {
         $docker_compose = [
             'services' => [
                 $container_name => [
@@ -103,19 +116,22 @@ class StartClickhouse
         if (! $this->database->isHealthcheckEnabled()) {
             unset($docker_compose['services'][$container_name]['healthcheck']);
         }
-        $docker_compose = Yaml::dump($docker_compose, 10);
+
+        return $docker_compose;
+    }
+
+    private function build_commands(string $container_name, string $docker_compose): void
+    {
         $docker_compose_base64 = base64_encode($docker_compose);
         $this->commands[] = "echo '{$docker_compose_base64}' | base64 -d | tee $this->configuration_dir/docker-compose.yml > /dev/null";
         $readme = generate_readme_file($this->database->name, now()->toIso8601String());
         $this->commands[] = "echo '{$readme}' > $this->configuration_dir/README.md";
-        $this->commands[] = "echo 'Pulling {$database->image} image.'";
+        $this->commands[] = "echo 'Pulling {$this->database->image} image.'";
         $this->commands[] = "docker compose -f $this->configuration_dir/docker-compose.yml pull";
         $this->commands[] = "docker stop -t 10 $container_name 2>/dev/null || true";
         $this->commands[] = "docker rm -f $container_name 2>/dev/null || true";
         $this->commands[] = "docker compose -f $this->configuration_dir/docker-compose.yml up -d";
         $this->commands[] = "echo 'Database started.'";
-
-        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
     }
 
     /** @return array<int, string> */

@@ -7,34 +7,27 @@ namespace App\Policies;
 use App\Models\Application;
 use App\Models\GithubApp;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Models\User;
+use App\Support\DatabaseEngineRegistry;
 
 class ResourceCreatePolicy
 {
     /**
-     * List of resource classes that can be created
+     * Non-database resource classes that can be created. Database engines are
+     * appended from DatabaseEngineRegistry (see creatableResources()) instead
+     * of being listed here, so a 9th engine doesn't require editing this class.
      */
     public const CREATABLE_RESOURCES = [
-        StandalonePostgresql::class,
-        StandaloneRedis::class,
-        StandaloneMongodb::class,
-        StandaloneMysql::class,
-        StandaloneMariadb::class,
-        StandaloneKeydb::class,
-        StandaloneDragonfly::class,
-        StandaloneClickhouse::class,
         Service::class,
         Application::class,
         GithubApp::class,
     ];
+
+    /** @return array<int, string> */
+    public static function creatableResources(): array
+    {
+        return [...self::CREATABLE_RESOURCES, ...DatabaseEngineRegistry::modelClasses()];
+    }
 
     /**
      * Determine whether the user can create any resource.
@@ -50,7 +43,7 @@ class ResourceCreatePolicy
      */
     public function create(User $user, string $resourceClass): bool
     {
-        if (! in_array($resourceClass, self::CREATABLE_RESOURCES)) {
+        if (! in_array($resourceClass, self::creatableResources())) {
             return false;
         }
 

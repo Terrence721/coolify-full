@@ -51,6 +51,43 @@ class DatabasesController extends Controller
         return serializeApiResponse($database);
     }
 
+    /**
+     * Validate that $fieldName on $request is base64-encoded UTF-8 text and decode it
+     * in place. Shared by every "*_conf" field across the 8 database engines in
+     * update_by_uuid() — each engine's allowed-fields/validation-rules genuinely
+     * differ (so that switch itself stays per-engine), but this decode step was
+     * byte-identical everywhere it appeared.
+     */
+    private function validateAndDecodeBase64Conf(Request $request, string $fieldName): ?JsonResponse
+    {
+        if (! $request->has($fieldName)) {
+            return null;
+        }
+
+        if (! isBase64Encoded($request->{$fieldName})) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => [
+                    $fieldName => "The {$fieldName} should be base64 encoded.",
+                ],
+            ], 422);
+        }
+
+        $decoded = base64_decode($request->{$fieldName});
+        if (mb_detect_encoding($decoded, 'UTF-8', true) === false) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => [
+                    $fieldName => "The {$fieldName} should be base64 encoded.",
+                ],
+            ], 422);
+        }
+
+        $request->offsetSet($fieldName, $decoded);
+
+        return null;
+    }
+
     #[OA\Get(
         summary: 'List',
         description: 'List all databases.',
@@ -393,25 +430,8 @@ class DatabasesController extends Controller
                     'postgres_host_auth_method' => 'string',
                     'postgres_conf' => 'string',
                 ]);
-                if ($request->has('postgres_conf')) {
-                    if (! isBase64Encoded($request->postgres_conf)) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'postgres_conf' => 'The postgres_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $postgresConf = base64_decode($request->postgres_conf);
-                    if (mb_detect_encoding($postgresConf, 'UTF-8', true) === false) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'postgres_conf' => 'The postgres_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $request->offsetSet('postgres_conf', $postgresConf);
+                if ($confError = $this->validateAndDecodeBase64Conf($request, 'postgres_conf')) {
+                    return $confError;
                 }
                 break;
             case 'standalone-clickhouse':
@@ -433,25 +453,8 @@ class DatabasesController extends Controller
                     'redis_password' => ValidationPatterns::databasePasswordRules(required: false),
                     'redis_conf' => 'string',
                 ]);
-                if ($request->has('redis_conf')) {
-                    if (! isBase64Encoded($request->redis_conf)) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'redis_conf' => 'The redis_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $redisConf = base64_decode($request->redis_conf);
-                    if (mb_detect_encoding($redisConf, 'UTF-8', true) === false) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'redis_conf' => 'The redis_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $request->offsetSet('redis_conf', $redisConf);
+                if ($confError = $this->validateAndDecodeBase64Conf($request, 'redis_conf')) {
+                    return $confError;
                 }
                 break;
             case 'standalone-keydb':
@@ -460,25 +463,8 @@ class DatabasesController extends Controller
                     'keydb_password' => ValidationPatterns::databasePasswordRules(required: false),
                     'keydb_conf' => 'string',
                 ]);
-                if ($request->has('keydb_conf')) {
-                    if (! isBase64Encoded($request->keydb_conf)) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'keydb_conf' => 'The keydb_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $keydbConf = base64_decode($request->keydb_conf);
-                    if (mb_detect_encoding($keydbConf, 'UTF-8', true) === false) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'keydb_conf' => 'The keydb_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $request->offsetSet('keydb_conf', $keydbConf);
+                if ($confError = $this->validateAndDecodeBase64Conf($request, 'keydb_conf')) {
+                    return $confError;
                 }
                 break;
             case 'standalone-mariadb':
@@ -490,25 +476,8 @@ class DatabasesController extends Controller
                     'mariadb_password' => ValidationPatterns::databasePasswordRules(required: false),
                     'mariadb_database' => ValidationPatterns::databaseIdentifierRules(required: false),
                 ]);
-                if ($request->has('mariadb_conf')) {
-                    if (! isBase64Encoded($request->mariadb_conf)) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'mariadb_conf' => 'The mariadb_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $mariadbConf = base64_decode($request->mariadb_conf);
-                    if (mb_detect_encoding($mariadbConf, 'UTF-8', true) === false) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'mariadb_conf' => 'The mariadb_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $request->offsetSet('mariadb_conf', $mariadbConf);
+                if ($confError = $this->validateAndDecodeBase64Conf($request, 'mariadb_conf')) {
+                    return $confError;
                 }
                 break;
             case 'standalone-mongodb':
@@ -519,25 +488,8 @@ class DatabasesController extends Controller
                     'mongo_initdb_root_password' => ValidationPatterns::databasePasswordRules(required: false),
                     'mongo_initdb_database' => ValidationPatterns::databaseIdentifierRules(required: false),
                 ]);
-                if ($request->has('mongo_conf')) {
-                    if (! isBase64Encoded($request->mongo_conf)) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'mongo_conf' => 'The mongo_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $mongoConf = base64_decode($request->mongo_conf);
-                    if (mb_detect_encoding($mongoConf, 'UTF-8', true) === false) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'mongo_conf' => 'The mongo_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $request->offsetSet('mongo_conf', $mongoConf);
+                if ($confError = $this->validateAndDecodeBase64Conf($request, 'mongo_conf')) {
+                    return $confError;
                 }
 
                 break;
@@ -550,25 +502,8 @@ class DatabasesController extends Controller
                     'mysql_database' => ValidationPatterns::databaseIdentifierRules(required: false),
                     'mysql_conf' => 'string',
                 ]);
-                if ($request->has('mysql_conf')) {
-                    if (! isBase64Encoded($request->mysql_conf)) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'mysql_conf' => 'The mysql_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $mysqlConf = base64_decode($request->mysql_conf);
-                    if (mb_detect_encoding($mysqlConf, 'UTF-8', true) === false) {
-                        return response()->json([
-                            'message' => 'Validation failed.',
-                            'errors' => [
-                                'mysql_conf' => 'The mysql_conf should be base64 encoded.',
-                            ],
-                        ], 422);
-                    }
-                    $request->offsetSet('mysql_conf', $mysqlConf);
+                if ($confError = $this->validateAndDecodeBase64Conf($request, 'mysql_conf')) {
+                    return $confError;
                 }
                 break;
         }
@@ -1784,25 +1719,8 @@ class DatabasesController extends Controller
                 ], 422);
             }
             removeUnnecessaryFieldsFromRequest($request);
-            if ($request->has('postgres_conf')) {
-                if (! isBase64Encoded($request->postgres_conf)) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'postgres_conf' => 'The postgres_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $postgresConf = base64_decode($request->postgres_conf);
-                if (mb_detect_encoding($postgresConf, 'UTF-8', true) === false) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'postgres_conf' => 'The postgres_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $request->offsetSet('postgres_conf', $postgresConf);
+            if ($confError = $this->validateAndDecodeBase64Conf($request, 'postgres_conf')) {
+                return $confError;
             }
             $database = create_standalone_postgresql($environment->id, $destination, $request->only($allowedFields));
             if ($instantDeploy) {
@@ -1852,25 +1770,8 @@ class DatabasesController extends Controller
                 ], 422);
             }
             removeUnnecessaryFieldsFromRequest($request);
-            if ($request->has('mariadb_conf')) {
-                if (! isBase64Encoded($request->mariadb_conf)) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'mariadb_conf' => 'The mariadb_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $mariadbConf = base64_decode($request->mariadb_conf);
-                if (mb_detect_encoding($mariadbConf, 'UTF-8', true) === false) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'mariadb_conf' => 'The mariadb_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $request->offsetSet('mariadb_conf', $mariadbConf);
+            if ($confError = $this->validateAndDecodeBase64Conf($request, 'mariadb_conf')) {
+                return $confError;
             }
             $database = create_standalone_mariadb($environment->id, $destination, $request->only($allowedFields));
             if ($instantDeploy) {
@@ -1921,25 +1822,8 @@ class DatabasesController extends Controller
                 ], 422);
             }
             removeUnnecessaryFieldsFromRequest($request);
-            if ($request->has('mysql_conf')) {
-                if (! isBase64Encoded($request->mysql_conf)) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'mysql_conf' => 'The mysql_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $mysqlConf = base64_decode($request->mysql_conf);
-                if (mb_detect_encoding($mysqlConf, 'UTF-8', true) === false) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'mysql_conf' => 'The mysql_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $request->offsetSet('mysql_conf', $mysqlConf);
+            if ($confError = $this->validateAndDecodeBase64Conf($request, 'mysql_conf')) {
+                return $confError;
             }
             $database = create_standalone_mysql($environment->id, $destination, $request->only($allowedFields));
             if ($instantDeploy) {
@@ -1987,25 +1871,8 @@ class DatabasesController extends Controller
                 ], 422);
             }
             removeUnnecessaryFieldsFromRequest($request);
-            if ($request->has('redis_conf')) {
-                if (! isBase64Encoded($request->redis_conf)) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'redis_conf' => 'The redis_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $redisConf = base64_decode($request->redis_conf);
-                if (mb_detect_encoding($redisConf, 'UTF-8', true) === false) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'redis_conf' => 'The redis_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $request->offsetSet('redis_conf', $redisConf);
+            if ($confError = $this->validateAndDecodeBase64Conf($request, 'redis_conf')) {
+                return $confError;
             }
             $database = create_standalone_redis($environment->id, $destination, $request->only($allowedFields));
             if ($instantDeploy) {
@@ -2083,25 +1950,8 @@ class DatabasesController extends Controller
                 ], 422);
             }
             removeUnnecessaryFieldsFromRequest($request);
-            if ($request->has('keydb_conf')) {
-                if (! isBase64Encoded($request->keydb_conf)) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'keydb_conf' => 'The keydb_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $keydbConf = base64_decode($request->keydb_conf);
-                if (mb_detect_encoding($keydbConf, 'UTF-8', true) === false) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'keydb_conf' => 'The keydb_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $request->offsetSet('keydb_conf', $keydbConf);
+            if ($confError = $this->validateAndDecodeBase64Conf($request, 'keydb_conf')) {
+                return $confError;
             }
             $database = create_standalone_keydb($environment->id, $destination, $request->only($allowedFields));
             if ($instantDeploy) {
@@ -2197,25 +2047,8 @@ class DatabasesController extends Controller
                 ], 422);
             }
             removeUnnecessaryFieldsFromRequest($request);
-            if ($request->has('mongo_conf')) {
-                if (! isBase64Encoded($request->mongo_conf)) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'mongo_conf' => 'The mongo_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $mongoConf = base64_decode($request->mongo_conf);
-                if (mb_detect_encoding($mongoConf, 'UTF-8', true) === false) {
-                    return response()->json([
-                        'message' => 'Validation failed.',
-                        'errors' => [
-                            'mongo_conf' => 'The mongo_conf should be base64 encoded.',
-                        ],
-                    ], 422);
-                }
-                $request->offsetSet('mongo_conf', $mongoConf);
+            if ($confError = $this->validateAndDecodeBase64Conf($request, 'mongo_conf')) {
+                return $confError;
             }
             $database = create_standalone_mongodb($environment->id, $destination, $request->only($allowedFields));
             if ($instantDeploy) {

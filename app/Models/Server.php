@@ -9,6 +9,7 @@ use App\Actions\Server\InstallDocker;
 use App\Actions\Server\InstallPrerequisites;
 use App\Actions\Server\StartSentinel;
 use App\Actions\Server\ValidatePrerequisites;
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Enums\ProxyTypes;
 use App\Events\ServerReachabilityChanged;
 use App\Helpers\SslHelper;
@@ -19,6 +20,7 @@ use App\Livewire\Server\Proxy;
 use App\Notifications\Server\Reachable;
 use App\Notifications\Server\Unreachable;
 use App\Services\ConfigurationRepository;
+use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasMetrics;
@@ -955,7 +957,7 @@ $schema://$host {
     }
 
     /**
-     * @return Collection<int, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse>
+     * @return Collection<int, StandaloneDatabaseInstance>
      */
     public function databases(): Collection
     {
@@ -973,24 +975,9 @@ $schema://$host {
             });
         };
 
-        // Query each database type with the destination condition
-        $postgresqls = StandalonePostgresql::where($destinationCondition)->get();
-        $redis = StandaloneRedis::where($destinationCondition)->get();
-        $mongodbs = StandaloneMongodb::where($destinationCondition)->get();
-        $mysqls = StandaloneMysql::where($destinationCondition)->get();
-        $mariadbs = StandaloneMariadb::where($destinationCondition)->get();
-        $keydbs = StandaloneKeydb::where($destinationCondition)->get();
-        $dragonflies = StandaloneDragonfly::where($destinationCondition)->get();
-        $clickhouses = StandaloneClickhouse::where($destinationCondition)->get();
-
-        return $postgresqls
-            ->concat($redis)
-            ->concat($mongodbs)
-            ->concat($mysqls)
-            ->concat($mariadbs)
-            ->concat($keydbs)
-            ->concat($dragonflies)
-            ->concat($clickhouses)
+        // Query each database engine (see DatabaseEngineRegistry) with the destination condition
+        return collect(DatabaseEngineRegistry::modelClasses())
+            ->flatMap(fn (string $modelClass) => $modelClass::where($destinationCondition)->get())
             ->filter(fn ($item) => data_get($item, 'name') !== 'coolify-db');
     }
 

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Database;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
@@ -129,22 +127,17 @@ class Import extends Component
 
     private function isUnsupportedResource(object $resource): bool
     {
-        if (
-            $resource instanceof StandaloneRedis ||
-            $resource instanceof StandaloneKeydb ||
-            $resource instanceof StandaloneDragonfly ||
-            $resource instanceof StandaloneClickhouse
-        ) {
-            return true;
+        if ($resource instanceof StandaloneDatabaseInstance) {
+            return ! (DatabaseEngineRegistry::forInstance($resource)?->supportsImport ?? true);
         }
 
         if ($resource instanceof ServiceDatabase) {
             $dbType = $resource->databaseType();
-
-            return str_contains($dbType, 'redis') ||
-                str_contains($dbType, 'keydb') ||
-                str_contains($dbType, 'dragonfly') ||
-                str_contains($dbType, 'clickhouse');
+            foreach (DatabaseEngineRegistry::unsupportedImportTypes() as $type) {
+                if (str_contains($dbType, $type)) {
+                    return true;
+                }
+            }
         }
 
         return false;

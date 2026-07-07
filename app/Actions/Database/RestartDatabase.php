@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Contracts\StandaloneDatabaseInstance;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class RestartDatabase
 {
     use AsAction;
 
-    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): mixed
+    public function handle(Model&StandaloneDatabaseInstance $database): mixed
     {
         $server = $database->destination->server;
         if (! $server->isFunctional()) {

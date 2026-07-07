@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Server;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
+use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 
@@ -25,40 +20,21 @@ class StartDatabase
         $job->onQueue(deployment_queue());
     }
 
-    public function handle(StandaloneRedis|StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $database): mixed
+    public function handle(Model&StandaloneDatabaseInstance $database): mixed
     {
         $server = data_get($database, 'destination.server');
         if (! $server instanceof Server || ! $server->isFunctional()) {
             return 'Server is not functional';
         }
-        switch ($database->getMorphClass()) {
-            case StandalonePostgresql::class:
-                $activity = StartPostgresql::run($database);
-                break;
-            case StandaloneRedis::class:
-                $activity = StartRedis::run($database);
-                break;
-            case StandaloneMongodb::class:
-                $activity = StartMongodb::run($database);
-                break;
-            case StandaloneMysql::class:
-                $activity = StartMysql::run($database);
-                break;
-            case StandaloneMariadb::class:
-                $activity = StartMariadb::run($database);
-                break;
-            case StandaloneKeydb::class:
-                $activity = StartKeydb::run($database);
-                break;
-            case StandaloneDragonfly::class:
-                $activity = StartDragonfly::run($database);
-                break;
-            case StandaloneClickhouse::class:
-                $activity = StartClickhouse::run($database);
-                break;
-            default:
-                throw new \RuntimeException('Unsupported database type.');
+
+        $engine = DatabaseEngineRegistry::forInstance($database);
+        if (! $engine) {
+            throw new \RuntimeException('Unsupported database type.');
         }
+
+        $startActionClass = $engine->startActionClass;
+        $activity = $startActionClass::run($database);
+
         if ($database->is_public && $database->public_port) {
             StartDatabaseProxy::dispatch($database);
         }

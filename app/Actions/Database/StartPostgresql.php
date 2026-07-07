@@ -46,58 +46,14 @@ class StartPostgresql
         ];
 
         if (! $this->database->enable_ssl) {
-            $this->commands[] = "rm -rf $this->configuration_dir/ssl";
-
-            $this->database->sslCertificates()->delete();
-
-            $this->database->fileStorages()
-                ->where('resource_type', $this->database->getMorphClass())
-                ->where('resource_id', $this->database->id)
-                ->get()
-                ->filter(function ($storage) {
-                    return in_array($storage->mount_path, [
-                        '/var/lib/postgresql/certs/server.crt',
-                        '/var/lib/postgresql/certs/server.key',
-                    ]);
-                })
-                ->each(function ($storage) {
-                    $storage->delete();
-                });
+            $this->disable_ssl();
         } else {
-            $this->commands[] = "echo 'Setting up SSL for this database.'";
-            $this->commands[] = "mkdir -p $this->configuration_dir/ssl";
-
             $server = data_get($this->database, 'destination.server');
             if (! $server instanceof Server) {
                 return null;
             }
-            $caCert = $server->sslCertificates()->where('is_ca_certificate', true)->first();
-
-            if (! $caCert) {
-                $server->generateCaCertificate();
-                $caCert = $server->sslCertificates()->where('is_ca_certificate', true)->first();
-            }
-
-            if (! $caCert) {
-                $this->dispatch('error', 'No CA certificate found for this database. Please generate a CA certificate for this server in the server/advanced page.');
-
+            if (! $this->setup_ssl($server)) {
                 return null;
-            }
-
-            $this->ssl_certificate = $this->database->sslCertificates()->first();
-
-            if (! $this->ssl_certificate) {
-                $this->commands[] = "echo 'No SSL certificate found, generating new SSL certificate for this database.'";
-                $this->ssl_certificate = SslHelper::generateSslCertificate(
-                    commonName: $this->database->uuid,
-                    resourceType: $this->database->getMorphClass(),
-                    resourceId: $this->database->id,
-                    serverId: $server->id,
-                    caCert: $caCert->ssl_certificate,
-                    caKey: $caCert->ssl_private_key,
-                    configurationDir: $this->configuration_dir,
-                    mountPath: '/var/lib/postgresql/certs',
-                );
             }
         }
 
@@ -108,6 +64,77 @@ class StartPostgresql
         $this->generate_init_scripts();
         $this->add_custom_conf();
 
+        $docker_compose = $this->build_docker_compose($container_name, $environment_variables, $persistent_storages, $persistent_file_volumes, $volume_names);
+
+        $server = data_get($this->database, 'destination.server');
+
+        $docker_compose = Yaml::dump($docker_compose, 10);
+        $this->build_commands($container_name, $docker_compose);
+
+        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
+    }
+
+    private function disable_ssl(): void
+    {
+        $this->commands[] = "rm -rf $this->configuration_dir/ssl";
+
+        $this->database->sslCertificates()->delete();
+
+        $this->database->fileStorages()
+            ->where('resource_type', $this->database->getMorphClass())
+            ->where('resource_id', $this->database->id)
+            ->get()
+            ->filter(function ($storage) {
+                return in_array($storage->mount_path, [
+                    '/var/lib/postgresql/certs/server.crt',
+                    '/var/lib/postgresql/certs/server.key',
+                ]);
+            })
+            ->each(function ($storage) {
+                $storage->delete();
+            });
+    }
+
+    private function setup_ssl(Server $server): bool
+    {
+        $this->commands[] = "echo 'Setting up SSL for this database.'";
+        $this->commands[] = "mkdir -p $this->configuration_dir/ssl";
+
+        $caCert = $server->sslCertificates()->where('is_ca_certificate', true)->first();
+
+        if (! $caCert) {
+            $server->generateCaCertificate();
+            $caCert = $server->sslCertificates()->where('is_ca_certificate', true)->first();
+        }
+
+        if (! $caCert) {
+            $this->dispatch('error', 'No CA certificate found for this database. Please generate a CA certificate for this server in the server/advanced page.');
+
+            return false;
+        }
+
+        $this->ssl_certificate = $this->database->sslCertificates()->first();
+
+        if (! $this->ssl_certificate) {
+            $this->commands[] = "echo 'No SSL certificate found, generating new SSL certificate for this database.'";
+            $this->ssl_certificate = SslHelper::generateSslCertificate(
+                commonName: $this->database->uuid,
+                resourceType: $this->database->getMorphClass(),
+                resourceId: $this->database->id,
+                serverId: $server->id,
+                caCert: $caCert->ssl_certificate,
+                caKey: $caCert->ssl_private_key,
+                configurationDir: $this->configuration_dir,
+                mountPath: '/var/lib/postgresql/certs',
+            );
+        }
+
+        return true;
+    }
+
+    /** @return array<string, mixed> */
+    private function build_docker_compose(string $container_name, array $environment_variables, array $persistent_storages, $persistent_file_volumes, array $volume_names): array
+    {
         $docker_compose = [
             'services' => [
                 $container_name => [
@@ -222,12 +249,17 @@ class StartPostgresql
         if (! $this->database->isHealthcheckEnabled()) {
             unset($docker_compose['services'][$container_name]['healthcheck']);
         }
-        $docker_compose = Yaml::dump($docker_compose, 10);
+
+        return $docker_compose;
+    }
+
+    private function build_commands(string $container_name, string $docker_compose): void
+    {
         $docker_compose_base64 = base64_encode($docker_compose);
         $this->commands[] = "echo '{$docker_compose_base64}' | base64 -d | tee $this->configuration_dir/docker-compose.yml > /dev/null";
         $readme = generate_readme_file($this->database->name, now()->toIso8601String());
         $this->commands[] = "echo '{$readme}' > $this->configuration_dir/README.md";
-        $this->commands[] = "echo 'Pulling {$database->image} image.'";
+        $this->commands[] = "echo 'Pulling {$this->database->image} image.'";
         $this->commands[] = "docker compose -f $this->configuration_dir/docker-compose.yml pull";
         $this->commands[] = "docker stop -t 10 $container_name 2>/dev/null || true";
         $this->commands[] = "docker rm -f $container_name 2>/dev/null || true";
@@ -237,8 +269,6 @@ class StartPostgresql
             $this->commands[] = executeInDocker($this->database->uuid, "chown {$postgresUser}:{$postgresUser} /var/lib/postgresql/certs/server.key /var/lib/postgresql/certs/server.crt");
         }
         $this->commands[] = "echo 'Database started.'";
-
-        return remote_process($this->commands, $server, callEventOnFinish: 'DatabaseStatusChanged');
     }
 
     /** @return array<int, string> */

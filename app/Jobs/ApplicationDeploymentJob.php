@@ -22,6 +22,8 @@ use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Notifications\Application\DeploymentFailed;
 use App\Notifications\Application\DeploymentSuccess;
+use App\Support\Deployment\DeploymentCommandValidation;
+use App\Support\Deployment\RailpackConfigHelper;
 use App\Support\ValidationPatterns;
 use App\Traits\EnvironmentVariableAnalyzer;
 use App\Traits\ExecuteRemoteCommand;
@@ -304,7 +306,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         $this->basedir = $this->application->generateBaseDir($this->deployment_uuid);
         $baseDir = $this->application->base_directory;
         if ($baseDir && $baseDir !== '/') {
-            $this->validatePathField($baseDir, 'base_directory');
+            DeploymentCommandValidation::validatePathField($baseDir, 'base_directory');
         }
         $this->workdir = "{$this->basedir}".rtrim($baseDir, '/');
         $this->configuration_dir = application_configuration_dir()."/{$this->application->uuid}";
@@ -338,7 +340,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             }
             if ($this->application->build_pack === 'dockerfile') {
                 if (data_get($this->application, 'dockerfile_location')) {
-                    $this->dockerfile_location = $this->validatePathField($this->application->dockerfile_location, 'dockerfile_location');
+                    $this->dockerfile_location = DeploymentCommandValidation::validatePathField($this->application->dockerfile_location, 'dockerfile_location');
                 }
             }
         }
@@ -671,10 +673,10 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
     private function deploy_docker_compose_buildpack(): void
     {
         if (data_get($this->application, 'docker_compose_location')) {
-            $this->docker_compose_location = $this->validatePathField($this->application->docker_compose_location, 'docker_compose_location');
+            $this->docker_compose_location = DeploymentCommandValidation::validatePathField($this->application->docker_compose_location, 'docker_compose_location');
         }
         if (data_get($this->application, 'docker_compose_custom_start_command')) {
-            $this->validateShellSafeCommand($this->application->docker_compose_custom_start_command, 'docker_compose_custom_start_command');
+            DeploymentCommandValidation::validateShellSafeCommand($this->application->docker_compose_custom_start_command, 'docker_compose_custom_start_command');
             $this->docker_compose_custom_start_command = $this->application->docker_compose_custom_start_command;
             if (! str($this->docker_compose_custom_start_command)->contains('--project-directory')) {
                 $projectDir = $this->preserveRepository ? $this->application->workdir() : $this->workdir;
@@ -682,7 +684,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             }
         }
         if (data_get($this->application, 'docker_compose_custom_build_command')) {
-            $this->validateShellSafeCommand($this->application->docker_compose_custom_build_command, 'docker_compose_custom_build_command');
+            DeploymentCommandValidation::validateShellSafeCommand($this->application->docker_compose_custom_build_command, 'docker_compose_custom_build_command');
             $this->docker_compose_custom_build_command = $this->application->docker_compose_custom_build_command;
             if (! str($this->docker_compose_custom_build_command)->contains('--project-directory')) {
                 $this->docker_compose_custom_build_command = str($this->docker_compose_custom_build_command)->replaceFirst('compose', 'compose --project-directory '.$this->workdir)->value();
@@ -953,7 +955,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             $this->server = $this->build_server;
         }
         if (data_get($this->application, 'dockerfile_location')) {
-            $this->dockerfile_location = $this->validatePathField($this->application->dockerfile_location, 'dockerfile_location');
+            $this->dockerfile_location = DeploymentCommandValidation::validatePathField($this->application->dockerfile_location, 'dockerfile_location');
         }
         $this->prepare_builder_image();
         $this->check_git_if_build_needed();
@@ -2658,7 +2660,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             $variables->put('RAILPACK_INSTALL_CMD', $this->application->install_command);
         }
 
-        $variables = $this->merge_railpack_deploy_apt_packages($variables);
+        $variables = RailpackConfigHelper::mergeDeployAptPackages($variables);
 
         // Mirror Nixpacks behavior: expose COOLIFY_* and SOURCE_COMMIT to the build so apps
         // (e.g. SPAs baking the public URL) can read them via /run/secrets/<KEY>.
@@ -2669,59 +2671,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
         }
 
         return $variables;
-    }
-
-    /**
-     * @param  Collection<string, string>  $variables
-     * @return Collection<string, string>
-     */
-    private function merge_railpack_deploy_apt_packages(Collection $variables): Collection
-    {
-        $packages = collect(preg_split('/\s+/', trim((string) $variables->get('RAILPACK_DEPLOY_APT_PACKAGES', ''))) ?: [])
-            ->filter()
-            ->values();
-
-        foreach (['curl', 'wget'] as $package) {
-            if (! $packages->contains($package)) {
-                $packages->push($package);
-            }
-        }
-
-        $variables->put('RAILPACK_DEPLOY_APT_PACKAGES', $packages->implode(' '));
-
-        return $variables;
-    }
-
-    /**
-     * @param  Collection<string, string>  $variables
-     */
-    private function railpack_build_environment_prefix(Collection $variables): string
-    {
-        if ($variables->isEmpty()) {
-            return '';
-        }
-
-        return 'env '.$variables
-            ->map(function ($value, $key) {
-                return escapeShellValue("{$key}={$value}");
-            })
-            ->implode(' ').' ';
-    }
-
-    /**
-     * @param  Collection<string, string>  $variables
-     */
-    private function railpack_build_secret_flags(Collection $variables): string
-    {
-        if ($variables->isEmpty()) {
-            return '';
-        }
-
-        return ' '.$variables
-            ->map(function ($value, $key) {
-                return '--secret '.escapeShellValue("id={$key},env={$key}");
-            })
-            ->implode(' ');
     }
 
     /**
@@ -2740,8 +2689,8 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             $cacheArgs .= ' --build-arg secrets-hash='.$this->generate_secrets_hash($variables);
         }
 
-        $environmentPrefix = $this->railpack_build_environment_prefix($variables);
-        $secretFlags = $this->railpack_build_secret_flags($variables);
+        $environmentPrefix = RailpackConfigHelper::buildEnvironmentPrefix($variables);
+        $secretFlags = RailpackConfigHelper::buildSecretFlags($variables);
         $frontendImage = 'ghcr.io/railwayapp/railpack-frontend:v'.config('constants.coolify.railpack_version');
 
         return 'docker buildx create --name coolify-railpack --driver docker-container 2>/dev/null || true'
@@ -2755,60 +2704,6 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             .' --load'
             ." -t {$imageName}"
             ." {$this->workdir}";
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function decode_railpack_config(string $config, string $source): array
-    {
-        try {
-            $decoded = json_decode($config, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new DeploymentException("Invalid {$source}: {$exception->getMessage()}", $exception->getCode(), $exception);
-        }
-
-        if (! is_array($decoded)) {
-            throw new DeploymentException("Invalid {$source}: expected a JSON object.");
-        }
-
-        return $decoded;
-    }
-
-    /**
-     * @param  array<array-key, mixed>  $value
-     */
-    private function is_assoc_array(array $value): bool
-    {
-        if ($value === []) {
-            return false;
-        }
-
-        return array_keys($value) !== range(0, count($value) - 1);
-    }
-
-    /**
-     * @param  array<string, mixed>  $base
-     * @param  array<string, mixed>  $overrides
-     * @return array<string, mixed>
-     */
-    private function merge_railpack_config(array $base, array $overrides): array
-    {
-        foreach ($overrides as $key => $value) {
-            if (
-                array_key_exists($key, $base)
-                && is_array($base[$key])
-                && is_array($value)
-                && $this->is_assoc_array($base[$key])
-                && $this->is_assoc_array($value)
-            ) {
-                $base[$key] = $this->merge_railpack_config($base[$key], $value);
-            } else {
-                $base[$key] = $value;
-            }
-        }
-
-        return $base;
     }
 
     /**
@@ -2845,7 +2740,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
                 'save' => 'railpack_repository_config',
             ]);
 
-            $repositoryConfig = $this->decode_railpack_config(
+            $repositoryConfig = RailpackConfigHelper::decodeConfig(
                 (string) $this->saved_outputs->get('railpack_repository_config', ''),
                 'repository railpack.json'
             );
@@ -2856,7 +2751,7 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
             return null;
         }
 
-        $mergedConfig = $this->merge_railpack_config($repositoryConfig, $overrides);
+        $mergedConfig = RailpackConfigHelper::mergeConfig($repositoryConfig, $overrides);
         if (! array_key_exists('$schema', $mergedConfig)) {
             $mergedConfig['$schema'] = 'https://schema.railpack.com';
         }
@@ -3487,11 +3382,11 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
             $health_check_port = 80;
         }
 
-        $method = $this->sanitizeHealthCheckValue($this->application->health_check_method, '/^[A-Z]+$/', 'GET');
-        $scheme = $this->sanitizeHealthCheckValue($this->application->health_check_scheme, '/^https?$/', 'http');
-        $host = $this->sanitizeHealthCheckValue($this->application->health_check_host, '/^[a-zA-Z0-9.\-_]+$/', 'localhost');
+        $method = DeploymentCommandValidation::sanitizeHealthCheckValue($this->application->health_check_method, '/^[A-Z]+$/', 'GET');
+        $scheme = DeploymentCommandValidation::sanitizeHealthCheckValue($this->application->health_check_scheme, '/^https?$/', 'http');
+        $host = DeploymentCommandValidation::sanitizeHealthCheckValue($this->application->health_check_host, '/^[a-zA-Z0-9.\-_]+$/', 'localhost');
         $path = $this->application->health_check_path
-            ? $this->sanitizeHealthCheckValue($this->application->health_check_path, '#^[a-zA-Z0-9/\-_.~%,;]+$#', '/')
+            ? DeploymentCommandValidation::sanitizeHealthCheckValue($this->application->health_check_path, '#^[a-zA-Z0-9/\-_.~%,;]+$#', '/')
             : null;
 
         $url = escapeshellarg("{$scheme}://{$host}:{$health_check_port}".($path ?? '/'));
@@ -3508,15 +3403,6 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
         ];
 
         return implode(' ', $generated_healthchecks_commands);
-    }
-
-    private function sanitizeHealthCheckValue(string $value, string $pattern, string $default): string
-    {
-        if (preg_match($pattern, $value)) {
-            return $value;
-        }
-
-        return $default;
     }
 
     private function pull_latest_image(mixed $image): void
@@ -4626,36 +4512,6 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
         return $composeFile;
     }
 
-    private function validatePathField(string $value, string $fieldName): string
-    {
-        if (! preg_match(ValidationPatterns::FILE_PATH_PATTERN, $value)) {
-            throw new \RuntimeException("Invalid {$fieldName}: contains forbidden characters.");
-        }
-        if (str_contains($value, '..')) {
-            throw new \RuntimeException("Invalid {$fieldName}: path traversal detected.");
-        }
-
-        return $value;
-    }
-
-    private function validateShellSafeCommand(string $value, string $fieldName): string
-    {
-        if (! preg_match(ValidationPatterns::SHELL_SAFE_COMMAND_PATTERN, $value)) {
-            throw new \RuntimeException("Invalid {$fieldName}: contains forbidden shell characters.");
-        }
-
-        return $value;
-    }
-
-    private function validateContainerName(string $value): string
-    {
-        if (! preg_match(ValidationPatterns::CONTAINER_NAME_PATTERN, $value)) {
-            throw new \RuntimeException('Invalid container name: contains forbidden characters.');
-        }
-
-        return $value;
-    }
-
     /**
      * Resolve which container to execute a deployment command in.
      *
@@ -4725,7 +4581,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
 
         $containerName = data_get($container, 'Names');
         if ($containerName) {
-            $this->validateContainerName($containerName);
+            DeploymentCommandValidation::validateContainerName($containerName);
         }
         // Security: pre_deployment_command is intentionally treated as arbitrary shell input.
         // Users (team members with deployment access) need full shell flexibility to run commands
@@ -4769,7 +4625,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf");
 
         $containerName = data_get($container, 'Names');
         if ($containerName) {
-            $this->validateContainerName($containerName);
+            DeploymentCommandValidation::validateContainerName($containerName);
         }
         // Security: post_deployment_command is intentionally treated as arbitrary shell input.
         // See the equivalent comment in run_pre_deployment_command() for the full security rationale.

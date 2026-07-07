@@ -8,20 +8,14 @@ use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Actions\Service\StartService;
 use App\Actions\Service\StopService;
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Jobs\VolumeCloneJob;
 use App\Models\Application;
 use App\Models\Environment;
 use App\Models\Project;
-use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDocker;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Models\SwarmDocker;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -83,16 +77,7 @@ class ResourceOperations extends Component
             ]).'#resource-operations';
 
             return redirect()->to($route);
-        } elseif (
-            $this->resource->getMorphClass() === StandalonePostgresql::class ||
-            $this->resource->getMorphClass() === StandaloneMongodb::class ||
-            $this->resource->getMorphClass() === StandaloneMysql::class ||
-            $this->resource->getMorphClass() === StandaloneMariadb::class ||
-            $this->resource->getMorphClass() === StandaloneRedis::class ||
-            $this->resource->getMorphClass() === StandaloneKeydb::class ||
-            $this->resource->getMorphClass() === StandaloneDragonfly::class ||
-            $this->resource->getMorphClass() === StandaloneClickhouse::class
-        ) {
+        } elseif ($this->resource instanceof StandaloneDatabaseInstance) {
             $uuid = (string) new Cuid2;
             $new_resource = $this->resource->replicate([
                 'id',
@@ -118,28 +103,20 @@ class ResourceOperations extends Component
                 $originalName = $volume->name;
                 $newName = '';
 
-                if (str_starts_with($originalName, 'postgres-data-')) {
-                    $newName = 'postgres-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'mysql-data-')) {
-                    $newName = 'mysql-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'redis-data-')) {
-                    $newName = 'redis-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'clickhouse-data-')) {
-                    $newName = 'clickhouse-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'mariadb-data-')) {
-                    $newName = 'mariadb-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'mongodb-data-')) {
-                    $newName = 'mongodb-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'keydb-data-')) {
-                    $newName = 'keydb-data-'.$new_resource->uuid;
-                } elseif (str_starts_with($originalName, 'dragonfly-data-')) {
-                    $newName = 'dragonfly-data-'.$new_resource->uuid;
-                } else {
-                    if (str_starts_with($volume->name, $this->resource->uuid)) {
-                        $newName = str($volume->name)->replace($this->resource->uuid, $new_resource->uuid);
-                    } else {
-                        $newName = $new_resource->uuid.'-'.$volume->name;
+                $matchedPrefix = null;
+                foreach (DatabaseEngineRegistry::all() as $engine) {
+                    if (str_starts_with($originalName, $engine->volumeNamePrefix)) {
+                        $matchedPrefix = $engine->volumeNamePrefix;
+                        break;
                     }
+                }
+
+                if ($matchedPrefix !== null) {
+                    $newName = $matchedPrefix.$new_resource->uuid;
+                } elseif (str_starts_with($volume->name, $this->resource->uuid)) {
+                    $newName = str($volume->name)->replace($this->resource->uuid, $new_resource->uuid);
+                } else {
+                    $newName = $new_resource->uuid.'-'.$volume->name;
                 }
 
                 $newPersistentVolume = $volume->replicate([

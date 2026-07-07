@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Notifications\Database;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
 use App\Notifications\CustomEmailNotification;
 use App\Notifications\Dto\DiscordMessage;
 use App\Notifications\Dto\PushoverMessage;
 use App\Notifications\Dto\SlackMessage;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class BackupSuccessWithS3Warning extends CustomEmailNotification
@@ -24,7 +22,7 @@ class BackupSuccessWithS3Warning extends CustomEmailNotification
 
     public ?string $s3_storage_url = null;
 
-    public function __construct(ScheduledDatabaseBackup $backup, public StandalonePostgresql|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|ServiceDatabase $database, public string $database_name, public string $s3_error)
+    public function __construct(ScheduledDatabaseBackup $backup, public (Model&StandaloneDatabaseInstance)|ServiceDatabase $database, public string $database_name, public string $s3_error)
     {
         $this->onQueue('high');
 

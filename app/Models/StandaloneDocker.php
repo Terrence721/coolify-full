@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Jobs\ConnectProxyToNetworksJob;
+use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -186,16 +187,12 @@ class StandaloneDocker extends BaseModel
 
     public function databases(): Collection
     {
-        $postgresqls = $this->postgresqls;
-        $redis = $this->redis;
-        $mongodbs = $this->mongodbs;
-        $mysqls = $this->mysqls;
-        $mariadbs = $this->mariadbs;
-        $keydbs = $this->keydbs;
-        $dragonflies = $this->dragonflies;
-        $clickhouses = $this->clickhouses;
+        $result = new Collection;
+        foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
+            $result = $result->concat($this->{$relationName});
+        }
 
-        return $postgresqls->concat($redis)->concat($mongodbs)->concat($mysqls)->concat($mariadbs)->concat($keydbs)->concat($dragonflies)->concat($clickhouses);
+        return $result;
     }
 
     public function attachedTo()

@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Shared;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Helpers\SshMultiplexingHelper;
 use App\Models\Application;
 use App\Models\Server;
 use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Support\ValidationPatterns;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Process;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -36,7 +30,7 @@ class GetLogs extends Component
     public string $errors = '';
 
     #[Locked]
-    public Application|Service|StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse|null $resource = null;
+    public Application|Service|(Model&StandaloneDatabaseInstance)|null $resource = null;
 
     #[Locked]
     public ServiceApplication|ServiceDatabase|null $servicesubtype = null;

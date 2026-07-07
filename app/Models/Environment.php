@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Contracts\StandaloneDatabaseInstance;
+use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
@@ -102,16 +105,17 @@ class Environment extends BaseModel
 
     public function isEmpty()
     {
-        return $this->applications()->count() == 0 &&
-            $this->redis()->count() == 0 &&
-            $this->postgresqls()->count() == 0 &&
-            $this->mysqls()->count() == 0 &&
-            $this->keydbs()->count() == 0 &&
-            $this->dragonflies()->count() == 0 &&
-            $this->clickhouses()->count() == 0 &&
-            $this->mariadbs()->count() == 0 &&
-            $this->mongodbs()->count() == 0 &&
-            $this->services()->count() == 0;
+        if ($this->applications()->count() > 0 || $this->services()->count() > 0) {
+            return false;
+        }
+
+        foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
+            if ($this->{$relationName}()->count() > 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function environment_variables()
@@ -164,18 +168,15 @@ class Environment extends BaseModel
         return $this->hasMany(StandaloneClickhouse::class);
     }
 
-    public function databases()
+    /** @return Collection<int, Model&StandaloneDatabaseInstance> */
+    public function databases(): Collection
     {
-        $postgresqls = $this->postgresqls;
-        $redis = $this->redis;
-        $mongodbs = $this->mongodbs;
-        $mysqls = $this->mysqls;
-        $mariadbs = $this->mariadbs;
-        $keydbs = $this->keydbs;
-        $dragonflies = $this->dragonflies;
-        $clickhouses = $this->clickhouses;
+        $result = new Collection;
+        foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
+            $result = $result->concat($this->{$relationName});
+        }
 
-        return $postgresqls->concat($redis)->concat($mongodbs)->concat($mysqls)->concat($mariadbs)->concat($keydbs)->concat($dragonflies)->concat($clickhouses);
+        return $result;
     }
 
     /**

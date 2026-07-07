@@ -12,16 +12,9 @@ use App\Models\S3Storage;
 use App\Models\ScheduledTask;
 use App\Models\Server;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Models\Tag;
 use App\Models\Team;
+use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -44,19 +37,23 @@ class CleanupNames extends Command
         'Service' => Service::class,
         'Server' => Server::class,
         'Team' => Team::class,
-        'StandalonePostgresql' => StandalonePostgresql::class,
-        'StandaloneMysql' => StandaloneMysql::class,
-        'StandaloneRedis' => StandaloneRedis::class,
-        'StandaloneMongodb' => StandaloneMongodb::class,
-        'StandaloneMariadb' => StandaloneMariadb::class,
-        'StandaloneKeydb' => StandaloneKeydb::class,
-        'StandaloneDragonfly' => StandaloneDragonfly::class,
-        'StandaloneClickhouse' => StandaloneClickhouse::class,
+        // Database engines (StandalonePostgresql, StandaloneMysql, ...) are added in
+        // the constructor from DatabaseEngineRegistry, so a 9th engine doesn't
+        // require editing this literal array.
         'S3Storage' => S3Storage::class,
         'Tag' => Tag::class,
         'PrivateKey' => PrivateKey::class,
         'ScheduledTask' => ScheduledTask::class,
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        foreach (DatabaseEngineRegistry::modelClasses() as $modelClass) {
+            $this->modelsToClean[class_basename($modelClass)] = $modelClass;
+        }
+    }
 
     /** @var array<int, array<string, mixed>> */
     protected array $changes = [];

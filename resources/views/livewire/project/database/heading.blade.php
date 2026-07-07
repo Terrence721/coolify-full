@@ -26,11 +26,7 @@
                     Terminal
                 </a>
             @endcan
-            @if (
-                $database->getMorphClass() === 'App\Models\StandalonePostgresql' ||
-                    $database->getMorphClass() === 'App\Models\StandaloneMongodb' ||
-                    $database->getMorphClass() === 'App\Models\StandaloneMysql' ||
-                    $database->getMorphClass() === 'App\Models\StandaloneMariadb')
+            @if (\App\Support\DatabaseEngineRegistry::forInstance($database)?->supportsBackup ?? false)
                 <a class="shrink-0 {{ request()->routeIs('project.database.backup.index') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
                     href="{{ route('project.database.backup.index', $parameters) }}">
                     Backups

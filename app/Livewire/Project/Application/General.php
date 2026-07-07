@@ -278,6 +278,29 @@ class General extends Component
 
     public function mount()
     {
+        if ($this->parseComposeFileOnMount()) {
+            return;
+        }
+
+        $this->resetFqdnForDockerComposeIfPermitted();
+
+        $this->parsedServiceDomains = $this->sanitizeServiceDomainKeys($this->application->docker_compose_domains);
+
+        $this->regenerateCustomLabelsIfNeeded();
+
+        $this->triggerComposeFileLoadIfNeeded();
+
+        if (str($this->application->status)->startsWith('running') && is_null($this->application->config_hash)) {
+            $this->dispatch('configurationChanged');
+        }
+
+        // Sync data from model to properties at the END, after all business logic
+        // This ensures any modifications to $this->application during mount() are reflected in properties
+        $this->syncData();
+    }
+
+    private function parseComposeFileOnMount(): bool
+    {
         try {
             $this->parsedServices = $this->application->parse();
             if (is_null($this->parsedServices) || empty($this->parsedServices)) {
@@ -285,13 +308,19 @@ class General extends Component
                 // Still sync data even if parse fails, so form fields are populated
                 $this->syncData();
 
-                return;
+                return true;
             }
         } catch (\Throwable $e) {
             $this->dispatch('error', $e->getMessage());
             // Still sync data even on error, so form fields are populated
             $this->syncData();
         }
+
+        return false;
+    }
+
+    private function resetFqdnForDockerComposeIfPermitted(): void
+    {
         if ($this->application->build_pack === 'dockercompose') {
             // Only update if user has permission
             try {
@@ -302,15 +331,24 @@ class General extends Component
                 // User doesn't have update permission, just continue without saving
             }
         }
-        $this->parsedServiceDomains = $this->application->docker_compose_domains ? json_decode($this->application->docker_compose_domains, true) : [];
-        // Convert service names with dots and dashes to use underscores for HTML form binding
+    }
+
+    /** Convert service names with dots and dashes to use underscores for HTML form binding. */
+    private function sanitizeServiceDomainKeys(?string $jsonDomains): array
+    {
+        $parsedServiceDomains = $jsonDomains ? json_decode($jsonDomains, true) : [];
+
         $sanitizedDomains = [];
-        foreach ($this->parsedServiceDomains as $serviceName => $domain) {
+        foreach ($parsedServiceDomains as $serviceName => $domain) {
             $sanitizedKey = str($serviceName)->replace('-', '_')->replace('.', '_')->toString();
             $sanitizedDomains[$sanitizedKey] = $domain;
         }
-        $this->parsedServiceDomains = $sanitizedDomains;
 
+        return $sanitizedDomains;
+    }
+
+    private function regenerateCustomLabelsIfNeeded(): void
+    {
         $this->customLabels = $this->application->parseContainerLabels();
         if (! $this->customLabels && $this->application->destination->server->proxyType() !== 'NONE' && $this->application->settings->is_container_label_readonly_enabled === true) {
             // Only update custom labels if user has permission
@@ -321,9 +359,12 @@ class General extends Component
                 $this->application->save();
             } catch (AuthorizationException $e) {
                 // User doesn't have update permission, just use existing labels
-                // $this->customLabels = str(implode('|coolify|', generateLabelsApplication($this->application)))->replace('|coolify|', "\n");
             }
         }
+    }
+
+    private function triggerComposeFileLoadIfNeeded(): void
+    {
         $this->initialDockerComposeLocation = $this->application->docker_compose_location;
         if ($this->application->build_pack === 'dockercompose' && ! $this->application->docker_compose_raw) {
             // Only load compose file if user has update permission
@@ -335,14 +376,6 @@ class General extends Component
                 // User doesn't have update permission, skip loading compose file
             }
         }
-
-        if (str($this->application->status)->startsWith('running') && is_null($this->application->config_hash)) {
-            $this->dispatch('configurationChanged');
-        }
-
-        // Sync data from model to properties at the END, after all business logic
-        // This ensures any modifications to $this->application during mount() are reflected in properties
-        $this->syncData();
     }
 
     public function syncData(bool $toModel = false): void
@@ -520,14 +553,7 @@ class General extends Component
             // This ensures the Monaco editor displays the loaded compose file
             $this->syncData();
 
-            $this->parsedServiceDomains = $this->application->docker_compose_domains ? json_decode($this->application->docker_compose_domains, true) : [];
-            // Convert service names with dots and dashes to use underscores for HTML form binding
-            $sanitizedDomains = [];
-            foreach ($this->parsedServiceDomains as $serviceName => $domain) {
-                $sanitizedKey = str($serviceName)->replace('-', '_')->replace('.', '_')->toString();
-                $sanitizedDomains[$sanitizedKey] = $domain;
-            }
-            $this->parsedServiceDomains = $sanitizedDomains;
+            $this->parsedServiceDomains = $this->sanitizeServiceDomainKeys($this->application->docker_compose_domains);
 
             $showToast && $this->dispatch('success', 'Docker compose file loaded.');
             $this->dispatch('compose_loaded');
@@ -761,10 +787,7 @@ class General extends Component
 
             $this->resetErrorBag();
 
-            $this->portsExposes = str($this->portsExposes)->replace(' ', '')->trim()->toString() ?: null;
-            if ($this->portsMappings) {
-                $this->portsMappings = str($this->portsMappings)->replace(' ', '')->trim()->toString();
-            }
+            $this->normalizePortsBeforeValidation();
 
             $this->validate();
 
@@ -773,21 +796,7 @@ class General extends Component
             $oldDockerComposeLocation = $this->initialDockerComposeLocation;
             $oldBaseDirectory = $this->application->base_directory;
 
-            // Process FQDN with intermediate variable to avoid Collection/string confusion
-            $this->fqdn = str($this->fqdn)->replaceEnd(',', '')->trim()->toString();
-            $this->fqdn = str($this->fqdn)->replaceStart(',', '')->trim()->toString();
-            $domains = str($this->fqdn)->trim()->explode(',')->map(function ($domain) {
-                $domain = trim($domain);
-                Url::fromString($domain, ['http', 'https']);
-
-                return str($domain)->lower();
-            });
-
-            $this->fqdn = $domains->unique()->implode(',');
-            $warning = sslipDomainWarning($this->fqdn);
-            if ($warning) {
-                $this->dispatch('warning', __('warning.sslipdomain'));
-            }
+            $warning = $this->normalizeFqdnAndWarn();
 
             $this->syncData(toModel: true);
 
@@ -802,98 +811,18 @@ class General extends Component
                 return; // Stop if there are conflicts and user hasn't confirmed
             }
 
-            // Normalize paths BEFORE validation
-            if ($this->baseDirectory && $this->baseDirectory !== '/') {
-                $this->baseDirectory = rtrim($this->baseDirectory, '/');
-                $this->application->base_directory = $this->baseDirectory;
-            }
-            if ($this->publishDirectory && $this->publishDirectory !== '/') {
-                $this->publishDirectory = rtrim($this->publishDirectory, '/');
-                $this->application->publish_directory = $this->publishDirectory;
+            $this->normalizeDirectoryPaths();
+
+            if ($this->reloadComposeIfPathChanged($oldBaseDirectory, $oldDockerComposeLocation)) {
+                return;
             }
 
-            // Validate docker compose file path BEFORE saving to database
-            // This prevents invalid paths from being persisted when validation fails
-            if ($this->buildPack === 'dockercompose' &&
-                ($oldDockerComposeLocation !== $this->dockerComposeLocation ||
-                 $oldBaseDirectory !== $this->baseDirectory)) {
-                // Pass original values to loadComposeFile so it can restore them on failure
-                // The finally block in Application::loadComposeFile will save these original
-                // values if validation fails, preventing invalid paths from being persisted
-                $compose_return = $this->loadComposeFile(
-                    isInit: false,
-                    showToast: false,
-                    restoreBaseDirectory: $oldBaseDirectory,
-                    restoreDockerComposeLocation: $oldDockerComposeLocation
-                );
-                if ($compose_return instanceof Event) {
-                    // Validation failed - restore original values to component properties
-                    $this->baseDirectory = $oldBaseDirectory;
-                    $this->dockerComposeLocation = $oldDockerComposeLocation;
-                    // The model was saved by loadComposeFile's finally block with original values
-                    // Refresh to sync component with database state
-                    $this->application->refresh();
+            $this->persistCoreSettings($oldPortsExposes, $oldIsContainerLabelEscapeEnabled);
 
-                    return;
-                }
+            if ($this->syncDockerComposeDomains($showToaster)) {
+                return;
             }
 
-            $this->application->save();
-            if (! $this->customLabels && $this->application->destination->server->proxyType() !== 'NONE' && ! $this->application->settings->is_container_label_readonly_enabled) {
-                $this->customLabels = str(implode('|coolify|', generateLabelsApplication($this->application)))->replace('|coolify|', "\n");
-                $this->application->custom_labels = base64_encode($this->customLabels);
-                $this->application->save();
-            }
-
-            if ($oldPortsExposes !== $this->portsExposes || $oldIsContainerLabelEscapeEnabled !== $this->isContainerLabelEscapeEnabled) {
-                $this->resetDefaultLabels();
-            }
-            if ($this->buildPack === 'dockerimage') {
-                $this->validate([
-                    'dockerRegistryImageName' => ValidationPatterns::dockerImageNameRules(required: true),
-                ]);
-            }
-
-            if ($this->customDockerRunOptions) {
-                $this->customDockerRunOptions = str($this->customDockerRunOptions)->trim()->toString();
-                $this->application->custom_docker_run_options = $this->customDockerRunOptions;
-            }
-            if ($this->dockerfile) {
-                $port = get_port_from_dockerfile($this->dockerfile);
-                if ($port && ! $this->portsExposes) {
-                    $this->portsExposes = $port;
-                    $this->application->ports_exposes = $port;
-                }
-            }
-            if ($this->buildPack === 'dockercompose') {
-                $this->application->docker_compose_domains = json_encode($this->parsedServiceDomains);
-                if ($this->application->isDirty('docker_compose_domains')) {
-                    foreach ($this->parsedServiceDomains as $service) {
-                        $domain = data_get($service, 'domain');
-                        if ($domain) {
-                            if (! validateDNSEntry($domain, $this->application->destination->server)) {
-                                $showToaster && $this->dispatch('error', 'Validating DNS failed.', "Make sure you have added the DNS records correctly.<br><br>$domain->{$this->application->destination->server->ip}<br><br>Check this <a target='_blank' class='underline dark:text-white' href='https://coolify.io/docs/knowledge-base/dns-configuration'>documentation</a> for further help.");
-                            }
-                        }
-                    }
-                    // Check for domain conflicts if not forcing save
-                    if (! $this->forceSaveDomains) {
-                        $result = checkDomainUsage(resource: $this->application);
-                        if ($result['hasConflicts']) {
-                            $this->domainConflicts = $result['conflicts'];
-                            $this->showDomainConflictModal = true;
-
-                            return;
-                        }
-                    } else {
-                        // Reset the force flag after using it
-                        $this->forceSaveDomains = false;
-                    }
-
-                    $this->application->save();
-                    $this->resetDefaultLabels();
-                }
-            }
             $this->application->custom_labels = base64_encode($this->customLabels);
             $this->application->save();
             $this->application->refresh();
@@ -907,6 +836,145 @@ class General extends Component
         } finally {
             $this->dispatch('configurationChanged');
         }
+    }
+
+    private function normalizePortsBeforeValidation(): void
+    {
+        $this->portsExposes = str($this->portsExposes)->replace(' ', '')->trim()->toString() ?: null;
+        if ($this->portsMappings) {
+            $this->portsMappings = str($this->portsMappings)->replace(' ', '')->trim()->toString();
+        }
+    }
+
+    private function normalizeFqdnAndWarn(): mixed
+    {
+        // Process FQDN with intermediate variable to avoid Collection/string confusion
+        $this->fqdn = str($this->fqdn)->replaceEnd(',', '')->trim()->toString();
+        $this->fqdn = str($this->fqdn)->replaceStart(',', '')->trim()->toString();
+        $domains = str($this->fqdn)->trim()->explode(',')->map(function ($domain) {
+            $domain = trim($domain);
+            Url::fromString($domain, ['http', 'https']);
+
+            return str($domain)->lower();
+        });
+
+        $this->fqdn = $domains->unique()->implode(',');
+        $warning = sslipDomainWarning($this->fqdn);
+        if ($warning) {
+            $this->dispatch('warning', __('warning.sslipdomain'));
+        }
+
+        return $warning;
+    }
+
+    private function normalizeDirectoryPaths(): void
+    {
+        // Normalize paths BEFORE validation
+        if ($this->baseDirectory && $this->baseDirectory !== '/') {
+            $this->baseDirectory = rtrim($this->baseDirectory, '/');
+            $this->application->base_directory = $this->baseDirectory;
+        }
+        if ($this->publishDirectory && $this->publishDirectory !== '/') {
+            $this->publishDirectory = rtrim($this->publishDirectory, '/');
+            $this->application->publish_directory = $this->publishDirectory;
+        }
+    }
+
+    private function reloadComposeIfPathChanged(string $oldBaseDirectory, ?string $oldDockerComposeLocation): bool
+    {
+        // Validate docker compose file path BEFORE saving to database
+        // This prevents invalid paths from being persisted when validation fails
+        if ($this->buildPack === 'dockercompose' &&
+            ($oldDockerComposeLocation !== $this->dockerComposeLocation ||
+             $oldBaseDirectory !== $this->baseDirectory)) {
+            // Pass original values to loadComposeFile so it can restore them on failure
+            // The finally block in Application::loadComposeFile will save these original
+            // values if validation fails, preventing invalid paths from being persisted
+            $compose_return = $this->loadComposeFile(
+                isInit: false,
+                showToast: false,
+                restoreBaseDirectory: $oldBaseDirectory,
+                restoreDockerComposeLocation: $oldDockerComposeLocation
+            );
+            if ($compose_return instanceof Event) {
+                // Validation failed - restore original values to component properties
+                $this->baseDirectory = $oldBaseDirectory;
+                $this->dockerComposeLocation = $oldDockerComposeLocation;
+                // The model was saved by loadComposeFile's finally block with original values
+                // Refresh to sync component with database state
+                $this->application->refresh();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function persistCoreSettings(?string $oldPortsExposes, bool $oldIsContainerLabelEscapeEnabled): void
+    {
+        $this->application->save();
+        if (! $this->customLabels && $this->application->destination->server->proxyType() !== 'NONE' && ! $this->application->settings->is_container_label_readonly_enabled) {
+            $this->customLabels = str(implode('|coolify|', generateLabelsApplication($this->application)))->replace('|coolify|', "\n");
+            $this->application->custom_labels = base64_encode($this->customLabels);
+            $this->application->save();
+        }
+
+        if ($oldPortsExposes !== $this->portsExposes || $oldIsContainerLabelEscapeEnabled !== $this->isContainerLabelEscapeEnabled) {
+            $this->resetDefaultLabels();
+        }
+        if ($this->buildPack === 'dockerimage') {
+            $this->validate([
+                'dockerRegistryImageName' => ValidationPatterns::dockerImageNameRules(required: true),
+            ]);
+        }
+
+        if ($this->customDockerRunOptions) {
+            $this->customDockerRunOptions = str($this->customDockerRunOptions)->trim()->toString();
+            $this->application->custom_docker_run_options = $this->customDockerRunOptions;
+        }
+        if ($this->dockerfile) {
+            $port = get_port_from_dockerfile($this->dockerfile);
+            if ($port && ! $this->portsExposes) {
+                $this->portsExposes = $port;
+                $this->application->ports_exposes = $port;
+            }
+        }
+    }
+
+    private function syncDockerComposeDomains(bool $showToaster): bool
+    {
+        if ($this->buildPack === 'dockercompose') {
+            $this->application->docker_compose_domains = json_encode($this->parsedServiceDomains);
+            if ($this->application->isDirty('docker_compose_domains')) {
+                foreach ($this->parsedServiceDomains as $service) {
+                    $domain = data_get($service, 'domain');
+                    if ($domain) {
+                        if (! validateDNSEntry($domain, $this->application->destination->server)) {
+                            $showToaster && $this->dispatch('error', 'Validating DNS failed.', "Make sure you have added the DNS records correctly.<br><br>$domain->{$this->application->destination->server->ip}<br><br>Check this <a target='_blank' class='underline dark:text-white' href='https://coolify.io/docs/knowledge-base/dns-configuration'>documentation</a> for further help.");
+                        }
+                    }
+                }
+                // Check for domain conflicts if not forcing save
+                if (! $this->forceSaveDomains) {
+                    $result = checkDomainUsage(resource: $this->application);
+                    if ($result['hasConflicts']) {
+                        $this->domainConflicts = $result['conflicts'];
+                        $this->showDomainConflictModal = true;
+
+                        return true;
+                    }
+                } else {
+                    // Reset the force flag after using it
+                    $this->forceSaveDomains = false;
+                }
+
+                $this->application->save();
+                $this->resetDefaultLabels();
+            }
+        }
+
+        return false;
     }
 
     public function downloadConfig()

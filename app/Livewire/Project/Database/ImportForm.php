@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace App\Livewire\Project\Database;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\S3Storage;
 use App\Models\Server;
 use App\Models\Service;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
 use App\Models\StandaloneMariadb;
 use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Storage;
@@ -368,21 +366,20 @@ EOD;
             $this->containers[] = $this->container;
         }
 
-        if (
-            $resource->getMorphClass() === StandaloneRedis::class ||
-            $resource->getMorphClass() === StandaloneKeydb::class ||
-            $resource->getMorphClass() === StandaloneDragonfly::class ||
-            $resource->getMorphClass() === StandaloneClickhouse::class
-        ) {
+        $unsupportedTypes = DatabaseEngineRegistry::unsupportedImportTypes();
+
+        if ($resource instanceof StandaloneDatabaseInstance && ! DatabaseEngineRegistry::forInstance($resource)?->supportsImport) {
             $this->unsupported = true;
         }
 
         // Mark unsupported ServiceDatabase types (Redis, KeyDB, etc.)
         if ($resource->getMorphClass() === ServiceDatabase::class) {
             $dbType = $resource->databaseType();
-            if (str_contains($dbType, 'redis') || str_contains($dbType, 'keydb') ||
-                str_contains($dbType, 'dragonfly') || str_contains($dbType, 'clickhouse')) {
-                $this->unsupported = true;
+            foreach ($unsupportedTypes as $type) {
+                if (str_contains($dbType, $type)) {
+                    $this->unsupported = true;
+                    break;
+                }
             }
         }
     }

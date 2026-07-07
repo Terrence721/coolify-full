@@ -8,14 +8,7 @@ use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
 use App\Models\Server;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Console\Command;
 
 use function Laravel\Prompts\confirm;
@@ -112,64 +105,17 @@ class ServicesDelete extends Command
 
     private function deleteDatabase(): void
     {
-        // Collect all databases from all types with unique identifiers
+        // Collect all databases from all engines (see DatabaseEngineRegistry) with unique identifiers
         $allDatabases = collect();
         $databaseOptions = collect();
 
-        // Add PostgreSQL databases
-        foreach (StandalonePostgresql::all() as $db) {
-            $key = "postgresql_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (PostgreSQL)");
-        }
-
-        // Add MySQL databases
-        foreach (StandaloneMysql::all() as $db) {
-            $key = "mysql_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (MySQL)");
-        }
-
-        // Add MariaDB databases
-        foreach (StandaloneMariadb::all() as $db) {
-            $key = "mariadb_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (MariaDB)");
-        }
-
-        // Add MongoDB databases
-        foreach (StandaloneMongodb::all() as $db) {
-            $key = "mongodb_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (MongoDB)");
-        }
-
-        // Add Redis databases
-        foreach (StandaloneRedis::all() as $db) {
-            $key = "redis_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (Redis)");
-        }
-
-        // Add KeyDB databases
-        foreach (StandaloneKeydb::all() as $db) {
-            $key = "keydb_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (KeyDB)");
-        }
-
-        // Add Dragonfly databases
-        foreach (StandaloneDragonfly::all() as $db) {
-            $key = "dragonfly_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (Dragonfly)");
-        }
-
-        // Add ClickHouse databases
-        foreach (StandaloneClickhouse::all() as $db) {
-            $key = "clickhouse_{$db->id}";
-            $allDatabases->put($key, $db);
-            $databaseOptions->put($key, "{$db->name} (ClickHouse)");
+        foreach (DatabaseEngineRegistry::all() as $engine) {
+            $modelClass = $engine->modelClass;
+            foreach ($modelClass::all() as $db) {
+                $key = "{$engine->type}_{$db->id}";
+                $allDatabases->put($key, $db);
+                $databaseOptions->put($key, "{$db->name} ({$engine->displayName})");
+            }
         }
 
         if ($allDatabases->count() === 0) {

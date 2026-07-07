@@ -9,20 +9,14 @@ use App\Actions\Database\StopDatabase;
 use App\Actions\Server\CleanupDocker;
 use App\Actions\Service\DeleteService;
 use App\Actions\Service\StopService;
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Enums\ApplicationDeploymentStatus;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\ApplicationPreview;
 use App\Models\Server;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -37,7 +31,7 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public Application|ApplicationPreview|Service|StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse $resource,
+        public Application|ApplicationPreview|Service|StandaloneDatabaseInstance $resource,
         public bool $deleteVolumes = true,
         public bool $deleteConnectedNetworks = true,
         public bool $deleteConfigurations = true,
@@ -56,25 +50,17 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
                 return;
             }
 
-            switch ($this->resource->type()) {
-                case 'application':
-                    StopApplication::run($this->resource, previewDeployments: true, dockerCleanup: $this->dockerCleanup);
-                    break;
-                case 'standalone-postgresql':
-                case 'standalone-redis':
-                case 'standalone-mongodb':
-                case 'standalone-mysql':
-                case 'standalone-mariadb':
-                case 'standalone-keydb':
-                case 'standalone-dragonfly':
-                case 'standalone-clickhouse':
-                    StopDatabase::run($this->resource, dockerCleanup: $this->dockerCleanup);
-                    break;
-                case 'service':
-                    StopService::run($this->resource, $this->deleteConnectedNetworks, $this->dockerCleanup);
-                    DeleteService::run($this->resource, $this->deleteVolumes, $this->deleteConnectedNetworks, $this->deleteConfigurations, $this->dockerCleanup);
+            $type = $this->resource->type();
 
-                    return;
+            if ($type === 'application') {
+                StopApplication::run($this->resource, previewDeployments: true, dockerCleanup: $this->dockerCleanup);
+            } elseif (in_array($type, DatabaseEngineRegistry::types())) {
+                StopDatabase::run($this->resource, dockerCleanup: $this->dockerCleanup);
+            } elseif ($type === 'service') {
+                StopService::run($this->resource, $this->deleteConnectedNetworks, $this->dockerCleanup);
+                DeleteService::run($this->resource, $this->deleteVolumes, $this->deleteConnectedNetworks, $this->deleteConfigurations, $this->dockerCleanup);
+
+                return;
             }
 
             if ($this->deleteConfigurations) {
@@ -86,16 +72,7 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
             }
             $this->resource->fileStorages()->delete(); // these are file mounts which should probably have their own flag
 
-            $isDatabase = $this->resource instanceof StandalonePostgresql
-            || $this->resource instanceof StandaloneRedis
-            || $this->resource instanceof StandaloneMongodb
-            || $this->resource instanceof StandaloneMysql
-            || $this->resource instanceof StandaloneMariadb
-            || $this->resource instanceof StandaloneKeydb
-            || $this->resource instanceof StandaloneDragonfly
-            || $this->resource instanceof StandaloneClickhouse;
-
-            if ($isDatabase) {
+            if ($this->resource instanceof StandaloneDatabaseInstance) {
                 $this->resource->sslCertificates()->delete();
                 $this->resource->scheduledBackups()->delete();
                 $this->resource->tags()->detach();

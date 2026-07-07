@@ -11,15 +11,8 @@ use App\Models\ScheduledTask;
 use App\Models\ScheduledTaskExecution;
 use App\Models\Server;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Services\SchedulerLogParser;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
@@ -143,14 +136,7 @@ class ScheduledJobs extends Component
                 ->get()
                 ->loadMorph('database', [
                     ServiceDatabase::class => ['service.environment.project'],
-                    StandaloneClickhouse::class => ['environment.project'],
-                    StandaloneDragonfly::class => ['environment.project'],
-                    StandaloneKeydb::class => ['environment.project'],
-                    StandaloneMariadb::class => ['environment.project'],
-                    StandaloneMongodb::class => ['environment.project'],
-                    StandaloneMysql::class => ['environment.project'],
-                    StandalonePostgresql::class => ['environment.project'],
-                    StandaloneRedis::class => ['environment.project'],
+                    ...array_fill_keys(DatabaseEngineRegistry::modelClasses(), ['environment.project']),
                 ])
                 ->keyBy('id')
             : collect();

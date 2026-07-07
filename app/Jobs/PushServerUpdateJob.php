@@ -10,24 +10,18 @@ use App\Actions\Proxy\CheckProxy;
 use App\Actions\Proxy\StartProxy;
 use App\Actions\Server\StartLogDrain;
 use App\Actions\Shared\ComplexStatusCheck;
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
 use App\Models\Server;
 use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDocker;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Models\SwarmDocker;
 use App\Notifications\Container\ContainerRestarted;
 use App\Services\ContainerStatusAggregator;
+use App\Support\DatabaseEngineRegistry;
 use App\Traits\CalculatesExcludedStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
@@ -61,7 +55,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<int, ApplicationPreview> */
     public Collection $previews;
 
-    /** @var Collection<int, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse> */
+    /** @var Collection<int, StandaloneDatabaseInstance> */
     public Collection $databases;
 
     /** @var Collection<int, Service> */
@@ -73,7 +67,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<string, ApplicationPreview> */
     public Collection $previewsByKey;
 
-    /** @var Collection<string, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse> */
+    /** @var Collection<string, StandaloneDatabaseInstance> */
     public Collection $databasesByUuid;
 
     /** @var Collection<string, Service> */
@@ -449,7 +443,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             ->get();
     }
 
-    /** @return Collection<int, StandalonePostgresql|StandaloneRedis|StandaloneMongodb|StandaloneMysql|StandaloneMariadb|StandaloneKeydb|StandaloneDragonfly|StandaloneClickhouse> */
+    /** @return Collection<int, StandaloneDatabaseInstance> */
     private function loadDatabases(): Collection
     {
         [$standaloneDockerIds, $swarmDockerIds] = $this->serverDestinationIds();
@@ -470,16 +464,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             'last_restart_type',
         ];
 
-        $databaseClasses = [
-            StandalonePostgresql::class,
-            StandaloneRedis::class,
-            StandaloneMongodb::class,
-            StandaloneMysql::class,
-            StandaloneMariadb::class,
-            StandaloneKeydb::class,
-            StandaloneDragonfly::class,
-            StandaloneClickhouse::class,
-        ];
+        $databaseClasses = DatabaseEngineRegistry::modelClasses();
 
         $databases = collect([]);
         foreach ($databaseClasses as $databaseClass) {

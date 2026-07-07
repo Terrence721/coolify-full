@@ -9,14 +9,7 @@ use App\Models\Environment;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\Service;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
@@ -195,18 +188,15 @@ class GlobalSearch extends Component
             'new docker image' => 'docker-image',
             'new image' => 'docker-image',
 
-            // Databases
-            'new postgresql' => 'postgresql',
+            // Databases (aliases; the primary "new <type>" mapping for every
+            // engine is added below from DatabaseEngineRegistry)
             'new postgres' => 'postgresql',
-            'new mysql' => 'mysql',
-            'new mariadb' => 'mariadb',
-            'new redis' => 'redis',
-            'new keydb' => 'keydb',
-            'new dragonfly' => 'dragonfly',
-            'new mongodb' => 'mongodb',
             'new mongo' => 'mongodb',
-            'new clickhouse' => 'clickhouse',
         ];
+
+        foreach (DatabaseEngineRegistry::types() as $type) {
+            $resourceMap["new {$type}"] = $type;
+        }
 
         foreach ($resourceMap as $command => $type) {
             if ($query === $command) {
@@ -240,8 +230,7 @@ class GlobalSearch extends Component
             'public', 'private-gh-app', 'private-deploy-key',
             'dockerfile', 'docker-compose-empty', 'docker-image',
             // Databases
-            'postgresql', 'mysql', 'mariadb', 'redis', 'keydb',
-            'dragonfly', 'mongodb', 'clickhouse',
+            ...DatabaseEngineRegistry::types(),
         ]) || str_starts_with($type, 'one-click-service-')) {
             return $user->can('createAnyResource');
         }
@@ -347,176 +336,31 @@ class GlobalSearch extends Component
                     ];
                 });
 
-            // Get all standalone databases
+            // Get all standalone databases (one block per DatabaseEngineRegistry entry)
             $databases = collect();
 
-            // PostgreSQL
-            $databases = $databases->merge(
-                StandalonePostgresql::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'postgresql',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' postgresql '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // MySQL
-            $databases = $databases->merge(
-                StandaloneMysql::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'mysql',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' mysql '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // MariaDB
-            $databases = $databases->merge(
-                StandaloneMariadb::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'mariadb',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' mariadb '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // MongoDB
-            $databases = $databases->merge(
-                StandaloneMongodb::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'mongodb',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' mongodb '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // Redis
-            $databases = $databases->merge(
-                StandaloneRedis::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'redis',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' redis '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // KeyDB
-            $databases = $databases->merge(
-                StandaloneKeydb::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'keydb',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' keydb '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // Dragonfly
-            $databases = $databases->merge(
-                StandaloneDragonfly::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'dragonfly',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' dragonfly '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
-
-            // Clickhouse
-            $databases = $databases->merge(
-                StandaloneClickhouse::ownedByCurrentTeam()
-                    ->with(['environment.project'])
-                    ->get()
-                    ->map(function ($db) {
-                        return [
-                            'id' => $db->id,
-                            'name' => $db->name,
-                            'type' => 'database',
-                            'subtype' => 'clickhouse',
-                            'uuid' => $db->uuid,
-                            'description' => $db->description,
-                            'link' => $db->link(),
-                            'project' => $db->environment->project->name ?? null,
-                            'environment' => $db->environment->name ?? null,
-                            'search_text' => strtolower($db->name.' '.$db->uuid.' clickhouse '.$db->description.' database databases db'),
-                        ];
-                    })
-            );
+            foreach (DatabaseEngineRegistry::all() as $engine) {
+                $modelClass = $engine->modelClass;
+                $databases = $databases->merge(
+                    $modelClass::ownedByCurrentTeam()
+                        ->with(['environment.project'])
+                        ->get()
+                        ->map(function ($db) use ($engine) {
+                            return [
+                                'id' => $db->id,
+                                'name' => $db->name,
+                                'type' => 'database',
+                                'subtype' => $engine->type,
+                                'uuid' => $db->uuid,
+                                'description' => $db->description,
+                                'link' => $db->link(),
+                                'project' => $db->environment->project->name ?? null,
+                                'environment' => $db->environment->name ?? null,
+                                'search_text' => strtolower($db->name.' '.$db->uuid.' '.$engine->type.' '.$db->description.' database databases db'),
+                            ];
+                        })
+                );
+            }
 
             // Get all servers
             $servers = Server::ownedByCurrentTeam()
@@ -1051,77 +895,16 @@ class GlobalSearch extends Component
         // === Databases Category ===
 
         if ($user->can('createAnyResource')) {
-            $items->push([
-                'name' => 'PostgreSQL',
-                'description' => 'Robust, advanced open-source database',
-                'quickcommand' => '(type: new postgresql)',
-                'type' => 'postgresql',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'MySQL',
-                'description' => 'Popular open-source relational database',
-                'quickcommand' => '(type: new mysql)',
-                'type' => 'mysql',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'MariaDB',
-                'description' => 'Community-developed fork of MySQL',
-                'quickcommand' => '(type: new mariadb)',
-                'type' => 'mariadb',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'Redis',
-                'description' => 'In-memory data structure store',
-                'quickcommand' => '(type: new redis)',
-                'type' => 'redis',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'KeyDB',
-                'description' => 'High-performance Redis alternative',
-                'quickcommand' => '(type: new keydb)',
-                'type' => 'keydb',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'Dragonfly',
-                'description' => 'Modern in-memory datastore',
-                'quickcommand' => '(type: new dragonfly)',
-                'type' => 'dragonfly',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'MongoDB',
-                'description' => 'Document-oriented NoSQL database',
-                'quickcommand' => '(type: new mongodb)',
-                'type' => 'mongodb',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
-
-            $items->push([
-                'name' => 'Clickhouse',
-                'description' => 'Column-oriented database for analytics',
-                'quickcommand' => '(type: new clickhouse)',
-                'type' => 'clickhouse',
-                'category' => 'Databases',
-                'resourceType' => 'database',
-            ]);
+            foreach (DatabaseEngineRegistry::all() as $engine) {
+                $items->push([
+                    'name' => $engine->displayName,
+                    'description' => $engine->description,
+                    'quickcommand' => "(type: new {$engine->type})",
+                    'type' => $engine->type,
+                    'category' => 'Databases',
+                    'resourceType' => 'database',
+                ]);
+            }
         }
 
         // Merge with services
