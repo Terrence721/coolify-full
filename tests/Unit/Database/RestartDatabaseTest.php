@@ -31,7 +31,7 @@ class RestartDatabaseTest extends TestCase
 
         $destination = new class($server)
         {
-            public function __construct(public $server) {}
+            public function __construct(public Server $server) {}
         };
 
         // A real (not mocked) model instance is required here — PHPUnit's createMock()

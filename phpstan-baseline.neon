@@ -1,6 +1,120 @@
 parameters:
 	ignoreErrors:
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/RestartDatabase.php
+
+		-
+			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartClickhouse\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartClickhouse.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/StartDatabase.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$public_port\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/StartDatabase.php
+
+		-
+			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$database_type\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/StartDatabaseProxy.php
+
+		-
+			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartDragonfly\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartDragonfly.php
+
+		-
+			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartKeydb\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartKeydb.php
+
+		-
+			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartMariadb\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartMariadb.php
+
+		-
+			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartMongodb\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartMongodb.php
+
+		-
+			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartMysql\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartMysql.php
+
+		-
+			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartPostgresql\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartPostgresql.php
+
+		-
+			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartRedis\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Actions/Database/StartRedis.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Actions/Database/StopDatabase.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/StopDatabase.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/StopDatabase.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Database/StopDatabase.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Docker/GetContainersStatus.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Actions/Docker/GetContainersStatus.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Actions/Docker/GetContainersStatus.php
+
+		-
 			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -203,6 +317,42 @@ parameters:
 			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Jobs/ApplicationDeploymentJob.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Jobs/DeleteResourceJob.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Jobs/DeleteResourceJob.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Jobs/DeleteResourceJob.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/PushServerUpdateJob.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Jobs/PushServerUpdateJob.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Jobs/PushServerUpdateJob.php
 
 		-
 			message: '#^Method App\\Jobs\\PushServerUpdateJob\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
@@ -609,12 +759,6 @@ parameters:
 		-
 			message: '#^Property App\\Livewire\\Destination\\Resources\:\:\$resources type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Destination/Resources.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
 			count: 1
 			path: app/Livewire/Destination/Resources.php
 
@@ -2533,14 +2677,56 @@ parameters:
 			path: app/Livewire/Project/Application/Swarm.php
 
 		-
-			message: '#^Argument of an invalid type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\ServiceApplication, App\\Models\\Service\> supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Livewire/Project/CloneMe.php
 
 		-
-			message: '#^Argument of an invalid type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\ServiceDatabase, App\\Models\\Service\> supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 12
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/CloneMe.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
 			count: 1
 			path: app/Livewire/Project/CloneMe.php
 
@@ -2629,6 +2815,12 @@ parameters:
 			path: app/Livewire/Project/CloneMe.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Project/Database/Backup/Execution.php
+
+		-
 			message: '#^Method App\\Livewire\\Project\\Database\\Backup\\Execution\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2663,6 +2855,12 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Livewire/Project/Database/Backup/Execution.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Project/Database/Backup/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Database\\Backup\\Index\:\:mount\(\) has no return type specified\.$#'
@@ -4855,18 +5053,6 @@ parameters:
 			path: app/Livewire/Project/Service/FileStorage.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:delete\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:delete\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:loadStorageOnServer\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -4885,13 +5071,7 @@ parameters:
 			path: app/Livewire/Project/Service/FileStorage.php
 
 		-
-			message: '#^Property App\\Livewire\\Project\\Service\\FileStorage\:\:\$fs_path \(string\) does not accept Illuminate\\Support\\Stringable\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\FileStorage\:\:\$resource \(App\\Models\\Application\|App\\Models\\ServiceApplication\|App\\Models\\ServiceDatabase\|App\\Models\\StandaloneClickhouse\|App\\Models\\StandaloneDragonfly\|App\\Models\\StandaloneKeydb\|App\\Models\\StandaloneMariadb\|App\\Models\\StandaloneMongodb\|App\\Models\\StandaloneMysql\|App\\Models\\StandalonePostgresql\|App\\Models\\StandaloneRedis\) does not accept Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			message: '#^Property App\\Livewire\\Project\\Service\\FileStorage\:\:\$resource \(\(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ServiceApplication\|App\\Models\\ServiceDatabase\) does not accept Illuminate\\Database\\Eloquent\\Model\|null\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: app/Livewire/Project/Service/FileStorage.php
@@ -6133,6 +6313,12 @@ parameters:
 			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
 
 		-
+			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\Service\:\:\$is_include_timestamps\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/GetLogs.php
+
+		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:getLogs\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -6433,6 +6619,78 @@ parameters:
 			path: app/Livewire/Project/Shared/ResourceLimits.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 6
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Argument of an invalid type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\ServiceApplication, App\\Models\\Service\> supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Argument of an invalid type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\ServiceDatabase, App\\Models\\Service\> supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Livewire/Project/Shared/ResourceOperations.php
+
+		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:cloneTo\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -6482,12 +6740,6 @@ parameters:
 
 		-
 			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceOperations\:\:\$projects has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceOperations\:\:\$resource has no type specified\.$#'
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/ResourceOperations.php
@@ -11413,12 +11665,6 @@ parameters:
 			path: app/Models/Environment.php
 
 		-
-			message: '#^Method App\\Models\\Environment\:\:databases\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
 			message: '#^Method App\\Models\\Environment\:\:dragonflies\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -12193,12 +12439,6 @@ parameters:
 			path: app/Models/Project.php
 
 		-
-			message: '#^Method App\\Models\\Project\:\:databases\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
 			message: '#^Method App\\Models\\Project\:\:dragonflies\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -12503,6 +12743,12 @@ parameters:
 			identifier: missingType.parameter
 			count: 1
 			path: app/Models/ScheduledTask.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Models/Server.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Server\:\:\$destination\.$#'

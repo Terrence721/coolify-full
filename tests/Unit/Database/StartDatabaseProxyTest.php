@@ -146,7 +146,7 @@ class StartDatabaseProxyTest extends TestCase
         {
             public string $uuid = 'svc-uuid';
 
-            public $destination;
+            public object $destination;
         };
         $service->destination = (object) ['server' => 'srv-02'];
 
@@ -182,11 +182,11 @@ class StartDatabaseProxyTest extends TestCase
 
         $environment = new class
         {
-            public $project;
+            public object $project;
         };
         $environment->project = new class
         {
-            public $team;
+            public Team $team;
         };
         $environment->project->team = $team;
         $db->setRelation('environment', $environment);

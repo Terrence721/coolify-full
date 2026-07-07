@@ -28,6 +28,7 @@ use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -957,7 +958,7 @@ $schema://$host {
     }
 
     /**
-     * @return Collection<int, StandaloneDatabaseInstance>
+     * @return Collection<int, Model&StandaloneDatabaseInstance>
      */
     public function databases(): Collection
     {
@@ -976,9 +977,12 @@ $schema://$host {
         };
 
         // Query each database engine (see DatabaseEngineRegistry) with the destination condition
-        return collect(DatabaseEngineRegistry::modelClasses())
-            ->flatMap(fn (string $modelClass) => $modelClass::where($destinationCondition)->get())
-            ->filter(fn ($item) => data_get($item, 'name') !== 'coolify-db');
+        $result = new Collection;
+        foreach (DatabaseEngineRegistry::modelClasses() as $modelClass) {
+            $result = $result->concat($modelClass::where($destinationCondition)->get());
+        }
+
+        return $result->filter(fn ($item) => data_get($item, 'name') !== 'coolify-db');
     }
 
     /**

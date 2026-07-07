@@ -128,7 +128,7 @@ class Import extends Component
     private function isUnsupportedResource(object $resource): bool
     {
         if ($resource instanceof StandaloneDatabaseInstance) {
-            return ! (DatabaseEngineRegistry::forInstance($resource)?->supportsImport ?? true);
+            return ! DatabaseEngineRegistry::forInstance($resource)->supportsImport;
         }
 
         if ($resource instanceof ServiceDatabase) {

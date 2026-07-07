@@ -6,11 +6,11 @@ namespace App\Livewire\Destination;
 
 use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Application;
-use App\Models\BaseModel;
 use App\Models\Service;
 use App\Models\StandaloneDocker;
 use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -58,7 +58,7 @@ class Resources extends Component
     }
 
     /**
-     * @param  array<int, iterable<Application|Service|StandaloneDatabaseInstance>>  $groups
+     * @param  array<int, iterable<Application|Service|(Model&StandaloneDatabaseInstance)>>  $groups
      * @return array<int, array{uuid:string,type:string,name:string,project:string|null,environment:string|null,url:string|null,search:string}>
      */
     protected function collectResources(array $groups): array
@@ -74,10 +74,9 @@ class Resources extends Component
     }
 
     /**
-     * @param  Application|Service|StandaloneDatabaseInstance  $resource
      * @return array{uuid:string,type:string,name:string,project:string|null,environment:string|null,url:string|null,search:string}
      */
-    protected function resourceRow(BaseModel $resource): array
+    protected function resourceRow(Application|Service|(Model&StandaloneDatabaseInstance) $resource): array
     {
         $type = match (true) {
             $resource instanceof Application => 'application',
@@ -87,7 +86,7 @@ class Resources extends Component
         $environment = $resource->environment;
         $project = $environment?->project;
         $routeName = "project.{$type}.configuration";
-        $url = ($project && $environment)
+        $url = $project
             ? route($routeName, [
                 'project_uuid' => $project->uuid,
                 'environment_uuid' => $environment->uuid,

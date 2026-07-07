@@ -12,6 +12,7 @@ use App\Actions\Database\StartMongodb;
 use App\Actions\Database\StartMysql;
 use App\Actions\Database\StartPostgresql;
 use App\Actions\Database\StartRedis;
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
@@ -20,7 +21,6 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Single source of truth for the 8 standalone database engines. Before this
@@ -201,7 +201,7 @@ final class DatabaseEngineRegistry
         return null;
     }
 
-    public static function forInstance(Model|string $instance): ?DatabaseEngine
+    public static function forInstance(StandaloneDatabaseInstance|string $instance): ?DatabaseEngine
     {
         $morphClass = is_string($instance) ? $instance : $instance->getMorphClass();
 

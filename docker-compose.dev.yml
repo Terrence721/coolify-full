@@ -22,7 +22,7 @@ services:
       test: curl -sf http://127.0.0.1:8080/api/health || exit 1
       interval: 5s
       retries: 10
-      timeout: 2s
+      timeout: 15s
     volumes:
       - .:/var/www/html/:cached
       - dev_backups_data:/var/www/html/storage/app/backups

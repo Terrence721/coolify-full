@@ -55,7 +55,7 @@ class FileStorage extends Component
         $this->resource = $this->fileStorage->service;
         if (str($this->fileStorage->fs_path)->startsWith('.')) {
             $this->workdir = $this->resource->service->workdir();
-            $this->fs_path = str($this->fileStorage->fs_path)->after('.');
+            $this->fs_path = str($this->fileStorage->fs_path)->after('.')->toString();
         } else {
             $this->workdir = null;
             $this->fs_path = $this->fileStorage->fs_path;
@@ -141,7 +141,8 @@ class FileStorage extends Component
         }
     }
 
-    public function delete($password, $selectedActions = [])
+    /** @param  array<int, string>  $selectedActions */
+    public function delete(string $password, array $selectedActions = [])
     {
         $this->authorize('update', $this->resource);
 

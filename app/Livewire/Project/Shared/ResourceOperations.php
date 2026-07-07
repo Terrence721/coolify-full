@@ -13,11 +13,13 @@ use App\Jobs\VolumeCloneJob;
 use App\Models\Application;
 use App\Models\Environment;
 use App\Models\Project;
+use App\Models\Service;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Support\DatabaseEngineRegistry;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -27,7 +29,7 @@ class ResourceOperations extends Component
 {
     use AuthorizesRequests;
 
-    public $resource;
+    public Application|Service|(Model&StandaloneDatabaseInstance) $resource;
 
     public $projectUuid;
 

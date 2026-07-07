@@ -29,7 +29,7 @@ class Index extends Component
             return redirect()->route('dashboard');
         }
         // No backups
-        if (! (DatabaseEngineRegistry::forInstance($database)?->supportsBackup ?? true)) {
+        if (! DatabaseEngineRegistry::forInstance($database)->supportsBackup) {
             return redirect()->route('project.database.configuration', [
                 'project_uuid' => $project->uuid,
                 'environment_uuid' => $environment->uuid,

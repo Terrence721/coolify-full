@@ -55,7 +55,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<int, ApplicationPreview> */
     public Collection $previews;
 
-    /** @var Collection<int, StandaloneDatabaseInstance> */
+    /** @var Collection<int, Model&StandaloneDatabaseInstance> */
     public Collection $databases;
 
     /** @var Collection<int, Service> */
@@ -67,7 +67,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<string, ApplicationPreview> */
     public Collection $previewsByKey;
 
-    /** @var Collection<string, StandaloneDatabaseInstance> */
+    /** @var Collection<string, Model&StandaloneDatabaseInstance> */
     public Collection $databasesByUuid;
 
     /** @var Collection<string, Service> */
@@ -443,7 +443,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             ->get();
     }
 
-    /** @return Collection<int, StandaloneDatabaseInstance> */
+    /** @return Collection<int, Model&StandaloneDatabaseInstance> */
     private function loadDatabases(): Collection
     {
         [$standaloneDockerIds, $swarmDockerIds] = $this->serverDestinationIds();

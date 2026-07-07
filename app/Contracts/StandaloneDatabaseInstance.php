@@ -11,6 +11,17 @@ namespace App\Contracts;
  * checks) depend on this single contract instead of an 8-way union type or an
  * 8-way instanceof/switch chain — adding a 9th engine then only means having its
  * model implement this interface, not editing every call site.
+ *
+ * Note for static analysis: every implementor also has the members declared on
+ * HasStandaloneDatabaseCommon (destination, uuid, name, status, is_public,
+ * sslCertificates(), scheduledBackups(), tags(), persistentStorages(),
+ * fileStorages(), environment_variables(), ...). PHPStan/Larastan does not
+ * resolve @property/@method/@mixin PHPDoc declared on a plain interface (only on
+ * classes), so those members show up as "undefined" through this type even
+ * though every real instance has them; consumers commonly pair this interface
+ * with a Model& intersection to get native Model methods (save, update,
+ * replicate, ...) recognized, and the rest is accepted as a known gap tracked in
+ * phpstan-baseline.neon rather than papered over with per-file suppressions.
  */
 interface StandaloneDatabaseInstance
 {

@@ -33,7 +33,7 @@ class StartClickhouseTest extends TestCase
         {
             public string $network;
 
-            public function __construct(public $server)
+            public function __construct(public Server $server)
             {
                 $this->network = 'net-clickhouse';
             }

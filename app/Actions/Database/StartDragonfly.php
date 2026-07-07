@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Actions\Database;
 
 use App\Helpers\SslHelper;
+use App\Models\LocalFileVolume;
 use App\Models\Server;
 use App\Models\SslCertificate;
 use App\Models\StandaloneDragonfly;
 use App\Traits\GeneratesLocalPersistentVolumes;
+use Illuminate\Database\Eloquent\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Yaml\Yaml;
 
@@ -126,7 +128,13 @@ class StartDragonfly
         return true;
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param  array<int, string>  $environment_variables
+     * @param  array<int, mixed>  $persistent_storages
+     * @param  Collection<int, LocalFileVolume>  $persistent_file_volumes
+     * @param  array<int, mixed>  $volume_names
+     * @return array<string, mixed>
+     */
     private function build_docker_compose(string $container_name, string $startCommand, array $environment_variables, array $persistent_storages, $persistent_file_volumes, array $volume_names): array
     {
         $docker_compose = [

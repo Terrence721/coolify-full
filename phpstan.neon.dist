@@ -25,7 +25,7 @@ parameters:
             # Collection<string, string> parameter even though every
             # non-empty-string trivially satisfies string. See
             # https://phpstan.org/blog/whats-up-with-template-covariant
-            message: '#^Parameter \#1 \$variables of method App\\Jobs\\ApplicationDeploymentJob::merge_railpack_deploy_apt_packages\(\) expects Illuminate\\Support\\Collection<string, string>, Illuminate\\Support\\Collection<string, non\-empty\-string> given\.$#'
+            message: '#^Parameter \#1 \$variables of static method App\\Support\\Deployment\\RailpackConfigHelper::mergeDeployAptPackages\(\) expects Illuminate\\Support\\Collection<string, string>, Illuminate\\Support\\Collection<string, non\-empty\-string> given\.$#'
             identifier: argument.type
             count: 1
             path: app/Jobs/ApplicationDeploymentJob.php

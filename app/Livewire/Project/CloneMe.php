@@ -303,7 +303,7 @@ class CloneMe extends Component
                     $newEnvironmentVariable->save();
                 }
 
-                foreach ($newService->applications() as $application) {
+                foreach ($newService->applications()->get() as $application) {
                     $application->fill([
                         'status' => 'exited',
                     ])->save();
@@ -358,7 +358,7 @@ class CloneMe extends Component
                     }
                 }
 
-                foreach ($newService->databases() as $database) {
+                foreach ($newService->databases()->get() as $database) {
                     $database->fill([
                         'status' => 'exited',
                     ])->save();

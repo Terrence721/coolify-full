@@ -333,7 +333,11 @@ class General extends Component
         }
     }
 
-    /** Convert service names with dots and dashes to use underscores for HTML form binding. */
+    /**
+     * Convert service names with dots and dashes to use underscores for HTML form binding.
+     *
+     * @return array<string, mixed>
+     */
     private function sanitizeServiceDomainKeys(?string $jsonDomains): array
     {
         $parsedServiceDomains = $jsonDomains ? json_decode($jsonDomains, true) : [];
