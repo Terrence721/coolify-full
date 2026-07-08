@@ -14,6 +14,13 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
 
+afterEach(function () {
+    // config() mutations are process-global and outlive this test file - restore the
+    // default so later tests in the same run (the whole suite runs in a single PHP process)
+    // don't inherit mux_enabled=false.
+    config(['constants.ssh.mux_enabled' => true]);
+});
+
 // Server::boot()'s static::created hook (app/Models/Server.php) auto-creates a default
 // StandaloneDocker (name/network both "coolify") for every server. So the destination under
 // test is that auto-created one, not a separately-factoried row - factory-creating a second

@@ -21,6 +21,13 @@ beforeEach(function () {
     InstanceSettings::forceCreate(['id' => 0]);
 });
 
+afterEach(function () {
+    // config() mutations are process-global and outlive this test file - restore it so later
+    // tests in the same run (the whole suite runs in a single PHP process) don't inherit
+    // app.env=local, which would silently change isDev()/isCloud()-gated behavior elsewhere.
+    config(['app.env' => 'testing']);
+});
+
 it('forbids access for a non-root, non-impersonating user', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

@@ -26,6 +26,16 @@ class RunRemoteProcessTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function tearDown(): void
+    {
+        // config() mutations are process-global and outlive this test class - restore the
+        // default so later tests in the same run (the whole suite runs in a single PHP
+        // process) don't inherit mux_enabled=false.
+        config(['constants.ssh.mux_enabled' => true]);
+
+        parent::tearDown();
+    }
+
     private function makeActivity(string $type, array $extra = []): Activity
     {
         $activity = new Activity;

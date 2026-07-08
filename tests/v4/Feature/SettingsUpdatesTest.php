@@ -19,6 +19,14 @@ beforeEach(function () {
     InstanceSettings::forceCreate(['id' => 0]);
 });
 
+afterEach(function () {
+    // config() mutations are process-global and outlive this test file - restore the
+    // default so later tests in the same run (the whole suite runs in a single PHP process)
+    // don't inherit self_hosted=false, which would silently change isCloud()-gated behavior
+    // in unrelated tests.
+    config(['constants.coolify.self_hosted' => true]);
+});
+
 it('renders the settings updates Inertia page', function () {
     $user = User::forceCreate(User::factory()->raw(['id' => 0]));
     $team = Team::factory()->create();
