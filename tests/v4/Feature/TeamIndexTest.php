@@ -50,6 +50,9 @@ it('blocks deletion of the last team a user belongs to', function () {
     // has exactly one team - their own personal team - without creating anything else here.
     $user = User::factory()->create();
     $team = $user->teams()->first();
+    // The auto-created personal team defaults show_boarding to true, which would otherwise
+    // redirect this request to the onboarding flow before it ever reaches the team page.
+    $team->update(['show_boarding' => false]);
 
     $response = $this->actingAs($user)
         ->withSession(['currentTeam' => $team])
