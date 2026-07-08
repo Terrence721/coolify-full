@@ -170,9 +170,6 @@ Full migration log, including page inventory, triage (Easy/Medium/Hard), convers
 TECH_STACK.md  
 Current technology stack, including the coexistence of Livewire/Alpine and Inertia.js/React frontends.
 
-🖼 Screenshots
-(Add screenshots or GIFs of your React 19 UI, dashboards, or architecture diagrams here.)
-
 🧰 Tech Stack
 Code
 React 19
