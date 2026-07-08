@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\ForcePasswordResetController;
 use App\Http\Controllers\NotificationsDiscordController;
 use App\Http\Controllers\NotificationsEmailController;
 use App\Http\Controllers\NotificationsSlackController;
@@ -14,6 +15,9 @@ use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecurityApiTokensController;
+use App\Http\Controllers\SecurityPrivateKeyController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\SettingsEmailController;
 use App\Http\Controllers\SharedVariablesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamController;
@@ -21,7 +25,6 @@ use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Destination\Index as DestinationIndex;
-use App\Livewire\ForcePasswordReset;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Index as DeploymentIndex;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
@@ -43,7 +46,6 @@ use App\Livewire\Project\Show as ProjectShow;
 use App\Livewire\Security\CloudInitScripts;
 use App\Livewire\Security\CloudTokens;
 use App\Livewire\Security\PrivateKey\Index as SecurityPrivateKeyIndex;
-use App\Livewire\Security\PrivateKey\Show as SecurityPrivateKeyShow;
 use App\Livewire\Server\Advanced as ServerAdvanced;
 use App\Livewire\Server\CaCertificate\Show as CaCertificateShow;
 use App\Livewire\Server\Charts as ServerCharts;
@@ -65,12 +67,9 @@ use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
 use App\Livewire\Server\Sentinel\Show as SentinelShow;
 use App\Livewire\Server\Show as ServerShow;
 use App\Livewire\Server\Swarm as ServerSwarm;
-use App\Livewire\Settings\Advanced as SettingsAdvanced;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\Settings\ScheduledJobs as SettingsScheduledJobs;
-use App\Livewire\Settings\Updates as SettingsUpdates;
 use App\Livewire\SettingsBackup;
-use App\Livewire\SettingsEmail;
 use App\Livewire\SettingsOauth;
 use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesShow;
 use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
@@ -104,7 +103,8 @@ Route::get('/auth/{provider}/callback', [OauthController::class, 'callback'])->n
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['throttle:force-password-reset'])->group(function () {
-        Route::get('/force-password-reset', ForcePasswordReset::class)->name('auth.force-password-reset');
+        Route::get('/force-password-reset', [ForcePasswordResetController::class, 'edit'])->name('auth.force-password-reset');
+        Route::put('/force-password-reset', [ForcePasswordResetController::class, 'update'])->name('auth.force-password-reset.update');
     });
 
     Route::get('/', Dashboard::class)->name('dashboard');
@@ -117,11 +117,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/subscription/new', SubscriptionIndex::class)->name('subscription.index');
 
     Route::get('/settings', SettingsIndex::class)->name('settings.index');
-    Route::get('/settings/advanced', SettingsAdvanced::class)->name('settings.advanced');
-    Route::get('/settings/updates', SettingsUpdates::class)->name('settings.updates');
+    Route::get('/settings/advanced', [SettingsController::class, 'advanced'])->name('settings.advanced');
+    Route::put('/settings/advanced', [SettingsController::class, 'advancedUpdate'])->name('settings.advanced.update');
+    Route::post('/settings/advanced/enable-registration', [SettingsController::class, 'advancedEnableRegistration'])->name('settings.advanced.enable-registration');
+    Route::post('/settings/advanced/disable-two-step-confirmation', [SettingsController::class, 'advancedDisableTwoStepConfirmation'])->name('settings.advanced.disable-two-step-confirmation');
+    Route::get('/settings/updates', [SettingsController::class, 'updates'])->name('settings.updates');
+    Route::put('/settings/updates', [SettingsController::class, 'updatesUpdate'])->name('settings.updates.update');
+    Route::post('/settings/updates/check-manually', [SettingsController::class, 'updatesCheckManually'])->name('settings.updates.check-manually');
 
     Route::get('/settings/backup', SettingsBackup::class)->name('settings.backup');
-    Route::get('/settings/email', SettingsEmail::class)->name('settings.email');
+    Route::get('/settings/email', [SettingsEmailController::class, 'edit'])->name('settings.email');
+    Route::put('/settings/email/smtp', [SettingsEmailController::class, 'updateSmtp'])->name('settings.email.update-smtp');
+    Route::put('/settings/email/resend', [SettingsEmailController::class, 'updateResend'])->name('settings.email.update-resend');
+    Route::post('/settings/email/send-test', [SettingsEmailController::class, 'sendTest'])->name('settings.email.send-test');
     Route::get('/settings/oauth', SettingsOauth::class)->name('settings.oauth');
     Route::get('/settings/scheduled-jobs', SettingsScheduledJobs::class)->name('settings.scheduled-jobs');
 
@@ -335,7 +343,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('/security', fn () => view('security.index'))->name('security.index');
     Route::get('/security/private-key', SecurityPrivateKeyIndex::class)->name('security.private-key.index');
     // Route::get('/security/private-key/new', SecurityPrivateKeyCreate::class)->name('security.private-key.create');
-    Route::get('/security/private-key/{private_key_uuid}', SecurityPrivateKeyShow::class)->name('security.private-key.show');
+    Route::get('/security/private-key/{private_key_uuid}', [SecurityPrivateKeyController::class, 'show'])->name('security.private-key.show');
+    Route::put('/security/private-key/{private_key_uuid}', [SecurityPrivateKeyController::class, 'update'])->name('security.private-key.update');
+    Route::delete('/security/private-key/{private_key_uuid}', [SecurityPrivateKeyController::class, 'destroy'])->name('security.private-key.destroy');
 
     Route::get('/security/cloud-tokens', CloudTokens::class)->name('security.cloud-tokens');
     Route::get('/security/cloud-init-scripts', CloudInitScripts::class)->name('security.cloud-init-scripts');

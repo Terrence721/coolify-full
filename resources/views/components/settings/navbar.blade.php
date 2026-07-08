@@ -11,7 +11,7 @@
                 href="{{ route('settings.backup') }}">
                 Backup
             </a>
-            <a class="{{ request()->routeIs('settings.email') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+            <a class="{{ request()->routeIs('settings.email') ? 'dark:text-white' : '' }}"
                 href="{{ route('settings.email') }}">
                 Transactional Email
             </a>
