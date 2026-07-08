@@ -173,7 +173,7 @@ return [
 
     'maintenance' => [
         'driver' => 'cache',
-        'store' => 'redis',
+        'store' => env('APP_MAINTENANCE_STORE', 'redis'),
     ],
 
     /*

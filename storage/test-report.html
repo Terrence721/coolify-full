@@ -51,6 +51,153 @@
         </style>
     </head>
     <body>
+        <h2>/var/www/html/tests/v4/Feature/AdminIndexTest.php</h2>
+        <ul>
+            <li class="success">it forbids access for a non-root, non-impersonating user</li>
+            <li class="success">it renders the admin dashboard for the root user</li>
+            <li class="success">it finds users matching a search term for the root user</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/DestinationShowTest.php</h2>
+        <ul>
+            <li class="success">it renders the destination show Inertia page</li>
+            <li class="success">it updates the destination name</li>
+            <li class="success">it deletes an unattached destination</li>
+            <li class="success">it renders the destination resources Inertia page</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/ForcePasswordResetTest.php</h2>
+        <ul>
+            <li class="success">it renders the force password reset Inertia page when a reset is required</li>
+            <li class="success">it redirects to the dashboard when a reset is not required</li>
+            <li class="success">it resets the password and clears the force_password_reset flag</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/NotificationsDiscordTest.php</h2>
+        <ul>
+            <li class="success">it renders the notifications discord Inertia page with current settings</li>
+            <li class="success">it updates discord notification settings</li>
+            <li class="success">it rejects an unsafe discord webhook url on update</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/NotificationsEmailTest.php</h2>
+        <ul>
+            <li class="success">it renders the notifications email Inertia page with current settings</li>
+            <li class="success">it updates the main email notification settings</li>
+            <li class="success">it updates smtp settings and disables resend</li>
+            <li class="success">it updates resend settings and disables smtp</li>
+            <li class="success">it copies settings from the instance settings</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/NotificationsPushoverTest.php</h2>
+        <ul>
+            <li class="success">it renders the notifications pushover Inertia page with current settings</li>
+            <li class="success">it updates pushover notification settings</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/NotificationsSlackTest.php</h2>
+        <ul>
+            <li class="success">it renders the notifications slack Inertia page with current settings</li>
+            <li class="success">it updates slack notification settings</li>
+            <li class="success">it rejects an unsafe slack webhook url on update</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/NotificationsTelegramTest.php</h2>
+        <ul>
+            <li class="success">it renders the notifications telegram Inertia page with current settings</li>
+            <li class="success">it updates telegram notification settings including per-event thread ids</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/NotificationsWebhookTest.php</h2>
+        <ul>
+            <li class="success">it renders the notifications webhook Inertia page with current settings</li>
+            <li class="success">it updates webhook notification settings</li>
+            <li class="success">it rejects an unsafe webhook url on update</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/ProfileAppearanceTest.php</h2>
+        <ul>
+            <li class="success">it renders the profile appearance Inertia page</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/ProfileIndexTest.php</h2>
+        <ul>
+            <li class="success">it renders the profile index Inertia page</li>
+            <li class="success">it updates the profile name</li>
+            <li class="success">it updates the password</li>
+            <li class="success">it rejects a password update with an incorrect current password</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SecurityApiTokensTest.php</h2>
+        <ul>
+            <li class="success">it renders the security api tokens Inertia page</li>
+            <li class="success">it creates a new api token</li>
+            <li class="success">it rejects root permissions for a non-admin user</li>
+            <li class="success">it revokes an owned api token</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SecurityPrivateKeyShowTest.php</h2>
+        <ul>
+            <li class="success">it renders the private key show Inertia page</li>
+            <li class="success">it updates the private key name and description</li>
+            <li class="success">it deletes an unattached private key</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SettingsAdvancedTest.php</h2>
+        <ul>
+            <li class="success">it renders the settings advanced Inertia page</li>
+            <li class="success">it updates advanced settings including allowed ips normalization</li>
+            <li class="success">it rejects invalid allowed ip entries</li>
+            <li class="success">it enables registration with a correct password</li>
+            <li class="success">it rejects enabling registration with an incorrect password</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SettingsEmailTest.php</h2>
+        <ul>
+            <li class="success">it renders the settings email Inertia page</li>
+            <li class="success">it updates the smtp settings and disables resend</li>
+            <li class="success">it updates the resend settings and disables smtp</li>
+            <li class="success">it sends a test email</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SettingsOauthTest.php</h2>
+        <ul>
+            <li class="success">it renders the settings oauth Inertia page</li>
+            <li class="success">it updates oauth provider settings</li>
+            <li class="success">it disables a provider left incomplete and reports an error</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SettingsScheduledJobsTest.php</h2>
+        <ul>
+            <li class="success">it forbids access for a non-instance-admin user</li>
+            <li class="success">it renders the settings scheduled jobs Inertia page with default filters</li>
+            <li class="success">it includes a failed docker cleanup execution in the executions list</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SettingsUpdatesTest.php</h2>
+        <ul>
+            <li class="success">it renders the settings updates Inertia page</li>
+            <li class="success">it forbids access for a non-instance-admin user</li>
+            <li class="success">it updates the update settings</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SharedVariablesEnvironmentIndexTest.php</h2>
+        <ul>
+            <li class="success">it renders the shared variables environment index with nested projects and environments</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SharedVariablesIndexTest.php</h2>
+        <ul>
+            <li class="success">it renders the shared variables Inertia page with the four scope links</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SharedVariablesProjectIndexTest.php</h2>
+        <ul>
+            <li class="success">it renders the shared variables project index with the team's projects</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/SharedVariablesServerIndexTest.php</h2>
+        <ul>
+            <li class="success">it renders the shared variables server index with the team's servers</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/TagsShowTest.php</h2>
+        <ul>
+            <li class="success">it renders the tags index without a tag selected</li>
+            <li class="success">it renders tag details, applications, and deployments when a tag is selected</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/TeamAdminViewTest.php</h2>
+        <ul>
+            <li class="success">it forbids access for a non-instance-admin user</li>
+            <li class="success">it renders the team admin view Inertia page for an instance admin</li>
+            <li class="success">it filters users by the search query</li>
+            <li class="success">it deletes a user with a correct password</li>
+            <li class="success">it rejects deleting a user with an incorrect password</li>
+        </ul>
+        <h2>/var/www/html/tests/v4/Feature/TeamIndexTest.php</h2>
+        <ul>
+            <li class="success">it renders the team index Inertia page</li>
+            <li class="success">it updates the team name and description</li>
+            <li class="success">it blocks deletion of the last team a user belongs to</li>
+        </ul>
         <h2>Application Configuration Snapshot (Tests\Unit\Services\DeploymentConfiguration\ApplicationConfigurationSnapshot)</h2>
         <ul>
             <li class="success">It generates a snapshot array with expected sections</li>
@@ -272,6 +419,8 @@
             <li class="success">It includes environment variables correctly</li>
             <li class="success">It includes persistent volumes correctly</li>
             <li class="success">It includes ports correctly</li>
+            <li class="success">It unsets healthcheck when disabled</li>
+            <li class="success">It adds logging when server and db enable log drain</li>
         </ul>
         <h2>Start Database (Tests\Unit\Actions\Database\StartDatabase)</h2>
         <ul>

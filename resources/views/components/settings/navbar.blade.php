@@ -19,7 +19,7 @@
                 href="{{ route('settings.oauth') }}">
                 OAuth
             </a>
-            <a class="{{ request()->routeIs('settings.scheduled-jobs') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+            <a class="{{ request()->routeIs('settings.scheduled-jobs') ? 'dark:text-white' : '' }}"
                 href="{{ route('settings.scheduled-jobs') }}">
                 Scheduled Jobs
             </a>

@@ -13,15 +13,15 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**24 of 84** full-page Livewire components converted:
+**27 of 84** full-page Livewire components converted. **The Medium bucket is now complete** — see Section 6 for the corrected count and how it changed from the original "23" estimate.
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
-| Medium | 17 of 23 | 6 |
-| Hard | 0 of 56 | 56 |
+| Medium | 20 of 20 (all done) | 0 |
+| Hard | 0 of 59 | 59 |
 
-Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, and `SettingsEmail`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and most of the instance-wide Settings area are now fully off Livewire. Livewire and Alpine remain fully installed and used by every other page.
+Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
 ## 4. Foundation (change ledger)
 
@@ -135,6 +135,26 @@ Six more Medium-bucket pages. `Destination\Show`/`Destination\Resources` were co
 - `SettingsEmail.jsx` drops the "From Name"/"From Address" fields' original single shared top-level form+Save button in favor of feeding both the SMTP and Resend sub-forms directly (each already independently validates/persists these two fields, mirroring `NotificationsEmailController::updateSmtp()`/`updateResend()`) — same net behavior, one fewer redundant submit path.
 - `phpstan-baseline.neon` still has a stale entry referencing the now-deleted `App\Livewire\SettingsEmail` class. Harmless (baseline entries for missing files don't fail a run) but not cleaned up this pass — flagged here rather than silently left for a future phpstan run to notice.
 
+### Phase 6 — Team\AdminView, SettingsOauth, Settings\ScheduledJobs (Medium bucket complete)
+
+The final 3 Medium-bucket pages, found via a dedicated re-triage (see Section 6's correction note) after the previously-assumed remaining candidates turned out to mostly be Hard bucket. `Settings\ScheduledJobs` is the largest by LOC in this whole migration so far (349 PHP + 283 Blade) but is frontend-simple — a read-only failure/skip-log viewer with 2 filter dropdowns and manual pagination, no `useForm()` needed at all.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/TeamController.php` | modified | Added `adminView()` / `adminDeleteUser()` |
+| `resources/js/Pages/Team/AdminView.jsx` | created | User search (via query-string, matching `AdminController`'s pattern) + password-confirmed delete-user list |
+| `app/Http/Controllers/SettingsController.php` | modified | Added `oauth()` / `oauthUpdate()` |
+| `resources/js/Pages/SettingsOauth.jsx` | created | One `useForm()` holding the whole `providers` array; per-provider conditional extra fields (tenant for azure/google, base_url for authentik/clerk/zitadel/gitlab), matching the original's dynamic Blade loop |
+| `app/Http/Controllers/SettingsScheduledJobsController.php` | created | `index()` — ports all of the original component's data-aggregation logic (execution/skip-log queries across backups/tasks/docker-cleanups, log-file parsing via `SchedulerLogParser`) essentially verbatim, since it's backend logic, not view logic |
+| `resources/js/Pages/Settings/ScheduledJobs.jsx` | created | 3-tab client-side view (Failures/Scheduler Runs/Skipped Jobs) driven entirely by props + query-string filters (`router.get(..., { preserveState: true })`), no `useForm()` |
+| `resources/views/components/team/navbar.blade.php`, `resources/views/components/settings/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the Admin View, OAuth, and Scheduled Jobs links |
+| `routes/web.php` | modified | Routes repointed for all 3 pages, plus new `team.admin-view.delete-user`, `settings.oauth.update` |
+| `app/Livewire/{Team/AdminView,SettingsOauth,Settings/ScheduledJobs}.php` + matching Blade views | **deleted** | Real cutovers |
+| `tests/v4/Feature/{TeamAdminViewTest,SettingsOauthTest,SettingsScheduledJobsTest}.php` | created | 11 new tests |
+| `docs/livewire-to-react-migration.md` | modified throughout | This file, including the Medium/Hard bucket count correction (Section 6) |
+
+**Known simplification**: `SettingsScheduledJobs.jsx`'s tab state (`activeTab`) is plain React `useState`, not synced to `window.location.hash` the way the original Alpine `x-data` was — a deep-linkable "land directly on the Skipped Jobs tab" URL isn't preserved. Minor, since the page is reached via the Settings nav, not typically deep-linked to a specific tab.
+
 ## 5. The shell problem and shared props
 
 Unlike the pilot (a bare standalone menu page), essentially every remaining page lives inside the app's persistent navbar/sidebar (`resources/views/components/navbar.blade.php`, 511 lines: Alpine state + PHP-rendered permission checks + 5 embedded Livewire components). That markup cannot run inside a React tree as-is.
@@ -150,8 +170,10 @@ Unlike the pilot (a bare standalone menu page), essentially every remaining page
 Phase 1 estimated "200+" full-page components; a real inventory in Phase 2 found **84 unique full-page Livewire component classes** across 130 routes in `routes/web.php` (some routes share one class via tabs — e.g. `ApplicationConfiguration` serves 18 routes). Triaged:
 
 - **Easy (5, all converted)**: `SharedVariables\Index` (pilot), `SharedVariables\{Environment,Project,Server}\Index`, `Profile\Appearance`. No `wire:model`, no nested `<livewire:.../>`, no listeners, trivial or no `mount()`.
-- **Medium (23, 6 converted)**: forms with validation/`wire:model` but no real-time dependency. Converted: all 6 `notifications.*` channels (`webhook`, `discord`, `email`, `slack`, `telegram`, `pushover`). Remaining examples: `admin.index`, `profile` (`ProfileIndex` — the "General" tab, not yet converted), `security.api-tokens`, `settings.scheduled-jobs`, `tags.show`, `team.{admin-view,index}`, `source.github.show`.
-- **Hard (56, 0 converted)**: nested `<livewire:.../>` children, broadcast/websocket listeners (`ApplicationStatusChanged`, `ServiceStatusChanged`), or real-time pages (`terminal`, `project.application.deployment.show`, `server.metrics`, `server.show`, `project.application.configuration` + 17 sibling tab routes, etc.). Needs real-time/broadcast (Echo-in-React) and embedded-Livewire-island design work before conversion starts — not attempted this phase.
+- **Medium (20, all converted — corrected from the original "23" estimate, see the note below)**: forms/data pages with no real-time dependency and no live nested children. Fully converted: all 6 `notifications.*` channels, `admin.index`, `profile` (`ProfileIndex`), `security.api-tokens`, `security.private-key.show`, `tags.show`, `team.index`, `team.admin-view`, `destination.show`, `destination.resources`, `settings.updates`, `settings.advanced`, `settings.oauth`, `settings.scheduled-jobs`, `settings.email` (top-level `SettingsEmail`), `auth.force-password-reset`.
+- **Hard (59, 0 converted)**: nested `<livewire:.../>` children, old-style `$listeners`/`getListeners()`, broadcast/websocket dependency, or genuinely complex business logic behind a deceptively simple-looking form. Needs real-time/broadcast (Echo-in-React) and embedded-Livewire-island design work before conversion starts — not attempted yet.
+
+**Correction to the original Medium-bucket estimate (made during Phase 6's triage)**: the Phase 2 estimate of "23 Medium, 56 Hard" was a rough first pass based on a quick read of each class, not a full check of each Blade view for nested `<livewire:.../>` children. A dedicated triage pass in Phase 6 checked 20 previously-unconverted candidates that looked Medium-shaped (settings/admin/CRUD-style pages) against the same 4 disqualifiers used throughout this migration, and found **17 of those 20 were actually Hard bucket** — most because they nest a live child component (several nest `server.navbar`, which is itself broadcast-driven via `echo-private:team.{id},ProxyStatusChangedUI`), a few because of old-style `$listeners`/`getListeners()`. Only 3 were genuinely clean: `Team\AdminView`, `SettingsOauth`, `Settings\ScheduledJobs` (all converted in Phase 6). Combined with the 17 already converted in Phases 2-5, that's **20 total genuinely-Medium components — not 23** — and the other 3 that were vaguely assumed Medium move into the Hard count instead (56 → 59). This is the same "the estimate was optimistic until someone actually checked" pattern that recurred throughout this migration (see the Phase 1 "200+" correction above); recorded here rather than quietly adjusting the numbers.
 
 ## 7. Reusable per-page conversion recipe
 
@@ -306,3 +328,26 @@ Same lighter bar as Phases 2-4 (automated checks, no manual browser QA per page)
 - `Settings\Index`, `Settings\ScheduledJobs`, `SettingsBackup`, `SettingsOauth` remain on Livewire — only `Updates`, `Advanced`, and (top-level) `SettingsEmail` were converted this batch, so the Settings area's top-level navbar and sidebar Blade partials are still in active use by the remaining Livewire pages and were not deleted, only trimmed of `wireNavigate()` on the links pointing at now-converted pages.
 - `phpstan-baseline.neon`'s stale `App\Livewire\SettingsEmail` entry was not cleaned up (Section 4).
 - 6 Medium-bucket and all 56 Hard-bucket components remain on Livewire.
+
+## 17. Phase 6 verification log
+
+Same lighter bar as Phases 2-5 (automated checks, no manual browser QA per page).
+
+| Check | Result |
+|---|---|
+| Pint after each page converted | passed, every time |
+| 11 new Feature tests (3 files) | 2 test-bug fixes needed (see below); all 11 pass on the final run |
+| Full suite after this batch | 342 passed (1237 assertions) — up from 331 |
+| `yarn build` | Succeeded — one lazy-loaded chunk per new page |
+
+**Two test bugs found and fixed, neither in the converted pages themselves**:
+
+1. `SettingsOauthTest`'s boolean assertions on `OauthSetting::enabled` initially used `toBeTrue()`/`toBeFalse()` and failed with "1 is true" / "0 is false" — same uncast-boolean-column gotcha as `InstanceSettings::is_api_enabled`/`is_registration_enabled` in Phase 5. Fixed with `toBeTruthy()`/`toBeFalsy()`.
+2. `TeamAdminViewTest`'s delete tests initially failed with `ModelNotFoundException: InstanceSettings 0` — `verifyPasswordConfirmation()` (used by `adminDeleteUser()`) calls `shouldSkipPasswordConfirmation()`, which reads the `InstanceSettings` singleton. Fixed with the same `InstanceSettings::forceCreate(['id' => 0])` `beforeEach` used everywhere else this singleton is touched.
+
+## 18. Non-goals of Phase 6
+
+- Same non-goals as Phases 2-5 (Sections 10, 12, 14, 16) still apply, **except** the Medium-bucket line — that bucket is now fully converted (Section 3).
+- `Settings\Index`, `SettingsBackup` remain on Livewire — both are genuinely Hard bucket (nest `<livewire:activity-monitor>`, `<livewire:project.database.backup-edit>`/`-executions`), not simply "not yet gotten to."
+- The tab-state-in-URL-hash behavior from the original `Settings\ScheduledJobs` Alpine implementation was not preserved (Section 4).
+- All 59 Hard-bucket components remain on Livewire. Converting any of them requires a real-time/broadcast design decision (Echo-in-React bridge, or an embedded-Livewire-island approach) that has not been made yet — this is the next piece of work, not a mechanical continuation of the page-by-page recipe used for Easy/Medium.

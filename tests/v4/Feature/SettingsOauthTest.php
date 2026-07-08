@@ -50,7 +50,9 @@ it('updates oauth provider settings', function () {
 
     $response->assertRedirect();
     $github->refresh();
-    expect($github->enabled)->toBeTrue();
+    // OauthSetting::enabled isn't cast to boolean, so SQLite returns a raw int - toBeTruthy()
+    // rather than toBeTrue(), same gotcha as InstanceSettings' uncast boolean columns.
+    expect($github->enabled)->toBeTruthy();
     expect($github->client_id)->toBe('client-id');
 });
 
@@ -76,5 +78,5 @@ it('disables a provider left incomplete and reports an error', function () {
 
     $response->assertRedirect();
     $response->assertSessionHas('error');
-    expect($github->fresh()->enabled)->toBeFalse();
+    expect($github->fresh()->enabled)->toBeFalsy();
 });

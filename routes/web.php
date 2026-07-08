@@ -18,6 +18,7 @@ use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityPrivateKeyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SettingsEmailController;
+use App\Http\Controllers\SettingsScheduledJobsController;
 use App\Http\Controllers\SharedVariablesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamController;
@@ -68,7 +69,6 @@ use App\Livewire\Server\Sentinel\Show as SentinelShow;
 use App\Livewire\Server\Show as ServerShow;
 use App\Livewire\Server\Swarm as ServerSwarm;
 use App\Livewire\Settings\Index as SettingsIndex;
-use App\Livewire\Settings\ScheduledJobs as SettingsScheduledJobs;
 use App\Livewire\SettingsBackup;
 use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesShow;
 use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
@@ -130,7 +130,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/settings/email/send-test', [SettingsEmailController::class, 'sendTest'])->name('settings.email.send-test');
     Route::get('/settings/oauth', [SettingsController::class, 'oauth'])->name('settings.oauth');
     Route::put('/settings/oauth', [SettingsController::class, 'oauthUpdate'])->name('settings.oauth.update');
-    Route::get('/settings/scheduled-jobs', SettingsScheduledJobs::class)->name('settings.scheduled-jobs');
+    Route::get('/settings/scheduled-jobs', [SettingsScheduledJobsController::class, 'index'])->name('settings.scheduled-jobs');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');

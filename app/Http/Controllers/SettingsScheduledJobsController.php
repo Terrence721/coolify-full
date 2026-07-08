@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Livewire\Settings;
+namespace App\Http\Controllers;
 
 use App\Models\DockerCleanupExecution;
 use App\Models\ScheduledDatabaseBackup;
@@ -13,111 +13,50 @@ use App\Models\Server;
 use App\Models\ServiceDatabase;
 use App\Services\SchedulerLogParser;
 use App\Support\DatabaseEngineRegistry;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Livewire\Component;
+use Inertia\Inertia;
+use Inertia\Response;
 
-class ScheduledJobs extends Component
+class SettingsScheduledJobsController extends Controller
 {
-    public string $filterType = 'all';
+    private const SKIP_DEFAULT_TAKE = 20;
 
-    public string $filterDate = 'last_24h';
-
-    public int $skipPage = 0;
-
-    public int $skipDefaultTake = 20;
-
-    public bool $showSkipNext = false;
-
-    public bool $showSkipPrev = false;
-
-    public int $skipCurrentPage = 1;
-
-    public int $skipTotalCount = 0;
-
-    protected Collection $executions;
-
-    protected Collection $skipLogs;
-
-    protected Collection $managerRuns;
-
-    public function boot(): void
-    {
-        $this->executions = collect();
-        $this->skipLogs = collect();
-        $this->managerRuns = collect();
-    }
-
-    public function mount(): void
+    public function index(Request $request): Response|RedirectResponse
     {
         if (! isInstanceAdmin()) {
-            redirect()->route('dashboard');
-
-            return;
+            return redirect()->route('dashboard');
         }
 
-        $this->loadData();
-    }
+        $filterType = (string) $request->query('filterType', 'all');
+        $filterDate = (string) $request->query('filterDate', 'last_24h');
+        $skipPage = max(0, (int) $request->query('skipPage', 0));
 
-    public function updatedFilterType(): void
-    {
-        $this->skipPage = 0;
-        $this->loadData();
-    }
-
-    public function updatedFilterDate(): void
-    {
-        $this->skipPage = 0;
-        $this->loadData();
-    }
-
-    public function skipNextPage(): void
-    {
-        $this->skipPage += $this->skipDefaultTake;
-        $this->showSkipPrev = true;
-        $this->loadData();
-    }
-
-    public function skipPreviousPage(): void
-    {
-        $this->skipPage -= $this->skipDefaultTake;
-        if ($this->skipPage < 0) {
-            $this->skipPage = 0;
-        }
-        $this->showSkipPrev = $this->skipPage > 0;
-        $this->loadData();
-    }
-
-    public function refresh(): void
-    {
-        $this->loadData();
-    }
-
-    public function render(): Factory|View
-    {
-        return view('livewire.settings.scheduled-jobs', [
-            'executions' => $this->executions,
-            'skipLogs' => $this->skipLogs,
-            'managerRuns' => $this->managerRuns,
-        ]);
-    }
-
-    private function loadData(?int $teamId = null): void
-    {
-        $this->executions = $this->getExecutions($teamId);
+        $executions = $this->getExecutions($filterType, $filterDate);
 
         $parser = new SchedulerLogParser;
-        $allSkips = $parser->getRecentSkips(500, $teamId);
-        $this->skipTotalCount = $allSkips->count();
-        $this->skipLogs = $this->enrichSkipLogsWithLinks(
-            $allSkips->slice($this->skipPage, $this->skipDefaultTake)->values()
+        $allSkips = $parser->getRecentSkips(500);
+        $skipTotalCount = $allSkips->count();
+        $skipLogs = $this->enrichSkipLogsWithLinks(
+            $allSkips->slice($skipPage, self::SKIP_DEFAULT_TAKE)->values()
         );
-        $this->showSkipPrev = $this->skipPage > 0;
-        $this->showSkipNext = ($this->skipPage + $this->skipDefaultTake) < $this->skipTotalCount;
-        $this->skipCurrentPage = intval($this->skipPage / $this->skipDefaultTake) + 1;
-        $this->managerRuns = $parser->getRecentRuns(30, $teamId);
+        $managerRuns = $parser->getRecentRuns(30);
+
+        return Inertia::render('Settings/ScheduledJobs', [
+            'filterType' => $filterType,
+            'filterDate' => $filterDate,
+            'executions' => $executions,
+            'managerRuns' => $managerRuns,
+            'skipLogs' => $skipLogs,
+            'skipTotalCount' => $skipTotalCount,
+            'skipDefaultTake' => self::SKIP_DEFAULT_TAKE,
+            'skipPage' => $skipPage,
+            'skipCurrentPage' => intdiv($skipPage, self::SKIP_DEFAULT_TAKE) + 1,
+            'showSkipPrev' => $skipPage > 0,
+            'showSkipNext' => ($skipPage + self::SKIP_DEFAULT_TAKE) < $skipTotalCount,
+        ]);
     }
 
     private function enrichSkipLogsWithLinks(Collection $skipLogs): Collection
@@ -211,38 +150,46 @@ class ScheduledJobs extends Component
         });
     }
 
-    private function getExecutions(?int $teamId = null): Collection
+    private function getExecutions(string $filterType, string $filterDate): Collection
     {
-        $dateFrom = $this->getDateFrom();
+        $dateFrom = $this->getDateFrom($filterDate);
 
         $backups = collect();
         $tasks = collect();
         $cleanups = collect();
 
-        if ($this->filterType === 'all' || $this->filterType === 'backup') {
-            $backups = $this->getBackupExecutions($dateFrom, $teamId);
+        if ($filterType === 'all' || $filterType === 'backup') {
+            $backups = $this->getBackupExecutions($dateFrom);
         }
 
-        if ($this->filterType === 'all' || $this->filterType === 'task') {
-            $tasks = $this->getTaskExecutions($dateFrom, $teamId);
+        if ($filterType === 'all' || $filterType === 'task') {
+            $tasks = $this->getTaskExecutions($dateFrom);
         }
 
-        if ($this->filterType === 'all' || $this->filterType === 'cleanup') {
-            $cleanups = $this->getCleanupExecutions($dateFrom, $teamId);
+        if ($filterType === 'all' || $filterType === 'cleanup') {
+            $cleanups = $this->getCleanupExecutions($dateFrom);
         }
 
         return $backups->concat($tasks)->concat($cleanups)
             ->sortByDesc('created_at')
             ->values()
-            ->take(100);
+            ->take(100)
+            ->map(function (array $execution) {
+                $execution['created_at_human'] = $execution['created_at']?->diffForHumans();
+                $execution['created_at_formatted'] = $execution['created_at']?->format('M d H:i');
+                $execution['duration_seconds'] = ($execution['finished_at'] && $execution['created_at'])
+                    ? Carbon::parse($execution['created_at'])->diffInSeconds(Carbon::parse($execution['finished_at']))
+                    : null;
+
+                return $execution;
+            });
     }
 
-    private function getBackupExecutions(?Carbon $dateFrom, ?int $teamId): Collection
+    private function getBackupExecutions(?Carbon $dateFrom): Collection
     {
         $query = ScheduledDatabaseBackupExecution::with(['scheduledDatabaseBackup.database', 'scheduledDatabaseBackup.team'])
             ->where('status', 'failed')
             ->when($dateFrom, fn ($q) => $q->where('created_at', '>=', $dateFrom))
-            ->when($teamId, fn ($q) => $q->whereRelation('scheduledDatabaseBackup.team', 'id', $teamId))
             ->orderBy('created_at', 'desc')
             ->limit(100)
             ->get();
@@ -260,7 +207,6 @@ class ScheduledJobs extends Component
                 'resource_type' => $database ? class_basename($database) : null,
                 'server_name' => $server->name ?? 'Unknown',
                 'server_id' => $server?->id,
-                'team_id' => data_get($backup, 'team_id'),
                 'created_at' => $execution->created_at,
                 'finished_at' => $execution->updated_at,
                 'message' => $execution->message,
@@ -269,17 +215,11 @@ class ScheduledJobs extends Component
         });
     }
 
-    private function getTaskExecutions(?Carbon $dateFrom, ?int $teamId): Collection
+    private function getTaskExecutions(?Carbon $dateFrom): Collection
     {
         $query = ScheduledTaskExecution::with(['scheduledTask.application', 'scheduledTask.service'])
             ->where('status', 'failed')
             ->when($dateFrom, fn ($q) => $q->where('created_at', '>=', $dateFrom))
-            ->when($teamId, function ($q) use ($teamId) {
-                $q->where(function ($sub) use ($teamId) {
-                    $sub->whereRelation('scheduledTask.application.environment.project.team', 'id', $teamId)
-                        ->orWhereRelation('scheduledTask.service.environment.project.team', 'id', $teamId);
-                });
-            })
             ->orderBy('created_at', 'desc')
             ->limit(100)
             ->get();
@@ -288,7 +228,6 @@ class ScheduledJobs extends Component
             $task = $execution->scheduledTask;
             $resource = data_get($task, 'application') ?? data_get($task, 'service');
             $server = (is_object($task) && method_exists($task, 'server')) ? $task->server() : null;
-            $teamId = data_get($server, 'team_id');
 
             return [
                 'id' => $execution->id,
@@ -298,7 +237,6 @@ class ScheduledJobs extends Component
                 'resource_type' => $resource ? class_basename($resource) : null,
                 'server_name' => data_get($server, 'name', 'Unknown'),
                 'server_id' => data_get($server, 'id'),
-                'team_id' => $teamId,
                 'created_at' => $execution->created_at,
                 'finished_at' => $execution->finished_at,
                 'message' => $execution->message,
@@ -307,12 +245,11 @@ class ScheduledJobs extends Component
         });
     }
 
-    private function getCleanupExecutions(?Carbon $dateFrom, ?int $teamId): Collection
+    private function getCleanupExecutions(?Carbon $dateFrom): Collection
     {
         $query = DockerCleanupExecution::with(['server'])
             ->where('status', 'failed')
             ->when($dateFrom, fn ($q) => $q->where('created_at', '>=', $dateFrom))
-            ->when($teamId, fn ($q) => $q->whereRelation('server', 'team_id', $teamId))
             ->orderBy('created_at', 'desc')
             ->limit(100)
             ->get();
@@ -328,7 +265,6 @@ class ScheduledJobs extends Component
                 'resource_type' => 'Server',
                 'server_name' => data_get($server, 'name', 'Unknown'),
                 'server_id' => data_get($server, 'id'),
-                'team_id' => data_get($server, 'team_id'),
                 'created_at' => $execution->created_at,
                 'finished_at' => $execution->finished_at ?? $execution->updated_at,
                 'message' => $execution->message,
@@ -337,9 +273,9 @@ class ScheduledJobs extends Component
         });
     }
 
-    private function getDateFrom(): ?Carbon
+    private function getDateFrom(string $filterDate): ?Carbon
     {
-        return match ($this->filterDate) {
+        return match ($filterDate) {
             'last_24h' => now()->subDay(),
             'last_7d' => now()->subWeek(),
             'last_30d' => now()->subMonth(),
