@@ -16,23 +16,56 @@ Demonstrating cloud‑aligned architecture suitable for Terraform + Azure DevOps
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
 
-The goal of this project is to provide a hands-on demonstration of senior-level engineering competencies, including:
+🧭 Why This Project Matters
+This project demonstrates how a legacy Laravel application can be modernized into a cloud‑ready, scalable, full‑stack platform using contemporary engineering practices. By forking Coolify and rebuilding major portions of its architecture, this project highlights several senior‑level competencies:
 
-Full-stack modernization
+Modernization of Legacy Systems
+The original Coolify UI relied heavily on Blade and Livewire. I replaced these components with a React 19 SPA, leveraging modern features such as concurrent rendering, improved transitions, and server component compatibility.
 
-Scalable architecture design
+Cloud‑Native Architecture
+The entire application is fully containerized using Docker, including:
 
-Cloud-native containerization
+Laravel API (PHP‑FPM)
 
-Frontend migration to React 19
+React 19 frontend (Node)
 
-Backend enhancements in Laravel
+Nginx reverse proxy
 
-DevOps awareness and CI/CD readiness
+MySQL database
 
-Clear technical documentation
+Optional Redis cache
 
-This repository serves as a practical example of how I approach modernizing legacy systems, improving developer workflows, and building maintainable full-stack applications.
+This mirrors real enterprise deployment patterns and aligns with Terraform + Azure DevOps workflows.
+
+Full‑Stack Engineering Depth
+This project demonstrates hands‑on experience across:
+
+Frontend modernization
+
+Backend service refactoring
+
+API design
+
+Container orchestration
+
+Developer experience improvements
+
+Documentation and architectural communication
+
+Practical Demonstration of Role Alignment
+This project is intentionally structured to showcase the skills required for a Senior Full‑Stack Developer role, including:
+
+Scalable architecture
+
+Modern frontend engineering
+
+Cloud‑aligned DevOps practices
+
+Strong documentation
+
+Independent execution
+
+Ability to modernize and enhance complex systems
 
 🧩 What Coolify Is (Summary)
 Coolify is an open-source self-hosting platform designed to simplify deployment and infrastructure management.
@@ -60,6 +93,8 @@ Nginx reverse proxy
 MySQL database
 
 Optional Redis cache
+
+This provides:
 
 Production-like environment reproducibility
 
@@ -94,7 +129,8 @@ Improved folder structure for frontend/backend separation
 
 Added example tests (PHPUnit + Jest)
 
-
+🏗 Architecture Overview
+Code
 ┌──────────────────────────┐
 │        React 19 SPA      │  (Node container)
 └──────────────┬───────────┘
@@ -111,7 +147,6 @@ Added example tests (PHPUnit + Jest)
 ┌──────────────────────────┐
 │         Nginx            │  (Reverse proxy)
 └──────────────────────────┘
-
 ▶️ Running the Project
 Prerequisites
 Docker
@@ -127,14 +162,30 @@ React frontend: http://localhost:3000
 Laravel API: http://localhost:8000
 
 📚 Frontend Migration in Progress
-The Livewire → React migration referenced above is being done page-by-page, not as a single cutover, and is tracked as a living, audited process rather than a one-time change:
+The Livewire → React migration is being done page-by-page and tracked as a living, audited process:
 
-- [docs/livewire-to-react-migration.md](docs/livewire-to-react-migration.md) — the full migration log: why Inertia.js was chosen over a plain SPA + API, the real page inventory (84 full-page Livewire components, triaged Easy/Medium/Hard), the reusable per-page conversion recipe, and a verification log recorded phase by phase as pages are converted.
-- [TECH_STACK.md](TECH_STACK.md) — current technology stack, including the Livewire/Alpine and Inertia.js/React frontends that presently coexist in the app.
+docs/livewire-to-react-migration.md  
+Full migration log, including page inventory, triage (Easy/Medium/Hard), conversion recipes, and verification logs.
+
+TECH_STACK.md  
+Current technology stack, including the coexistence of Livewire/Alpine and Inertia.js/React frontends.
 
 🖼 Screenshots
 (Add screenshots or GIFs of your React 19 UI, dashboards, or architecture diagrams here.)
 
+🧰 Tech Stack
+Code
+React 19
+Laravel 10
+PHP-FPM
+Node.js 20
+Docker & Docker Compose
+MySQL 8
+Nginx
+Vite
+Redis (optional)
+Jest + React Testing Library
+PHPUnit
 📄 Disclaimer
 This repository is a modified fork of Coolify and is intended solely for educational and portfolio purposes.
 All original Coolify branding, trademarks, and documentation belong to their respective owners.
@@ -153,6 +204,10 @@ Scalable architecture design
 Strong documentation and communication
 
 Ability to work independently and deliver complex improvements
+
+Alignment with enterprise DevOps practices
+
+This project reflects the technical depth, architectural thinking, and execution expected of a Senior Full‑Stack Developer.
 
 Alignment with enterprise DevOps practices
 
