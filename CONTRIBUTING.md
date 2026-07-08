@@ -1,5 +1,8 @@
 # Contributing to Coolify
 
+> [!NOTE]
+> This repository is a personal portfolio fork (see [README.md](README.md)) and is not affiliated with the Coolify team. The guide below describes contributing to the **upstream** [coollabsio/coolify](https://github.com/coollabsio/coolify) project — PRs, Discord, and issue links all refer to that project, not this fork.
+
 > "First, thanks for considering contributing to my project. It really means a lot!" - [@andrasbacsai](https://github.com/andrasbacsai)
 
 You can ask for guidance anytime on our [Discord server](https://coollabs.io/discord) in the `#contribute` channel.

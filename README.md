@@ -126,6 +126,12 @@ React frontend: http://localhost:3000
 
 Laravel API: http://localhost:8000
 
+📚 Frontend Migration in Progress
+The Livewire → React migration referenced above is being done page-by-page, not as a single cutover, and is tracked as a living, audited process rather than a one-time change:
+
+- [docs/livewire-to-react-migration.md](docs/livewire-to-react-migration.md) — the full migration log: why Inertia.js was chosen over a plain SPA + API, the real page inventory (84 full-page Livewire components, triaged Easy/Medium/Hard), the reusable per-page conversion recipe, and a verification log recorded phase by phase as pages are converted.
+- [TECH_STACK.md](TECH_STACK.md) — current technology stack, including the Livewire/Alpine and Inertia.js/React frontends that presently coexist in the app.
+
 🖼 Screenshots
 (Add screenshots or GIFs of your React 19 UI, dashboards, or architecture diagrams here.)
 
