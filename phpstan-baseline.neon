@@ -163,6 +163,72 @@ parameters:
 			path: app/Actions/Shared/ComplexStatusCheck.php
 
 		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledDatabaseBackup and ''server'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledTask and ''server'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:enrichSkipLogsWithLinks\(\) has parameter \$skipLogs with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:enrichSkipLogsWithLinks\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getBackupExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getCleanupExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getTaskExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 2
+			path: app/Http/Controllers/SettingsScheduledJobsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) has parameter \$applicationIds with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Http/Controllers/TagsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/TagsController.php
+
+		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Jobs\\ApplicationDeploymentJob\) and ''addRetryLogEntry'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -431,42 +497,6 @@ parameters:
 			identifier: notIdentical.alwaysTrue
 			count: 1
 			path: app/Livewire/ActivityMonitor.php
-
-		-
-			message: '#^Method App\\Livewire\\Admin\\Index\:\:back\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Admin/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Admin\\Index\:\:getSubscribers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Admin/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Admin\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Admin/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Admin\\Index\:\:submitSearch\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Admin/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Admin\\Index\:\:switchUser\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Admin/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Admin\\Index\:\:\$foundUsers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Admin/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\Boarding\\Index\:\:continueValidation\(\) has no return type specified\.$#'
@@ -743,78 +773,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Destination/New/Docker.php
-
-		-
-			message: '#^Method App\\Livewire\\Destination\\Resources\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Destination/Resources.php
-
-		-
-			message: '#^Property App\\Livewire\\Destination\\Resources\:\:\$destination has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Destination/Resources.php
-
-		-
-			message: '#^Property App\\Livewire\\Destination\\Resources\:\:\$resources type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Destination/Resources.php
-
-		-
-			message: '#^Method App\\Livewire\\Destination\\Show\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Destination/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Destination\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Destination/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Destination\\Show\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Destination/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Destination\\Show\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Destination/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Destination\\Show\:\:\$destination has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Destination/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\ForcePasswordReset\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/ForcePasswordReset.php
-
-		-
-			message: '#^Method App\\Livewire\\ForcePasswordReset\:\:render\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/ForcePasswordReset.php
-
-		-
-			message: '#^Method App\\Livewire\\ForcePasswordReset\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/ForcePasswordReset.php
-
-		-
-			message: '#^Method App\\Livewire\\ForcePasswordReset\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/ForcePasswordReset.php
 
 		-
 			message: '#^Access to an undefined property App\\Livewire\\GlobalSearch\:\:\$services\.$#'
@@ -1289,384 +1247,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/NavbarDeleteTeam.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:instantSaveDiscordEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:instantSaveDiscordPingEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:saveModel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:sendTestNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Discord\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Variable \$original might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: app/Livewire/Notifications/Discord.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:copyFromInstanceSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:saveModel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:sendTestEmail\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:submitResend\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:submitSmtp\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Email\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Property App\\Livewire\\Notifications\\Email\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Property App\\Livewire\\Notifications\\Email\:\:\$smtpPort \(string\|null\) does not accept int\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Property App\\Livewire\\Notifications\\Email\:\:\$smtpTimeout \(string\|null\) does not accept int\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Property App\\Models\\EmailNotificationSettings\:\:\$smtp_port \(int\|null\) does not accept string\|null\.$#'
-			identifier: assign.propertyType
-			count: 2
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Property App\\Models\\EmailNotificationSettings\:\:\$smtp_timeout \(int\|null\) does not accept string\|null\.$#'
-			identifier: assign.propertyType
-			count: 2
-			path: app/Livewire/Notifications/Email.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:instantSavePushoverEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:saveModel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:sendTestNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Pushover\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Property App\\Livewire\\Notifications\\Pushover\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Notifications/Pushover.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:instantSaveSlackEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:saveModel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:sendTestNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Slack\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Property App\\Livewire\\Notifications\\Slack\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Notifications/Slack.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:instantSaveTelegramEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:saveModel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:sendTestNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Telegram\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Property App\\Livewire\\Notifications\\Telegram\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Notifications/Telegram.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:instantSaveWebhookEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:saveModel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:sendTestNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Notifications\\Webhook\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Variable \$original might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Livewire/Notifications/Webhook.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:cancelEmailChange\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:requestEmailChange\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:resendVerificationCode\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:resetPassword\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:showEmailChangeForm\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Profile\\Index\:\:verifyEmailChange\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Profile/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\AddEmpty\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
@@ -7243,66 +6823,6 @@ parameters:
 			path: app/Livewire/Project/Show.php
 
 		-
-			message: '#^Method App\\Livewire\\Security\\ApiTokens\:\:addNewToken\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\ApiTokens\:\:getTokens\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\ApiTokens\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\ApiTokens\:\:revoke\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\ApiTokens\:\:updatedPermissions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\ApiTokens\:\:updatedPermissions\(\) has parameter \$permissionToUpdate with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\ApiTokens\:\:\$expirationOptions type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\ApiTokens\:\:\$isApiEnabled has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\ApiTokens\:\:\$permissions type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\ApiTokens\:\:\$tokens has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Security/ApiTokens.php
-
-		-
 			message: '#^Method App\\Livewire\\Security\\CloudInitScriptForm\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -7505,54 +7025,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Livewire/Security/PrivateKey/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Show\:\:changePrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Show\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Show\:\:loadPublicKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Show\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Show\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\PrivateKey\\Show\:\:\$public_key has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\PrivateKey\\Show\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Show.php
 
 		-
 			message: '#^Method App\\Livewire\\Server\\Advanced\:\:instantSave\(\) has no return type specified\.$#'
@@ -9247,54 +8719,6 @@ parameters:
 			path: app/Livewire/Server/ValidateAndInstall.php
 
 		-
-			message: '#^Method App\\Livewire\\Settings\\Advanced\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Advanced\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Advanced\:\:rules\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Advanced\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Advanced\:\:toggleRegistration\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Advanced\:\:toggleTwoStepConfirmation\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Property App\\Livewire\\Settings\\Advanced\:\:\$allowed_ips \(string\|null\) does not accept Illuminate\\Support\\Stringable\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
-			message: '#^Property App\\Livewire\\Settings\\Advanced\:\:\$custom_dns_servers \(string\|null\) does not accept Illuminate\\Support\\Stringable\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Settings/Advanced.php
-
-		-
 			message: '#^Method App\\Livewire\\Settings\\Index\:\:buildHelperImage\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -9353,102 +8777,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/Settings/Index.php
-
-		-
-			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledDatabaseBackup and ''server'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledTask and ''server'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\ScheduledJobs\:\:enrichSkipLogsWithLinks\(\) has parameter \$skipLogs with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\ScheduledJobs\:\:enrichSkipLogsWithLinks\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\ScheduledJobs\:\:getBackupExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\ScheduledJobs\:\:getCleanupExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\ScheduledJobs\:\:getExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\ScheduledJobs\:\:getTaskExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Property App\\Livewire\\Settings\\ScheduledJobs\:\:\$executions with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Property App\\Livewire\\Settings\\ScheduledJobs\:\:\$managerRuns with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Property App\\Livewire\\Settings\\ScheduledJobs\:\:\$skipLogs with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 2
-			path: app/Livewire/Settings/ScheduledJobs.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Updates\:\:checkManually\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Updates.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Updates\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Updates.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Updates\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Updates.php
-
-		-
-			message: '#^Method App\\Livewire\\Settings\\Updates\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Settings/Updates.php
 
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
@@ -9553,120 +8881,6 @@ parameters:
 			path: app/Livewire/SettingsDropdown.php
 
 		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:sendTestEmail\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:submitResend\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:submitSmtp\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsEmail\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Property App\\Livewire\\SettingsEmail\:\:\$smtpPort \(string\|null\) does not accept int\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Property App\\Livewire\\SettingsEmail\:\:\$smtpTimeout \(string\|null\) does not accept int\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Property App\\Models\\InstanceSettings\:\:\$smtp_port \(int\|null\) does not accept string\|null\.$#'
-			identifier: assign.propertyType
-			count: 2
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Property App\\Models\\InstanceSettings\:\:\$smtp_timeout \(int\|null\) does not accept string\|null\.$#'
-			identifier: assign.propertyType
-			count: 2
-			path: app/Livewire/SettingsEmail.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsOauth\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsOauth.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsOauth\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsOauth.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsOauth\:\:rules\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsOauth.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsOauth\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsOauth.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsOauth\:\:updateOauthSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsOauth.php
-
-		-
-			message: '#^Property App\\Livewire\\SettingsOauth\:\:\$oauth_settings_map has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/SettingsOauth.php
-
-		-
-			message: '#^Method App\\Livewire\\SharedVariables\\Environment\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SharedVariables/Environment/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\SharedVariables\\Environment\\Index\:\:\$projects with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/SharedVariables/Environment/Index.php
-
-		-
 			message: '#^Method App\\Livewire\\SharedVariables\\Environment\\Show\:\:deleteRemovedVariables\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -9769,18 +8983,6 @@ parameters:
 			path: app/Livewire/SharedVariables/Environment/Show.php
 
 		-
-			message: '#^Method App\\Livewire\\SharedVariables\\Project\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SharedVariables/Project/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\SharedVariables\\Project\\Index\:\:\$projects with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/SharedVariables/Project/Index.php
-
-		-
 			message: '#^Method App\\Livewire\\SharedVariables\\Project\\Show\:\:deleteRemovedVariables\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -9869,18 +9071,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/SharedVariables/Project/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\SharedVariables\\Server\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SharedVariables/Server/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\SharedVariables\\Server\\Index\:\:\$servers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/SharedVariables/Server/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\SharedVariables\\Server\\Show\:\:deleteRemovedVariables\(\) has no return type specified\.$#'
@@ -10369,102 +9559,6 @@ parameters:
 			path: app/Livewire/Tags/Deployments.php
 
 		-
-			message: '#^Method App\\Livewire\\Tags\\Show\:\:getDeployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Tags\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Tags\\Show\:\:redeployAll\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Tags\\Show\:\:\$applications with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Tags\\Show\:\:\$deploymentsPerTagPerServer type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Tags\\Show\:\:\$services with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Tags\\Show\:\:\$tags with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Tags/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:delete\(\) has parameter \$id with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:delete\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:delete\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:getUsers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\AdminView\:\:submitSearch\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Property App\\Livewire\\Team\\AdminView\:\:\$number_of_users_to_show has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
-			message: '#^Property App\\Livewire\\Team\\AdminView\:\:\$users has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Team/AdminView.php
-
-		-
 			message: '#^Method App\\Livewire\\Team\\Create\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -10481,48 +9575,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Livewire/Team/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Index\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Index\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Team/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Index\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Team/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Index\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Team\\Index\:\:\$invitations has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Team/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Team\\Index\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Team/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\Team\\Invitations\:\:deleteInvitation\(\) has no return type specified\.$#'
