@@ -19,6 +19,10 @@ No vendor lock-in, which means that all the configurations for your applications
 
 For more information, take a look at our landing page at [coolify.io](https://coolify.io).
 
+## Frontend Migration in Progress
+
+This fork is in the middle of migrating the UI from Livewire to [Inertia.js](https://inertiajs.com/) + React, page by page, alongside the existing Livewire/Alpine stack. See [docs/livewire-to-react-migration.md](docs/livewire-to-react-migration.md) for the why, the current status, the reusable per-page conversion recipe, and a triage of what's left to convert. [TECH_STACK.md](TECH_STACK.md) reflects the updated frontend stack.
+
 ## Installation
 
 ```bash

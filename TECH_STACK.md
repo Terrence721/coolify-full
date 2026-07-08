@@ -3,6 +3,7 @@
 ## Frontend
 
 -   Livewire and Alpine.js
+-   Inertia.js and React (in progress — a page-by-page migration off Livewire; see [docs/livewire-to-react-migration.md](docs/livewire-to-react-migration.md))
 -   Blade (PHP templating engine)
 -   Tailwind CSS
 -   Monaco Editor (Code editor component)

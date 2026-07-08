@@ -15,6 +15,7 @@ use App\Http\Middleware\DecideWhatToDoWithUser;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\EnsureMcpEnabled;
 use App\Http\Middleware\EnsureTokenBelongsToCurrentTeamMember;
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\TrimStrings;
@@ -75,7 +76,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
             CheckForcePasswordReset::class,
             DecideWhatToDoWithUser::class,
-
+            HandleInertiaRequests::class,
         ],
 
         'api' => [

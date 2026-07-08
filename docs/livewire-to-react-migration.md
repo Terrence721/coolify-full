@@ -1,0 +1,200 @@
+# Livewire → React Migration
+
+## 1. Why
+
+We are migrating Coolify's UI from Livewire 3 to React 18/19, page by page, over time. This is not a big-bang rewrite: Livewire and React coexist in the same app for as long as the migration takes, and we cut over each page individually.
+
+## 2. Why Inertia.js instead of a plain React SPA + REST API
+
+The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 — see Section 6) wired directly into `routes/web.php`, with no existing REST/JSON API layer behind the UI. We considered two options:
+
+- **Plain React SPA + REST API**: would require designing, building, and versioning a whole new API surface (auth, CSRF, serialization, pagination, etc.) before we could move a single page, on top of the React migration itself.
+- **Inertia.js** (chosen): each page stays a normal Laravel route + controller that returns data as props. Routing, auth, CSRF, and session handling keep working as they do today. Migrated and not-yet-migrated pages coexist under the same Laravel app with no parallel API to maintain.
+
+## 3. Current status
+
+**13 of 84** full-page Livewire components converted:
+
+| Bucket | Converted | Remaining |
+|---|---|---|
+| Easy | 5 of 5 (all done) | 0 |
+| Medium | 6 of 23 | 17 |
+| Hard | 0 of 56 | 56 |
+
+Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, and all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`) — the entire notifications settings area is now fully off Livewire. Livewire and Alpine remain fully installed and used by every other page.
+
+## 4. Foundation (change ledger)
+
+### Phase 1 — toolchain + pilot page
+
+| File | Change | Purpose |
+|---|---|---|
+| `composer.json` / `composer.lock` | modified | Added `inertiajs/inertia-laravel` |
+| `app/Http/Middleware/HandleInertiaRequests.php` | created, later extended (Phase 2) | Inertia's request middleware; `$rootView` set to `app-inertia` |
+| `app/Http/Kernel.php` | modified | Registered `HandleInertiaRequests` in the `web` middleware group |
+| `package.json` / `yarn.lock` | modified | Added `react@^19.2.7`, `react-dom@^19.2.7`, `@inertiajs/react@^3.6.1` (deps), `@vitejs/plugin-react@^6.0.3` (devDep) |
+| `vite.config.js` | modified | Added the `@vitejs/plugin-react` plugin and a new `resources/js/inertia-app.jsx` Vite entrypoint, alongside the existing `app.js`/`app.css` entries |
+| `resources/views/app-inertia.blade.php` | created, then fixed | New, minimal Inertia root view (charset/viewport meta, CSRF meta, `@viteReactRefresh`, `@vite(...)`, `@inertiaHead`, `@inertia`). Does not extend `layouts/base.blade.php` (Livewire/Alpine-specific: FOUC/x-cloak handling, `livewire:init` toast wiring, Echo/Pusher bootstrap, DOMPurify global) |
+| `resources/js/inertia-app.jsx` | created, then fixed (later extended, Phase 2) | React entrypoint: `createInertiaApp()` resolving pages via `laravel-vite-plugin`'s `resolvePageComponent()` helper, mounting with `createRoot()` |
+| `resources/js/Pages/SharedVariables/Index.jsx` | created | The pilot page component |
+| `app/Http/Controllers/SharedVariablesController.php` | created, later extended (Phase 2) | `index()` returns `Inertia::render('SharedVariables/Index', ['links' => [...]])` |
+| `routes/web.php` | modified | `shared-variables.index` points at `SharedVariablesController` |
+| `resources/views/components/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Shared variables" nav link, leaving every other link unchanged |
+| `app/Livewire/SharedVariables/Index.php`, `resources/views/livewire/shared-variables/index.blade.php` | **deleted** | Real cutover, not a duplicate |
+| `tests/v4/Feature/SharedVariablesIndexTest.php` | created | First HTTP/Feature test in the repo |
+| `docs/livewire-to-react-migration.md` | created | This file |
+
+### Phase 2 — persistent layout, shared props, Easy bucket, first Medium page
+
+| File | Change | Purpose |
+|---|---|---|
+| `resources/js/Layouts/AppLayout.jsx` | created | React port of the navbar/sidebar shell, used as an Inertia persistent layout (see Section 5) |
+| `resources/js/inertia-app.jsx` | modified | `resolve()` now attaches `AppLayout` as every page's default layout, unless the page already sets its own |
+| `app/Http/Middleware/HandleInertiaRequests.php` | modified | `share()` now sends `auth.user`, `currentTeam`, `permissions` (`isSubscribed`, `isCloud`, `isInstanceAdmin`, `canAccessTerminal`), and `flash` (success/error/warning/info from session) — see Section 5 |
+| `app/Http/Controllers/SharedVariablesController.php` | modified | Added `environment()`, `project()`, `server()` methods |
+| `resources/js/Pages/SharedVariables/{Environment,Project,Server}/Index.jsx` | created | The 3 remaining Easy-bucket pages |
+| `app/Http/Controllers/ProfileController.php` | created | `appearance()` returns `Inertia::render('Profile/Appearance')` |
+| `resources/js/Pages/Profile/Appearance.jsx` | created | Ports the Alpine `x-data` theme/width/zoom state to React `useState`; dropped the original SVG icons for speed (plain text buttons now) — a visual simplification, not a functional gap |
+| `resources/views/components/profile/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Appearance" tab link |
+| `app/Http/Controllers/NotificationsWebhookController.php` | created | `edit()` / `update()` / `sendTest()` — the Medium-bucket pattern-setter (see Section 7 for the `useForm()` pattern) |
+| `resources/js/Pages/Notifications/Webhook.jsx` | created | Full port of all 15 boolean toggles + URL field using `useForm()` |
+| `resources/views/components/notification/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Webhook" tab link |
+| `routes/web.php` | modified | 6 routes repointed at new controllers (`shared-variables.{environment,project,server}.index`, `profile.appearance`, `notifications.webhook` + new `notifications.webhook.update` PUT and `notifications.webhook.send-test` POST routes) |
+| `app/Livewire/{Profile/Appearance,SharedVariables/{Environment,Project,Server}/Index,Notifications/Webhook}.php` + matching Blade views | **deleted** | Real cutovers |
+| `tests/v4/Feature/{ProfileAppearanceTest,SharedVariablesEnvironmentIndexTest,SharedVariablesProjectIndexTest,SharedVariablesServerIndexTest,NotificationsWebhookTest}.php` | created | One test per converted page (4 Easy + 1 Medium, 3 assertions for Webhook covering render, update, and validation rejection) |
+| `README.md`, `TECH_STACK.md` | modified | Point readers at this doc and note React/Inertia in the frontend stack |
+| `docs/livewire-to-react-migration.md` | modified throughout | This file |
+
+### Phase 3 — remaining Notifications channels (Discord, Email, Slack, Telegram, Pushover)
+
+All 5 follow the `Webhook` pattern from Phase 2 (boolean toggles + `useForm()`), confirming it generalizes cleanly across similar settings pages. `Notifications\Email` was the outlier — 3 independent sub-forms (main toggles, SMTP, Resend) plus a rate-limited test-send action and a copy-from-instance-settings action, so it got 3 separate `useForm()` instances and 5 controller actions instead of the usual 1+1+1.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/Notifications{Discord,Email,Slack,Telegram,Pushover}Controller.php` | created | One controller per channel, following the `Webhook` pattern. `NotificationsEmailController` also has `updateSmtp()`, `updateResend()`, and `copyFromInstance()` |
+| `resources/js/Pages/Notifications/{Discord,Email,Slack,Telegram,Pushover}.jsx` | created | `Email.jsx` uses 3 separate `useForm()` instances (main/SMTP/Resend) plus a `useState`-driven test-send modal; the other 4 are single-form pages matching `Webhook.jsx` |
+| `resources/views/components/notification/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from all 5 remaining tab links — every tab in this sub-nav is now Inertia |
+| `routes/web.php` | modified | 5 routes repointed, plus new `update`/`send-test` routes per channel; `Email` also gets `update-smtp`, `update-resend`, and `copy-from-instance` |
+| `app/Livewire/Notifications/{Discord,Email,Slack,Telegram,Pushover}.php` + matching Blade views | **deleted** | Real cutovers |
+| `tests/v4/Feature/Notifications{Discord,Email,Slack,Telegram,Pushover}Test.php` | created | 19 tests total: render + update + validation-rejection for the 3 webhook-style channels (Discord, Slack), render + update for Pushover/Telegram (no `SafeWebhookUrl` validation to test — see below), and 5 tests covering Email's independent actions |
+| `docs/livewire-to-react-migration.md` | modified throughout | This file |
+
+## 5. The shell problem and shared props
+
+Unlike the pilot (a bare standalone menu page), essentially every remaining page lives inside the app's persistent navbar/sidebar (`resources/views/components/navbar.blade.php`, 511 lines: Alpine state + PHP-rendered permission checks + 5 embedded Livewire components). That markup cannot run inside a React tree as-is.
+
+**Decision: build the navbar/sidebar as a React component once (`AppLayout.jsx`), used as an Inertia persistent layout**, rather than re-solving the shell per page or falling back to full page reloads on every Inertia-to-Inertia navigation. This is Inertia's standard mechanism for this problem — a `page.default.layout` wrapper that persists across client-side page visits instead of remounting. It's wired in `inertia-app.jsx`'s `resolve()`.
+
+**Explicit v1 scope-reduction, not a silent gap**: `AppLayout.jsx` omits 5 elements that were live Livewire components in the original navbar — team switching (shows the team name as static text instead of `<livewire:switch-team/>`), the settings dropdown, the upgrade banner, the delete-team modal trigger, and the help modal. Mixing live Livewire components inside a React-rendered tree is a real unsolved problem, not attempted this phase. Also omitted for v1: the mobile hamburger drawer, the sidebar collapse/expand toggle (always expanded), and global search plus the deployment status indicator. Follow-up work, not forgotten.
+
+**Shared props** (`HandleInertiaRequests::share()`) now carry what Livewire/Blade got for free: `auth.user` (id/name/email/isAdmin), `currentTeam` (id/name), `permissions` (`isSubscribed`, `isCloud`, `isInstanceAdmin`, `canAccessTerminal`), and `flash` (success/error/warning/info pulled from session). `AppLayout.jsx` reads `flash` on mount and calls the existing global `window.toast(...)` function — the same one Livewire's `layouts/base.blade.php` wires up — so both stacks route through one toast implementation.
+
+## 6. Real inventory (established via research, corrects the Phase 1 estimate)
+
+Phase 1 estimated "200+" full-page components; a real inventory in Phase 2 found **84 unique full-page Livewire component classes** across 130 routes in `routes/web.php` (some routes share one class via tabs — e.g. `ApplicationConfiguration` serves 18 routes). Triaged:
+
+- **Easy (5, all converted)**: `SharedVariables\Index` (pilot), `SharedVariables\{Environment,Project,Server}\Index`, `Profile\Appearance`. No `wire:model`, no nested `<livewire:.../>`, no listeners, trivial or no `mount()`.
+- **Medium (23, 6 converted)**: forms with validation/`wire:model` but no real-time dependency. Converted: all 6 `notifications.*` channels (`webhook`, `discord`, `email`, `slack`, `telegram`, `pushover`). Remaining examples: `admin.index`, `profile` (`ProfileIndex` — the "General" tab, not yet converted), `security.api-tokens`, `settings.scheduled-jobs`, `tags.show`, `team.{admin-view,index}`, `source.github.show`.
+- **Hard (56, 0 converted)**: nested `<livewire:.../>` children, broadcast/websocket listeners (`ApplicationStatusChanged`, `ServiceStatusChanged`), or real-time pages (`terminal`, `project.application.deployment.show`, `server.metrics`, `server.show`, `project.application.configuration` + 17 sibling tab routes, etc.). Needs real-time/broadcast (Echo-in-React) and embedded-Livewire-island design work before conversion starts — not attempted this phase.
+
+## 7. Reusable per-page conversion recipe
+
+Worked example: `SharedVariables\Index` (Phase 1), extended with the form pattern from `Notifications\Webhook` (Phase 2).
+
+1. Identify the Livewire full-page component and its route in `routes/web.php`.
+2. Grep the whole codebase for the route's **name** (not the Livewire class) to find every internal reference (nav links, redirects, other views/components).
+3. Grep those specific call sites for `wireNavigate()` / `wire:navigate` and remove it from links that point at the page you're converting. **Why this matters**: `wire:navigate` fetches the destination HTML via AJAX and morphs it into the existing `<body>`. Injected `<script type="module">` tags do not re-execute on a DOM morph, so a React page linked to via a live `wire:navigate` anchor would fetch the HTML but never boot React, producing a blank page. Do not touch `wire:navigate` on links to pages that are still Livewire.
+4. Create (or extend) a controller returning `Inertia::render('{Namespace}/{Name}', [...props])`. Every page gets `AppLayout` automatically (Section 5) unless it opts out.
+5. Create `resources/js/Pages/{Namespace}/{Name}.jsx`, translating the Blade template 1:1 — props in, JSX out. Tailwind classes carry over almost verbatim (`class` → `className`).
+6. **If the page has a form** (the Medium-bucket pattern, established by `Notifications\Webhook`): controller has an `edit()` (renders current values) and an `update()` (validates via `Validator::make()` — this repo's inline-validation convention, not Form Requests — then `$model->update($validated)`, `return back()->with('success', ...)`). The React page uses `@inertiajs/react`'s `useForm(initialData)` — `data`/`setData` for two-way binding, `put()`/`post()` for submission, `errors` for validation messages, `processing` for a disabled/loading state. This replaces `wire:model` + Livewire's reactive validation. The controller resolves action URLs (e.g. `updateUrl`, `sendTestUrl`) server-side via `route()` and passes them as props — see the Ziggy note below.
+7. Update the route(s) in `routes/web.php`; remove the old `use ... as ...` import.
+8. Decide delete-vs-keep for the old Livewire class + view: grep for direct references to the Livewire **class**, distinct from the route name. If none exist, delete both files — don't leave a dead duplicate.
+9. Write a Pest Feature test using `assertInertia()`. For a form page, also test the update action's happy path and at least one validation-rejection case.
+10. Run `vendor/bin/pint --dirty --format agent`.
+11. **Phase 1 required** a real authenticated browser visit per page (see Section 8 — it caught 2 real bugs). Phase 2 uses a lighter, user-directed bar: automated checks (Pint, Feature test, `yarn build`) without a manual browser click-through per page. This trade-off is deliberate, not an oversight — see Section 9.
+
+**Conventions still in force from Phase 1**:
+- **Page naming**: `App\Livewire\{Foo}\{Bar}` → `resources/js/Pages/{Foo}/{Bar}.jsx` → `Inertia::render('{Foo}/{Bar}', ...)`. Mechanical, no exceptions.
+- **Plain `.jsx`, not TypeScript**, still. Revisit once more Medium pages land.
+- **No Ziggy yet.** Every converted page so far resolves its URLs server-side and passes them as props. This is starting to feel repetitive (`Webhook.jsx` needed 2 action-URL props on top of its data) — **Ziggy is now a real candidate for the next infrastructure addition**, not a someday-flag.
+
+## 8. Phase 1 verification log
+
+| Check | Command | Result |
+|---|---|---|
+| Composer sanity | `composer validate` | `./composer.json is valid` |
+| Route wiring | `php artisan route:list --name=shared-variables.index` | Confirmed: resolves to `SharedVariablesController` |
+| New test | `php artisan test --compact --filter=SharedVariablesIndexTest` | 1 passed (12 assertions) |
+| Full regression suite | `php artisan test --compact` | 271 passed (713 assertions) — baseline was 270 |
+| Formatting | `vendor/bin/pint --dirty --format agent` | passed |
+| Production build | `yarn build` | Succeeded — both `app-*.js` (Livewire) and `inertia-app-*.js` (React) bundles emitted |
+| Route cache | `php artisan route:clear` | Needed once — a stale `bootstrap/cache/routes-v7.php` masked the route change |
+
+### Manual browser QA found two bugs the automated checks missed
+
+A manual authenticated browser visit to `/shared-variables` rendered a blank page despite every automated check above passing. Laravel Debugbar showed the server-side request had completed (`GET shared-variables`, 3 queries, 2 models resolved), so this was a client-side React mounting failure, not a server error.
+
+**Root cause 1**: `resources/views/app-inertia.blade.php` called `@vite([...])` without first calling `@viteReactRefresh`. Laravel's Vite integration requires this directive before `@vite(...)` whenever React is in use — it injects `@vitejs/plugin-react`'s Fast Refresh preamble script, which Vite otherwise auto-injects when it serves the HTML document itself. Since Laravel/Blade serves the HTML (not Vite's own dev server), the preamble was missing, which makes `@vitejs/plugin-react`'s runtime throw on load in **dev mode** (`yarn dev`) — this has no effect on `yarn build` production output, explaining why the automated build check passed while the live dev-server page was blank.
+
+**Fix 1**: added `@viteReactRefresh` directly before `@vite([...])`.
+
+That alone did not resolve it. A second manual browser check, after clearing the stale compiled Blade view cache (`php artisan view:clear` — the first fix wasn't taking effect until this ran), still showed the same `@vitejs/plugin-react can't detect preamble` error, now reported from inside `resources/js/Pages/SharedVariables/Index.jsx` specifically.
+
+**Root cause 2**: `resources/js/inertia-app.jsx` resolved pages with a hand-rolled `import.meta.glob('./Pages/**/*.jsx', { eager: true })` lookup instead of `laravel-vite-plugin`'s official `resolvePageComponent()` helper. The eager, hand-rolled version bundles every page as a static import of the entry file, which does not respect the module-evaluation ordering the officially supported lazy-glob pattern relies on, and still tripped the Fast Refresh preamble check.
+
+**Fix 2**: rewrote `resolve()` to use `resolvePageComponent(name, import.meta.glob('./Pages/**/*.jsx'))` (no `eager: true`) — the documented, supported pattern. Confirmed in Phase 2's `yarn build` output: each page now emits its own small lazy-loaded chunk (`Appearance-*.js`, `Webhook-*.js`, four separate `Index-*.js` chunks) instead of one large eager bundle.
+
+**Final verification**: after both fixes, a fresh authenticated browser visit to `/shared-variables` showed zero console errors, and the page rendered as expected — "Shared Variables" heading, subtitle, and all 4 linked cards — confirmed by inspecting the live DOM and console directly, beyond server-side response assertions.
+
+**Lesson for future page conversions**: `yarn build` succeeding does not prove a page works under the dev server (`yarn dev`) — the two paths inject dev-only tooling (HMR client, React refresh preamble) differently. A stale compiled Blade view cache can also mask a Blade-level fix from taking effect — run `php artisan view:clear` when a root/layout view change doesn't seem to apply.
+
+## 9. Phase 2 verification log
+
+Per the user's explicit direction, Phase 2 uses a lighter bar than Phase 1: automated checks, with no manual browser click-through per page. This is a deliberate trade-off, not an oversight — recording it here so a future reviewer understands why these pages weren't click-tested the way the pilot was, and treats "automated tests pass" as the actual claim being made rather than "confirmed working in a browser."
+
+| Check | Result |
+|---|---|
+| Pint after Easy-bucket batch | passed |
+| 4 new Feature tests (Easy bucket) | 4 passed, after one fix (see below) |
+| Full suite after Easy bucket | 275 passed (767 assertions) — up from 271 |
+| Pint after Medium page | passed |
+| 3 new Feature tests (`NotificationsWebhookTest`) | 3 passed on first run |
+| Full suite after Medium page | 278 passed (790 assertions) — up from 275 |
+| `yarn build` | Succeeded — confirmed per-page code-splitting (see Root cause 2 above) |
+| `php artisan route:list` spot checks | Confirmed all 6 repointed routes resolve to their new controllers |
+
+**One test bug found and fixed during this phase** (the bug was in the test, not the converted page): `SharedVariablesEnvironmentIndexTest` initially asserted 1 environment after creating 1 explicitly, but `Project::booted()` auto-creates a "production" `Environment` on project creation, so the real count was 2. Fixed by asserting against the auto-created environment instead of creating a redundant second one.
+
+**Known simplifications in this phase's conversions** (real trade-offs made for speed per the user's direction, not regressions):
+
+- `Profile\Appearance.jsx` dropped the original SVG icons on the theme/width/zoom buttons (plain text buttons now).
+- `Notifications\Webhook`'s `update()` action uses one uniform validation rule set; the original Livewire component had a separate, stricter "instant toggle" path when flipping `webhook_enabled` alone (that path required the URL immediately, versus nullable everywhere else on full submit). The converted version validates `webhook_url` as nullable in all cases — a minor behavior simplification, not a data-integrity issue: the model still requires a URL to actually function, enforced at send-time rather than toggle-time.
+- The `ray()` debug-logging calls in the original `Webhook` component were removed (dev-only tooling, not user-facing behavior).
+
+## 10. Non-goals of Phase 2
+
+- The remaining 22 Medium-bucket and all 56 Hard-bucket components stayed on Livewire this phase — tracked as backlog above (Section 6).
+- `AppLayout.jsx` v1 does not replicate the 5 embedded Livewire nav widgets, mobile drawer, or collapse toggle (Section 5) — tracked as follow-up, recorded here rather than left implicit.
+- This phase skipped manual browser QA per page (Section 9) — a deliberate, user-directed trade-off.
+- Ziggy remains unadded this phase, despite growing more likely to be needed (Section 7) — still an open decision for whoever picks up the next page.
+
+## 11. Phase 3 verification log
+
+Same lighter bar as Phase 2 (automated checks, no manual browser QA per page) — the user asked to continue at this pace using the `Webhook` conversion as the template.
+
+| Check | Result |
+|---|---|
+| Pint after all 5 channels converted | passed |
+| 19 new Feature tests (5 files) | 18 passed on first run, 1 failed then fixed (see below) |
+| Full suite after this batch | 293 passed (918 assertions) — up from 278 |
+| `yarn build` | Succeeded — `Discord-*.js`, `Email-*.js`, `Slack-*.js`, `Telegram-*.js`, `Pushover-*.js` each emitted as their own lazy-loaded chunk |
+
+**One test bug found and fixed during this phase**: `NotificationsEmailTest`'s copy-from-instance test called `instanceSettings()`, which reads a singleton row hardcoded to id `0` (`InstanceSettings::get()` → `findOrFail(0)`). No migration, factory, or existing test in the repo creates this row — it's seeded once at install time in real deployments. First attempt used `InstanceSettings::create(['id' => 0])`, which dropped the `id` because it isn't in the model's `$fillable` — the row landed on an auto-incremented id instead, so `findOrFail(0)` kept failing. Fixed with `InstanceSettings::forceCreate(['id' => 0])`, which bypasses mass-assignment protection. Worth remembering for any future test that touches instance-level (not team-level) settings.
+
+**Known simplification carried over from this batch**: the happy-path test covers `Notifications\Email`'s rate-limited test-send path (`RateLimiter::attempt('test-email:'.$team->id, ...)`), but no test drives the rejection branch (`return back()->with('error', 'Too many messages sent!')`) — matches the lighter Phase 2/3 verification bar rather than a full edge-case sweep.
+
+## 12. Non-goals of Phase 3
+
+- Same non-goals as Phase 2 (Section 10) still apply — nothing there has changed.
+- The Medium-bucket `Notifications\*` siblings are fully converted, but `profile` (`ProfileIndex`, the "General" tab sharing a sub-nav with the already-converted `Profile\Appearance`) was not — it's a separate, not-yet-triaged-in-detail Medium page, left for a future batch.
+- `NotificationsEmailController::sendTest()` has a rate-limiter failure branch, but no dedicated test drives it (see Section 11).

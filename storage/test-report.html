@@ -342,6 +342,47 @@
             <li class="success">It unsets healthcheck when disabled</li>
             <li class="success">It adds logging when server and db enable log drain</li>
         </ul>
+        <h2>Start Mysql (Tests\Unit\Actions\Database\StartMysql)</h2>
+        <ul>
+            <li class="success">It removes ssl dir and deletes certificates when ssl disabled</li>
+            <li class="success">It sets up ssl and generates certificate when missing</li>
+            <li class="success">It returns null when ssl enabled but server missing</li>
+            <li class="success">It writes custom mysql conf and includes chown when present</li>
+            <li class="success">It generates docker compose and includes persistent and file volumes</li>
+            <li class="success">It adds mysql env vars when missing and preserves existing</li>
+            <li class="success">It unsets healthcheck when disabled</li>
+            <li class="success">It adds logging when server and db enable log drain</li>
+            <li class="success">It sets ssl command and chowns certs when ssl enabled</li>
+        </ul>
+        <h2>Start Postgresql (Tests\Unit\Actions\Database\StartPostgresql)</h2>
+        <ul>
+            <li class="success">It removes ssl dir and deletes certificates when ssl disabled</li>
+            <li class="success">It sets up ssl and generates certificate when missing</li>
+            <li class="success">It returns null when ssl enabled but server missing</li>
+            <li class="success">It writes custom postgres conf and adds listen addresses when missing</li>
+            <li class="success">It removes custom conf file when postgres conf is blank</li>
+            <li class="success">It writes init scripts and clears directory first</li>
+            <li class="success">It generates docker compose and includes persistent and file volumes</li>
+            <li class="success">It adds postgres env vars when missing and preserves existing</li>
+            <li class="success">It unsets healthcheck when disabled</li>
+            <li class="success">It adds logging when server and db enable log drain</li>
+            <li class="success">It sets ssl command and chowns certs when ssl enabled</li>
+        </ul>
+        <h2>Start Redis (Tests\Unit\Actions\Database\StartRedis)</h2>
+        <ul>
+            <li class="success">It removes ssl dir and deletes certificates when ssl disabled</li>
+            <li class="success">It sets up ssl and generates certificate when missing</li>
+            <li class="success">It returns null when ssl enabled but server missing</li>
+            <li class="success">It writes custom redis conf and chowns it</li>
+            <li class="success">It builds start command without redis conf and without ssl</li>
+            <li class="success">It builds start command with redis conf and requirepass present</li>
+            <li class="success">It builds start command adds ssl arguments</li>
+            <li class="success">It generates docker compose and includes persistent and file volumes</li>
+            <li class="success">It includes shared redis password env var</li>
+            <li class="success">It unsets healthcheck when disabled</li>
+            <li class="success">It adds logging when server and db enable log drain</li>
+            <li class="success">It chowns ssl certs when ssl enabled</li>
+        </ul>
         <h2>Stop Application (Tests\Unit\Actions\Application\StopApplication)</h2>
         <ul>
             <li class="success">It fails when server is not functional</li>

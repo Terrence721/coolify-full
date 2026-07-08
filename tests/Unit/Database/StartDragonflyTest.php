@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
-use App\Actions\Database\StartDragonfly;
 use App\Models\LocalFileVolume;
 use App\Models\SslCertificate;
-use App\Models\StandaloneDocker;
 use App\Models\StandaloneDragonfly;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Yaml\Yaml;
 use Tests\Support\Fakes\DatabaseActionFake;
-use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\Support\InteractsWithDatabaseActions;
 use Tests\TestCase;
 
@@ -22,46 +19,6 @@ final class StartDragonflyTest extends TestCase
 {
     use InteractsWithDatabaseActions;
     use RefreshDatabase;
-
-    private StartDragonfly $action;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        DatabaseActionFake::reset();
-        RemoteProcessFake::reset();
-
-        $this->action = new StartDragonfly;
-    }
-
-    /**
-     * sslCertificates() and fileStorages() are called as chained relation methods
-     * (->delete(), ->where(...)->get(), etc.) in StartDragonfly, not accessed as cached
-     * relation properties — so setRelation() can't intercept them. A real, persisted
-     * model (with RefreshDatabase providing the real, empty tables) is required instead.
-     */
-    private function fakeDatabase(array $overrides = []): StandaloneDragonfly
-    {
-        $db = StandaloneDragonfly::create(array_merge([
-            'uuid' => 'df-123',
-            'name' => 'dragon',
-            'image' => 'dragonfly:latest',
-            'dragonfly_password' => 's3cr3t',
-            'enable_ssl' => false,
-            'destination_type' => StandaloneDocker::class,
-            'destination_id' => 1,
-            'limits_cpus' => 0.5,
-            'limits_cpu_shares' => 1024,
-            'custom_docker_run_options' => '',
-        ], $overrides));
-
-        $db->setRelation('destination', $this->destinationWithoutServer());
-        $db->setRelation('persistentStorages', collect());
-        $db->setRelation('runtime_environment_variables', collect());
-
-        return $db;
-    }
 
     #[Test]
     public function it_builds_start_command_without_ssl()

@@ -44,7 +44,7 @@
                             </button>
                         </div>
 
-                        <div class="flex flex-col pb-2 overflow-y-auto min-w-56 dark:bg-coolgray-100 gap-y-5 scrollbar min-w-0">
+                        <div class="flex flex-col pb-2 overflow-y-auto min-w-56 dark:bg-coolgray-100 gap-y-5 scrollbar">
                             <x-navbar />
                         </div>
                     </div>
@@ -69,7 +69,7 @@
 
             <div
                 class="sticky top-0 z-40 flex items-center justify-between px-4 py-4 gap-x-6 sm:px-6 lg:hidden bg-white/95 dark:bg-base/95 backdrop-blur-sm border-b border-neutral-300/50 dark:border-coolgray-200/50">
-                <div class="flex items-center gap-3 flex-shrink-0">
+                <div class="flex items-center gap-3 shrink-0">
                     <a href="/"
                         class="text-xl font-bold tracking-wide dark:text-white hover:opacity-80 transition-opacity">Coolify</a>
                     <livewire:switch-team />
@@ -83,7 +83,7 @@
                 </button>
             </div>
 
-            <main class="p-6" :class="[collapsed ? 'lg:pl-[6rem]' : 'lg:pl-[16rem]', sidebarReady ? 'transition-[padding] duration-200' : '']">
+            <main class="p-6" :class="[collapsed ? 'lg:pl-24' : 'lg:pl-64', sidebarReady ? 'transition-[padding] duration-200' : '']">
                     {{ $slot }}
             </main>
         </div>

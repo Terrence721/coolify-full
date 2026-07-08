@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\NotificationsDiscordController;
+use App\Http\Controllers\NotificationsEmailController;
+use App\Http\Controllers\NotificationsSlackController;
+use App\Http\Controllers\NotificationsPushoverController;
+use App\Http\Controllers\NotificationsTelegramController;
+use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SecurityApiTokensController;
+use App\Http\Controllers\SharedVariablesController;
+use App\Http\Controllers\TagsController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UploadController;
-use App\Livewire\Admin\Index as AdminIndex;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Destination\Index as DestinationIndex;
 use App\Livewire\Destination\Resources as DestinationResources;
 use App\Livewire\Destination\Show as DestinationShow;
 use App\Livewire\ForcePasswordReset;
-use App\Livewire\Notifications\Discord as NotificationDiscord;
-use App\Livewire\Notifications\Email as NotificationEmail;
-use App\Livewire\Notifications\Pushover as NotificationPushover;
-use App\Livewire\Notifications\Slack as NotificationSlack;
-use App\Livewire\Notifications\Telegram as NotificationTelegram;
-use App\Livewire\Notifications\Webhook as NotificationWebhook;
-use App\Livewire\Profile\Appearance as ProfileAppearance;
-use App\Livewire\Profile\Index as ProfileIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Index as DeploymentIndex;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
@@ -38,7 +41,6 @@ use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
 use App\Livewire\Project\Show as ProjectShow;
-use App\Livewire\Security\ApiTokens;
 use App\Livewire\Security\CloudInitScripts;
 use App\Livewire\Security\CloudTokens;
 use App\Livewire\Security\PrivateKey\Index as SecurityPrivateKeyIndex;
@@ -71,12 +73,8 @@ use App\Livewire\Settings\Updates as SettingsUpdates;
 use App\Livewire\SettingsBackup;
 use App\Livewire\SettingsEmail;
 use App\Livewire\SettingsOauth;
-use App\Livewire\SharedVariables\Environment\Index as EnvironmentSharedVariablesIndex;
 use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesShow;
-use App\Livewire\SharedVariables\Index as SharedVariablesIndex;
-use App\Livewire\SharedVariables\Project\Index as ProjectSharedVariablesIndex;
 use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
-use App\Livewire\SharedVariables\Server\Index as ServerSharedVariablesIndex;
 use App\Livewire\SharedVariables\Server\Show as ServerSharedVariablesShow;
 use App\Livewire\SharedVariables\Team\Index as TeamSharedVariablesIndex;
 use App\Livewire\Source\Github\Change as GitHubChange;
@@ -84,9 +82,7 @@ use App\Livewire\Storage\Index as StorageIndex;
 use App\Livewire\Storage\Show as StorageShow;
 use App\Livewire\Subscription\Index as SubscriptionIndex;
 use App\Livewire\Subscription\Show as SubscriptionShow;
-use App\Livewire\Tags\Show as TagsShow;
 use App\Livewire\Team\AdminView as TeamAdminView;
-use App\Livewire\Team\Index as TeamIndex;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
 use App\Livewire\Terminal\Index as TerminalIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
@@ -113,7 +109,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::get('/', Dashboard::class)->name('dashboard');
-    Route::get('/admin', AdminIndex::class)->name('admin.index');
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::post('/admin/back', [AdminController::class, 'back'])->name('admin.back');
+    Route::post('/admin/switch-user', [AdminController::class, 'switchUser'])->name('admin.switch-user');
     Route::get('/onboarding', BoardingIndex::class)->name('onboarding');
 
     Route::get('/subscription', SubscriptionShow::class)->name('subscription.show');
@@ -128,20 +126,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings/oauth', SettingsOauth::class)->name('settings.oauth');
     Route::get('/settings/scheduled-jobs', SettingsScheduledJobs::class)->name('settings.scheduled-jobs');
 
-    Route::get('/profile', ProfileIndex::class)->name('profile');
-    Route::get('/profile/appearance', ProfileAppearance::class)->name('profile.appearance');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/email/request', [ProfileController::class, 'requestEmailChange'])->name('profile.email.request');
+    Route::post('/profile/email/verify', [ProfileController::class, 'verifyEmailChange'])->name('profile.email.verify');
+    Route::post('/profile/email/resend', [ProfileController::class, 'resendVerificationCode'])->name('profile.email.resend');
+    Route::post('/profile/email/cancel', [ProfileController::class, 'cancelEmailChange'])->name('profile.email.cancel');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('/profile/appearance', [ProfileController::class, 'appearance'])->name('profile.appearance');
 
     Route::prefix('tags')->group(function () {
-        Route::get('/{tagName?}', TagsShow::class)->name('tags.show');
+        Route::get('/{tagName?}', [TagsController::class, 'show'])->name('tags.show');
+        Route::post('/{tagName}/redeploy', [TagsController::class, 'redeploy'])->name('tags.redeploy');
     });
 
     Route::prefix('notifications')->group(function () {
-        Route::get('/email', NotificationEmail::class)->name('notifications.email');
-        Route::get('/telegram', NotificationTelegram::class)->name('notifications.telegram');
-        Route::get('/discord', NotificationDiscord::class)->name('notifications.discord');
-        Route::get('/slack', NotificationSlack::class)->name('notifications.slack');
-        Route::get('/pushover', NotificationPushover::class)->name('notifications.pushover');
-        Route::get('/webhook', NotificationWebhook::class)->name('notifications.webhook');
+        Route::get('/email', [NotificationsEmailController::class, 'edit'])->name('notifications.email');
+        Route::put('/email', [NotificationsEmailController::class, 'update'])->name('notifications.email.update');
+        Route::put('/email/smtp', [NotificationsEmailController::class, 'updateSmtp'])->name('notifications.email.update-smtp');
+        Route::put('/email/resend', [NotificationsEmailController::class, 'updateResend'])->name('notifications.email.update-resend');
+        Route::post('/email/send-test', [NotificationsEmailController::class, 'sendTest'])->name('notifications.email.send-test');
+        Route::post('/email/copy-from-instance', [NotificationsEmailController::class, 'copyFromInstance'])->name('notifications.email.copy-from-instance');
+        Route::get('/telegram', [NotificationsTelegramController::class, 'edit'])->name('notifications.telegram');
+        Route::put('/telegram', [NotificationsTelegramController::class, 'update'])->name('notifications.telegram.update');
+        Route::post('/telegram/send-test', [NotificationsTelegramController::class, 'sendTest'])->name('notifications.telegram.send-test');
+        Route::get('/discord', [NotificationsDiscordController::class, 'edit'])->name('notifications.discord');
+        Route::put('/discord', [NotificationsDiscordController::class, 'update'])->name('notifications.discord.update');
+        Route::post('/discord/send-test', [NotificationsDiscordController::class, 'sendTest'])->name('notifications.discord.send-test');
+        Route::get('/slack', [NotificationsSlackController::class, 'edit'])->name('notifications.slack');
+        Route::put('/slack', [NotificationsSlackController::class, 'update'])->name('notifications.slack.update');
+        Route::post('/slack/send-test', [NotificationsSlackController::class, 'sendTest'])->name('notifications.slack.send-test');
+        Route::get('/pushover', [NotificationsPushoverController::class, 'edit'])->name('notifications.pushover');
+        Route::put('/pushover', [NotificationsPushoverController::class, 'update'])->name('notifications.pushover.update');
+        Route::post('/pushover/send-test', [NotificationsPushoverController::class, 'sendTest'])->name('notifications.pushover.send-test');
+        Route::get('/webhook', [NotificationsWebhookController::class, 'edit'])->name('notifications.webhook');
+        Route::put('/webhook', [NotificationsWebhookController::class, 'update'])->name('notifications.webhook.update');
+        Route::post('/webhook/send-test', [NotificationsWebhookController::class, 'sendTest'])->name('notifications.webhook.send-test');
     });
 
     Route::prefix('storages')->group(function () {
@@ -150,18 +170,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{storage_uuid}/resources', StorageShow::class)->name('storage.resources');
     });
     Route::prefix('shared-variables')->group(function () {
-        Route::get('/', SharedVariablesIndex::class)->name('shared-variables.index');
+        Route::get('/', [SharedVariablesController::class, 'index'])->name('shared-variables.index');
         Route::get('/team', TeamSharedVariablesIndex::class)->name('shared-variables.team.index');
-        Route::get('/projects', ProjectSharedVariablesIndex::class)->name('shared-variables.project.index');
+        Route::get('/projects', [SharedVariablesController::class, 'project'])->name('shared-variables.project.index');
         Route::get('/project/{project_uuid}', ProjectSharedVariablesShow::class)->name('shared-variables.project.show');
-        Route::get('/environments', EnvironmentSharedVariablesIndex::class)->name('shared-variables.environment.index');
+        Route::get('/environments', [SharedVariablesController::class, 'environment'])->name('shared-variables.environment.index');
         Route::get('/environments/project/{project_uuid}/environment/{environment_uuid}', EnvironmentSharedVariablesShow::class)->name('shared-variables.environment.show');
-        Route::get('/servers', ServerSharedVariablesIndex::class)->name('shared-variables.server.index');
+        Route::get('/servers', [SharedVariablesController::class, 'server'])->name('shared-variables.server.index');
         Route::get('/server/{server_uuid}', ServerSharedVariablesShow::class)->name('shared-variables.server.show');
     });
 
     Route::prefix('team')->group(function () {
-        Route::get('/', TeamIndex::class)->name('team.index');
+        Route::get('/', [TeamController::class, 'index'])->name('team.index');
+        Route::put('/', [TeamController::class, 'update'])->name('team.update');
+        Route::delete('/', [TeamController::class, 'destroy'])->name('team.destroy');
         Route::get('/members', TeamMemberIndex::class)->name('team.member.index');
         Route::get('/admin', TeamAdminView::class)->name('team.admin-view');
     });
@@ -316,7 +338,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/security/cloud-tokens', CloudTokens::class)->name('security.cloud-tokens');
     Route::get('/security/cloud-init-scripts', CloudInitScripts::class)->name('security.cloud-init-scripts');
-    Route::get('/security/api-tokens', ApiTokens::class)->name('security.api-tokens');
+    Route::get('/security/api-tokens', [SecurityApiTokensController::class, 'index'])->name('security.api-tokens');
+    Route::post('/security/api-tokens', [SecurityApiTokensController::class, 'store'])->name('security.api-tokens.store');
+    Route::delete('/security/api-tokens/{id}', [SecurityApiTokensController::class, 'destroy'])->name('security.api-tokens.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {

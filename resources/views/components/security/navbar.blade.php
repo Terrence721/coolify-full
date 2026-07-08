@@ -16,7 +16,7 @@
                     <button>Cloud-Init Scripts</button>
                 </a>
             @endcan
-            <a href="{{ route('security.api-tokens') }}" {{ wireNavigate() }}>
+            <a href="{{ route('security.api-tokens') }}">
                 <button>API Tokens</button>
             </a>
         </nav>

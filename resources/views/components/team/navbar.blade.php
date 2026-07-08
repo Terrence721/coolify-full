@@ -8,7 +8,7 @@
     <div class="subtitle">Team wide configurations.</div>
     <div class="navbar-main">
         <nav class="flex items-center gap-6 min-h-10">
-            <a class="{{ request()->routeIs('team.index') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+            <a class="{{ request()->routeIs('team.index') ? 'dark:text-white' : '' }}"
                 href="{{ route('team.index') }}">
                 General
             </a>

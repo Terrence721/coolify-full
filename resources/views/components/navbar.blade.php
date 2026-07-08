@@ -222,7 +222,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Shared variables" {{ wireNavigate() }}
+                        <a title="Shared variables"
                             class="{{ request()->is('shared-variables*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('shared-variables.index') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="menu-item-icon" viewBox="0 0 24 24">
@@ -261,7 +261,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Tags" {{ wireNavigate() }}
+                        <a title="Tags"
                             class="{{ request()->is('tags*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('tags.show') }}">
                             <svg class="menu-item-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -307,7 +307,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Teams" {{ wireNavigate() }}
+                        <a title="Teams"
                             class="{{ request()->is('team*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('team.index') }}">
                             <svg class="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -360,7 +360,7 @@
                     @if (isCloud() || isDev())
                         @if (isInstanceAdmin() || session('impersonating'))
                             <li>
-                                <a title="Admin" class="menu-item" href="/admin" {{ wireNavigate() }}>
+                                <a title="Admin" class="menu-item" href="/admin">
                                     <svg class="text-pink-500 menu-item-icon" viewBox="0 0 256 256"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path fill="currentColor"
@@ -506,6 +506,6 @@
         x-cloak
         x-transition.opacity.duration.100ms
         :style="`left: ${tooltip.x}px; top: ${tooltip.y}px;`"
-        class="fixed z-[100] -translate-y-1/2 px-2 py-1 text-xs font-medium rounded-md bg-neutral-900 dark:bg-coolgray-300 text-white whitespace-nowrap pointer-events-none shadow-lg border border-neutral-700 dark:border-coolgray-200"
+        class="fixed z-100 -translate-y-1/2 px-2 py-1 text-xs font-medium rounded-md bg-neutral-900 dark:bg-coolgray-300 text-white whitespace-nowrap pointer-events-none shadow-lg border border-neutral-700 dark:border-coolgray-200"
         x-text="tooltip.text"></div>
 </nav>

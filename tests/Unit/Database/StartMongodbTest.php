@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
-use App\Actions\Database\StartMongodb;
 use App\Models\LocalFileVolume;
 use App\Models\SslCertificate;
-use App\Models\StandaloneDocker;
 use App\Models\StandaloneMongodb;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Yaml\Yaml;
 use Tests\Support\Fakes\DatabaseActionFake;
-use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\Support\InteractsWithDatabaseActions;
 use Tests\TestCase;
 
@@ -22,50 +19,6 @@ final class StartMongodbTest extends TestCase
 {
     use InteractsWithDatabaseActions;
     use RefreshDatabase;
-
-    private StartMongodb $action;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        DatabaseActionFake::reset();
-        RemoteProcessFake::reset();
-
-        $this->action = new StartMongodb;
-    }
-
-    /**
-     * sslCertificates() and fileStorages() are called as chained relation methods
-     * in StartMongodb, not accessed as cached relation properties — so setRelation()
-     * can't intercept them. A real, persisted model (with RefreshDatabase providing
-     * the real, empty tables) is required instead.
-     */
-    private function fakeDatabase(array $overrides = []): StandaloneMongodb
-    {
-        $db = StandaloneMongodb::create(array_merge([
-            'uuid' => 'mongo-123',
-            'name' => 'mongodb',
-            'image' => 'mongo:6.0',
-            'mongo_initdb_root_username' => 'root',
-            'mongo_initdb_root_password' => 'rootpw',
-            'mongo_initdb_database' => 'appdb',
-            'mongo_conf' => null,
-            'enable_ssl' => false,
-            'ssl_mode' => 'require',
-            'destination_type' => StandaloneDocker::class,
-            'destination_id' => 1,
-            'limits_cpus' => 0.5,
-            'limits_cpu_shares' => 1024,
-            'custom_docker_run_options' => '',
-        ], $overrides));
-
-        $db->setRelation('destination', $this->destinationWithoutServer());
-        $db->setRelation('persistentStorages', collect());
-        $db->setRelation('runtime_environment_variables', collect());
-
-        return $db;
-    }
 
     #[Test]
     public function it_removes_ssl_dir_and_deletes_certificates_when_ssl_disabled()

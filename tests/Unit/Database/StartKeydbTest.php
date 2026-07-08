@@ -4,17 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
-use App\Actions\Database\StartKeydb;
 use App\Models\LocalFileVolume;
 use App\Models\SslCertificate;
-use App\Models\StandaloneDocker;
 use App\Models\StandaloneKeydb;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Yaml\Yaml;
 use Tests\Support\Fakes\DatabaseActionFake;
-use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\Support\InteractsWithDatabaseActions;
 use Tests\TestCase;
 
@@ -22,47 +19,6 @@ final class StartKeydbTest extends TestCase
 {
     use InteractsWithDatabaseActions;
     use RefreshDatabase;
-
-    private StartKeydb $action;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        DatabaseActionFake::reset();
-        RemoteProcessFake::reset();
-
-        $this->action = new StartKeydb;
-    }
-
-    /**
-     * sslCertificates() and fileStorages() are called as chained relation methods
-     * in StartKeydb, not accessed as cached relation properties — so setRelation()
-     * can't intercept them. A real, persisted model (with RefreshDatabase providing
-     * the real, empty tables) is required instead.
-     */
-    private function fakeDatabase(array $overrides = []): StandaloneKeydb
-    {
-        $db = StandaloneKeydb::create(array_merge([
-            'uuid' => 'kb-123',
-            'name' => 'keydb',
-            'image' => 'keydb:latest',
-            'keydb_password' => 's3cr3t',
-            'keydb_conf' => null,
-            'enable_ssl' => false,
-            'destination_type' => StandaloneDocker::class,
-            'destination_id' => 1,
-            'limits_cpus' => 0.5,
-            'limits_cpu_shares' => 1024,
-            'custom_docker_run_options' => '',
-        ], $overrides));
-
-        $db->setRelation('destination', $this->destinationWithoutServer());
-        $db->setRelation('persistentStorages', collect());
-        $db->setRelation('runtime_environment_variables', collect());
-
-        return $db;
-    }
 
     #[Test]
     public function it_builds_start_command_without_keydb_conf_and_without_ssl()

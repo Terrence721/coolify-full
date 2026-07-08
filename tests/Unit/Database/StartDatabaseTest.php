@@ -14,7 +14,6 @@ use App\Actions\Database\StartMongodb;
 use App\Actions\Database\StartMysql;
 use App\Actions\Database\StartPostgresql;
 use App\Actions\Database\StartRedis;
-use App\Models\Server;
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
@@ -23,51 +22,16 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
+use Tests\Support\InteractsWithStartDatabaseDispatch;
 use Tests\TestCase;
 
-class StartDatabaseTest extends TestCase
+final class StartDatabaseTest extends TestCase
 {
-    /**
-     * @param  class-string  $class
-     */
-    private function fakeDatabase(string $class, bool $functional = true, ?string $morphClass = null): mixed
-    {
-        $server = $this->createStub(Server::class);
-        $server->method('isFunctional')->willReturn($functional);
-
-        $destination = new class($server)
-        {
-            public string $network;
-
-            public function __construct(public Server $server)
-            {
-                $this->network = 'net-db';
-            }
-        };
-
-        // Only getMorphClass() is mocked — everything else (setRelation(), attribute
-        // assignment) needs to stay real, since PHPUnit's createMock() stubs out every
-        // public method by default, which would silently break setRelation(). Configure
-        // it once here: a second ->method('getMorphClass') call on an existing mock does
-        // not override this configuration.
-        /** @var Model&MockObject $db */
-        $db = $this->getMockBuilder($class)
-            ->onlyMethods(['getMorphClass'])
-            ->getMock();
-        $db->method('getMorphClass')->willReturn($morphClass ?? $class);
-
-        $db->setRelation('destination', $destination);
-        $db->is_public = false;
-        $db->public_port = null;
-
-        return $db;
-    }
+    use InteractsWithStartDatabaseDispatch;
 
     #[Test]
     #[AllowMockObjectsWithoutExpectations]
