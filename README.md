@@ -167,6 +167,9 @@ The Livewire → React migration is being done page-by-page and tracked as a liv
 docs/livewire-to-react-migration.md  
 Full migration log, including page inventory, triage (Easy/Medium/Hard), conversion recipes, and verification logs.
 
+docs/architecture.md  
+Verified repository/backend/frontend structure, deployment flow, and Docker/CI setup.
+
 TECH_STACK.md  
 Current technology stack, including the coexistence of Livewire/Alpine and Inertia.js/React frontends.
 

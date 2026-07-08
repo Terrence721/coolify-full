@@ -13,15 +13,15 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**18 of 84** full-page Livewire components converted:
+**24 of 84** full-page Livewire components converted:
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
-| Medium | 11 of 23 | 12 |
+| Medium | 17 of 23 | 6 |
 | Hard | 0 of 56 | 56 |
 
-Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, and `Admin\Index`. The entire notifications area, the profile area, and the security/team/admin single-page settings screens are now fully off Livewire. Livewire and Alpine remain fully installed and used by every other page.
+Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, and `SettingsEmail`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and most of the instance-wide Settings area are now fully off Livewire. Livewire and Alpine remain fully installed and used by every other page.
 
 ## 4. Foundation (change ledger)
 
@@ -104,6 +104,36 @@ Five more Medium-bucket pages, each a standalone settings/dashboard screen rathe
 | `docs/livewire-to-react-migration.md` | modified throughout | This file |
 
 **Dead code found, deliberately left untouched**: `App\Livewire\Tags\Deployments` (and its Blade view) is unreferenced by any route or by the `Tags\Show` page being converted — it appears to be orphaned code that predates this migration. Out of scope for this pass; not deleted, since removing unrelated dead code was not part of the task at hand.
+
+### Phase 5 — Destination, Security\PrivateKey\Show, Settings\Updates, ForcePasswordReset, Settings\Advanced, SettingsEmail
+
+Six more Medium-bucket pages. `Destination\Show`/`Destination\Resources` were converted together (a 2-tab pair sharing one sub-nav, like the Notifications channels). `Settings\Updates` and `Settings\Advanced` share the instance-wide Settings sidebar (General/Advanced/Updates) alongside the still-Livewire `Settings\Index`. `ForcePasswordReset` is the first converted page to opt out of the default `AppLayout` wrapper entirely (a bare auth-style page, matching its original `->layout('layouts.simple')`). `SettingsEmail` reuses the exact SMTP/Resend/test-send pattern already established by `Notifications\Email` (Phase 3), just at instance scope instead of team scope.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/DestinationController.php` | created | `show()` / `resources()` / `update()` / `destroy()` |
+| `resources/js/Pages/Destination/{Show,Resources}.jsx` | created | General tab (name/server-IP/network + delete) and Resources tab (read-only table of applications/services/databases on that Docker network, client-side search) |
+| `app/Http/Controllers/SecurityPrivateKeyController.php` | created | `show()` / `update()` / `destroy()` |
+| `resources/js/Pages/Security/PrivateKey/Show.jsx` | created | Name/description/public-key(read-only)/private-key(reveal-to-edit) form + delete |
+| `app/Http/Controllers/SettingsController.php` | created | `updates()` / `updatesUpdate()` / `updatesCheckManually()` / `advanced()` / `advancedUpdate()` / `advancedEnableRegistration()` / `advancedDisableTwoStepConfirmation()` |
+| `resources/js/Pages/Settings/{Updates,Advanced}.jsx` | created | Auto-update cron settings; a 10-toggle + 2-text-field instance-wide settings form, including the two password-confirmed one-way toggles (enable registration, disable two-step confirmation) |
+| `app/Http/Controllers/ForcePasswordResetController.php` | created | `edit()` / `update()` |
+| `resources/js/Pages/ForcePasswordReset.jsx` | created | Sets `ForcePasswordReset.layout = (page) => page` to opt out of `AppLayout` — the first page to use this escape hatch |
+| `app/Http/Controllers/SettingsEmailController.php` | created | `edit()` / `updateSmtp()` / `updateResend()` / `sendTest()` — instance-wide counterpart to `NotificationsEmailController` |
+| `resources/js/Pages/SettingsEmail.jsx` | created | SMTP block + Resend block (mutually exclusive, same as `Notifications/Email.jsx`) + test-send modal |
+| `resources/views/components/settings/sidebar.blade.php`, `resources/views/components/settings/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the Advanced, Updates, and Transactional Email links |
+| `resources/views/livewire/destination/index.blade.php`, `resources/views/livewire/server/destinations.blade.php`, `resources/views/livewire/security/private-key/index.blade.php` | modified | Removed `{{ wireNavigate() }}` from links pointing at the newly-converted pages |
+| `routes/web.php` | modified | Routes repointed for all 6 pages, plus new `destination.{update,destroy}`, `security.private-key.{update,destroy}`, `settings.updates.{update,check-manually}`, `auth.force-password-reset.update`, `settings.advanced.{update,enable-registration,disable-two-step-confirmation}`, `settings.email.{update-smtp,update-resend,send-test}` |
+| `app/Livewire/{Destination/Show,Destination/Resources,Security/PrivateKey/Show,Settings/Updates,ForcePasswordReset,Settings/Advanced,SettingsEmail}.php` + matching Blade views (incl. `destination/navbar.blade.php`) | **deleted** | Real cutovers |
+| `tests/v4/Feature/{DestinationShowTest,SecurityPrivateKeyShowTest,SettingsUpdatesTest,ForcePasswordResetTest,SettingsAdvancedTest,SettingsEmailTest}.php` | created | 22 new tests |
+| `docs/livewire-to-react-migration.md` | modified throughout | This file |
+
+**A real, minor correctness fix made along the way**: the original `Security\PrivateKey\Show`'s `delete()` called `$this->private_key->safeDelete()` but never checked its return value — `safeDelete()` silently no-ops and returns `false` if the key is still in use, yet the component redirected to the index page regardless, giving no feedback that nothing happened. `SecurityPrivateKeyController::destroy()` now checks the return value and flashes an error instead. Noted here since a migration pass finding and fixing a real (if minor) bug is worth flagging explicitly, not folding in silently.
+
+**Known simplifications in this phase's conversions**:
+- `Settings\Updates.jsx` drops the `config('constants.coolify.autoupdate')` env-override display (a disabled checkbox shown only when `AUTOUPDATE` is set in `.env`) — a rare deployment-time flag, not a normal user-facing control.
+- `SettingsEmail.jsx` drops the "From Name"/"From Address" fields' original single shared top-level form+Save button in favor of feeding both the SMTP and Resend sub-forms directly (each already independently validates/persists these two fields, mirroring `NotificationsEmailController::updateSmtp()`/`updateResend()`) — same net behavior, one fewer redundant submit path.
+- `phpstan-baseline.neon` still has a stale entry referencing the now-deleted `App\Livewire\SettingsEmail` class. Harmless (baseline entries for missing files don't fail a run) but not cleaned up this pass — flagged here rather than silently left for a future phpstan run to notice.
 
 ## 5. The shell problem and shared props
 
@@ -247,3 +277,32 @@ Same lighter bar as Phases 2-3 (automated checks, no manual browser QA per page)
 - `Tags\Show`'s live-refresh behavior was ported as client-side polling (`setInterval` + partial reload), not a true push-based update — acceptable for this page's low-stakes "did the deployment finish" use case, but not a pattern to reuse for anything latency-sensitive.
 - `App\Livewire\Tags\Deployments` — dead code discovered during this batch, unrelated to the page being converted — was deliberately left in place (Section 4).
 - 12 Medium-bucket and all 56 Hard-bucket components remain on Livewire.
+
+## 15. Phase 5 verification log
+
+Same lighter bar as Phases 2-4 (automated checks, no manual browser QA per page).
+
+| Check | Result |
+|---|---|
+| Pint after each page converted | passed, every time |
+| 22 new Feature tests (6 files) | Several rounds of test-bug fixes were needed before all passed (see below); all 22 pass on the final run |
+| Full suite after this batch | 331 passed (1159 assertions) — up from 309 |
+| `yarn build` | Succeeded — one lazy-loaded chunk per new page |
+
+**Multiple real test-authoring bugs found and fixed during this phase, none in the converted pages themselves** — this batch surfaced more of these than any prior phase, because it was the first to touch models with their own auto-creation side effects on *every* factory-created row (`Server`, not just `User`/`Project` as in earlier phases):
+
+1. `DestinationShowTest` originally factory-created a second `StandaloneDocker` for a freshly-factoried `Server`, using the factory's default `network: 'coolify'`. This collided with a real `unique(server_id, network)` constraint: `Server::boot()`'s `static::created` hook (`app/Models/Server.php:243`) already auto-creates a default `StandaloneDocker` named `coolify` for every new server. Fixed by using `$server->standaloneDockers()->first()` (the auto-created one) as the destination under test, and only factory-creating a second, differently-named destination for the one test that actually needs two (the delete test).
+2. The delete test then hit a second, unrelated problem: `destroy()` resolves the server's real `PrivateKey` relation (via `SshMultiplexingHelper`) to build the SSH command *before* `Process::fake()` ever gets a chance to short-circuit anything, and `ServerFactory`'s hardcoded `private_key_id => 1` doesn't correspond to a real row. Fixed by building a real `PrivateKey` (with a throwaway RSA keypair, mirroring the existing fixture in `tests/Unit/CoolifyTask/RunRemoteProcessTest.php`) and a faked `ssh-keys` disk, exactly as that existing test already does — this is a reusable recipe now, not a one-off.
+3. `TeamIndexTest`'s "last team" fix from Phase 4 pointed at a `User::boot()` gotcha; this phase's `SettingsUpdatesTest`/`SettingsAdvancedTest`/`SettingsEmailTest` all gate on `isInstanceAdmin()`, which requires membership (with an admin/owner role) in the root team (id 0) — reusing the `User::forceCreate(User::factory()->raw(['id' => 0]))` fixture pattern already established in `AdminIndexTest`, since creating a user with id 0 triggers the *same* `static::created` hook to auto-create and attach the root team.
+4. The auto-created root team defaults `show_boarding` to `true`, which would otherwise redirect every request in `SettingsUpdatesTest`'s first test to onboarding — same fix as `TeamIndexTest`'s Phase 4 gotcha (flip it to `false` before the request).
+5. `SettingsUpdatesTest`'s update test unexpectedly hit `Server::findOrFail(0)` (a real singleton "localhost" server row that isn't part of the test's fixture) because `updatesUpdate()`'s proxy-reconfiguration branch runs whenever `isCloud()` is false — which it is by default (`constants.coolify.self_hosted` defaults to `true`). Fixed by setting `config(['constants.coolify.self_hosted' => false])` for that one test, since exercising the proxy-reconfiguration side effect isn't what the test is verifying.
+6. `SettingsAdvancedTest`'s and `SettingsEmailTest`'s boolean assertions (`is_api_enabled`, `is_registration_enabled`) initially used `toBeTrue()`/`toBeFalse()` and failed with "1 is true" / "1 is false" — these two `InstanceSettings` columns (unlike most others on that model) aren't listed in `$casts`, so SQLite returns raw `0`/`1` integers rather than real PHP booleans. Fixed by using `toBeTruthy()`/`toBeFalsy()` for these specific fields.
+7. `SettingsAdvancedTest`'s "rejects enabling registration with an incorrect password" test initially expected `is_registration_enabled` to still be `false` after a rejected request, but that column defaults to `true` in the schema — the test never actually set it to `false` first, so it was checking a tautology that happened to look like a real assertion. Fixed by explicitly setting it `false` before the request in both the accept and reject test cases.
+8. `SettingsAdvancedTest`'s invalid-IP test initially asserted a custom `back()->with('error', ...)` session flash, but the `ValidIpOrCidr` validation rule already rejects malformed entries at the `Validator::make(...)->validate()` layer, producing a standard validation-error redirect (`errors` session key) before the controller's own post-validation normalization/error-flash logic is ever reached. Fixed by asserting `assertSessionHasErrors('allowed_ips')` instead.
+
+## 16. Non-goals of Phase 5
+
+- Same non-goals as Phases 2-4 (Sections 10, 12, 14) still apply.
+- `Settings\Index`, `Settings\ScheduledJobs`, `SettingsBackup`, `SettingsOauth` remain on Livewire — only `Updates`, `Advanced`, and (top-level) `SettingsEmail` were converted this batch, so the Settings area's top-level navbar and sidebar Blade partials are still in active use by the remaining Livewire pages and were not deleted, only trimmed of `wireNavigate()` on the links pointing at now-converted pages.
+- `phpstan-baseline.neon`'s stale `App\Livewire\SettingsEmail` entry was not cleaned up (Section 4).
+- 6 Medium-bucket and all 56 Hard-bucket components remain on Livewire.

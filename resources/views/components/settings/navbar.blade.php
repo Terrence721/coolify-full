@@ -15,7 +15,7 @@
                 href="{{ route('settings.email') }}">
                 Transactional Email
             </a>
-            <a class="{{ request()->routeIs('settings.oauth') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+            <a class="{{ request()->routeIs('settings.oauth') ? 'dark:text-white' : '' }}"
                 href="{{ route('settings.oauth') }}">
                 OAuth
             </a>

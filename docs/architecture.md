@@ -1,346 +1,103 @@
-📘 Architecture Overview — Coolify‑Full (Enhanced Fork)
-This document provides a detailed, accurate, and senior‑level explanation of the architecture behind Coolify‑Full, a modernized fork of Coolify designed to demonstrate full‑stack engineering, modernization strategy, containerization, and cloud‑ready deployment patterns.
+# Architecture Overview
 
-It reflects the actual folder structure of this repository and explains how the system works at a technical and architectural level.
+This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
 
-🏗️ High‑Level System Architecture
-Coolify‑Full is a large, multi‑service Laravel application with:
+For the frontend migration specifically (Livewire → Inertia.js/React), see [livewire-to-react-migration.md](livewire-to-react-migration.md) — that document is the detailed, phase-by-phase source of truth for anything frontend-related and is not repeated here.
 
-A modernized React 19 frontend (via Inertia.js + Vite)
+## 1. What this is
 
-A robust Laravel backend
+Coolify is a self-hostable PaaS: a Laravel application that manages servers, applications, databases, and services by connecting to them over SSH — there is no separate remote "agent" service running as part of this codebase. The one exception is **Sentinel**, a small metrics-collection binary Coolify installs on managed servers (via `CheckAndStartSentinelJob`) so the dashboard can show CPU/memory/disk graphs without polling over SSH for every metric; it's an installed artifact on the remote host, not a folder in this repo.
 
-Coolify Agents for remote execution and deployments
+## 2. Repository structure
 
-Infrastructure templates for containerized app deployment
+Verified against the actual top-level layout:
 
-Automation scripts for provisioning and orchestration
-
-Dockerized environment for local + production parity
-
-All services run together via Docker Compose, forming a reproducible, production‑like environment.
-
-Repository Structure
-
+```text
 coolify-full/
-│
-├── app/                         # Laravel application core (controllers, models, services)
-├── bootstrap/                   # Laravel bootstrap and autoloader
-├── config/                      # Laravel + Coolify configuration files
-├── database/                    # Migrations, seeders, factories
-├── public/                      # Public assets, entrypoint for Nginx
-├── resources/                   # React 19 frontend + Blade + Inertia.js
-├── routes/                      # API routes, web routes, CLI routes
-├── storage/                     # Logs, compiled views, cache
-│
-├── agents/                      # Coolify agent services (remote execution, monitoring)
-├── scripts/                     # Deployment scripts, automation utilities
-├── templates/                   # Infrastructure templates (Docker, Compose, configs)
-├── svgs/                        # SVG assets used across the UI
-├── tests/                       # PHPUnit + Dusk tests
-│
-├── docker/                      # Dockerfiles, container configs
-├── docker-compose.yml           # Main Docker orchestration file
-├── docker-compose.dev.yml       # Dev environment override
-├── docker-compose.prod.yml      # Production override
-├── docker-compose.windows.yml   # Windows Docker Desktop support
-│
-├── docs/                        # Documentation (architecture, migration logs)
-│   ├── architecture.md          # ← This file
-│   └── livewire-to-react-migration.md
-│
-├── TECH_STACK.md                # Full tech stack overview
-├── POSITION_ALIGNMENT.md        # Role alignment document
-├── README.md                    # Main project documentation
-│
-├── composer.json                # PHP dependencies
-├── composer.lock
-├── package.json                 # Node dependencies
-├── yarn.lock                    # Node lockfile
-├── vite.config.js               # Vite build configuration
-│
-├── phpstan-*                    # PHPStan analysis logs
-├── phpstan-baseline.neon        # PHPStan baseline
-├── rector-*                     # Rector automation scripts
-│
-├── .circleci/                   # CircleCI pipeline configuration
-├── .github/                     # GitHub Actions workflows
-│
-├── LICENSE
-├── SECURITY.md
-├── CONTRIBUTING.md
-└── CODE_OF_CONDUCT.md
-
-
-⚙️ Core Architectural Components
-1. Laravel Application Core (app/)
-This is the heart of Coolify:
-
-Controllers
-
-Models
-
-Services
-
-Jobs
-
-Events
-
-Deployment logic
-
-Infrastructure orchestration
-
-Authentication
-
-API endpoints for React
-
-Your modernization work touches:
-
-Controller refactoring
-
-Service boundary cleanup
-
-API improvements
-
-Validation enhancements
-
-PHPStan cleanup
-
-Rector‑based modernization
-
-2. React 19 Frontend (resources/)
-Coolify’s frontend lives inside resources/ and uses:
-
-React 19 (your modernization)
-
-Inertia.js (SPA bridge between Laravel + React)
-
-Blade templates (legacy UI)
-
-Vite (build system)
-
-Your migration replaces:
-
-Livewire components
-
-Blade UI
-
-Alpine.js interactions
-
-With:
-
-React 19 SPA components
-
-Concurrent rendering
-
-Modern state management
-
-Page‑by‑page conversion tracked in docs/livewire-to-react-migration.md
-
-3. Coolify Agents (agents/)
-This folder contains:
-
-Remote execution agents
-
-Monitoring agents
-
-Deployment workers
-
-Background automation processes
-
-Agents communicate with the main Laravel app to:
-
-Deploy applications
-
-Manage servers
-
-Run commands
-
-Monitor health
-
-This is a major part of Coolify’s architecture.
-
-4. Deployment Scripts (scripts/)
-These scripts automate:
-
-Container builds
-
-Deployment flows
-
-Infrastructure setup
-
-Environment preparation
-
-They are used by both:
-
-Coolify Agents
-
-Laravel backend services
-
-5. Infrastructure Templates (templates/)
-This folder contains:
-
-Docker templates
-
-Compose templates
-
-Config templates
-
-Deployment manifests
-
-These are used when Coolify deploys apps to remote servers.
-
-6. Docker Architecture (docker/ + Compose files)
-Your repo includes:
-
-docker-compose.yml
-
-docker-compose.dev.yml
-
-docker-compose.prod.yml
-
-docker-compose.windows.yml
-
-Custom Dockerfiles in docker/
-
-These define:
-
-PHP‑FPM container
-
-Node/Vite container
-
-Nginx reverse proxy
-
-MySQL
-
-Redis (optional)
-
-Supervisor processes
-
-Agent containers
-
-This is a full production‑grade container topology.
-
-🔄 Request Flow (Accurate to Coolify)
-
-React 19 (Inertia.js) → Laravel Routes → Controllers → Services → Agents → Remote Servers
-
-Frontend Flow
-React 19 SPA sends request via Inertia.js
-
-Laravel routes resolve the request
-
-Controllers delegate to service classes
-
-Services may call:
-
-Database
-
-Agents
-
-Deployment engines
-
-Infrastructure templates
-
-Deployment Flow
-User triggers deployment in UI
-
-Laravel creates a deployment job
-
-Job communicates with Coolify Agent
-
-Agent executes commands on remote server
-
-Agent reports back to Laravel
-
-React UI updates via Inertia.js
-
-☁️ Cloud & DevOps Alignment
-Your architecture supports:
-
-Terraform
-Container‑based infrastructure
-
-Remote server provisioning
-
-Environment variables
-
-Secrets management
-
-Azure DevOps
-CI/CD pipelines
-
-Multi‑stage Docker builds
-
-Automated deployments
-
-Enterprise DevOps
-PHPStan static analysis
-
-Rector automated refactoring
-
-CircleCI pipelines
-
-GitHub Actions workflows
-
-Vite build pipeline
-
-Yarn dependency management
-
-🔧 Modernization Strategy (Accurate to Your Repo)
-✔ Livewire → React 19 migration
-Tracked in docs/livewire-to-react-migration.md
-
-✔ PHPStan Level 6 cleanup
-Multiple raw logs included in repo
-
-✔ Rector modernization
-Automated fixes for:
-
-Model relations
-
-Param types
-
-Property generics
-
-✔ UI modernization
-React 19 components replacing Blade/Livewire
-
-✔ Docker improvements
-Multi‑compose environment
-Windows Docker Desktop support
-Production overrides
-
-✔ Documentation improvements
-README
-POSITION_ALIGNMENT.md
-TECH_STACK.md
-architecture.md
-migration logs
-
-🚀 Future Enhancements
-Add Kubernetes manifests
-
-Add Terraform modules
-
-Add CI/CD pipeline examples
-
-Add React 19 server components
-
-Add agent health dashboards
-
-Add deployment visualization UI
-
-🎯 Summary
-This architecture file reflects the real structure and behavior of your Coolify fork.
-It demonstrates:
-
-Senior‑level architectural understanding
-
-Modernization strategy
-
-Containerization expertise
-
-DevOps alignment
-
-Ability to document complex systems clearly
+├── app/                    # Laravel application code (see Section 3)
+├── bootstrap/               # App bootstrap + global helper files (bootstrap/helpers/*.php)
+├── config/                  # Laravel + Coolify configuration
+├── database/                 # Migrations, seeders, factories
+├── docker/                   # Dockerfiles for coolify-helper, coolify-realtime, dev/prod/testing-host images
+├── docs/                     # This folder
+├── public/                   # Web root, compiled assets land in public/build
+├── resources/                 # Frontend: css/, fonts/, js/, views/ (see Section 4)
+├── routes/                    # web.php, api.php, console.php, channels.php
+├── scripts/                   # Shell scripts (install/upgrade scripts, helper image build scripts)
+├── storage/                   # Logs, compiled views, framework cache
+├── svgs/                       # SVG icon assets used by the UI (also mirrored under public/svgs)
+├── templates/                  # Coolify's built-in service templates (one-click service defaults, service-templates*.json)
+├── tests/                      # Pest/PHPUnit tests — see tests/README.md for the test-infrastructure files specifically
+├── docker-compose.yml, docker-compose.dev.yml, docker-compose.prod.yml, docker-compose.windows.yml
+├── .circleci/config.yml         # CircleCI pipeline
+└── .github/workflows/quality.yml # GitHub Actions pipeline
+```
+
+There is no `agents/` directory and no separate agent codebase in this repository.
+
+## 3. Backend (`app/`)
+
+- **`Actions/`** — domain actions using `lorisleiva/laravel-actions`, organized by area: `Application/`, `Database/`, `Docker/`, `Proxy/`, `Server/`, `Service/`, `Shared/`, `CoolifyTask/`, `Fortify/`, `Stripe/`, `User/`. `CoolifyTask/RunRemoteProcess.php` is the action that actually runs commands on remote servers over SSH (via the `instant_remote_process()` / `SshMultiplexingHelper` helpers in `bootstrap/helpers/remoteProcess.php`) — this is the real "remote execution" layer, not a separate agent process.
+- **`Http/Controllers/`** — REST API controllers (`Api/`) plus the growing set of Inertia page controllers created during the React migration (see the migration doc).
+- **`Livewire/`** — the primary UI layer for pages not yet migrated to Inertia/React (still the majority of pages).
+- **`Models/`** — Eloquent models (`Server`, `Application`, `Service`, `Project`, `Team`, standalone database models, etc.).
+- **`Jobs/`** — queued work: deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, and periodic checks like `CheckAndStartSentinelJob`, `CheckForUpdatesJob`. Runs on Redis-backed queues via Horizon.
+- **`Services/`** — orchestration/business logic (`ConfigurationGenerator`, `DockerImageParser`, `ContainerStatusAggregator`, `HetznerService`, etc.).
+- **`Policies/`** — authorization, registered in `AuthServiceProvider`.
+
+## 4. Frontend (`resources/`)
+
+```text
+resources/
+├── css/
+├── fonts/
+├── js/
+│   ├── Layouts/     # React persistent layouts (Inertia)
+│   ├── Pages/       # React page components (Inertia), path mirrors the converted Livewire namespace
+│   ├── app.js       # Livewire/Alpine entrypoint
+│   └── inertia-app.jsx  # Inertia/React entrypoint
+└── views/           # Blade templates — both Livewire component views and the Inertia root view
+```
+
+Two frontend stacks coexist in the same app during the migration:
+
+- **Livewire 3 + Alpine.js + Blade** — still the majority of pages.
+- **Inertia.js + React 19** — the pages converted so far; see [livewire-to-react-migration.md](livewire-to-react-migration.md) for the running count, the reasoning for choosing Inertia over a plain SPA + API (the short version: Inertia was chosen specifically so we *don't* have to build and version a separate REST API for a full SPA), and the conversion recipe used for each page.
+
+Tailwind CSS v4, Monaco Editor (code editor), and XTerm.js (terminal) round out the frontend dependencies — see [TECH_STACK.md](../TECH_STACK.md) for the full list.
+
+## 5. Deployment flow
+
+A deployment does not go through a separate agent service — it's a Laravel job that SSHes into the target server directly:
+
+1. A deployment is triggered (push webhook, manual redeploy, or scheduled).
+2. `ApplicationDeploymentJob` is queued (Redis + Horizon).
+3. The job builds and runs shell commands on the target server via `instant_remote_process()` (SSH, with connection multiplexing to avoid re-authenticating per command).
+4. Container/build status updates are broadcast over Soketi (WebSockets) so Livewire/Inertia pages update in real time via `ApplicationStatusChanged`/`ServiceStatusChanged`/`ProxyStatusChanged` events.
+5. Server-side metrics (CPU/memory/disk) come from the optional Sentinel binary installed on the remote server, polled/displayed via `Server\Sentinel\*`.
+
+## 6. Docker & environments
+
+| File | Purpose |
+|---|---|
+| `docker-compose.yml` | Base/production service definitions |
+| `docker-compose.dev.yml` | Local development override — adds `postgres`, `redis`, `soketi`, `vite`, `testing-host`, `mailpit`, `minio` alongside the `coolify` app container |
+| `docker-compose.prod.yml` | Production-specific overrides |
+| `docker-compose.windows.yml` | Windows Docker Desktop-specific overrides |
+| `docker/` | Dockerfiles for the `coolify-helper` and `coolify-realtime` images, plus dev/prod/testing-host variants |
+
+The database is **PostgreSQL** (`config/database.php` defaults `DB_CONNECTION` to `pgsql`), not MySQL. Redis backs caching, queues, and Horizon. Soketi is the WebSocket server for real-time broadcasting.
+
+See [DEVELOPING_IN_CONTAINERS_WINDOWS.md](../DEVELOPING_IN_CONTAINERS_WINDOWS.md) for the actual day-to-day local dev workflow used on this machine.
+
+## 7. CI
+
+- **`.circleci/config.yml`** — CircleCI pipeline.
+- **`.github/workflows/quality.yml`** — GitHub Actions (formatting/static analysis/tests).
+
+## 8. Where to go next
+
+- Frontend migration status, rationale, and per-phase verification log: [livewire-to-react-migration.md](livewire-to-react-migration.md)
+- Full technology stack list: [TECH_STACK.md](../TECH_STACK.md)
+- Local dev environment setup: [DEVELOPING_IN_CONTAINERS_WINDOWS.md](../DEVELOPING_IN_CONTAINERS_WINDOWS.md)
+- Test infrastructure (`TestCase.php`, `Pest.php`, etc.): [tests/README.md](../tests/README.md)

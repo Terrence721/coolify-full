@@ -17,7 +17,7 @@
                 Members
             </a>
             @if (isInstanceAdmin())
-                <a class="{{ request()->routeIs('team.admin-view') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+                <a class="{{ request()->routeIs('team.admin-view') ? 'dark:text-white' : '' }}"
                     href="{{ route('team.admin-view') }}">
                     Admin View
                 </a>

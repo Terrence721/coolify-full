@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Jobs\CheckForUpdatesJob;
+use App\Models\OauthSetting;
 use App\Models\Server;
 use App\Rules\ValidDnsServers;
 use App\Rules\ValidIpOrCidr;
@@ -215,5 +216,70 @@ class SettingsController extends Controller
         instanceSettings()->update(['disable_two_step_confirmation' => true]);
 
         return back()->with('success', 'Two step confirmation has been disabled.');
+    }
+
+    public function oauth(): Response|RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        $providers = OauthSetting::all()->sortBy('provider')->map(fn (OauthSetting $setting) => [
+            'id' => $setting->id,
+            'provider' => $setting->provider,
+            'enabled' => $setting->enabled,
+            'client_id' => $setting->client_id,
+            'client_secret' => $setting->client_secret,
+            'redirect_uri' => $setting->redirect_uri,
+            'tenant' => $setting->tenant,
+            'base_url' => $setting->base_url,
+            'callbackUrl' => route('auth.callback', $setting->provider),
+        ])->values();
+
+        return Inertia::render('SettingsOauth', [
+            'providers' => $providers,
+            'updateUrl' => route('settings.oauth.update'),
+        ]);
+    }
+
+    public function oauthUpdate(Request $request): RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        $providers = $request->input('providers', []);
+        $errors = [];
+
+        foreach ($providers as $providerData) {
+            $oauth = OauthSetting::find($providerData['id'] ?? null);
+            if (! $oauth) {
+                $errors[] = "OAuth setting for provider '{$providerData['provider']}' not found. It may have been deleted.";
+
+                continue;
+            }
+
+            $oauth->fill([
+                'enabled' => $providerData['enabled'] ?? false,
+                'client_id' => $providerData['client_id'] ?? null,
+                'client_secret' => $providerData['client_secret'] ?? null,
+                'redirect_uri' => $providerData['redirect_uri'] ?? null,
+                'tenant' => $providerData['tenant'] ?? null,
+                'base_url' => $providerData['base_url'] ?? null,
+            ]);
+
+            if ($oauth->enabled && ! $oauth->couldBeEnabled()) {
+                $oauth->enabled = false;
+                $errors[] = "OAuth settings are incomplete for '{$oauth->provider}'. Required fields are missing. The provider has been disabled.";
+            }
+
+            $oauth->save();
+        }
+
+        if (! empty($errors)) {
+            return back()->with('error', implode(' ', $errors));
+        }
+
+        return back()->with('success', 'Instance settings updated successfully!');
     }
 }

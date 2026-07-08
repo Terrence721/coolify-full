@@ -70,7 +70,6 @@ use App\Livewire\Server\Swarm as ServerSwarm;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\Settings\ScheduledJobs as SettingsScheduledJobs;
 use App\Livewire\SettingsBackup;
-use App\Livewire\SettingsOauth;
 use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesShow;
 use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
 use App\Livewire\SharedVariables\Server\Show as ServerSharedVariablesShow;
@@ -80,7 +79,6 @@ use App\Livewire\Storage\Index as StorageIndex;
 use App\Livewire\Storage\Show as StorageShow;
 use App\Livewire\Subscription\Index as SubscriptionIndex;
 use App\Livewire\Subscription\Show as SubscriptionShow;
-use App\Livewire\Team\AdminView as TeamAdminView;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
 use App\Livewire\Terminal\Index as TerminalIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
@@ -130,7 +128,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/settings/email/smtp', [SettingsEmailController::class, 'updateSmtp'])->name('settings.email.update-smtp');
     Route::put('/settings/email/resend', [SettingsEmailController::class, 'updateResend'])->name('settings.email.update-resend');
     Route::post('/settings/email/send-test', [SettingsEmailController::class, 'sendTest'])->name('settings.email.send-test');
-    Route::get('/settings/oauth', SettingsOauth::class)->name('settings.oauth');
+    Route::get('/settings/oauth', [SettingsController::class, 'oauth'])->name('settings.oauth');
+    Route::put('/settings/oauth', [SettingsController::class, 'oauthUpdate'])->name('settings.oauth.update');
     Route::get('/settings/scheduled-jobs', SettingsScheduledJobs::class)->name('settings.scheduled-jobs');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
@@ -192,7 +191,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/', [TeamController::class, 'update'])->name('team.update');
         Route::delete('/', [TeamController::class, 'destroy'])->name('team.destroy');
         Route::get('/members', TeamMemberIndex::class)->name('team.member.index');
-        Route::get('/admin', TeamAdminView::class)->name('team.admin-view');
+        Route::get('/admin', [TeamController::class, 'adminView'])->name('team.admin-view');
+        Route::delete('/admin/user', [TeamController::class, 'adminDeleteUser'])->name('team.admin-view.delete-user');
     });
 
     Route::get('/terminal', TerminalIndex::class)->name('terminal')->middleware('can.access.terminal');

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\TeamInvitation;
+use App\Models\User;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,8 @@ use Inertia\Response;
 class TeamController extends Controller
 {
     use AuthorizesRequests;
+
+    private const ADMIN_VIEW_USER_LIMIT = 20;
 
     public function index(Request $request): Response
     {
@@ -102,5 +105,59 @@ class TeamController extends Controller
         refreshSession();
 
         return redirect()->route('team.index');
+    }
+
+    public function adminView(Request $request): Response|RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        $search = (string) $request->query('search', '');
+        $query = User::where('id', '!=', $request->user()->id);
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->get();
+        $lotsOfUsers = $search === '' && $users->count() > self::ADMIN_VIEW_USER_LIMIT;
+        if ($lotsOfUsers) {
+            $users = $users->take(self::ADMIN_VIEW_USER_LIMIT);
+        }
+
+        return Inertia::render('Team/AdminView', [
+            'search' => $search,
+            'users' => $users->map(fn (User $user) => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ])->values(),
+            'lotsOfUsers' => $lotsOfUsers,
+            'deleteUserUrl' => route('team.admin-view.delete-user'),
+        ]);
+    }
+
+    public function adminDeleteUser(Request $request): RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        if (! verifyPasswordConfirmation($request->input('password'))) {
+            return back()->with('error', 'The provided password is incorrect.');
+        }
+
+        $user = User::find($request->input('id'));
+        if (! $user) {
+            return back()->with('error', 'User not found');
+        }
+
+        $user->delete();
+
+        return back()->with('success', 'User deleted.');
     }
 }
