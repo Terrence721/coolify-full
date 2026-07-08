@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\NotificationsDiscordController;
 use App\Http\Controllers\NotificationsEmailController;
 use App\Http\Controllers\NotificationsSlackController;
@@ -20,8 +21,6 @@ use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Destination\Index as DestinationIndex;
-use App\Livewire\Destination\Resources as DestinationResources;
-use App\Livewire\Destination\Show as DestinationShow;
 use App\Livewire\ForcePasswordReset;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Index as DeploymentIndex;
@@ -328,8 +327,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/security/terminal-access', TerminalAccess::class)->name('server.security.terminal-access')->middleware('can.update.resource');
     });
     Route::get('/destinations', DestinationIndex::class)->name('destination.index');
-    Route::get('/destination/{destination_uuid}', DestinationShow::class)->name('destination.show');
-    Route::get('/destination/{destination_uuid}/resources', DestinationResources::class)->name('destination.resources');
+    Route::get('/destination/{destination_uuid}', [DestinationController::class, 'show'])->name('destination.show');
+    Route::get('/destination/{destination_uuid}/resources', [DestinationController::class, 'resources'])->name('destination.resources');
+    Route::put('/destination/{destination_uuid}', [DestinationController::class, 'update'])->name('destination.update');
+    Route::delete('/destination/{destination_uuid}', [DestinationController::class, 'destroy'])->name('destination.destroy');
 
     // Route::get('/security', fn () => view('security.index'))->name('security.index');
     Route::get('/security/private-key', SecurityPrivateKeyIndex::class)->name('security.private-key.index');
