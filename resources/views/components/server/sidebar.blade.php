@@ -19,7 +19,7 @@
         href="{{ route('server.ca-certificate', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">CA Certificate</span>
     </a>
     @if (!$server->isLocalhost())
-        <a class="sub-menu-item {{ $activeMenu === 'cloudflare-tunnel' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+        <a class="sub-menu-item {{ $activeMenu === 'cloudflare-tunnel' ? 'menu-item-active' : '' }}"
             href="{{ route('server.cloudflare-tunnel', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Cloudflare Tunnel</span></a>
     @endif
     @if ($server->isFunctional())

@@ -6985,48 +6985,6 @@ parameters:
 			path: app/Livewire/Server/CloudProviderToken/Show.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\CloudflareTunnel\:\:automatedCloudflareConfig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CloudflareTunnel\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CloudflareTunnel\:\:manualCloudflareConfig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CloudflareTunnel\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CloudflareTunnel\:\:refresh\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CloudflareTunnel\:\:toggleCloudflareTunnels\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\CloudflareTunnel\:\:\$ssh_domain \(string\) does not accept Illuminate\\Support\\Stringable\.$#'
-			identifier: assign.propertyType
-			count: 2
-			path: app/Livewire/Server/CloudflareTunnel.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Create\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1

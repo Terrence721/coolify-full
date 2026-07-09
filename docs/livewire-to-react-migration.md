@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**39 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 8 pages built on it (Section 37).
+**40 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 9 pages built on it (Section 39).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 12 of 59 | 47 |
+| Hard | 13 of 59 | 46 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -806,3 +806,39 @@ Kept the safety property and the behavior: `ActivityLog.jsx` still just calls a 
 - The `checkUpdates()`/`updateAll()`/`updatePackage()` happy paths (real SSH-driven package scanning/updating) remain untested — same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15).
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The two-slide-over discriminator design (`activityContext`) and the cross-tab broadcast notification flow have not been visually confirmed in a real browser.
+
+## 39. Phase 17 — `Server\CloudflareTunnel`: third `activityContext` consumer, confirms the discriminator design generalizes
+
+The second reuse of `ActivityLog.jsx` for a feature besides Navbar's own proxy slide-over (after Phase 16's Patches), and the first real test of whether Phase 16's `activityContext` discriminator design holds up with a *third* consumer rather than just two. It does — `ServerCloudflareTunnelController::automatedConfig()` flashes `activityContext: 'cloudflare-tunnel'`, and `CloudflareTunnel.jsx` opens its own slide-over exactly the same way `Patches.jsx` does, with zero changes needed to `HandleInertiaRequests` or `ServerNavbar.jsx`.
+
+Unlike Patches, this page's activity-monitor usage needed no cross-tab broadcast trick: the original `automatedCloudflareConfig()` dispatches `activityMonitor` with no custom `eventToDispatch` (defaulting to the plain local `'activityFinished'` case), so `ActivityLog.jsx`'s existing plain `onFinished` callback (no server round-trip needed) already covers it — confirming that design choice from Phase 11 was the right scope, not an arbitrary limitation.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerCloudflareTunnelController.php` | created | `index()` (redirects away for the localhost server, matching the original's `mount()`), `toggle()` (disable — SSH-touching, no early-return guard), `manualConfig()` (pure DB flag flip, no SSH), `automatedConfig()` (SSH-touching via `ConfigureCloudflared::run()`, flashes `activityContext: 'cloudflare-tunnel'`) |
+| `resources/js/Pages/Server/CloudflareTunnel.jsx` | created | Enabled/disabled state UI, typed-confirmation `window.prompt()` for both disable and manual-config (matching the established pattern), automated-config form + its own log slide-over |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Cloudflare Tunnel" link only |
+| `routes/web.php` | modified | `server.cloudflare-tunnel` repointed at the new controller; 3 new `server.cloudflare-tunnel.*` routes |
+| `app/Livewire/Server/CloudflareTunnel.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references |
+| `tests/v4/Feature/ServerCloudflareTunnelTest.php` | created | 5 tests: renders, redirects away for the localhost server, enables via manual config (safe, no SSH — fully exercised), rejects automated config with missing fields, 404s for a server owned by another team |
+
+**A real PHPStan finding, a genuine type bug (not a false positive)**: the SSH-domain cleanup logic chained `str($sshDomain)->replace(...)->replace(...)->trim()`, reassigned the `Stringable` result back into `$sshDomain`, then called `str($sshDomain)` *again* on the next line — passing an already-`Stringable` object into a helper typed `string|null`. This is the exact same chained-reassignment shape the original Livewire component used, and it happened to work at runtime there too (PHP's implicit `__toString()` coercion papers over the static mismatch), but PHPStan correctly flagged it as a real type error. Fixed by removing the redundant intermediate re-wrap and chaining straight through: `str($sshDomain)->replace(...)->replace(...)->trim()->replace('/', '')`.
+
+### Phase 17 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 5 new Feature tests (`ServerCloudflareTunnelTest`) | 5 passed on the first run |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entry for the 1 deleted file cleaned proactively; 1 new finding (`argument.type` on the chained `str()` call, see above), fixed directly (not baselined) — final run: `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/CloudflareTunnel.jsx` confirmed present in `manifest.json` |
+| Full suite | 407 passed (1543 assertions) — up from 402, no regressions |
+
+## 40. Non-goals of Phase 17
+
+- 12 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 13).
+- The `toggle()` (disable) and `automatedConfig()` happy paths are untested — both touch SSH unconditionally with no early-return guard to test around, same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15, 16).
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
