@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Application\StopApplication;
 use App\Actions\Docker\GetContainersStatus;
 use App\Models\Application;
+use App\Models\ApplicationDeploymentQueue;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -199,6 +200,9 @@ class ApplicationDeploymentController extends Controller
         return (string) (int) $value;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function applicationProps(Application $application): array
     {
         return [
@@ -207,6 +211,9 @@ class ApplicationDeploymentController extends Controller
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function headingProps(Application $application): array
     {
         $lastDeployment = $application->get_last_successful_deployment();
@@ -217,6 +224,9 @@ class ApplicationDeploymentController extends Controller
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function configurationCheckerProps(Application $application): array
     {
         $diff = $application->pendingDeploymentConfigurationDiff();
@@ -224,7 +234,7 @@ class ApplicationDeploymentController extends Controller
 
         $array = $diff->toArray();
         if ($redactEnvironment) {
-            $array['changes'] = collect($array['changes'] ?? [])->map(function (array $change) {
+            $array['changes'] = collect($array['changes'])->map(function (array $change) {
                 if (data_get($change, 'section') !== 'environment') {
                     return $change;
                 }
@@ -246,7 +256,10 @@ class ApplicationDeploymentController extends Controller
         ];
     }
 
-    private function deploymentProps(Application $application, $deployment): array
+    /**
+     * @return array<string, mixed>
+     */
+    private function deploymentProps(Application $application, ApplicationDeploymentQueue $deployment): array
     {
         return [
             'deployment_uuid' => $deployment->deployment_uuid,

@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**28 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its first conversion (Section 19).
+**29 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its second conversion (Section 21).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 1 of 59 | 58 |
+| Hard | 2 of 59 | 57 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -411,3 +411,57 @@ The established client reaction to a broadcast event, used throughout this page,
 - 58 Hard-bucket components remain on Livewire, including the still-not-designed embedded-Livewire-island question for pages that nest components with no natural React equivalent yet.
 - `Heading.jsx`'s dropped breadcrumbs/domain-links/advanced-button-group/mobile-dropdown (documented above) are real, deliberate simplifications for this pass, not tracked elsewhere as a TODO — revisit if a future page's conversion needs the same shared elements at higher fidelity.
 - No manual browser QA this phase either — same lighter, user-directed bar as Phases 2-6 (Section 9).
+
+## 21. Phase 8 — `Terminal\Index`: a non-Echo Hard-bucket page (raw WebSocket)
+
+Every Hard-bucket page converted so far (Phase 7) depended on Laravel Echo/broadcast events. `Terminal\Index` is a structurally different kind of "Hard": it's a live SSH/PTY terminal that talks over a raw WebSocket straight to a Node terminal server (`coolify-realtime`'s `terminal-server.js`), with zero Laravel broadcasting involved. Before starting, a dedicated research pass (Explore agent) catalogued the remaining Hard-bucket pages not blocked by the still-deferred `Server\Navbar`; the two next-best candidates it found nest either broadcast-driven `Heading` variants (Database/Service, themselves unconverted) or were much larger multi-child tabbed pages, so `Terminal\Index` — genuinely Hard, self-contained, comparable in scope to the Phase 7 cluster — was confirmed with the user before starting given its materially different technical shape and higher operational stakes (a regression here breaks live server access, not a settings form).
+
+### Design
+
+- **`terminal.js` (843-line Alpine component) is untouched.** It still drives the still-Livewire `ExecuteContainerCommand` pages (`project.{application,database,service}.command`, `server.command`), which nest `Project\Shared\Terminal` — also untouched, since it's still used there (same "kept nested Livewire child" pattern as `Heading` in Phase 7).
+- **New `resources/js/terminalSession.js`**: a framework-agnostic port of `terminal.js`'s orchestration logic (WebSocket lifecycle, exponential-backoff reconnect, ping/pong heartbeat with missed-heartbeat detection, xterm.js flow control via pause/resume, session-expiry countdown, visibility-change handling for tab-backgrounding) into a plain ES class. The only real change from the original is the reactivity glue: Alpine's `$wire.dispatch(...)`/`$watch(...)` calls become constructor callbacks (`onError`, `onTerminalConnected`, `onTerminalDisconnected`, `onStateChange`) that a React component wires to `useState`. The WebSocket protocol, timing constants, and reconnect/heartbeat logic are line-for-line unchanged.
+- **Two Livewire components collapsed into one controller.** The original split `connectToContainer()` (`Terminal\Index`, resolves the selection) from `sendTerminalCommand()` (`Project\Shared\Terminal`, builds and validates the actual SSH command) across two Livewire components purely because of a documented architectural constraint in the original code (the websocket connection isn't available server-side, so the SSH command has to be dispatched back down to the browser). That two-component split had no reason to survive the move to Inertia/React — `TerminalController::connect()` does both steps in one request, faithfully porting all of the original's validation (team ownership, `isTerminalEnabled()`/`isForceDisabled()`, container-name format validation, running-status check, shell-availability probe, non-root `sudo` handling) and returns either `{command: "..."}` or a JSON error.
+- **Two-phase loading preserved via Inertia's deferred props.** The original `mount()` loaded the server list synchronously, then a separate `x-init="$wire.loadContainers()"` call enumerated containers across every reachable server (slow — it SSHes into each one) without blocking the initial paint. `TerminalController::index()` reproduces this exactly: `servers` is a normal eager prop, `containers` is `Inertia::defer(...)`, and `Terminal/Index.jsx` wraps the select/connect form in `<Deferred data="containers" fallback={...}>`.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/TerminalController.php` | created | `index()` (servers + deferred containers + terminal config), `connect()` (resolves selection → validates → builds SSH command → returns JSON), private `getAllActiveContainers()`/`checkShellAvailability()` ported from the two original Livewire components |
+| `resources/js/terminalSession.js` | created | Framework-agnostic port of `terminal.js`'s WebSocket/xterm/reconnect/heartbeat logic, driven by callbacks instead of `$wire`/Alpine `$watch` |
+| `resources/js/Pages/Terminal/Index.jsx` | created | Server/container picker (deferred containers, `<select>` grouped by server), calls `connect()` via `fetch()` (not a full Inertia visit — the response feeds the terminal directly, it isn't a page navigation), passes the resolved SSH command down to `TerminalWindow` |
+| `resources/js/Pages/Terminal/TerminalWindow.jsx` | created | React port of `resources/views/livewire/project/shared/terminal.blade.php` — fullscreen toggle, session-expiry timer badge, mobile control toolbar, "Terminal Not Available" (no-shell) state — driven by `terminalSession.js` instead of Alpine |
+| `routes/web.php` | modified | `terminal` repointed at `TerminalController::index`; new `terminal.connect` POST route. `terminal.auth`/`terminal.auth.ips` (unrelated auth-check endpoints) untouched |
+| `app/Livewire/Terminal/Index.php`, `resources/views/livewire/terminal/index.blade.php` | **deleted** | Real cutover, grep-confirmed no other references to the class |
+| `tests/v4/Feature/TerminalIndexTest.php` | created | 4 tests: renders the page (servers/containers/config props), 403s a non-admin member, and 2 validation tests on `connect()` (no selection, unowned server) — deliberately scoped short of SSH/Process-mocking since the deeper validation chain (`checkShellAvailability`, `SshMultiplexingHelper`) is unchanged, already-tested logic being relocated, not new logic |
+| `docs/command.md` | n/a this phase | (created in Phase 7, unrelated to Terminal) |
+
+**Known simplifications, documented not silent:**
+- `Index.jsx`'s helper tooltip (`x-helper` in the original) is a plain `title` attribute, not a rich popover — no existing React equivalent exists yet in this migration (first page to need one).
+- The original's `wire:poll.keep-alive.30s="keepTerminalPageAlive"` kept the Livewire component's server-side session alive during a long SSH session. Inertia pages have no persistent server-side component to keep alive, so `TerminalWindow.jsx` has no equivalent — noted as a comment in the file.
+- `AppLayout.jsx` already had a gated "Terminal" nav item (`permissions.canAccessTerminal`) since Phase 2, and the old Blade navbar's Terminal link had no `wireNavigate()` to strip — no navbar changes needed this phase.
+
+### A CI regression found and fixed mid-phase
+
+Deleting `app/Livewire/Terminal/Index.php` (this phase) and `app/Livewire/Project/Application/Deployment/Index.php` (Phase 7) each left stale `phpstan-baseline.neon` entries pointing at now-nonexistent files — the same category of bug documented in Phase 5 (Section 4's "flagged but not cleaned up" note about `SettingsEmail`), except this time it actually broke CI (`Invalid entries in ignoreErrors: Path ... is neither a directory, nor a file path, nor a fnmatch pattern.`), not just a harmless stale line. Fixed by removing the 25 stale baseline blocks referencing either deleted path (a small script parsing the `.neon` file's block structure, same approach used earlier in this migration for a larger baseline cleanup).
+
+With the stale entries gone, PHPStan could actually analyze the new controllers and surfaced **11 real findings** — 7 pre-existing in `ApplicationDeploymentController.php` (masked until now by the stale-but-passing baseline validation short-circuiting before analysis ran) and 4 new in `TerminalController.php`. 9 were fixed directly (missing return-type/param-type PHPDoc on 5 private prop-building methods, a redundant `?? []` on an array key PHPStan proved always exists, an `ApplicationDeploymentQueue` type hint replacing an untyped `$deployment` parameter, and dropping a redundant `collect()` re-wrap of an already-typed `Collection` parameter). The remaining 2 were deliberately left to the baseline rather than "fixed" blindly:
+- A `nullsafe.neverNull` complaint on `$lastDeployment?->commit_message` that, per PHPStan, considers the nullsafe operator redundant — but `get_last_successful_deployment()` has no declared return type and can genuinely return `null` from `->first()`; removing the `?->` on PHPStan's suggestion alone would risk a real null-pointer fatal if the static analysis reasoning here is wrong or based on an incomplete type inference chain. Baselined instead of applying an unverified "fix" that trades a lint warning for a potential production crash.
+- A `return.type` complaint on `getAllActiveContainers()` caused by `Illuminate\Support\Collection`'s non-covariant `TValue` template — a well-documented, known PHPStan/Laravel limitation (the error message itself links to PHPStan's blog post about it), not a real type error.
+
+### Phase 8 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 4 new Feature tests (`TerminalIndexTest`) | 1 failed on first run (`InstanceSettings` singleton gotcha, same as every prior phase touching an abort/error-page path), 4 passed after adding the standard `beforeEach` fixture |
+| PHPStan (`vendor/bin/phpstan analyse`) | 11 real findings surfaced after baseline cleanup; 9 fixed, 2 baselined (see above); final run: `[OK] No errors` |
+| `yarn build` | Succeeded — `TerminalWindow-*.js` (19 kB) and the Terminal `Index-*.js` chunk emitted; `@xterm/xterm`/`@xterm/addon-fit` now also bundled into the Inertia entrypoint (previously only reachable from the Livewire `app.js` entrypoint) |
+| Full suite | 349 passed (1281 assertions) — up from 345, no regressions |
+
+## 22. Non-goals of Phase 8
+
+- `Server\Navbar` remains deferred — still the highest-leverage remaining piece of work, unblocking ~21 pages at once, but still not started.
+- `Project\Shared\Terminal.php`/`terminal.js`/its Blade view are untouched and still load-bearing for the still-Livewire `ExecuteContainerCommand` pages — not dead code, don't remove them when eventually converting those pages without re-checking.
+- 57 Hard-bucket components remain on Livewire, including the two Database/Service `Heading` variants and `Project/Shared/Logs`/`GetLogs` flagged during this phase's candidate research as genuinely Hard but wider in scope (nest multiple broadcast-driven children) than a single-page pass.
+- No manual browser QA this phase either — same lighter, user-directed automated-checks bar as every phase since Phase 2 (Section 9). This is a real gap worth calling out explicitly for this specific page: a live xterm.js/WebSocket terminal is exactly the kind of interactive, stateful UI that automated `assertInertia()` checks cannot meaningfully exercise — the verification log above proves the page renders and the `connect()` validation logic is correct, not that a real terminal session actually works end-to-end in a browser.

@@ -163,6 +163,12 @@ parameters:
 			path: app/Actions/Shared/ComplexStatusCheck.php
 
 		-
+			message: '#^Using nullsafe property access "\?\-\>commit_message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ApplicationDeploymentController.php
+
+		-
 			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledDatabaseBackup and ''server'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -227,6 +233,12 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Controllers/TagsController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\TerminalController\:\:getAllActiveContainers\(\) should return Illuminate\\Support\\Collection\<int, array\<string, mixed\>\> but returns Illuminate\\Support\\Collection\<int, array\{name\: mixed, connection_name\: mixed, uuid\: mixed, status\: Illuminate\\Support\\Stringable, server_name\: string, server_uuid\: string\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/TerminalController.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Jobs\\ApplicationDeploymentJob\) and ''addRetryLogEntry'' will always evaluate to true\.$#'
@@ -1355,84 +1367,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Application/Configuration.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:clearFilter\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:loadDeployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:nextPage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:previousPage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:reloadDeployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:showMore\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:updateCurrentPage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:updatedPullRequestId\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Index\:\:updatedPullRequestId\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\Deployment\\Index\:\:\$deployments with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\Deployment\\Index\:\:\$queryString has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/Deployment/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Application\\Deployment\\Show\:\:getListeners\(\) has no return type specified\.$#'
@@ -9683,78 +9617,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Team/Storage/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Terminal\\Index\:\:connectToContainer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Terminal\\Index\:\:getAllActiveContainers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Terminal\\Index\:\:loadContainers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Terminal\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Terminal\\Index\:\:updatedSelectedUuid\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Terminal\\Index\:\:\$containers has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Terminal\\Index\:\:\$selected_uuid has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Terminal\\Index\:\:\$servers has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Unable to resolve the template type TFlatMapKey in call to method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:flatMap\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Unable to resolve the template type TFlatMapValue in call to method Illuminate\\Support\\Collection\<\(int\|string\),mixed\>\:\:flatMap\(\)$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Livewire/Terminal/Index.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Livewire/Terminal/Index.php
 
 		-
 			message: '#^Method App\\Livewire\\Upgrade\:\:checkUpdate\(\) has no return type specified\.$#'

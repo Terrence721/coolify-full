@@ -9,6 +9,7 @@ use App\Models\Server;
 use App\Support\ValidationPatterns;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -99,11 +100,12 @@ class TerminalController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     * @param  Collection<int, Server>  $servers
+     * @return Collection<int, array<string, mixed>>
      */
     private function getAllActiveContainers($servers)
     {
-        return collect($servers)->flatMap(function (Server $server) {
+        return $servers->flatMap(function (Server $server) {
             if (! $server->isFunctional()) {
                 return [];
             }
