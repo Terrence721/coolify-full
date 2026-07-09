@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**41 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 10 pages built on it (Section 41).
+**42 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 11 pages built on it (Section 43).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 14 of 59 | 45 |
+| Hard | 15 of 59 | 44 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -882,5 +882,44 @@ One deliberate simplification: the original Livewire form does **live per-keystr
 - 11 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 12).
 - `setKey()` and `checkConnection()`'s happy paths are untested — both call `$server->validateConnection()` unconditionally with no early-return guard, same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15, 16, 17).
 - The live per-keystroke private-key validation/preview from the original `Create` component's form is intentionally not replicated — submit-time validation only, consistent with this migration's standing precedent for dropping Livewire's reactive-per-keystroke validation.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 43. Phase 19 — `Server\Destinations`: a second inline-ported create modal, plus a JSON-backed scan action
+
+Manages the Docker networks ("destinations") attached to a server: a list of already-added `StandaloneDocker`/`SwarmDocker` records, an SSH-backed "Scan for Destinations" action that finds not-yet-added Docker networks on the server, one-click "Add {name}" buttons for anything found, and a `+ Add` modal for creating a destination directly (optionally on a *different* server than the one you're viewing — matching the original's behavior).
+
+### Design: same inline-port pattern as Phase 18, applied to a second shared component
+
+The `+ Add` modal originally embeds `<livewire:destination.new.docker :server_id="$server->id" />` — a shared component also used by the still-Livewire `Destination\Index` page. Following the exact precedent from Phase 18 (`Security\PrivateKey\Create`), that shared component was left untouched; its create logic (name/network/server-select fields, duplicate-network rejection, `StandaloneDocker::create()`) was ported inline into a new `create()` endpoint on the new `ServerDestinationsController`, scoped to this page's own modal.
+
+The "Scan for Destinations" action is a genuinely new pattern for this migration: it's an SSH-backed read (`docker network ls`) that needs to return a **list** of results to populate a right-away UI (the "Found Destinations" button row), but unlike Phase 15's `Resources` page (which used `Inertia::defer()` for its slow SSH-backed unmanaged-container list on initial page load), this is a **user-triggered, on-demand** action, not something to defer-load automatically on every visit. It doesn't fit the `activityId`/`ActivityLog.jsx` slide-over pattern either (Phases 11/16/17), since there's no long-running process to poll — the scan itself completes synchronously within the request. So it uses the same plain JSON-endpoint-plus-`fetch()` pattern already established in Phase 18 for the "Generate RSA/ED25519" buttons: `scan()` returns `{ networks: [...] }` directly, and the React page renders the results into local state without a page reload.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerDestinationsController.php` | created | `index()` (lists standalone/swarm dockers + a `servers` list for the modal's server-select), `scan()` (JSON endpoint, SSH-touching, no early-return guard), `add()` (one-click add for a scanned network; SSH-touching via `ConnectProxyToNetworksJob::dispatchSync()` for the standalone case, but the duplicate-network rejection returns before touching SSH), `create()` (the `+ Add` modal's inline-ported create logic, safe — no SSH) |
+| `resources/js/Pages/Server/Destinations.jsx` | created | Destination list, scan button + found-networks list (via `fetch()` + local state), `+ Add` modal with name/network/server-select fields |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Destinations" link only |
+| `routes/web.php` | modified | `server.destinations` repointed at the new controller; added `server.destinations.scan`, `server.destinations.add`, `server.destinations.create` |
+| `app/Livewire/Server/Destinations.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references. `App\Livewire\Destination\New\Docker` was explicitly **not** touched — confirmed it's still used by `Destination\Index` |
+| `tests/v4/Feature/ServerDestinationsTest.php` | created | 5 tests: renders (relies on the `Server` model's auto-created default `coolify` `StandaloneDocker` rather than creating a second one, since `(server_id, network)` is unique), 404s for a server owned by another team, creates a destination via the modal endpoint (safe, no SSH), rejects a duplicate network via the modal endpoint, rejects a duplicate network via the one-click `add()` endpoint without touching SSH |
+
+### Phase 19 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| 5 new Feature tests (`ServerDestinationsTest`) | 1 failure on first run — `StandaloneDocker::factory()->create(['network' => 'coolify'])` collided with the row `Server`'s own model event already auto-creates for every new server (`defaultStandaloneDockerAttributes()` always uses `network: 'coolify'`); fixed by relying on that auto-created row instead of creating a duplicate. 5 passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 1 deleted file cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/Destinations.jsx` confirmed present in `manifest.json` |
+| Full suite (`php artisan test --compact`) | 277 passed (744 assertions), no regressions |
+
+## 44. Non-goals of Phase 19
+
+- 10 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 11).
+- `scan()` and `add()`'s SSH-touching happy paths are untested — same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15, 16, 17, 18).
+- The Swarm-mode branch of `add()` (creating a `SwarmDocker` instead of a `StandaloneDocker`) is ported faithfully from the original but has no UI trigger in either the old or new modal (the create form never exposes an `isSwarm` toggle) — same dead-but-faithfully-ported code path as the original.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

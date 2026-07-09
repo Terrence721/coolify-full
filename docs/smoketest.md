@@ -59,7 +59,7 @@ Settings (instance-wide, root/admin only):
 Auth:
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (14 pages so far) — real-time and non-trivial
+## 4. Hard bucket (15 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -82,7 +82,7 @@ These need the most attention — they're the pages automated checks can't fully
 **`/security/cloud-tokens`, `/security/cloud-init-scripts`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
 - [ ] Already covered above in Section 3's list — no additional real-time behavior to check.
 
-**`Server\Navbar`-dependent pages (10 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
+**`Server\Navbar`-dependent pages (11 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
 
 - [ ] **Chrome itself** (any page below): proxy status badge + Sentinel badge render correctly; Start/Restart/Stop Proxy buttons work and open the live log slide-over; confirm the slide-over shows real streaming output, not just "Waiting for the process to start...".
 - [ ] `/server/{uuid}/swarm` — toggle Swarm Manager/Worker (mutually exclusive), confirm instant-save.
@@ -95,13 +95,14 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/server/{uuid}/cloudflare-tunnel` — manual-config toggle (typed confirmation), automated config form + its own log slide-over, disable flow (typed confirmation, confirm IP reverts if a previous IP exists).
 - [ ] `/server/{uuid}/private-key` — "Use this key" on a different key, confirm it associates and "Currently used" moves to the new card; "Check connection" against a real server; the "+ Add" modal's Generate RSA/ED25519 buttons populate the form and public-key preview, then submit to create a new key without leaving the page.
 - [ ] `/server/{uuid}/danger` — delete flow: blocked-by-resources message, the dynamic checkboxes (force-delete-resources/delete-from-Hetzner) appear only when applicable, typed confirmation + password, redirect to `/servers` after deletion.
+- [ ] `/server/{uuid}/destinations` — "Scan for Destinations" against a real server, confirm found networks appear as "Add {name}" buttons; add one and confirm it moves into "Available Destinations"; the "+ Add" modal creates a destination directly (try picking a different server in the dropdown too).
 
 ## 5. Regression spot-check: still-Livewire areas
 
 Not part of this migration, but worth a quick sanity check that nothing else broke:
 - [ ] Dashboard loads, project list renders.
 - [ ] Open a project → environment → application, confirm the (still-Livewire) Configuration tabs work.
-- [ ] The remaining 11 of 21 `Server\Navbar`-dependent pages (Sentinel, Proxy, Docker Cleanup, Destinations, Metrics, Hetzner Token, Terminal command, `Server\Show`) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).
+- [ ] The remaining 10 of 21 `Server\Navbar`-dependent pages (Sentinel, Proxy, Docker Cleanup, Metrics, Hetzner Token, Terminal command, `Server\Show`) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).
 - [ ] Global search still finds things across both stacks.
 
 ## 6. Sign-off

@@ -6967,42 +6967,6 @@ parameters:
 			path: app/Livewire/Server/Create.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\Destinations\:\:add\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Destinations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Destinations\:\:add\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/Destinations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Destinations\:\:createNetworkAndAttachToProxy\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Destinations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Destinations\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Destinations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Destinations\:\:scan\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Destinations.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Destinations\:\:\$networks with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Server/Destinations.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\DockerCleanup\:\:instantSave\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
