@@ -7195,54 +7195,6 @@ parameters:
 			path: app/Livewire/Server/Index.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:customValidation\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:syncDataAxiom\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:syncDataCustom\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\LogDrains\:\:syncDataNewRelic\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/LogDrains.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Navbar\:\:checkProxy\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1

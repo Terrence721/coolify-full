@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**36 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 5 pages built on it (Section 31).
+**37 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 6 pages built on it (Section 33).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 9 of 59 | 50 |
+| Hard | 10 of 59 | 49 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -681,3 +681,39 @@ A separate PHPStan finding — `nullsafe.neverNull` on `$caCertificate?->ssl_cer
 - The `save()`/`regenerate()` happy paths are untested (see above) — writing to a server over SSH, same category of gap as Phase 11's proxy `start()` action.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 33. Phase 14 — `Server\LogDrains`: third reuse, and a real behavioral adaptation
+
+The last of the Phase 11 research pass's "zero nested child, zero broadcast" candidates. `Server\LogDrains` manages 3 mutually-exclusive log-drain providers (New Relic, Axiom, Custom FluentBit), each with its own enable toggle and settings form, where enabling one starts a log-drain service over SSH (`StartLogDrain::run()`) and disabling stops it (`StopLogDrain::run()`).
+
+### A real design decision, not just a port
+
+The original Livewire component's `instantSave()` (the enable/disable toggle) validates and saves **whatever is currently typed into the on-screen fields at that moment**, because Livewire's `wire:model` keeps every field on the page live-bound to the component's PHP properties continuously — even fields the user hasn't explicitly "saved" yet are already reflected server-side by the time the checkbox click reaches the server. A stateless Inertia/React page has no equivalent: the server only knows what the last completed HTTP request told it. Two options were considered: (a) require the user to Save a provider's fields first, then separately toggle it on against whatever was last persisted, or (b) have the toggle request carry the provider's current in-memory field values alongside the enable flag, replicating the original's "validate and save together" behavior in one request. **Chose (b)** — `ServerLogDrainsController::toggle()` accepts the provider's field values in the same request as the toggle, validates them (only when enabling; matching `customValidation()`'s original guard), and saves both together before starting/stopping the service. This is a case where a faithful port required a genuine request-shape decision, not just a mechanical translation.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerLogDrainsController.php` | created | `index()` (reuses `ServerChromeData` unchanged), `toggle()` (validate-and-save-together per the design decision above, then `StartLogDrain::run()`/`StopLogDrain::run()`), `submit()` (per-provider field save, no SSH — matches the original, where `submit()` never touches the log-drain service directly) |
+| `resources/js/Pages/Server/LogDrains.jsx` | created | 3 provider sections, each a `useForm()` instance for its own fields plus a checkbox wired to `toggle()`. Fields render disabled/read-only once `isLogDrainEnabled` is true, matching the original's `@if ($server->isLogDrainEnabled())` |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Log Drains" link only |
+| `routes/web.php` | modified | `server.log-drains` repointed at the new controller; new `server.log-drains.{toggle,submit}` routes |
+| `app/Livewire/Server/LogDrains.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references |
+| `tests/v4/Feature/ServerLogDrainsTest.php` | created | 7 tests: renders, saves each of the 3 providers' fields without enabling (all SSH-free, fully exercised), rejects invalid New Relic settings, rejects enabling a provider with missing required fields (validated before the SSH call, so safe to test), 404s for a server owned by another team |
+
+Unlike Phases 12-13, no new PHP builtin/library defensive-wrapper bug surfaced this time — the `submit()` happy paths (the majority of this page's real logic) were fully testable without SSH mocking, since saving fields alone never calls `StartLogDrain`/`StopLogDrain`. Only the toggle-to-enabled happy path remains untested, consistent with the established SSH-testing boundary from Phases 11 and 13.
+
+### Phase 14 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 7 new Feature tests (`ServerLogDrainsTest`) | 7 passed on the first run |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entry for the 1 deleted file cleaned proactively; `[OK] No errors` — zero new findings |
+| `yarn build` | Succeeded — `Server/LogDrains.jsx` confirmed present in `manifest.json` |
+| Full suite | 392 passed (1470 assertions) — up from 385, no regressions |
+
+## 34. Non-goals of Phase 14
+
+- 15 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 16). The Phase 11 research pass's list of easy zero-dependency candidates is now exhausted — the next page will need a fresh look at the remaining 15 (several nest further live children: Sentinel/Proxy/Docker-cleanup sub-components, or are considerably larger, e.g. `Server\Charts` at 315 blade lines).
+- The toggle-to-enabled happy path (which starts the log-drain service over SSH) is untested — same category of gap as Phase 11's proxy `start()` and Phase 13's certificate save/regenerate.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The request-shape design decision above (toggle carries field values) has not been visually confirmed in a real browser.

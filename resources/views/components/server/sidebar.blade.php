@@ -29,7 +29,7 @@
         <a class="sub-menu-item {{ $activeMenu === 'destinations' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
             href="{{ route('server.destinations', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Destinations</span>
         </a>
-        <a class="sub-menu-item {{ $activeMenu === 'log-drains' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+        <a class="sub-menu-item {{ $activeMenu === 'log-drains' ? 'menu-item-active' : '' }}"
             href="{{ route('server.log-drains', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Log Drains</span></a>
         <a class="sub-menu-item {{ $activeMenu === 'metrics' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
             href="{{ route('server.metrics', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Metrics</span></a>
