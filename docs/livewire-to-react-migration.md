@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**37 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 6 pages built on it (Section 33).
+**38 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 7 pages built on it (Section 35).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 10 of 59 | 49 |
+| Hard | 11 of 59 | 48 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -717,3 +717,43 @@ Unlike Phases 12-13, no new PHP builtin/library defensive-wrapper bug surfaced t
 - The toggle-to-enabled happy path (which starts the log-drain service over SSH) is untested — same category of gap as Phase 11's proxy `start()` and Phase 13's certificate save/regenerate.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The request-shape design decision above (toggle carries field values) has not been visually confirmed in a real browser.
+
+## 35. Phase 15 — `Server\Resources`: no nested children, but a real echo listener and two-tier data loading
+
+The first `Server\Navbar`-dependent page conversion since the "easy" candidate list ran out (Phase 14). `Server\Resources` has no nested `<livewire:.../>` children (the status badges it renders are plain Blade components, `x-status.index`/`x-status.services`, not Livewire), but it does have a genuine broadcast dependency (`echo-private:team.{id},ApplicationStatusChanged`) and two meaningfully different data sources: a cheap DB query (managed resources — Applications/Databases/Services already tracked by Coolify) and an expensive SSH enumeration (unmanaged containers — a live `docker ps` on the server).
+
+### Design
+
+- **Managed resources load eagerly; unmanaged containers are deferred.** Same `Inertia::defer()` pattern established by Terminal's container list (Phase 8) — the expensive SSH-backed data doesn't block the initial page paint. This is a real, documented behavior change from the original: Livewire only fetched unmanaged containers when the user clicked that tab; the deferred prop fetches automatically shortly after page load regardless of which tab is showing. Judged an acceptable trade-off (same one already accepted for Terminal), not re-litigated.
+- **The Echo listener triggers a coarse partial reload**, matching the established pattern since Phase 7: `useTeamChannel(['ApplicationStatusChanged'], () => router.reload({ only: ['managedResources', 'unmanagedContainers'] }))`. This is the first page since `ServerNavbar.jsx` itself (Phase 11) to use `useTeamChannel` directly from a page component rather than from shared chrome.
+- **Status badge rendering was simplified from a faithful port to a category-based one.** The original's `x-status.index`/`x-status.services` components branch on a raw Docker/service status string (`running`, `degraded:unhealthy`, `exited:excluded`, etc.) with fairly involved per-case logic (restart-count warnings, `formatContainerStatus()` for the multi-container service case). The controller now computes a display-ready string (reusing `formatContainerStatus()` server-side, unchanged) plus a `statusCategory` (`running`/`degraded`/`restarting`/`stopped`), and the React page just color-codes by category — the restart-count/crash-loop warning sub-text is not ported. Documented as a real fidelity gap, not silently dropped.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerResourcesController.php` | created | `index()` (reuses `ServerChromeData::navbar()` unchanged; managed resources eager, unmanaged containers deferred), `containerAction()` (start/restart/stop for a specific unmanaged container, validated via the existing `ValidationPatterns::isValidContainerName()`) |
+| `resources/js/Pages/Server/Resources.jsx` | created | Two-table layout (Managed/Unmanaged), `<Deferred>` wrapping the unmanaged table, `useTeamChannel` for live refresh, a manual "Refresh" button doing the same partial reload |
+| `routes/web.php` | modified | `server.resources` repointed at the new controller; new `server.resources.container-action` route |
+| `app/Livewire/Server/Resources.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references. (The old Livewire `Server\Navbar`'s own "Resources" tab link, in `resources/views/livewire/server/navbar.blade.php`, was intentionally left untouched — it still serves the 14 other not-yet-converted pages that render the Livewire Navbar) |
+| `tests/v4/Feature/ServerResourcesTest.php` | created | 4 tests: renders with zero managed resources (confirms `unmanagedContainers` is absent from the initial payload, proving the deferred prop is genuinely deferred), lists a real managed resource, rejects a container action with an invalid identifier (safe — validated before any SSH call), 404s for a server owned by another team |
+
+### A real PHPStan finding, this time a genuine type-safety gap (not a false positive)
+
+`containerAction()`'s `match ($validated['action']) { 'start' => ..., 'restart' => ..., 'stop' => ... }` had no `default` arm. PHPStan correctly flagged `match.unhandled` because `Validator::validate()`'s return type is `array<string, mixed>` — the `in:start,restart,stop` rule guarantees the runtime value at the *data* level, but nothing narrows the *static type* of `$validated['action']` down from `mixed`, so PHPStan can't see that the match is actually exhaustive. Unlike Phases 12-13's findings, this one isn't a case of PHPStan being overly cautious about a real invariant — it's flagging a genuine "what if validation's contract changes and this code silently does nothing" gap. Fixed with an explicit `default => throw new \LogicException(...)` arm rather than a baseline suppression, since a thrown exception on a truly-unreachable branch is strictly safer than either silently baselining it or trusting an implicit assumption.
+
+### Phase 15 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 4 new Feature tests (`ServerResourcesTest`) | 4 passed on the first run |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entry for the 1 deleted file cleaned proactively; 1 new finding (`match.unhandled`, see above) fixed directly (not baselined); final run: `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/Resources.jsx` confirmed present in `manifest.json` |
+| Full suite | 396 passed (1499 assertions) — up from 392, no regressions |
+
+## 36. Non-goals of Phase 15
+
+- 14 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 15). All remaining candidates either nest further live children (Sentinel/Proxy/Docker-cleanup sub-components, the 3 "thin wrapper" pages, `Server\CloudProviderToken\Show`) or are considerably larger with no obvious shortcut (`Server\Charts` at 315 blade lines, `Server\Security\Patches` at 194 PHP lines, `Server\DockerCleanup` at 165 PHP lines).
+- The container start/restart/stop happy paths are untested — same category of SSH-testing gap as every prior Server-scoped action (Phases 11, 13, 14).
+- The restart-count/crash-loop warning sub-text from the original status badges was not ported (see above) — a real fidelity gap, not a silent one.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
