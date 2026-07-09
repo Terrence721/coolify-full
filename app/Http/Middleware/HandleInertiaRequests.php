@@ -65,6 +65,11 @@ class HandleInertiaRequests extends Middleware
                 'warning' => $request->session()->get('warning'),
                 'info' => $request->session()->get('info'),
             ],
+            'echo' => $user ? [
+                'key' => config('constants.pusher.app_key') ?: 'coolify',
+                'host' => config('constants.pusher.host') ?: $request->getHost(),
+                'port' => getRealtime(),
+            ] : null,
         ];
     }
 }

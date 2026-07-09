@@ -7,7 +7,7 @@
                 href="{{ route('project.application.configuration', $parameters) }}">
                 Configuration
             </a>
-            <a class="shrink-0 {{ request()->routeIs('project.application.deployment.index') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+            <a class="shrink-0 {{ request()->routeIs('project.application.deployment.index') ? 'dark:text-white' : '' }}"
                 href="{{ route('project.application.deployment.index', $parameters) }}">
                 Deployments
             </a>

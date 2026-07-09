@@ -3,13 +3,14 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ApplicationDeploymentController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\ForcePasswordResetController;
 use App\Http\Controllers\NotificationsDiscordController;
 use App\Http\Controllers\NotificationsEmailController;
-use App\Http\Controllers\NotificationsSlackController;
 use App\Http\Controllers\NotificationsPushoverController;
+use App\Http\Controllers\NotificationsSlackController;
 use App\Http\Controllers\NotificationsTelegramController;
 use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
@@ -22,12 +23,12 @@ use App\Http\Controllers\SettingsScheduledJobsController;
 use App\Http\Controllers\SharedVariablesController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Destination\Index as DestinationIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
-use App\Livewire\Project\Application\Deployment\Index as DeploymentIndex;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
 use App\Livewire\Project\CloneMe as ProjectCloneMe;
 use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
@@ -80,7 +81,6 @@ use App\Livewire\Storage\Show as StorageShow;
 use App\Livewire\Subscription\Index as SubscriptionIndex;
 use App\Livewire\Subscription\Show as SubscriptionShow;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
-use App\Livewire\Terminal\Index as TerminalIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
 use App\Providers\RouteServiceProvider;
@@ -195,7 +195,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/admin/user', [TeamController::class, 'adminDeleteUser'])->name('team.admin-view.delete-user');
     });
 
-    Route::get('/terminal', TerminalIndex::class)->name('terminal')->middleware('can.access.terminal');
+    Route::get('/terminal', [TerminalController::class, 'index'])->name('terminal')->middleware('can.access.terminal');
+    Route::post('/terminal/connect', [TerminalController::class, 'connect'])->name('terminal.connect')->middleware('can.access.terminal');
     Route::post('/terminal/auth', function () {
         if (auth()->check()) {
             return response()->json(['authenticated' => true], 200);
@@ -264,7 +265,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/tags', ApplicationConfiguration::class)->name('project.application.tags');
         Route::get('/danger', ApplicationConfiguration::class)->name('project.application.danger');
 
-        Route::get('/deployment', DeploymentIndex::class)->name('project.application.deployment.index');
+        Route::get('/deployment', [ApplicationDeploymentController::class, 'index'])->name('project.application.deployment.index');
+        Route::post('/deployment/deploy', [ApplicationDeploymentController::class, 'deploy'])->name('project.application.deployment.deploy');
+        Route::post('/deployment/restart', [ApplicationDeploymentController::class, 'restart'])->name('project.application.deployment.restart');
+        Route::post('/deployment/stop', [ApplicationDeploymentController::class, 'stop'])->name('project.application.deployment.stop');
+        Route::post('/deployment/check-status', [ApplicationDeploymentController::class, 'checkStatus'])->name('project.application.deployment.check-status');
         Route::get('/deployment/{deployment_uuid}', DeploymentShow::class)->name('project.application.deployment.show');
         Route::get('/logs', Logs::class)->name('project.application.logs');
         Route::get('/terminal', ExecuteContainerCommand::class)->name('project.application.command')->middleware('can.access.terminal');

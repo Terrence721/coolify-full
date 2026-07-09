@@ -110,7 +110,7 @@
                         @endif
                         @if (count($parameters) > 0)
                             |
-                            <a {{ wireNavigate() }}
+                            <a
                                 href="{{ route('project.application.deployment.index', [...$parameters, 'pull_request_id' => data_get($preview, 'pull_request_id')]) }}">
                                 Deployment Logs
                             </a>

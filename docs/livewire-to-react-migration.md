@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**27 of 84** full-page Livewire components converted. **The Medium bucket is now complete** — see Section 6 for the corrected count and how it changed from the original "23" estimate.
+**28 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its first conversion (Section 19).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 0 of 59 | 59 |
+| Hard | 1 of 59 | 58 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -351,3 +351,63 @@ Same lighter bar as Phases 2-5 (automated checks, no manual browser QA per page)
 - `Settings\Index`, `SettingsBackup` remain on Livewire — both are genuinely Hard bucket (nest `<livewire:activity-monitor>`, `<livewire:project.database.backup-edit>`/`-executions`), not simply "not yet gotten to."
 - The tab-state-in-URL-hash behavior from the original `Settings\ScheduledJobs` Alpine implementation was not preserved (Section 4).
 - All 59 Hard-bucket components remain on Livewire. Converting any of them requires a real-time/broadcast design decision (Echo-in-React bridge, or an embedded-Livewire-island approach) that has not been made yet — this is the next piece of work, not a mechanical continuation of the page-by-page recipe used for Easy/Medium.
+
+## 19. Phase 7 — Echo-in-React foundation + first Hard-bucket page (`Project\Application\Deployment\Index`)
+
+Hard-bucket pages differ from Medium in two ways that had no precedent yet: they depend on server-pushed broadcast events (Livewire's `getListeners()` → `echo-private:team.{id},EventName` pattern), and they nest other live Livewire components rather than being a single self-contained class. Both needed a design decision before any page could be converted.
+
+**Echo-in-React decision (user-directed)**: use `laravel-echo` + `pusher-js` as real Vite-bundled npm dependencies, not vendored `<script>` tags — matching how every other JS dependency in this app is already managed, rather than adding a second, inconsistent way of loading a library.
+
+**Pilot scope decision (user-directed)**: convert a full page plus its nested live children in one pass, rather than converting only the outermost slice first and leaving inner children as Livewire islands. Two candidate pilots were scoped and both turned out more complex than they first looked — recorded here because it's the second time in this migration an initial complexity read was wrong (see Section 6's "23 → 20" Medium correction for the first):
+- `Server\Navbar` was initially assumed to be simple chrome. On inspection it manages the full proxy lifecycle (start/stop/restart via job dispatch), notification de-duplication logic, and nests another live component — deferred, not abandoned, since converting it unblocks roughly 21 chrome-only pages at once, but it's a project of its own.
+- `Project\Application\Deployment\Index` (the page actually converted this phase) was also initially assumed simple. It nests two more non-trivial live components: `Heading` (deploy/stop/restart actions, itself polling every 10s) and `ConfigurationChecker` (which nests a `configuration-diff` table). All three were converted together as one page, per the user's chosen scope.
+
+### Echo client foundation
+
+| File | Change | Purpose |
+|---|---|---|
+| `package.json` / `yarn.lock` | modified | Added `laravel-echo@^2.3.7`, `pusher-js@^8.5.0` as direct dependencies |
+| `app/Http/Middleware/HandleInertiaRequests.php` | modified | `share()` now also sends an `echo` prop (`key`/`host`/`port`, `null` when logged out) so the client can construct an Echo connection without a second round trip |
+| `resources/js/echo.js` | created | Lazy singleton Echo client factory (`getEcho(config)`) — Pusher-protocol config matching the existing Soketi/Echo setup used by the Livewire/Blade side |
+| `resources/js/hooks/useTeamChannel.js` | created | Reusable hook mirroring Livewire's `getListeners()`: subscribes to `private-team.{id}`, listens for the given fully-qualified event names, cleans up on unmount. **None of Coolify's 15 `ShouldBroadcast` events override `broadcastAs()`**, so the JS-side event name is always the event's FQCN (e.g. `App\Events\ProxyStatusChangedUI`) — the hook uses Echo's leading-dot "exact name" syntax (`.App\\Events\\EventName`) to match it, rather than Echo's default camelCase-shortening behavior. |
+
+The established client reaction to a broadcast event, used throughout this page, is a coarse refetch: `router.reload({ only: [...] })`. Coolify's broadcast events carry no rich payload (they're refetch signals, not data payloads) — this was already the pattern for `Tags\Show`'s polling (Phase 4), just event-triggered here instead of timer-triggered.
+
+### `Project\Application\Deployment\Index` conversion
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ApplicationDeploymentController.php` | created | `index()` (deployment list + pagination + PR filter + all 3 nested components' props), `deploy()`/`restart()`/`stop()`/`checkStatus()`, plus private helpers replicating the original's `queue_application_deployment()` calls, `StopApplication`/`GetContainersStatus` job dispatch, and `pendingDeploymentConfigurationDiff()`-based config-diff computation (with environment-value redaction for non-admins) |
+| `resources/js/Pages/Project/Application/Deployment/Index.jsx` | created | Main page: deployment list with status badges, pagination, PR-ID filter (`useForm()`), a `useTeamChannel(['ServiceChecked'], ...)` listener, and a `setInterval` 5s fallback poll gated on `!skip` — mirroring the original's `wire:poll.5000ms` + `@if (!$skip)` |
+| `resources/js/Pages/Project/Application/Deployment/Heading.jsx` | created | App name, last-deployment link, 3-link nav (Configuration/Deployments/Logs), Deploy/Restart/Stop/Force-deploy buttons. Uses `useTeamChannel(['ServiceStatusChanged', 'ServiceChecked'], ...)` plus a 10s fallback poll (mirroring `wire:poll.10000ms="checkStatus"`) |
+| `resources/js/Pages/Project/Application/Deployment/ConfigurationChecker.jsx` | created | Config-diff banner + modal, per-row expand/collapse, grouped by `section_label`, `requiresBuild` badge. Uses `useTeamChannel(['ApplicationConfigurationChanged'], ...)` → `router.reload({ only: ['configurationChecker'] })` |
+| `routes/web.php` | modified | `project.application.deployment.{index,deploy,restart,stop,check-status}` repointed at `ApplicationDeploymentController`; `deployment.show` (still Livewire) untouched |
+| `resources/views/livewire/project/application/{previews,heading}.blade.php` | modified | Removed `{{ wireNavigate() }}` from the 2 links pointing at the deployment index route. **`heading.blade.php` itself was not deleted** — grep confirmed other not-yet-converted pages still use this Livewire component; only the one link was touched |
+| `app/Livewire/Project/Application/Deployment/Index.php`, `resources/views/livewire/project/application/deployment/index.blade.php` | **deleted** | Real cutover, grep-confirmed no other references to the class |
+| `tests/v4/Feature/ApplicationDeploymentIndexTest.php` | created | 3 tests: renders page, lists an existing deployment, redirects to dashboard for a nonexistent application |
+| `docs/command.md` | created | Reference of every commonly-needed command in this repo (start/stop dev stack, yarn/artisan/pest/pint/phpstan invocations, CI-parity block) — requested by the user alongside this phase's work, not itself part of the migration |
+
+**Explicitly documented simplifications in `Heading.jsx`** (not silent gaps):
+- The resource breadcrumb trail (`x-resources.breadcrumbs`), domain-link chips (`x-applications.links`), and the "advanced" button group (`x-applications.advanced`) are not ported.
+- The stop confirmation uses `window.confirm()`, not the original's modal-with-checkbox (`x-modal-confirmation`).
+- The mobile dropdown action menu (a separate condensed control set in the original) is not ported — the same action buttons render at all viewport widths instead.
+
+### A real bug found by the new tests
+
+`bootstrap/helpers/timezone.php`'s `formatDateInServerTimezone()` and `calculateDuration()` both called `new DateTime($date)` directly on their arguments. Every existing call site in the Livewire/Blade views passes an array-sourced value (`data_get($execution, 'created_at', ...)` on a `->toArray()`'d record), which is always a string. `ApplicationDeploymentController::deploymentProps()` is the first caller to pass an Eloquent attribute directly (`$deployment->created_at`, `$deployment->finished_at`) — both auto-cast to `Illuminate\Support\Carbon` instances by Eloquent, not strings. `new DateTime($carbonInstance)` throws (`DateTime::__construct(): Argument #1 ($datetime) must be of type string, Illuminate\Support\Carbon given`) — a latent bug in an existing shared helper, only surfaced because this was the first caller to use it this way. **Fixed** by casting both arguments to `(string)` before constructing the `DateTime` (`Carbon`'s `__toString()` returns `Y-m-d H:i:s`, which `DateTime`'s constructor parses fine) — a one-line fix in the helper itself, benefiting every existing call site too since `(string) $alreadyAString` is a no-op.
+
+### Phase 7 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP changes | passed |
+| 3 new Feature tests (`ApplicationDeploymentIndexTest`) | 1 failed on first run (the `formatDateInServerTimezone` bug above), 3 passed after the fix |
+| `yarn build` | Succeeded — `Heading-*.js`, `ConfigurationChecker-*.js`, `Index-*.js` (deployment page), and a shared `useTeamChannel-*.js` chunk (73 kB, pulling in `laravel-echo`/`pusher-js`) all emitted |
+| Full suite | 345 passed (1263 assertions) — up from 342, no regressions |
+
+## 20. Non-goals of Phase 7
+
+- `Server\Navbar` was scoped and deferred, not converted (see above) — still Livewire, still blocking the ~21 pages that depend on it as chrome.
+- 58 Hard-bucket components remain on Livewire, including the still-not-designed embedded-Livewire-island question for pages that nest components with no natural React equivalent yet.
+- `Heading.jsx`'s dropped breadcrumbs/domain-links/advanced-button-group/mobile-dropdown (documented above) are real, deliberate simplifications for this pass, not tracked elsewhere as a TODO — revisit if a future page's conversion needs the same shared elements at higher fidelity.
+- No manual browser QA this phase either — same lighter, user-directed bar as Phases 2-6 (Section 9).

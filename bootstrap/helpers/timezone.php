@@ -14,7 +14,7 @@ function getServerTimezone($server = null)
 function formatDateInServerTimezone($date, $server = null): string
 {
     $serverTimezone = getServerTimezone($server);
-    $dateObj = new DateTime($date);
+    $dateObj = new DateTime((string) $date);
     try {
         $dateObj->setTimezone(new DateTimeZone($serverTimezone));
     } catch (Exception) {
@@ -30,8 +30,8 @@ function calculateDuration($startDate, $endDate = null)
         return null;
     }
 
-    $start = new DateTime($startDate);
-    $end = new DateTime($endDate);
+    $start = new DateTime((string) $startDate);
+    $end = new DateTime((string) $endDate);
     $interval = $start->diff($end);
 
     if ($interval->days > 0) {
