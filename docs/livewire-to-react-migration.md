@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**31 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its fourth conversion (Section 25).
+**34 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and its first 3 pilot pages (Section 27).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 4 of 59 | 55 |
+| Hard | 7 of 59 | 52 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -553,3 +553,66 @@ Applying the lesson recorded in Phase 9 (clean the baseline as part of the recip
 - `Server\Navbar` remains deferred, unchanged from Phases 8-9.
 - 55 Hard-bucket components remain on Livewire.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The reusable modal pattern (borrowed from Phase 7) has not been visually confirmed in a real browser for this create/edit use case, only via `assertInertia()`/`assertSessionHas()` checks on the underlying HTTP actions.
+
+## 27. Phase 11 — `Server\Navbar` foundation + 3 pilot pages
+
+The largest single piece of shared chrome left in the app: `App\Livewire\Server\Navbar` is nested inside **21 different pages** (confirmed via grep), manages the proxy lifecycle (start/stop/restart via job dispatch, broadcast-driven status via `ProxyStatusChangedUI`), and itself nests another shared component (`<livewire:activity-monitor>`, a live process-log poller used by 9 *other* still-Livewire pages). This phase builds the React replacement for that chrome once, then proves it on 3 pilot pages, rather than converting all 21 dependents in one pass — the same "build the shared piece once, adopt page-by-page" approach `AppLayout.jsx` used starting in Phase 2.
+
+### Scoping, done before writing any code
+
+A dedicated research pass (Explore agent) catalogued all 20 non-`Show` pages nesting Navbar by PHP/blade line count, further nested children, and broadcast dependency, specifically to avoid repeating a mistake from earlier in this phase: the first assumed-simple pilot candidate, `Server\Show`, turned out to be one of the *largest* dependents (669 PHP lines — full settings form, Sentinel management, Hetzner Cloud linking, its own 2 Echo listeners) — the same "looks simple until you actually check" pattern already seen with `Server\Navbar` itself (Phase 7) and the Medium/Hard bucket miscount (Phase 6).
+
+The research surfaced a real, cheap pilot: **`Server\Swarm`** (70 PHP / 47 blade lines, two boolean toggles, zero nested children, zero broadcast dependency). The user chose to convert Swarm plus 2 more pilots in the same pass to shake out more edge cases up front: **`Server\Security\TerminalAccess`** (adds a password-confirmation + admin-only gate) and **`Server\Delete`** (adds a destructive action with dynamic checkboxes and a redirect-after-delete flow). Together the 3 pilots exercise instant-save toggles, password-gated actions, and destructive-action confirmation — the three interaction shapes most of the remaining 18 dependents will also need.
+
+The user also decided, when asked, to build a full reusable React port of the `ActivityMonitor` proxy-startup-log viewer now rather than deferring it — despite none of the 3 pilots' own content needing it (only Navbar's slide-over does).
+
+### Shared chrome architecture
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Support/ServerChromeData.php` | created | `navbar(Server $server): array` and `sidebar(Server $server, string $variant, string $activeMenu): array` — server-side prop builders every converted Server-scoped page's controller calls into, so the chrome's data shape lives in one place rather than being re-derived per page. Faithfully ports `Server\Navbar::mount()`/`loadProxyConfiguration()`/`getHasTraefikOutdatedProperty()` |
+| `app/Http/Controllers/ServerProxyActionsController.php` | created | `restart()`/`checkStatus()`/`start()`/`stop()` — the proxy lifecycle actions, ported from Navbar's own methods, shared by every Server-scoped page (not duplicated per page) |
+| `app/Http/Controllers/ActivityController.php` | created | `show(int $id)` JSON polling endpoint backing `ActivityLog.jsx`, porting `ActivityMonitor::hydrateActivity()`'s team-ownership verification (by `properties.team_id` or by resolving `properties.server_uuid`'s owning team) |
+| `resources/js/Components/ActivityLog.jsx` | created (new `Components/` directory, alongside existing `Layouts/`/`Pages/`/`hooks/`) | React port of `ActivityMonitor.php`'s polling loop — poll every 1s, auto-scroll, stop on exit code. **Scope reduction**: only the plain "call an `onFinished` callback" completion path is ported, not the original's ability to dispatch an arbitrary broadcast-event class by string name on completion (Navbar's own use of `ActivityMonitor` never exercises that path, so it wasn't needed) |
+| `resources/js/Components/ServerNavbar.jsx` | created | React port of `Server\Navbar` + its Blade view: proxy/Sentinel status badges, the 6-item conditional sub-nav (Configuration/Proxy/Sentinel/Resources/Terminal/Security), Start/Stop/Restart with confirmation, a slide-over showing `ActivityLog` during proxy startup, and a `useTeamChannel(['ProxyStatusChangedUI'], ...)` listener reproducing the original's status-transition notification de-duplication (only toast on meaningful transitions, not every poll) |
+| `resources/js/Components/ServerSidebar.jsx` | created | React port of 2 of the 4 `resources/views/components/server/sidebar*.blade.php` variants — `sidebar.blade.php` ("main", used by Swarm/Delete) and `sidebar-security.blade.php` ("security", used by TerminalAccess). `sidebar-proxy.blade.php`/`sidebar-sentinel.blade.php` are not ported yet — add them the same way when a page using them is converted |
+| `app/Http/Middleware/HandleInertiaRequests.php` | modified | Added `proxyActivityId` to the shared `flash` prop, so `ServerNavbar.jsx` can detect "a start/restart was just triggered" and open its log slide-over after the redirect-back completes |
+
+### The 3 pilot pages
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerSwarmController.php`, `resources/js/Pages/Server/Swarm.jsx` | created | Two-checkbox instant-save form (`is_swarm_manager`/`is_swarm_worker`, mutually exclusive) |
+| `app/Http/Controllers/ServerSecurityTerminalAccessController.php`, `resources/js/Pages/Server/Security/TerminalAccess.jsx` | created | Admin-only, password-confirmed toggle for terminal access, reusing `verifyPasswordConfirmation()` (the same helper Phase 6 discovered checks `InstanceSettings`'s skip-confirmation flag) and the established typed-name-then-password `window.prompt()` sequence from `Team\AdminView` (Phase 6) |
+| `app/Http/Controllers/ServerDeleteController.php`, `resources/js/Pages/Server/Delete.jsx` | created | Destructive delete flow with dynamic checkboxes (force-delete-resources / delete-from-Hetzner, shown only when applicable), a custom modal (checkboxes need real form state, `window.prompt()` alone can't hold them — same modal-with-state pattern as `CloudInitScripts`, Phase 10), and redirect to `server.index` after deletion |
+| `routes/web.php` | modified | 3 pages repointed at new controllers with new `.update`/`.toggle`/`.destroy` routes; new shared `server.proxy-actions.{restart,stop,start,check-status}` routes (reusable by all future Server-scoped conversions); new top-level `activity.show` route |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the Swarm and Danger links only — every other link in this shared partial still points at not-yet-converted pages |
+| `app/Livewire/Server/{Swarm,Security/TerminalAccess,Delete}.php` + matching Blade views | **deleted** | Real cutovers, grep-confirmed no other references. `Server\Navbar` itself and `ActivityMonitor.php` are untouched — still load-bearing for the other 18 dependent pages and 9 other `ActivityMonitor` consumers respectively |
+| `tests/v4/Feature/{ServerSwarmTest,ServerSecurityTerminalAccessTest,ServerDeleteTest,ServerProxyActionsTest}.php` | created | 16 tests total across the 3 pages plus the shared proxy-actions controller |
+
+### Testing the shared proxy actions without touching real SSH
+
+`ServerProxyActionsController`'s 4 actions have 2 different underlying implementations that matter for testing: `restart()` dispatches `RestartProxyJob` (implements `ShouldQueue` — cleanly interceptable with `Bus::fake()`), while `checkStatus()`/`start()`/`stop()` call `CheckProxy`/`StartProxy`/`StopProxy` — `lorisleiva/laravel-actions` classes invoked via `::run()`/`::dispatch()` that do **not** implement `ShouldQueue`, meaning they execute their `handle()` synchronously and immediately, bypassing the queue entirely (so `Bus::fake()` can't intercept them). Rather than building deeper SSH-mocking infrastructure to test all 4 actions' happy paths (a bigger, separate investment — this repo already has a namespace-scoped precedent for it in `tests/Support/Fakes/action_remote_process_overrides.php`, but only for `App\Actions\Application`, not `App\Actions\Proxy`), this phase tested:
+- `restart()` — `Bus::fake()` + `assertDispatched()`, safe and complete.
+- `checkStatus()` — called against a deliberately non-functional server (`is_reachable`/`is_usable` both false), which hits `CheckProxy::handle()`'s first early-return branch before any remote process runs.
+- All 4 actions — a 404-for-a-server-owned-by-another-team check (the `ownedByCurrentTeam()` guard), which requires no action execution at all.
+
+`start()`'s happy path specifically was left untested — it's always called with `force: true`, which is the one code path in `StartProxy::handle()` that does *not* early-return, so there is no safe way to exercise it without real SSH mocking. Recorded here rather than silently skipped.
+
+### Phase 11 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 16 new Feature tests (4 files) | 8 failed on first run (`InstanceSettings` singleton gotcha — this time surfacing in every 404/error-abort-path test across all 4 files at once, not just one), 16 passed after adding the standard `beforeEach` fixture to each |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 3 deleted files cleaned proactively (per the Phase 10 lesson); `[OK] No errors` — zero new findings in any of the new controllers |
+| `yarn build` | Succeeded — `ServerSidebar-*.js` (8.3 kB) plus the 3 new page chunks confirmed present in `manifest.json` |
+| Full suite | 377 passed (1399 assertions) — up from 361, no regressions |
+
+## 28. Non-goals of Phase 11
+
+- **18 of the 21 `Server\Navbar`-dependent pages remain on Livewire** — this phase proved the pattern on 3, not all 21. The next-best candidates by size/isolation (per the research pass): `Security\TerminalAccess`-sized pages are exhausted; remaining ones mostly nest further live children (Sentinel/Proxy/Docker-cleanup sub-components) or are considerably larger (`Server\Charts` at 315 blade lines, `Server\LogDrains` at 199 PHP lines).
+- `ServerSidebar.jsx` only covers the "main" and "security" Blade sidebar variants — `sidebar-proxy.blade.php` and `sidebar-sentinel.blade.php` are not ported; needed when `Server\Proxy\Show`/`Server\Sentinel\Show` (both "thin wrapper" pages nesting further live children, explicitly flagged as bad pilot candidates) eventually get converted.
+- `ActivityMonitor.php`/its Blade view are untouched and still load-bearing for 9 other still-Livewire pages (Database/Service Heading, Settings Index, Server Security Patches, Server validate-and-install, Server CloudflareTunnel, Database import-form, Boarding Index) — `ActivityLog.jsx` is a new, parallel React implementation, not a replacement.
+- `start()`'s happy path is untested (see above) — a real gap, not a silently-accepted one.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). This is a bigger real gap than usual: the proxy start/stop/restart flow, the live log slide-over, and the status-transition toast de-duplication logic in `ServerNavbar.jsx` have never been exercised in a real browser, only via `assertInertia()`/redirect/flash checks on the underlying HTTP actions.

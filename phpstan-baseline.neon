@@ -7111,30 +7111,6 @@ parameters:
 			path: app/Livewire/Server/Create.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\Delete\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Delete.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Delete\:\:delete\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/Delete.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Delete\:\:delete\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/Delete.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Delete\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Delete.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Destinations\:\:add\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -8143,42 +8119,6 @@ parameters:
 			path: app/Livewire/Server/Security/Patches.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\Security\\TerminalAccess\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Security/TerminalAccess.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Security\\TerminalAccess\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Security/TerminalAccess.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Security\\TerminalAccess\:\:toggleTerminal\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Security/TerminalAccess.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Security\\TerminalAccess\:\:toggleTerminal\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/Security/TerminalAccess.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Security\\TerminalAccess\:\:toggleTerminal\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/Security/TerminalAccess.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Security\\TerminalAccess\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Server/Security/TerminalAccess.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:getListeners\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -8441,30 +8381,6 @@ parameters:
 			identifier: assign.propertyType
 			count: 1
 			path: app/Livewire/Server/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Swarm\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Swarm.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Swarm\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Swarm.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Swarm\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Swarm.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Swarm\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Server/Swarm.php
 
 		-
 			message: '#^Method App\\Livewire\\Server\\ValidateAndInstall\:\:init\(\) has no return type specified\.$#'

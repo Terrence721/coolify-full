@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationDeploymentController;
 use App\Http\Controllers\Controller;
@@ -19,6 +20,10 @@ use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityCloudInitScriptsController;
 use App\Http\Controllers\SecurityCloudTokensController;
 use App\Http\Controllers\SecurityPrivateKeyController;
+use App\Http\Controllers\ServerDeleteController;
+use App\Http\Controllers\ServerProxyActionsController;
+use App\Http\Controllers\ServerSecurityTerminalAccessController;
+use App\Http\Controllers\ServerSwarmController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SettingsEmailController;
 use App\Http\Controllers\SettingsScheduledJobsController;
@@ -53,7 +58,6 @@ use App\Livewire\Server\CaCertificate\Show as CaCertificateShow;
 use App\Livewire\Server\Charts as ServerCharts;
 use App\Livewire\Server\CloudflareTunnel;
 use App\Livewire\Server\CloudProviderToken\Show as CloudProviderTokenShow;
-use App\Livewire\Server\Delete as DeleteServer;
 use App\Livewire\Server\Destinations as ServerDestinations;
 use App\Livewire\Server\DockerCleanup;
 use App\Livewire\Server\Index as ServerIndex;
@@ -64,11 +68,9 @@ use App\Livewire\Server\Proxy\Logs as ProxyLogs;
 use App\Livewire\Server\Proxy\Show as ProxyShow;
 use App\Livewire\Server\Resources as ResourcesShow;
 use App\Livewire\Server\Security\Patches;
-use App\Livewire\Server\Security\TerminalAccess;
 use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
 use App\Livewire\Server\Sentinel\Show as SentinelShow;
 use App\Livewire\Server\Show as ServerShow;
-use App\Livewire\Server\Swarm as ServerSwarm;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\SettingsBackup;
 use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesShow;
@@ -197,6 +199,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/terminal', [TerminalController::class, 'index'])->name('terminal')->middleware('can.access.terminal');
     Route::post('/terminal/connect', [TerminalController::class, 'connect'])->name('terminal.connect')->middleware('can.access.terminal');
+    Route::get('/activity/{id}', [ActivityController::class, 'show'])->name('activity.show');
     Route::post('/terminal/auth', function () {
         if (auth()->check()) {
             return response()->json(['authenticated' => true], 200);
@@ -318,7 +321,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('server/{server_uuid}')->group(function () {
         Route::get('/', ServerShow::class)->name('server.show');
         Route::get('/advanced', ServerAdvanced::class)->name('server.advanced');
-        Route::get('/swarm', ServerSwarm::class)->name('server.swarm');
+        Route::get('/swarm', [ServerSwarmController::class, 'index'])->name('server.swarm');
+        Route::put('/swarm', [ServerSwarmController::class, 'update'])->name('server.swarm.update');
         Route::get('/sentinel', SentinelShow::class)->name('server.sentinel');
         Route::get('/sentinel/logs', SentinelLogs::class)->name('server.sentinel.logs');
         Route::get('/private-key', PrivateKeyShow::class)->name('server.private-key');
@@ -329,15 +333,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/destinations', ServerDestinations::class)->name('server.destinations');
         Route::get('/log-drains', LogDrains::class)->name('server.log-drains');
         Route::get('/metrics', ServerCharts::class)->name('server.metrics');
-        Route::get('/danger', DeleteServer::class)->name('server.delete');
+        Route::get('/danger', [ServerDeleteController::class, 'index'])->name('server.delete');
+        Route::delete('/danger', [ServerDeleteController::class, 'destroy'])->name('server.delete.destroy');
         Route::get('/proxy', ProxyShow::class)->name('server.proxy');
         Route::get('/proxy/dynamic', ProxyDynamicConfigurations::class)->name('server.proxy.dynamic-confs');
         Route::get('/proxy/logs', ProxyLogs::class)->name('server.proxy.logs');
+        Route::post('/proxy-actions/restart', [ServerProxyActionsController::class, 'restart'])->name('server.proxy-actions.restart');
+        Route::post('/proxy-actions/stop', [ServerProxyActionsController::class, 'stop'])->name('server.proxy-actions.stop');
+        Route::post('/proxy-actions/start', [ServerProxyActionsController::class, 'start'])->name('server.proxy-actions.start');
+        Route::post('/proxy-actions/check-status', [ServerProxyActionsController::class, 'checkStatus'])->name('server.proxy-actions.check-status');
         Route::get('/terminal', ExecuteContainerCommand::class)->name('server.command')->middleware('can.access.terminal');
         Route::get('/docker-cleanup', DockerCleanup::class)->name('server.docker-cleanup');
         Route::get('/security', fn () => redirect(route('dashboard')))->name('server.security')->middleware('can.update.resource');
         Route::get('/security/patches', Patches::class)->name('server.security.patches')->middleware('can.update.resource');
-        Route::get('/security/terminal-access', TerminalAccess::class)->name('server.security.terminal-access')->middleware('can.update.resource');
+        Route::get('/security/terminal-access', [ServerSecurityTerminalAccessController::class, 'index'])->name('server.security.terminal-access')->middleware('can.update.resource');
+        Route::put('/security/terminal-access', [ServerSecurityTerminalAccessController::class, 'toggle'])->name('server.security.terminal-access.toggle')->middleware('can.update.resource');
     });
     Route::get('/destinations', DestinationIndex::class)->name('destination.index');
     Route::get('/destination/{destination_uuid}', [DestinationController::class, 'show'])->name('destination.show');

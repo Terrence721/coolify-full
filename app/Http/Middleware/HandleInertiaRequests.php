@@ -64,6 +64,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'warning' => $request->session()->get('warning'),
                 'info' => $request->session()->get('info'),
+                'proxyActivityId' => $request->session()->get('proxyActivityId'),
             ],
             'echo' => $user ? [
                 'key' => config('constants.pusher.app_key') ?: 'coolify',

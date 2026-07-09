@@ -35,12 +35,12 @@
             href="{{ route('server.metrics', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Metrics</span></a>
     @endif
     @if (!$server->isBuildServer() && !$server->settings->is_cloudflare_tunnel)
-        <a class="sub-menu-item {{ $activeMenu === 'swarm' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+        <a class="sub-menu-item {{ $activeMenu === 'swarm' ? 'menu-item-active' : '' }}"
             href="{{ route('server.swarm', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Swarm</span>
         </a>
     @endif
     @if (!$server->isLocalhost())
-        <a class="sub-menu-item {{ $activeMenu === 'danger' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+        <a class="sub-menu-item {{ $activeMenu === 'danger' ? 'menu-item-active' : '' }}"
             href="{{ route('server.delete', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Danger</span></a>
     @endif
 </div>
