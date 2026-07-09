@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**34 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and its first 3 pilot pages (Section 27).
+**35 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 4 pages built on it (Section 29).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 7 of 59 | 52 |
+| Hard | 8 of 59 | 51 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -616,3 +616,34 @@ The user also decided, when asked, to build a full reusable React port of the `A
 - `ActivityMonitor.php`/its Blade view are untouched and still load-bearing for 9 other still-Livewire pages (Database/Service Heading, Settings Index, Server Security Patches, Server validate-and-install, Server CloudflareTunnel, Database import-form, Boarding Index) — `ActivityLog.jsx` is a new, parallel React implementation, not a replacement.
 - `start()`'s happy path is untested (see above) — a real gap, not a silently-accepted one.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). This is a bigger real gap than usual: the proxy start/stop/restart flow, the live log slide-over, and the status-transition toast de-duplication logic in `ServerNavbar.jsx` have never been exercised in a real browser, only via `assertInertia()`/redirect/flash checks on the underlying HTTP actions.
+
+## 29. Phase 12 — `Server\Advanced`: first re-use of the `Server\Navbar` foundation
+
+The first page converted purely by *reusing* Phase 11's shared chrome, not building any of it. `Server\Advanced` (94 PHP / 51 blade lines) was one of the "zero nested children, zero broadcast dependency" candidates the Phase 11 research pass identified — a plain instant-save settings form (disk-usage check frequency/threshold, concurrent builds, deployment timeout, deployment queue limit), same shape as Phase 11's `Server\Swarm` pilot. This phase exists mainly to confirm the foundation genuinely generalizes to a new page with zero changes to `ServerChromeData`/`ServerNavbar.jsx`/`ServerSidebar.jsx` — it did.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerAdvancedController.php` | created | `index()` (calls the existing `ServerChromeData::navbar()`/`sidebar()` unchanged) and `update()` — faithfully ports the cron-expression validation for disk-usage check frequency, including the original's defensive try/catch (see below) |
+| `resources/js/Pages/Server/Advanced.jsx` | created | Single `useForm()` covering all 5 settings fields, submitted via one PUT |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Advanced" link only |
+| `routes/web.php` | modified | `server.advanced` repointed at the new controller; new `server.advanced.update` route |
+| `app/Livewire/Server/Advanced.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references |
+| `tests/v4/Feature/ServerAdvancedTest.php` | created | 4 tests: renders, updates settings, rejects an invalid cron expression, 404s for a server owned by another team |
+
+**A real, latent bug found and fixed while writing the invalid-cron-expression test**: the original Livewire component's `submit()` wrapped `validate_cron_expression()` in a try/catch because the underlying `Cron\CronExpression` constructor throws `InvalidArgumentException` on a malformed string rather than returning `false` — `validate_cron_expression()` itself has no internal try/catch, so any caller that doesn't wrap it will get an uncaught exception (a 500) instead of a clean validation error for bad input. The first draft of `ServerAdvancedController::update()` called it unwrapped; the rejection test caught this immediately (a 500 instead of the expected redirect-with-error). Fixed by adding the same try/catch the original component had — a case of the original code being *correct but non-obviously so*, and a fresh port dropping a defensive wrapper that looked like unnecessary boilerplate until the test proved otherwise.
+
+### Phase 12 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 4 new Feature tests (`ServerAdvancedTest`) | 1 failed on first run (uncaught `InvalidArgumentException` from `validate_cron_expression()`, see above), 4 passed after adding the try/catch |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entry for the 1 deleted file cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/Advanced.jsx` confirmed present in `manifest.json` (disambiguated from the pre-existing `Settings/Advanced.jsx` chunk from Phase 5, which shares the same base filename) |
+| Full suite | 381 passed (1419 assertions) — up from 377, no regressions |
+
+## 30. Non-goals of Phase 12
+
+- 17 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 18). Remaining zero-nested-child/zero-broadcast candidates per the Phase 11 research: `Server\CaCertificate\Show` (145/92) and `Server\LogDrains` (199/123) — both good next candidates using this same reuse-only recipe.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged — the foundation itself wasn't touched this phase.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

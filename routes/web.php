@@ -20,6 +20,7 @@ use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityCloudInitScriptsController;
 use App\Http\Controllers\SecurityCloudTokensController;
 use App\Http\Controllers\SecurityPrivateKeyController;
+use App\Http\Controllers\ServerAdvancedController;
 use App\Http\Controllers\ServerDeleteController;
 use App\Http\Controllers\ServerProxyActionsController;
 use App\Http\Controllers\ServerSecurityTerminalAccessController;
@@ -53,7 +54,6 @@ use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
 use App\Livewire\Project\Show as ProjectShow;
 use App\Livewire\Security\PrivateKey\Index as SecurityPrivateKeyIndex;
-use App\Livewire\Server\Advanced as ServerAdvanced;
 use App\Livewire\Server\CaCertificate\Show as CaCertificateShow;
 use App\Livewire\Server\Charts as ServerCharts;
 use App\Livewire\Server\CloudflareTunnel;
@@ -320,7 +320,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('server/{server_uuid}')->group(function () {
         Route::get('/', ServerShow::class)->name('server.show');
-        Route::get('/advanced', ServerAdvanced::class)->name('server.advanced');
+        Route::get('/advanced', [ServerAdvancedController::class, 'index'])->name('server.advanced');
+        Route::put('/advanced', [ServerAdvancedController::class, 'update'])->name('server.advanced.update');
         Route::get('/swarm', [ServerSwarmController::class, 'index'])->name('server.swarm');
         Route::put('/swarm', [ServerSwarmController::class, 'update'])->name('server.swarm.update');
         Route::get('/sentinel', SentinelShow::class)->name('server.sentinel');

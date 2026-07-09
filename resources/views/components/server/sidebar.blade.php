@@ -2,7 +2,7 @@
     <a class="sub-menu-item {{ $activeMenu === 'general' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
         href="{{ route('server.show', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">General</span></a>
     @if ($server->isFunctional())
-        <a class="sub-menu-item {{ $activeMenu === 'advanced' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+        <a class="sub-menu-item {{ $activeMenu === 'advanced' ? 'menu-item-active' : '' }}"
             href="{{ route('server.advanced', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Advanced</span>
         </a>
     @endif
