@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**30 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its third conversion (Section 23).
+**31 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its fourth conversion (Section 25).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 3 of 59 | 56 |
+| Hard | 4 of 59 | 55 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -510,3 +510,46 @@ Deleting `CloudTokens.php` and `CloudProviderTokens.php` left the same category 
 - `Server\Navbar` remains deferred, unchanged from Phase 8.
 - 56 Hard-bucket components remain on Livewire.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). Lower-stakes than Phase 8's terminal (no live connection state to fail to exercise), but the external Hetzner/DigitalOcean API calls are only verified against `Http::fake()`, not a real provider account.
+
+## 25. Phase 10 — `Security\CloudInitScripts`: the Security sub-nav's second Hard-bucket page
+
+The direct sibling to Phase 9's `CloudTokens` — same Hard-bucket disqualifiers (old-style `getListeners()` listening for `scriptSaved`, a nested `<livewire:.../>` form child), same shared `x-security.navbar` Blade partial, converted immediately after using the same recipe. The one real difference: the original UI used actual modal dialogs (`<x-modal-input>`) for both "Add" and "Edit", rather than an inline form section — this page establishes the first reusable-in-spirit modal pattern for a create/edit (not just view/confirm) form in this migration.
+
+### Design
+
+- **All three Livewire files deleted, not two.** Unlike `CloudProviderTokenForm` (Phase 9, kept — reused by two other still-Livewire pages), grepping `CloudInitScriptForm` turned up no consumer besides the page being converted here. `CloudInitScripts.php`, `CloudInitScriptForm.php`, and both Blade views were deleted outright — a cleaner cutover than Phase 9's.
+- **One form, two modes, one `useForm()` instance.** The original had a single Livewire component (`CloudInitScriptForm`) handle both create (`scriptId = null`) and update (`scriptId` set, fields pre-populated in `mount()`), reused via two separate `<x-modal-input>` invocations (one for "+ Add", one per-row "Edit"). The React page keeps that one-form-two-modes shape: a single `useForm({name, script})` instance, a `modalScript` state (`null` = closed, `{id: null}` = creating, a real script object = editing) that decides both which URL (`storeUrl` vs. that row's `updateUrl`) and which fields to pre-populate.
+- **Modal chrome reused, not reinvented.** The fixed-overlay/backdrop/centered-panel modal structure is copied from `ConfigurationChecker.jsx`'s (Phase 7) view-only modal — the first precedent for any dialog-style overlay in this migration. This is the first time that pattern has been reused for a create/edit form rather than a read-only detail view, confirming it generalizes.
+- **The `scriptSaved` listener, like Phase 9's `tokenAdded`, had no reason to survive.** Inertia's default behavior (shared props refetch automatically after any successful visit) already gives the list a current view after a create/update submit — no manual "tell the sibling to reload" event needed once both live in the same request/response cycle.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/SecurityCloudInitScriptsController.php` | created | `index()` (list + per-row `canUpdate`/`canDelete`/action URLs), `store()`, `update()`, `destroy()` — validation (`ValidCloudInitYaml` rule, faithfully reused) factored into one private `validated()` helper shared by create and update |
+| `resources/js/Pages/Security/CloudInitScripts.jsx` | created | Script grid + single reusable add/edit modal (`useForm()` + `modalScript` state) + delete via the established `window.prompt()`-typed-confirmation pattern |
+| `resources/views/components/security/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Cloud-Init Scripts" link only — now only `security.private-key.index` (the still-Livewire list page) keeps its `wireNavigate()` on this shared partial |
+| `routes/web.php` | modified | `security.cloud-init-scripts` repointed at the new controller; new `security.cloud-init-scripts.{store,update,destroy}` routes |
+| `app/Livewire/Security/{CloudInitScripts,CloudInitScriptForm}.php` + both matching Blade views | **deleted** | Real cutover — grep-confirmed zero other consumers of either class |
+| `tests/v4/Feature/SecurityCloudInitScriptsTest.php` | created | 6 tests: renders page, 403s a non-admin member, creates a script, rejects one with invalid cloud-init YAML, updates a script, deletes a script |
+
+### PHPStan baseline: proactive cleanup, no reactive fix-up needed this time
+
+Applying the lesson recorded in Phase 9 (clean the baseline as part of the recipe, not after a CI failure), the stale `phpstan-baseline.neon` entries for the two deleted files were cleaned up as a standard step before considering this phase done, rather than waiting to discover them via a broken CI run. `vendor/bin/phpstan analyse` reported **zero findings** in the new controller on the first run after cleanup — no fix-up pass needed, unlike Phase 8.
+
+### Phase 10 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 6 new Feature tests (`SecurityCloudInitScriptsTest`) | 6 passed on the first run — no `InstanceSettings` singleton gotcha this time (no abort/error-page path exercised outside the standard `beforeEach` fixture, included proactively) |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 2 deleted files cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `CloudInitScripts-*.js` chunk emitted |
+| Full suite | 361 passed (1335 assertions) — up from 355, no regressions |
+
+## 26. Non-goals of Phase 10
+
+- `Security\PrivateKey\Index` (the list page) remains the only still-Livewire consumer of `x-security.navbar` — all 3 of its sibling tabs (`Cloud Tokens`, `Cloud-Init Scripts`, `API Tokens`) are now converted.
+- `Server\Navbar` remains deferred, unchanged from Phases 8-9.
+- 55 Hard-bucket components remain on Livewire.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The reusable modal pattern (borrowed from Phase 7) has not been visually confirmed in a real browser for this create/edit use case, only via `assertInertia()`/`assertSessionHas()` checks on the underlying HTTP actions.
