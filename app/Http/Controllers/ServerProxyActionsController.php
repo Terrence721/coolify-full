@@ -50,7 +50,7 @@ class ServerProxyActionsController extends Controller
         CheckProxy::run($server, true);
         $activity = StartProxy::run($server, force: true);
 
-        return back()->with('proxyActivityId', $activity->id);
+        return back()->with(['activityId' => $activity->id, 'activityContext' => 'proxy']);
     }
 
     public function stop(string $server_uuid): RedirectResponse

@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**38 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 7 pages built on it (Section 35).
+**39 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 8 pages built on it (Section 37).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 11 of 59 | 48 |
+| Hard | 12 of 59 | 47 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -757,3 +757,52 @@ The first `Server\Navbar`-dependent page conversion since the "easy" candidate l
 - The restart-count/crash-loop warning sub-text from the original status badges was not ported (see above) — a real fidelity gap, not a silent one.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 37. Phase 16 — `Server\Security\Patches`: first reuse of `ActivityLog.jsx` outside Navbar, and a generic activity-notification design
+
+The first page conversion to reuse `ActivityLog.jsx` (Phase 11's React port of `ActivityMonitor`'s polling loop) for a feature *other than* the proxy-startup slide-over it was originally built for — confirming that piece of infrastructure genuinely generalizes, not just to `ServerNavbar.jsx`. `Server\Security\Patches` checks a server for available OS package updates (`apt`/`dnf`/`zypper`) and updates all-or-one package, each update running over SSH with a live log viewer.
+
+### A real design problem: two features, one flash-based slide-over trigger
+
+Phase 11's `ServerNavbar.jsx` opens its proxy-startup log slide-over by watching a flashed `proxyActivityId` session value (since the activity ID is only known *after* the redirect-back from the POST completes). Patches needed the exact same mechanism for its own, separate "Updating Packages" slide-over — but `ServerNavbar` renders on **every** Server-scoped page, including this one, so naively reusing the same flash key would make Navbar's proxy slide-over pop open in response to a *patches* update, and vice versa on any future third consumer.
+
+Fixed by generalizing the mechanism instead of duplicating it: the shared `flash` prop now carries `activityId` **and** `activityContext` (a short discriminator string — `'proxy'`, `'patches-update'`, etc.). `HandleInertiaRequests::share()` needed exactly one addition (`activityContext`) to support this and every future consumer, rather than a new middleware edit per feature. `ServerNavbar.jsx` and `Patches.jsx` each check their own context string before reacting, so they can never cross-trigger each other. `ServerProxyActionsController::start()` was updated to flash `['activityId' => ..., 'activityContext' => 'proxy']`.
+
+### A second design decision: the original's cross-tab broadcast, ported safely
+
+The original's `ActivityMonitor::polling()` has a special case: once an activity's exit code is known, if the `eventToDispatch` set on it looks like a real event class (`App\Events\...`), it dispatches that class by string name — this is how `Patches::updatePackage()`'s completion becomes a real `ServerPackageUpdated` broadcast that notifies *every* client watching the team channel, not just the tab that triggered the update. `ActivityLog.jsx` (Phase 11) deliberately does not support this generic "dispatch an arbitrary class by name" behavior — accepting a class name from the client and instantiating/dispatching it would be a real injection risk, and the original itself only ever sets `eventToDispatch` from trusted server-side code, never from client input.
+
+Kept the safety property and the behavior: `ActivityLog.jsx` still just calls a plain `onFinished` callback; `Patches.jsx`'s `onFinished` handler POSTs to a new, feature-specific `server.security.patches.notify-updated` route, and `ServerSecurityPatchesController::notifyUpdated()` dispatches `ServerPackageUpdated::dispatch($server->team_id)` server-side, where the event class is a fixed, trusted constant — not client-supplied.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Middleware/HandleInertiaRequests.php` | modified | Added `activityContext` alongside the existing `activityId` flash key |
+| `app/Http/Controllers/ServerProxyActionsController.php` | modified | `start()` now flashes `activityContext: 'proxy'` alongside `activityId` |
+| `resources/js/Components/ServerNavbar.jsx` | modified | Only opens its slide-over when `flash.activityContext === 'proxy'` |
+| `app/Http/Controllers/ServerSecurityPatchesController.php` | created | `index()`, `checkUpdates()` (JSON, via `fetch()` — matches Terminal's established non-navigational-POST pattern), `updateAll()`/`updatePackage()` (flash `activityContext: 'patches-update'`), `notifyUpdated()`, `sendTestEmail()` (dev-only, matches original) |
+| `resources/js/Pages/Server/Security/Patches.jsx` | created | Check-updates button + results table, its own log slide-over (reusing `ActivityLog.jsx`), typed-confirmation `window.prompt()` for "Update All" (matching the established pattern), no confirmation for a single-package update (matching the original, which doesn't wrap that action in a modal either) |
+| `resources/views/components/server/sidebar-security.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Server Patching" link only |
+| `routes/web.php` | modified | `server.security.patches` repointed at the new controller; 5 new `server.security.patches.*` routes |
+| `app/Livewire/Server/Security/Patches.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references |
+| `tests/v4/Feature/ServerSecurityPatchesTest.php` | created | 6 tests: renders, `checkUpdates()`/`updateAll()` both return a clean error on a non-functional server (safe — no SSH touched, since both underlying actions early-return on `serverStatus() === false` before any remote call), rejects the test-email action outside dev mode, confirms `notifyUpdated()` really dispatches `ServerPackageUpdated` (via `Event::fake()`), 404s for a server owned by another team |
+
+**A real, pre-existing latent bug found while writing tests, not introduced by this migration**: `UpdatePackage::handle()` can return either an `Activity` or an `array` with an `'error'` key (mirroring `CheckUpdates`), but the original Livewire `updateAllPackages()`/`updatePackage()` methods only ever handled the `Activity` case — calling `$activity->id` on the array-return path would silently emit a PHP warning and evaluate to `null`, never surfacing the actual error to the user. The first draft of the new controller carried this same gap forward faithfully; fixed by adding an explicit `is_array($activity)` check before accessing `->id`, surfacing the real error message instead.
+
+### Phase 16 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 6 new Feature tests (`ServerSecurityPatchesTest`) | 6 passed on the first run |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entry for the 1 deleted file cleaned proactively; `[OK] No errors` — zero new findings |
+| `yarn build` | Succeeded — `Server/Security/Patches.jsx` confirmed present in `manifest.json` |
+| Full suite | 402 passed (1520 assertions) — up from 396, no regressions |
+
+## 38. Non-goals of Phase 16
+
+- 13 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 14).
+- The `checkUpdates()`/`updateAll()`/`updatePackage()` happy paths (real SSH-driven package scanning/updating) remain untested — same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15).
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The two-slide-over discriminator design (`activityContext`) and the cross-tab broadcast notification flow have not been visually confirmed in a real browser.

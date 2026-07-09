@@ -26,13 +26,12 @@ export default function ServerNavbar({ serverNavbar }) {
     }, [serverNavbar.proxyStatus]);
 
     useEffect(() => {
-        const flashedActivityId = props.flash?.proxyActivityId;
-        if (flashedActivityId) {
-            setActivityId(flashedActivityId);
+        if (props.flash?.activityContext === 'proxy' && props.flash?.activityId) {
+            setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.flash?.proxyActivityId]);
+    }, [props.flash?.activityId, props.flash?.activityContext]);
 
     useTeamChannel(['ProxyStatusChangedUI'], () => {
         router.reload({
