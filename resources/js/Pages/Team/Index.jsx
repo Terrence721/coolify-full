@@ -1,6 +1,6 @@
 import { router, useForm, usePage } from '@inertiajs/react';
 
-export default function Index({ team, canUpdate, canDelete, deletionBlockedReason, blockingResources, subscriptionUrl, updateUrl, deleteUrl }) {
+export default function Index({ team, canUpdate, canDelete, deletionBlockedReason, blockingResources, updateUrl, deleteUrl }) {
     const { permissions } = usePage().props;
     const { data, setData, put, processing, errors } = useForm({
         name: team.name,
@@ -70,15 +70,6 @@ export default function Index({ team, canUpdate, canDelete, deletionBlockedReaso
                     <h4 className="pb-4">Delete Team</h4>
                     {deletionBlockedReason === 'default-team' && <div>This is the default team. You can't delete it.</div>}
                     {deletionBlockedReason === 'last-team' && <div>You can't delete your last / personal team.</div>}
-                    {deletionBlockedReason === 'has-subscription' && (
-                        <div>
-                            Please cancel your subscription{' '}
-                            <a className="underline dark:text-white" href={subscriptionUrl}>
-                                here
-                            </a>{' '}
-                            before deleting this team.
-                        </div>
-                    )}
                     {deletionBlockedReason === 'not-empty' && (
                         <div>
                             <div className="pb-4">You need to delete the following resources to be able to delete the team:</div>

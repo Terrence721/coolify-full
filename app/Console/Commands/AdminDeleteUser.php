@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Actions\Stripe\CancelSubscription;
 use App\Actions\User\DeleteUserResources;
 use App\Actions\User\DeleteUserServers;
 use App\Actions\User\DeleteUserTeams;
@@ -21,16 +20,13 @@ class AdminDeleteUser extends Command
 {
     protected $signature = 'admin:delete-user {email}
                             {--dry-run : Preview what will be deleted without actually deleting}
-                            {--skip-stripe : Skip Stripe subscription cancellation}
                             {--skip-resources : Skip resource deletion}
                             {--auto-confirm : Skip all confirmation prompts between phases}
                             {--force : Bypass the lock check and force deletion (use with caution)}';
 
-    protected $description = 'Delete a user with comprehensive resource cleanup and phase-by-phase confirmation (works on cloud and self-hosted)';
+    protected $description = 'Delete a user with comprehensive resource cleanup and phase-by-phase confirmation';
 
     private bool $isDryRun = false;
-
-    private bool $skipStripe = false;
 
     private bool $skipResources = false;
 
@@ -45,7 +41,6 @@ class AdminDeleteUser extends Command
         'phase_3_servers' => false,
         'phase_4_teams' => false,
         'phase_5_user_profile' => false,
-        'phase_6_stripe' => false,
         'db_committed' => false,
     ];
 
@@ -56,7 +51,6 @@ class AdminDeleteUser extends Command
 
         $email = $this->argument('email');
         $this->isDryRun = $this->option('dry-run');
-        $this->skipStripe = $this->option('skip-stripe');
         $this->skipResources = $this->option('skip-resources');
         $force = $this->option('force');
 
@@ -84,14 +78,6 @@ class AdminDeleteUser extends Command
             $this->comment('   Use --auto-confirm to skip phase confirmations');
             $this->newLine();
         }
-
-        // Notify about instance type and Stripe
-        if (isCloud()) {
-            $this->comment('☁️  Cloud instance - Stripe subscriptions will be handled');
-        } else {
-            $this->comment('🏠 Self-hosted instance - Stripe operations will be skipped');
-        }
-        $this->newLine();
 
         try {
             $this->user = User::whereEmail($email)->firstOrFail();
@@ -134,7 +120,6 @@ class AdminDeleteUser extends Command
             $this->deletionState['phase_1_overview'] = true;
 
             // If not dry run, wrap DB operations in a transaction
-            // NOTE: Stripe cancellations happen AFTER commit to avoid inconsistent state
             if (! $this->isDryRun) {
                 try {
                     DB::beginTransaction();
@@ -251,49 +236,6 @@ class AdminDeleteUser extends Command
                     $this->info('✅ Transaction committed - database changes are now PERMANENT.');
                     $this->logAction("Database deletion completed for: {$email}");
 
-                    // Confirmation to continue to Stripe (after commit)
-                    if (! $this->skipStripe && isCloud() && ! $this->option('auto-confirm')) {
-                        $this->newLine();
-                        $this->warn('⚠️  Database changes are committed (permanent)');
-                        $this->info('Next: Cancel Stripe subscriptions');
-                        if (! $this->confirm('Continue to Phase 6 (Cancel Stripe Subscriptions)?', true)) {
-                            $this->warn('User deletion stopped after database commit.');
-                            $this->error('⚠️  IMPORTANT: User deleted from database but Stripe subscriptions remain active!');
-                            $this->error('You must cancel subscriptions manually in Stripe Dashboard.');
-                            $this->error('Go to: https://dashboard.stripe.com/');
-                            $this->error('Search for: '.$email);
-
-                            return 1;
-                        }
-                    }
-
-                    // Phase 6: Cancel Stripe Subscriptions (AFTER DB commit)
-                    // This is done AFTER commit because Stripe API calls cannot be rolled back
-                    // If this fails, DB changes are already committed but subscriptions remain active
-                    if (! $this->skipStripe && isCloud()) {
-                        if (! $this->cancelStripeSubscriptions()) {
-                            $this->newLine();
-                            $this->error('═══════════════════════════════════════');
-                            $this->error('⚠️  CRITICAL: INCONSISTENT STATE DETECTED');
-                            $this->error('═══════════════════════════════════════');
-                            $this->error('✓ User data DELETED from database (committed)');
-                            $this->error('✗ Stripe subscription cancellation FAILED');
-                            $this->newLine();
-                            $this->displayErrorState('Phase 6: Stripe Cancellation (Post-Commit)');
-                            $this->newLine();
-                            $this->error('MANUAL ACTION REQUIRED:');
-                            $this->error('1. Go to Stripe Dashboard: https://dashboard.stripe.com/');
-                            $this->error('2. Search for customer email: '.$email);
-                            $this->error('3. Cancel all active subscriptions');
-                            $this->error('4. Check storage/logs/user-deletions.log for subscription IDs');
-                            $this->newLine();
-                            $this->logAction("INCONSISTENT STATE: User {$email} deleted but Stripe cancellation failed");
-
-                            return 1;
-                        }
-                    }
-                    $this->deletionState['phase_6_stripe'] = true;
-
                     $this->newLine();
                     $this->info('✅ User deletion completed successfully!');
                     $this->logAction("User deletion completed for: {$email}");
@@ -357,15 +299,6 @@ class AdminDeleteUser extends Command
                     return 0;
                 }
 
-                // Phase 6: Cancel Stripe Subscriptions (shown after DB operations in dry run too)
-                if (! $this->skipStripe && isCloud()) {
-                    if (! $this->cancelStripeSubscriptions()) {
-                        $this->info('User deletion would be cancelled at Stripe cancellation phase.');
-
-                        return 0;
-                    }
-                }
-
                 $this->newLine();
                 $this->info('✅ DRY RUN completed successfully! No data was deleted.');
             }
@@ -398,7 +331,6 @@ class AdminDeleteUser extends Command
         $allApplications = collect();
         $allDatabases = collect();
         $allServices = collect();
-        $activeSubscriptions = collect();
 
         foreach ($teams as $team) {
             $userRole = $team->pivot->role;
@@ -425,11 +357,6 @@ class AdminDeleteUser extends Command
                     }
                 }
             }
-
-            // Only collect subscriptions on cloud instances
-            if (isCloud() && $team->subscription && $team->subscription->stripe_subscription_id) {
-                $activeSubscriptions->push($team->subscription);
-            }
         }
 
         // Build table data
@@ -446,11 +373,6 @@ class AdminDeleteUser extends Command
             ['Databases', $allDatabases->count()],
             ['Services', $allServices->count()],
         ];
-
-        // Only show Stripe subscriptions on cloud instances
-        if (isCloud()) {
-            $tableData[] = ['Active Stripe Subscriptions', $activeSubscriptions->count()];
-        }
 
         $this->table(['Property', 'Value'], $tableData);
 
@@ -669,44 +591,10 @@ class AdminDeleteUser extends Command
                     $this->warn("  ⚠️  This team has {$resourceCount} active resources!");
                 }
 
-                // Show subscription details if relevant
-                if ($team->subscription && $team->subscription->stripe_subscription_id) {
-                    $this->warn('  ⚠️  Active Stripe subscription details:');
-                    $this->warn("    Subscription ID: {$team->subscription->stripe_subscription_id}");
-                    $this->warn("    Customer ID: {$team->subscription->stripe_customer_id}");
-
-                    // Show other owners who could potentially take over
-                    $otherOwners = $team->members
-                        ->where('id', '!=', $this->user->id)
-                        ->filter(function ($member) {
-                            return $member->pivot->role === 'owner';
-                        });
-
-                    if ($otherOwners->isNotEmpty()) {
-                        $this->info('  Other owners who could take over billing:');
-                        foreach ($otherOwners as $owner) {
-                            $this->line("    - {$owner->name} ({$owner->email})");
-                        }
-                    }
-                }
-
                 $this->newLine();
             }
 
             $this->error('Please resolve these issues manually before retrying:');
-
-            // Check if any edge case involves subscription payment issues
-            $hasSubscriptionIssue = $preview['edge_cases']->contains(function ($edgeCase) {
-                return str_contains($edgeCase['reason'], 'Stripe subscription');
-            });
-
-            if ($hasSubscriptionIssue) {
-                $this->info('For teams with subscription payment issues:');
-                $this->info('1. Cancel the subscription through Stripe dashboard, OR');
-                $this->info('2. Transfer the subscription to another owner\'s payment method, OR');
-                $this->info('3. Have the other owner create a new subscription after cancelling this one');
-                $this->newLine();
-            }
 
             $hasNoOwnerReplacement = $preview['edge_cases']->contains(function ($edgeCase) {
                 return str_contains($edgeCase['reason'], 'No suitable owner replacement');
@@ -738,21 +626,17 @@ class AdminDeleteUser extends Command
         if ($preview['to_delete']->isNotEmpty()) {
             $this->warn('Teams to be DELETED (user is the only member):');
             $this->table(
-                ['ID', 'Name', 'Resources', 'Subscription'],
+                ['ID', 'Name', 'Resources'],
                 $preview['to_delete']->map(function ($team) {
                     $resourceCount = 0;
                     foreach ($team->servers()->get() as $server) {
                         $resourceCount += $server->definedResources()->count();
                     }
-                    $hasSubscription = $team->subscription && $team->subscription->stripe_subscription_id
-                        ? '⚠️ YES - '.$team->subscription->stripe_subscription_id
-                        : 'No';
 
                     return [
                         $team->id,
                         $team->name,
                         $resourceCount,
-                        $hasSubscription,
                     ];
                 })->toArray()
             );
@@ -824,105 +708,6 @@ class AdminDeleteUser extends Command
         return true;
     }
 
-    private function cancelStripeSubscriptions(): bool
-    {
-        $this->newLine();
-        $this->info('═══════════════════════════════════════');
-        $this->info('PHASE 6: CANCEL STRIPE SUBSCRIPTIONS');
-        $this->info('═══════════════════════════════════════');
-        $this->newLine();
-
-        $action = new CancelSubscription($this->user, $this->isDryRun);
-        $subscriptions = $action->getSubscriptionsPreview();
-
-        if ($subscriptions->isEmpty()) {
-            $this->info('No Stripe subscriptions to cancel.');
-
-            return true;
-        }
-
-        // Verify subscriptions in Stripe before showing details
-        $this->info('Verifying subscriptions in Stripe...');
-        $verification = $action->verifySubscriptionsInStripe();
-
-        if (! empty($verification['errors'])) {
-            $this->warn('⚠️  Errors occurred during verification:');
-            foreach ($verification['errors'] as $error) {
-                $this->warn("  - {$error}");
-            }
-            $this->newLine();
-        }
-
-        if ($verification['not_found']->isNotEmpty()) {
-            $this->warn('⚠️  Subscriptions not found or inactive in Stripe:');
-            foreach ($verification['not_found'] as $item) {
-                $subscription = $item['subscription'];
-                $reason = $item['reason'];
-                $this->line("  - {$subscription->stripe_subscription_id} (Team: {$subscription->team->name}) - {$reason}");
-            }
-            $this->newLine();
-        }
-
-        if ($verification['verified']->isEmpty()) {
-            $this->info('No active subscriptions found in Stripe to cancel.');
-
-            return true;
-        }
-
-        $this->info('Active Stripe subscriptions to cancel:');
-        $this->newLine();
-
-        $totalMonthlyValue = 0;
-        foreach ($verification['verified'] as $item) {
-            $subscription = $item['subscription'];
-            $stripeStatus = $item['stripe_status'];
-            $team = $subscription->team;
-            $planId = $subscription->stripe_plan_id;
-
-            // Try to get the price from config
-            $monthlyValue = $this->getSubscriptionMonthlyValue($planId);
-            $totalMonthlyValue += $monthlyValue;
-
-            $this->line("  - {$subscription->stripe_subscription_id} (Team: {$team->name})");
-            $this->line("    Stripe Status: {$stripeStatus}");
-            if ($monthlyValue > 0) {
-                $this->line("    Monthly value: \${$monthlyValue}");
-            }
-            if ($subscription->stripe_cancel_at_period_end) {
-                $this->line('    ⚠️  Already set to cancel at period end');
-            }
-        }
-
-        if ($totalMonthlyValue > 0) {
-            $this->newLine();
-            $this->warn("Total monthly value: \${$totalMonthlyValue}");
-        }
-        $this->newLine();
-
-        $this->error('⚠️  WARNING: Subscriptions will be cancelled IMMEDIATELY (not at period end)!');
-        $this->warn('⚠️  NOTE: This operation happens AFTER database commit and cannot be rolled back!');
-        if (! $this->confirm('Are you sure you want to cancel all these subscriptions immediately?', false)) {
-            return false;
-        }
-
-        if (! $this->isDryRun) {
-            $this->info('Cancelling subscriptions...');
-            $result = $action->execute();
-            $this->info("Cancelled {$result['cancelled']} subscriptions, {$result['failed']} failed");
-            if ($result['failed'] > 0 && ! empty($result['errors'])) {
-                $this->error('Failed subscriptions:');
-                foreach ($result['errors'] as $error) {
-                    $this->error("  - {$error}");
-                }
-
-                return false;
-            }
-            $this->logAction("Cancelled {$result['cancelled']} Stripe subscriptions for user {$this->user->email}");
-        }
-
-        return true;
-    }
-
     private function deleteUserProfile(): bool
     {
         $this->newLine();
@@ -983,26 +768,6 @@ class AdminDeleteUser extends Command
         }
 
         return true;
-    }
-
-    private function getSubscriptionMonthlyValue(string $planId): int
-    {
-        // Try to get pricing from subscription metadata or config
-        // Since we're using dynamic pricing, return 0 for now
-        // This could be enhanced by fetching the actual price from Stripe API
-
-        // Check if this is a dynamic pricing plan
-        $dynamicMonthlyPlanId = config('subscription.stripe_price_id_dynamic_monthly');
-        $dynamicYearlyPlanId = config('subscription.stripe_price_id_dynamic_yearly');
-
-        if ($planId === $dynamicMonthlyPlanId || $planId === $dynamicYearlyPlanId) {
-            // For dynamic pricing, we can't determine the exact amount without calling Stripe API
-            // Return 0 to indicate dynamic/usage-based pricing
-            return 0;
-        }
-
-        // For any other plans, return 0 as we don't have hardcoded prices
-        return 0;
     }
 
     private function logAction(string $message): void
@@ -1109,14 +874,6 @@ class AdminDeleteUser extends Command
             }
 
             $this->newLine();
-
-            if (! $this->deletionState['phase_6_stripe']) {
-                $this->error('Stripe subscriptions were NOT cancelled:');
-                $this->error('1. Go to Stripe Dashboard: https://dashboard.stripe.com/');
-                $this->error('2. Search for: '.$this->user->email);
-                $this->error('3. Cancel all active subscriptions manually');
-                $this->newLine();
-            }
         }
 
         $this->error('Log file: storage/logs/user-deletions.log');

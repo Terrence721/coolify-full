@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Actions\User\RevokeUserTeamTokens;
-use App\Jobs\UpdateStripeCustomerEmailJob;
 use App\Notifications\Channels\SendsEmail;
 use App\Notifications\TransactionalEmails\EmailChangeVerification;
 use App\Notifications\TransactionalEmails\ResetPassword as TransactionalEmailsResetPassword;
@@ -532,17 +531,6 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
             'email_change_code' => null,
             'email_change_code_expires_at' => null,
         ]);
-
-        // For cloud users, dispatch job to update Stripe customer email asynchronously
-        $currentTeam = $this->currentTeam();
-        if (isCloud() && $currentTeam?->subscription) {
-            dispatch(new UpdateStripeCustomerEmailJob(
-                $currentTeam,
-                $this->id,
-                $newEmail,
-                $oldEmail
-            ));
-        }
 
         return true;
     }

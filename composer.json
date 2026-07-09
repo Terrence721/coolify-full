@@ -55,7 +55,6 @@
         "spatie/laravel-schemaless-attributes": "^2.5.1",
         "spatie/url": "^2.4",
         "stevebauman/purify": "^6.3.1",
-        "stripe/stripe-php": "^16.6.0",
         "symfony/yaml": "^7.4.1",
         "visus/cuid2": "^6.0.0",
         "yosymfony/toml": "^1.0.4",

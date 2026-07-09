@@ -14,7 +14,6 @@ return new class extends Migration
         ['servers', ['team_id'], 'idx_servers_team_id'],
         ['private_keys', ['team_id'], 'idx_private_keys_team_id'],
         ['projects', ['team_id'], 'idx_projects_team_id'],
-        ['subscriptions', ['team_id'], 'idx_subscriptions_team_id'],
         ['cloud_init_scripts', ['team_id'], 'idx_cloud_init_scripts_team_id'],
         ['cloud_provider_tokens', ['team_id'], 'idx_cloud_provider_tokens_team_id'],
         ['application_deployment_queues', ['status', 'server_id'], 'idx_deployment_queues_status_server'],

@@ -31,7 +31,6 @@ class DecideWhatToDoWithUser
 
             return $next($request);
         }
-        // Instance admins can access settings and admin routes regardless of subscription
         if (isInstanceAdmin() && ($request->routeIs('settings.*') || $request->path() === 'admin')) {
             return $next($request);
         }
@@ -42,15 +41,6 @@ class DecideWhatToDoWithUser
 
             return redirect()->route('verify.email');
         }
-        if (! isSubscriptionActive() && ! isSubscriptionOnGracePeriod()) {
-            if (! in_array($request->path(), allowedPathsForUnsubscribedAccounts())) {
-                if (Str::startsWith($request->path(), 'invitations')) {
-                    return $next($request);
-                }
-
-                return redirect()->route('subscription.index');
-            }
-        }
         if (showBoarding() && ! in_array($request->path(), allowedPathsForBoardingAccounts())) {
             if (Str::startsWith($request->path(), 'invitations')) {
                 return $next($request);
@@ -59,9 +49,6 @@ class DecideWhatToDoWithUser
             return redirect()->route('onboarding');
         }
         if ($request->path() === 'verify') {
-            return redirect(RouteServiceProvider::HOME);
-        }
-        if (isSubscriptionActive() && $request->routeIs('subscription.index')) {
             return redirect(RouteServiceProvider::HOME);
         }
 

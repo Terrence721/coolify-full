@@ -72,7 +72,7 @@ class ServerManagerJob implements ShouldBeEncrypted, ShouldQueue
         $allServers = Server::with('settings')->where('ip', '!=', '1.2.3.4');
 
         if (isCloud()) {
-            $servers = $allServers->whereRelation('team.subscription', 'stripe_invoice_paid', true)->get();
+            $servers = $allServers->get();
             $own = Team::find(0)->servers()->with('settings')->get();
 
             return $servers->merge($own);

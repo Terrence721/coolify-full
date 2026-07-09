@@ -65,11 +65,10 @@ class Emails extends Command
                 'backup-success' => 'Database - Backup Success',
                 'backup-failed' => 'Database - Backup Failed',
                 // 'invitation-link' => 'Invitation Link',
-                'realusers-before-trial' => 'REAL - Registered Users Before Trial without Subscription',
                 'realusers-server-lost-connection' => 'REAL - Server Lost Connection',
             ],
         );
-        $emailsGathered = ['realusers-before-trial', 'realusers-server-lost-connection'];
+        $emailsGathered = ['realusers-server-lost-connection'];
         if (isDev()) {
             $this->email = 'test@example.com';
         } else {
@@ -203,36 +202,6 @@ class Emails extends Command
                 //     $this->mail = (new InvitationLink($user))->toMail();
                 //     $this->sendEmail();
                 //     break;
-            case 'realusers-before-trial':
-                $this->mail = new MailMessage;
-                $this->mail->view('emails.before-trial-conversion');
-                $this->mail->subject('Trial period has been added for all subscription plans.');
-                $teams = Team::doesntHave('subscription')->where('id', '!=', 0)->get();
-                if ($teams->isEmpty()) {
-                    echo 'No teams found.'.PHP_EOL;
-
-                    return;
-                }
-                $emails = [];
-                foreach ($teams as $team) {
-                    foreach ($team->members as $member) {
-                        if ($member->email) {
-                            $emails[] = $member->email;
-                        }
-                    }
-                }
-                $emails = array_unique($emails);
-                $this->info('Sending to '.count($emails).' emails.');
-                foreach ($emails as $email) {
-                    $this->info($email);
-                }
-                $confirmed = confirm('Are you sure?');
-                if ($confirmed) {
-                    foreach ($emails as $email) {
-                        $this->sendEmail($email);
-                    }
-                }
-                break;
             case 'realusers-server-lost-connection':
                 $serverId = text('Server Id');
                 $server = Server::find($serverId);

@@ -114,7 +114,7 @@ class ByIp extends Component
                 return $this->dispatch('error', 'You must select a private key');
             }
             if (Team::serverLimitReached()) {
-                return $this->dispatch('error', 'You have reached the server limit for your subscription.');
+                return $this->dispatch('error', 'You have reached the server limit for your team.');
             }
             $payload = [
                 'name' => $this->name,

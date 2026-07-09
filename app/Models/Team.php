@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Actions\User\RevokeUserTeamTokens;
-use App\Events\ServerReachabilityChanged;
 use App\Notifications\Channels\SendsDiscord;
 use App\Notifications\Channels\SendsEmail;
 use App\Notifications\Channels\SendsPushover;
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
@@ -30,7 +28,6 @@ use OpenApi\Attributes as OA;
 /**
  * @property-read Collection<int, User> $members
  * @property-read Collection<int, Server> $servers
- * @property-read Subscription|null $subscription
  * @property-read int $limits
  * @property-read TeamUserPivot|null $pivot
  * @property int $id
@@ -182,24 +179,6 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return $servers >= $serverLimit;
     }
 
-    public function subscriptionPastOverDue()
-    {
-        if (isCloud()) {
-            return $this->subscription?->stripe_past_due;
-        }
-
-        return false;
-    }
-
-    public function serverOverflow()
-    {
-        if (Team::serverLimit($this) < $this->servers->count()) {
-            return true;
-        }
-
-        return false;
-    }
-
     public static function serverLimit(?Team $team = null)
     {
         $team = $team ?? currentTeam();
@@ -283,31 +262,6 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
             $this->getNotificationSettings('webhook')?->isEnabled();
     }
 
-    public function subscriptionEnded()
-    {
-        if (! $this->subscription) {
-            return;
-        }
-
-        $this->subscription->update([
-            'stripe_subscription_id' => null,
-            'stripe_cancel_at_period_end' => false,
-            'stripe_invoice_paid' => false,
-            'stripe_trial_already_ended' => false,
-            'stripe_past_due' => false,
-        ]);
-        foreach ($this->servers as $server) {
-            $server->settings()->update([
-                'is_usable' => false,
-                'is_reachable' => false,
-            ]);
-            ServerReachabilityChanged::dispatch($server);
-            $server->unreachable_count = 3;
-            $server->unreachable_notification_sent = true;
-            $server->save();
-        }
-    }
-
     /**
      * @return HasMany<SharedEnvironmentVariable, $this>
      */
@@ -324,14 +278,6 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return $this->belongsToMany(User::class, 'team_user', 'team_id', 'user_id')
             ->using(TeamUserPivot::class)
             ->withPivot('role');
-    }
-
-    /**
-     * @return HasOne<Subscription, $this>
-     */
-    public function subscription(): HasOne
-    {
-        return $this->hasOne(Subscription::class);
     }
 
     /**

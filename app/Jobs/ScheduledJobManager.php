@@ -7,7 +7,6 @@ namespace App\Jobs;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledTask;
 use App\Models\Server;
-use App\Models\Team;
 use Cron\CronExpression;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -186,7 +185,7 @@ class ScheduledJobManager implements ShouldQueue
      */
     private function scheduledBackupQuery(int $lastBackupId): Builder
     {
-        return ScheduledDatabaseBackup::with(['database', 'team.subscription'])
+        return ScheduledDatabaseBackup::with(['database', 'team'])
             ->where('enabled', true)
             ->where('id', '>', $lastBackupId)
             ->orderBy('id')
@@ -200,9 +199,9 @@ class ScheduledJobManager implements ShouldQueue
     {
         return ScheduledTask::with([
             'service.destination.server.settings',
-            'service.destination.server.team.subscription',
+            'service.destination.server.team',
             'application.destination.server.settings',
-            'application.destination.server.team.subscription',
+            'application.destination.server.team',
         ])
             ->where('enabled', true)
             ->where('id', '>', $lastTaskId)
@@ -369,10 +368,6 @@ class ScheduledJobManager implements ShouldQueue
             return 'server_not_functional';
         }
 
-        if (isCloud() && data_get($server->team->subscription, 'stripe_invoice_paid', false) === false && $server->team->id !== 0) {
-            return 'subscription_unpaid';
-        }
-
         return null;
     }
 
@@ -386,10 +381,6 @@ class ScheduledJobManager implements ShouldQueue
 
         if ($server->isFunctional() === false) {
             return 'server_not_functional';
-        }
-
-        if (isCloud() && data_get($server->team->subscription, 'stripe_invoice_paid', false) === false && $server->team->id !== 0) {
-            return 'subscription_unpaid';
         }
 
         if (! $task->service && ! $task->application) {
@@ -469,33 +460,14 @@ class ScheduledJobManager implements ShouldQueue
      */
     private function getServersForCleanupQuery(): Builder
     {
-        $query = Server::with('settings')
+        return Server::with('settings')
             ->where('ip', '!=', '1.2.3.4');
-
-        if (isCloud()) {
-            $query
-                ->with('team.subscription')
-                ->where(function (Builder $query): void {
-                    $query
-                        ->where('team_id', 0)
-                        ->orWhereRelation('team.subscription', 'stripe_invoice_paid', true);
-                });
-        }
-
-        return $query;
     }
 
     private function getDockerCleanupSkipReason(Server $server): ?string
     {
         if (! $server->isFunctional()) {
             return 'server_not_functional';
-        }
-
-        // In cloud, check subscription status (except team 0)
-        if (isCloud() && $server->team_id !== 0) {
-            if (data_get($server->team->subscription, 'stripe_invoice_paid', false) === false) {
-                return 'subscription_unpaid';
-            }
         }
 
         return null;

@@ -605,11 +605,6 @@ function base_url(bool $withPort = true): string
     return config('app.url');
 }
 
-function isSubscribed()
-{
-    return isSubscriptionActive();
-}
-
 function isProduction(): bool
 {
     return ! isDev();

@@ -54,7 +54,6 @@ class HandleInertiaRequests extends Middleware
                 'name' => $team->name,
             ] : null,
             'permissions' => [
-                'isSubscribed' => isSubscribed(),
                 'isCloud' => isCloud(),
                 'isInstanceAdmin' => isInstanceAdmin(),
                 'canAccessTerminal' => $user ? Gate::forUser($user)->allows('canAccessTerminal') : false,

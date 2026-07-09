@@ -570,7 +570,7 @@ class HetznerController extends Controller
         // Check server limit
         $team = Team::find($teamId);
         if (Team::serverLimitReached($team)) {
-            return response()->json(['message' => 'Server limit reached for your subscription.'], 400);
+            return response()->json(['message' => 'Server limit reached for your team.'], 400);
         }
 
         // Set defaults

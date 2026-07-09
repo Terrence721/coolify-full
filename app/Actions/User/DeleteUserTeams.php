@@ -53,17 +53,8 @@ class DeleteUserTeams
                     });
 
                 if ($otherOwners->isNotEmpty()) {
-                    // There are other owners, but check if this user is paying for the subscription
-                    if ($this->isUserPayingForTeamSubscription($team)) {
-                        // User is paying for the subscription - this is an edge case
-                        $edgeCases->push([
-                            'team' => $team,
-                            'reason' => 'User is paying for the team\'s Stripe subscription but there are other owners. The subscription needs to be cancelled or transferred to another owner\'s payment method.',
-                        ]);
-                    } else {
-                        // There are other owners and user is not paying, just remove this user
-                        $teamsToLeave->push($team);
-                    }
+                    // There are other owners, just remove this user
+                    $teamsToLeave->push($team);
                 } else {
                     // User is the only owner, check for replacement
                     $newOwner = $this->findNewOwner($team);
@@ -186,29 +177,5 @@ class DeleteUserTeams
             ->first();
 
         return $otherAdmin;
-    }
-
-    private function isUserPayingForTeamSubscription(Team $team): bool
-    {
-        if (! $team->subscription || ! $team->subscription->stripe_customer_id) {
-            return false;
-        }
-
-        // In Stripe, we need to check if the customer email matches the user's email
-        // This would require a Stripe API call to get customer details
-        // For now, we'll check if the subscription was created by this user
-
-        // Alternative approach: Check if user is the one who initiated the subscription
-        // We could store this information when the subscription is created
-        // For safety, we'll assume if there's an active subscription and multiple owners,
-        // we should treat it as an edge case that needs manual review
-
-        if ($team->subscription->stripe_subscription_id &&
-            $team->subscription->stripe_invoice_paid) {
-            // Active subscription exists - we should be cautious
-            return true;
-        }
-
-        return false;
     }
 }

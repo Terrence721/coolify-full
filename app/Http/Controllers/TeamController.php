@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -36,8 +35,6 @@ class TeamController extends Controller
                 $deletionBlockedReason = 'default-team';
             } elseif ($user->teams()->count() === 1 || $user->currentTeam()->personal_team) {
                 $deletionBlockedReason = 'last-team';
-            } elseif ($team->subscription) {
-                $deletionBlockedReason = 'has-subscription';
             } elseif (! $team->isEmpty()) {
                 $deletionBlockedReason = 'not-empty';
                 $blockingResources = [
@@ -59,7 +56,6 @@ class TeamController extends Controller
             'canDelete' => $canDelete,
             'deletionBlockedReason' => $deletionBlockedReason,
             'blockingResources' => $blockingResources,
-            'subscriptionUrl' => route('subscription.show'),
             'updateUrl' => route('team.update'),
             'deleteUrl' => route('team.destroy'),
         ]);

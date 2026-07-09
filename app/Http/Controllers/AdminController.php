@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,7 +31,6 @@ class AdminController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'hasActiveSubscription' => $user->teams()->whereRelation('subscription', 'stripe_subscription_id', '!=', null)->exists(),
             ]);
         }
 
@@ -42,8 +40,6 @@ class AdminController extends Controller
             'impersonating' => (bool) session('impersonating'),
             'search' => $search,
             'foundUsers' => $foundUsers,
-            'activeSubscribers' => Team::whereRelation('subscription', 'stripe_invoice_paid', true)->count(),
-            'inactiveSubscribers' => Team::whereRelation('subscription', 'stripe_invoice_paid', false)->count(),
             'backUrl' => route('admin.back'),
             'switchUserUrl' => route('admin.switch-user'),
         ]);

@@ -136,7 +136,7 @@
     <ul role="list" class="flex flex-col flex-1 gap-y-7">
         <li class="flex-1 overflow-x-hidden">
             <ul role="list" class="flex flex-col h-full space-y-1.5">
-                @if (isSubscribed() || !isCloud())
+                @if (true)
                     <li>
                         <a title="Dashboard" href="/" {{ wireNavigate() }}
                             class="{{ request()->is('/') ? 'menu-item-active menu-item' : 'menu-item' }}">
@@ -324,20 +324,6 @@
                             <span class="menu-item-label" :class="collapsed && 'lg:hidden'">Teams</span>
                         </a>
                     </li>
-                    @if (isCloud() && auth()->user()->isAdmin())
-                        <li>
-                            <a title="Subscription" {{ wireNavigate() }}
-                                class="{{ request()->is('subscription*') ? 'menu-item-active menu-item' : 'menu-item' }}"
-                                href="{{ route('subscription.show') }}">
-                                <svg class="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="2"
-                                        d="M3 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm0 2h18M7 15h.01M11 15h2" />
-                                </svg>
-                                <span class="menu-item-label" :class="collapsed && 'lg:hidden'">Subscription</span>
-                            </a>
-                        </li>
-                    @endif
                     @if (isInstanceAdmin())
                         <li>
 
@@ -444,9 +430,6 @@
                             Onboarding
                         </a>
                     </li> --}}
-                @endif
-                @if (!isSubscribed() && isCloud() && auth()->user()->teams()->get()->count() > 1)
-                    <livewire:navbar-delete-team />
                 @endif
                 <li>
                     <form action="/logout" method="POST">

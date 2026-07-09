@@ -10,7 +10,6 @@ const TYPE_STYLES = {
 
 const REASON_LABELS = {
     server_not_functional: 'Server not functional',
-    subscription_unpaid: 'Subscription unpaid',
     database_deleted: 'Database deleted',
     server_deleted: 'Server deleted',
     resource_deleted: 'Resource deleted',

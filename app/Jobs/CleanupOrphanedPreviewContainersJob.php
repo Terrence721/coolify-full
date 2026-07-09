@@ -68,10 +68,6 @@ class CleanupOrphanedPreviewContainersJob implements ShouldBeEncrypted, ShouldBe
             ->whereRelation('settings', 'is_reachable', true)
             ->where('ip', '!=', '1.2.3.4');
 
-        if (isCloud()) {
-            $query = $query->whereRelation('team.subscription', 'stripe_invoice_paid', true);
-        }
-
         return $query->get()->filter(fn ($server) => $server->isFunctional());
     }
 

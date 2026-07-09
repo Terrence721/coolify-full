@@ -1,5 +1,5 @@
 <x-emails.layout>
-    Your server ({{ $name }}) disabled because it is not paid! All automations and integrations are stopped.
+    Your server ({{ $name }}) has been disabled because your team's server limit was exceeded. All automations and integrations are stopped.
 
-    Please update your subscription to enable the server again [here](https://app.coolify.io/subscription).
+    Please contact your instance administrator to increase your team's server limit.
 </x-emails.layout>

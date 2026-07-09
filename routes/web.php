@@ -80,8 +80,6 @@ use App\Livewire\SharedVariables\Team\Index as TeamSharedVariablesIndex;
 use App\Livewire\Source\Github\Change as GitHubChange;
 use App\Livewire\Storage\Index as StorageIndex;
 use App\Livewire\Storage\Show as StorageShow;
-use App\Livewire\Subscription\Index as SubscriptionIndex;
-use App\Livewire\Subscription\Show as SubscriptionShow;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -112,9 +110,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/back', [AdminController::class, 'back'])->name('admin.back');
     Route::post('/admin/switch-user', [AdminController::class, 'switchUser'])->name('admin.switch-user');
     Route::get('/onboarding', BoardingIndex::class)->name('onboarding');
-
-    Route::get('/subscription', SubscriptionShow::class)->name('subscription.show');
-    Route::get('/subscription/new', SubscriptionIndex::class)->name('subscription.index');
 
     Route::get('/settings', SettingsIndex::class)->name('settings.index');
     Route::get('/settings/advanced', [SettingsController::class, 'advanced'])->name('settings.advanced');

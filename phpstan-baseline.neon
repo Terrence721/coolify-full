@@ -1237,36 +1237,6 @@ parameters:
 			path: app/Livewire/MonacoEditor.php
 
 		-
-			message: '#^Method App\\Livewire\\NavbarDeleteTeam\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/NavbarDeleteTeam.php
-
-		-
-			message: '#^Method App\\Livewire\\NavbarDeleteTeam\:\:delete\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/NavbarDeleteTeam.php
-
-		-
-			message: '#^Method App\\Livewire\\NavbarDeleteTeam\:\:delete\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/NavbarDeleteTeam.php
-
-		-
-			message: '#^Method App\\Livewire\\NavbarDeleteTeam\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/NavbarDeleteTeam.php
-
-		-
-			message: '#^Property App\\Livewire\\NavbarDeleteTeam\:\:\$team has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/NavbarDeleteTeam.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\AddEmpty\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -8869,60 +8839,6 @@ parameters:
 			path: app/Livewire/Storage/Show.php
 
 		-
-			message: '#^Property App\\Livewire\\Subscription\\Actions\:\:\$pricePreview type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Subscription/Actions.php
-
-		-
-			message: '#^Property App\\Livewire\\Subscription\\Actions\:\:\$server_limits has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Subscription/Actions.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: app/Livewire/Subscription/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Subscription\\Index\:\:getStripeStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Subscription/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Subscription\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Subscription/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Subscription\\Index\:\:stripeCustomerPortal\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Subscription/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Subscription\\PricingPlans\:\:subscribeStripe\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Subscription/PricingPlans.php
-
-		-
-			message: '#^Method App\\Livewire\\Subscription\\PricingPlans\:\:subscribeStripe\(\) has parameter \$type with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Subscription/PricingPlans.php
-
-		-
-			message: '#^Method App\\Livewire\\Subscription\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Subscription/Show.php
-
-		-
 			message: '#^Method App\\Livewire\\SwitchTeam\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -14683,24 +14599,6 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\Subscription\:\:type\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Subscription.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Models/Subscription.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Models/Subscription.php
-
-		-
 			message: '#^Method App\\Models\\SwarmDocker\:\:applications\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -14947,12 +14845,6 @@ parameters:
 			path: app/Models/Team.php
 
 		-
-			message: '#^Method App\\Models\\Team\:\:serverOverflow\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
 			message: '#^Method App\\Models\\Team\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -14984,18 +14876,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Team\:\:sources\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:subscriptionEnded\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:subscriptionPastOverDue\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Team.php

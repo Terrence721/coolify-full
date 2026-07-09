@@ -7,8 +7,6 @@ export default function Index({
     impersonating,
     search: initialSearch,
     foundUsers,
-    activeSubscribers,
-    inactiveSubscribers,
     backUrl,
     switchUserUrl,
 }) {
@@ -46,8 +44,6 @@ export default function Index({
                 <input placeholder="Search for a user" value={search} onChange={(e) => setSearch(e.target.value)} />
                 <button type="submit">Search</button>
             </form>
-            <div className="pt-4">Active Subscribers : {activeSubscribers}</div>
-            <div>Inactive Subscribers : {inactiveSubscribers}</div>
             {initialSearch && (
                 <>
                     {foundUsers.length > 0 ? (
@@ -57,7 +53,6 @@ export default function Index({
                                     <div className="flex flex-col gap-2">
                                         <div className="box-title">{user.name}</div>
                                         <div className="box-description">{user.email}</div>
-                                        <div className="box-description">Active: {user.hasActiveSubscription ? 'Yes' : 'No'}</div>
                                     </div>
                                 </div>
                             ))}

@@ -69,15 +69,6 @@ class SentinelController extends Controller
             return response()->json(['message' => 'Server relations are not configured'], 422);
         }
 
-        if (isCloud() && data_get($team->subscription, 'stripe_invoice_paid', false) === false && $team->id !== 0) {
-            auditLogWebhookFailure('sentinel', 'subscription_unpaid', [
-                'server_uuid' => $server->uuid,
-                'team_id' => $server->team_id,
-            ]);
-
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
         if ($server->isFunctional() === false) {
             auditLogWebhookFailure('sentinel', 'server_not_functional', [
                 'server_uuid' => $server->uuid,
