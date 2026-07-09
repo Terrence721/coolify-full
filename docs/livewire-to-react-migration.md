@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**40 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 9 pages built on it (Section 39).
+**41 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 10 pages built on it (Section 41).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 13 of 59 | 46 |
+| Hard | 14 of 59 | 45 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -840,5 +840,47 @@ Unlike Patches, this page's activity-monitor usage needed no cross-tab broadcast
 
 - 12 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 13).
 - The `toggle()` (disable) and `automatedConfig()` happy paths are untested — both touch SSH unconditionally with no early-return guard to test around, same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15, 16).
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 41. Phase 18 — `Server\PrivateKey\Show`: an inline-ported create modal, without touching the shared `Create` component
+
+`Server\PrivateKey\Show` lets a server owner pick which team SSH key Coolify uses to connect to that server, and (via a nested `+ Add` modal) create a brand-new key without leaving the page. The nested modal was the interesting part: the original Blade view embeds `<livewire:security.private-key.create />` directly — a shared Livewire component also used by `security.private-key.index`, `server.new.by-hetzner`, `GlobalSearch`, and `Dashboard`. Deleting or rewriting that component was out of scope; it still has 4 other real consumers.
+
+### Design: port the modal's logic inline, keep the shared component untouched
+
+Instead, the create-form logic (`generateNewRSAKey()`/`generateNewEDKey()` → `PrivateKey::generateNewKeyPair()`, `createPrivateKey()` → `PrivateKey::createAndStore()`) was ported into two new endpoints on the existing `SecurityPrivateKeyController` (which already had `show()`/`update()`/`destroy()` from an earlier phase): `store()` and `generateKey()`. The React page's own modal calls these directly — the shared Livewire `Create` component is never touched, so its 4 other consumers are unaffected.
+
+`store()` supports two response shapes via a `modal_mode` flag, mirroring the original component's own dual-mode behavior (full-page vs. modal-embedded): with `modal_mode=true` it flashes success + the new key's ID and redirects back (used here); without it, it redirects to the key's own `security.private-key.show` page (matching the original's non-modal behavior, for any future full-page consumer).
+
+One deliberate simplification: the original Livewire form does **live per-keystroke validation** of the private key field (`updated($property)` calling `PrivateKey::validateAndExtractPublicKey()` on every change) so the public-key preview and errors update as you type. The React port validates only on submit — consistent with every prior phase's precedent of dropping Livewire's reactive-per-keystroke validation in favor of standard Inertia form submission. The "Generate RSA/ED25519" buttons still populate the public-key preview immediately (via a direct `fetch()` to the new `generateKey()` JSON endpoint), since that's a one-shot action, not per-keystroke validation.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/SecurityPrivateKeyController.php` | modified | Added `store()` (create a key, `modal_mode`-aware) and `generateKey()` (JSON endpoint backing the Generate RSA/ED25519 buttons) |
+| `app/Http/Controllers/ServerPrivateKeyController.php` | created | `index()` (lists the team's non-git-related keys + current key), `setKey()` (associate a key with the server, validates ownership before an SSH-touching connection check), `checkConnection()` |
+| `resources/js/Pages/Server/PrivateKey/Show.jsx` | created | Key-card grid ("Use this key" / "Currently used"), "Check connection" button, and an inline `+ Add` modal porting the shared `Create` component's fields (name/description/value, Generate RSA/ED25519 buttons, public-key preview) |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Private Key" link only |
+| `routes/web.php` | modified | `server.private-key` repointed at the new controller; added `server.private-key.set`, `server.private-key.check-connection`, `security.private-key.store`, `security.private-key.generate` |
+| `app/Livewire/Server/PrivateKey/Show.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references. `App\Livewire\Security\PrivateKey\Create` was explicitly **not** touched — confirmed 4 other consumers |
+| `tests/v4/Feature/ServerPrivateKeyTest.php` | created | 7 tests: renders, rejects using a foreign-team key (safe, no SSH), 404s for a server owned by another team, creates a key via `store()` (safe — pure DB + crypto validation), rejects an invalid private key, generates a key pair via the JSON endpoint, denies non-admins from both endpoints |
+
+### Phase 18 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| 7 new Feature tests (`ServerPrivateKeyTest`) | 1 failure on first run — two `PrivateKey::create()` calls in the same test reused an identical fixture key, tripping the model's own fingerprint-uniqueness check (`This private key already exists.`); fixed by generating a distinct key for the second row. 7 passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 1 deleted file cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/PrivateKey/Show.jsx` confirmed present in `manifest.json` |
+| Full suite (`php artisan test --compact`) | 274 passed (719 assertions), no regressions |
+
+## 42. Non-goals of Phase 18
+
+- 11 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 12).
+- `setKey()` and `checkConnection()`'s happy paths are untested — both call `$server->validateConnection()` unconditionally with no early-return guard, same category of gap as every prior Server-scoped SSH action (Phases 11, 13, 14, 15, 16, 17).
+- The live per-keystroke private-key validation/preview from the original `Create` component's form is intentionally not replicated — submit-time validation only, consistent with this migration's standing precedent for dropping Livewire's reactive-per-keystroke validation.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

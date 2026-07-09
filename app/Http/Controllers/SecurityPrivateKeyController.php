@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\PrivateKey;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -81,5 +82,65 @@ class SecurityPrivateKeyController extends Controller
         }
 
         return redirect()->route('security.private-key.index');
+    }
+
+    /**
+     * Backs the "+ Add" modal ported inline wherever App\Livewire\Security\PrivateKey\Create's
+     * modal_mode=true usage is being replaced (Server\PrivateKey\Show is the first) — the shared
+     * Livewire component itself is untouched, still used by security.private-key.index,
+     * server.new.by-hetzner, GlobalSearch, and Dashboard.
+     */
+    public function store(Request $request): RedirectResponse|JsonResponse
+    {
+        $this->authorize('create', PrivateKey::class);
+
+        $validated = Validator::make(
+            $request->all(),
+            [
+                'name' => ValidationPatterns::nameRules(),
+                'description' => ValidationPatterns::descriptionRules(),
+                'value' => ['required', 'string'],
+            ],
+            ValidationPatterns::combinedMessages(),
+        )->validate();
+
+        $validation = PrivateKey::validateAndExtractPublicKey($validated['value']);
+        if (! $validation['isValid']) {
+            return back()->withErrors(['value' => 'Invalid private key']);
+        }
+
+        $privateKey = PrivateKey::createAndStore([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'private_key' => trim($validated['value'])."\n",
+            'team_id' => currentTeam()->id,
+        ]);
+
+        if ($request->boolean('modal_mode')) {
+            return back()->with(['success' => 'Private key created successfully.', 'createdPrivateKeyId' => $privateKey->id]);
+        }
+
+        return redirect()->route('security.private-key.show', ['private_key_uuid' => $privateKey->uuid]);
+    }
+
+    /**
+     * JSON endpoint for the "+ Add" modal's Generate RSA/ED25519 key buttons.
+     */
+    public function generateKey(Request $request): JsonResponse
+    {
+        $this->authorize('create', PrivateKey::class);
+
+        $validated = Validator::make($request->all(), [
+            'type' => ['required', 'string', 'in:rsa,ed25519'],
+        ])->validate();
+
+        $keyData = PrivateKey::generateNewKeyPair($validated['type']);
+
+        return response()->json([
+            'name' => $keyData['name'],
+            'description' => $keyData['description'],
+            'value' => $keyData['private_key'],
+            'publicKey' => $keyData['public_key'],
+        ]);
     }
 }

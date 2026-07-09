@@ -7543,42 +7543,6 @@ parameters:
 			path: app/Livewire/Server/New/ByIp.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\PrivateKey\\Show\:\:checkConnection\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\PrivateKey\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\PrivateKey\\Show\:\:setPrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/PrivateKey/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\PrivateKey\\Show\:\:setPrivateKey\(\) has parameter \$privateKeyId with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/PrivateKey/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\PrivateKey\\Show\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/PrivateKey/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\PrivateKey\\Show\:\:\$privateKeys has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/PrivateKey/Show.php
-
-		-
 			message: '#^Access to an undefined property App\\Livewire\\Server\\Proxy\:\:\$latestTraefikVersion\.$#'
 			identifier: property.notFound
 			count: 1

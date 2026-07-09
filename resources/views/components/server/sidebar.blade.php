@@ -6,7 +6,7 @@
             href="{{ route('server.advanced', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Advanced</span>
         </a>
     @endif
-    <a class="sub-menu-item {{ $activeMenu === 'private-key' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+    <a class="sub-menu-item {{ $activeMenu === 'private-key' ? 'menu-item-active' : '' }}"
         href="{{ route('server.private-key', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Private Key</span>
     </a>
     @if ($server->hetzner_server_id)
