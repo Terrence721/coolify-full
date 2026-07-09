@@ -15,7 +15,7 @@
             href="{{ route('server.cloud-provider-token', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Hetzner Token</span>
         </a>
     @endif
-    <a class="sub-menu-item {{ $activeMenu === 'ca-certificate' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+    <a class="sub-menu-item {{ $activeMenu === 'ca-certificate' ? 'menu-item-active' : '' }}"
         href="{{ route('server.ca-certificate', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">CA Certificate</span>
     </a>
     @if (!$server->isLocalhost())

@@ -169,6 +169,12 @@ parameters:
 			path: app/Http/Controllers/ApplicationDeploymentController.php
 
 		-
+			message: '#^Using nullsafe property access "\?\-\>ssl_certificate" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ServerCaCertificateController.php
+
+		-
 			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledDatabaseBackup and ''server'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -6869,54 +6875,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Livewire/Security/PrivateKey/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CaCertificate\\Show\:\:loadCaCertificate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CaCertificate\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CaCertificate\\Show\:\:regenerateCaCertificate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CaCertificate\\Show\:\:saveCaCertificate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CaCertificate\\Show\:\:toggleCertificate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\CaCertificate\\Show\:\:writeCertificateToServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\CaCertificate\\Show\:\:\$certificateContent has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\CaCertificate\\Show\:\:\$showCertificate has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/CaCertificate/Show.php
 
 		-
 			message: '#^Method App\\Livewire\\Server\\Charts\:\:loadData\(\) has no return type specified\.$#'

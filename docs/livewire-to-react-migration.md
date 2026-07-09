@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**35 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 4 pages built on it (Section 29).
+**36 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 5 pages built on it (Section 31).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 8 of 59 | 51 |
+| Hard | 9 of 59 | 50 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -646,4 +646,38 @@ The first page converted purely by *reusing* Phase 11's shared chrome, not build
 
 - 17 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 18). Remaining zero-nested-child/zero-broadcast candidates per the Phase 11 research: `Server\CaCertificate\Show` (145/92) and `Server\LogDrains` (199/123) — both good next candidates using this same reuse-only recipe.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged — the foundation itself wasn't touched this phase.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 31. Phase 13 — `Server\CaCertificate\Show`: second reuse of the `Server\Navbar` foundation
+
+Another zero-nested-child, zero-broadcast candidate from the Phase 11 research list, converted with the same reuse-only recipe as Phase 12's `Server\Advanced` — no changes to `ServerChromeData`/`ServerNavbar.jsx`/`ServerSidebar.jsx` needed. This page manages the custom CA certificate Coolify uses to sign database SSL certificates: view/edit/save the certificate content, or regenerate it entirely, both actions writing the result to the server over SSH (`remote_process()`) and queuing `RegenerateSslCertJob`.
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerCaCertificateController.php` | created | `index()` (reuses `ServerChromeData` unchanged), `save()` (validates + parses the pasted certificate via `openssl_x509_read()`/`openssl_x509_export()`, writes it to the server, queues regeneration), `regenerate()` (generates a fresh 10-year CA cert via `SslHelper`, writes it, queues regeneration) |
+| `resources/js/Pages/Server/CaCertificate/Show.jsx` | created | Show/hide toggle for the certificate textarea (a Livewire round-trip in the original, now a plain local `useState` — a faithful simplification since it's pure UI state), Save/Regenerate actions using the established typed-confirmation `window.prompt()` pattern (confirmation text is the certificate's filesystem path, matching the original's `confirmationText`) |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "CA Certificate" link only |
+| `routes/web.php` | modified | `server.ca-certificate` repointed at the new controller; new `server.ca-certificate.{save,regenerate}` routes |
+| `app/Livewire/Server/CaCertificate/Show.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references |
+| `tests/v4/Feature/ServerCaCertificateTest.php` | created | 4 tests: renders, rejects an invalid (non-x509) certificate, rejects an empty certificate, 404s for a server owned by another team. The `save()`/`regenerate()` happy paths (which write to the server over SSH) are deliberately not exercised — same documented trade-off as Phase 11's `start()` proxy action |
+
+**A second real latent bug found by the same category of test, one phase after the first**: `openssl_x509_read()` raises a PHP warning on malformed input that this app's exception handler promotes to a catchable `ErrorException`, rather than simply returning `false` as the calling code assumed. The original Livewire component's `saveCaCertificate()` wrapped its entire body in a top-level try/catch specifically to absorb exactly this; the first draft of `ServerCaCertificateController::save()` didn't, and the "rejects an invalid certificate" test caught it immediately (a 500 instead of the expected redirect-with-error). Fixed with the same narrow try/catch pattern as Phase 12's cron-expression fix. **Two phases in a row have now found a real bug in the exact same shape**: a PHP builtin/library call that the original Livewire component defensively wrapped in `try/catch (\Throwable)`, which looked like unnecessary boilerplate when porting to a fresh controller until a rejection-path test proved otherwise. Worth treating as a standing rule for the rest of this migration: **any `try/catch` in a Livewire method being ported is signal, not boilerplate — port it, don't drop it.**
+
+A separate PHPStan finding — `nullsafe.neverNull` on `$caCertificate?->ssl_certificate ?? ''` — was baselined rather than "fixed," for the same reason as Phase 7's identical finding: `$caCertificate` is genuinely nullable (`?SslCertificate`), and PHPStan's suggested fix (drop the `?->`) would introduce a real null-pointer risk if its analysis here is wrong.
+
+### Phase 13 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 4 new Feature tests (`ServerCaCertificateTest`) | 1 failed on first run (the `openssl_x509_read()` uncaught-exception bug above), 4 passed after adding the try/catch |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entry for the 1 deleted file cleaned proactively; 1 new finding (`nullsafe.neverNull`, baselined per the reasoning above); final run: `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/CaCertificate/Show.jsx` confirmed present in `manifest.json` |
+| Full suite | 385 passed (1438 assertions) — up from 381, no regressions |
+
+## 32. Non-goals of Phase 13
+
+- 16 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 17). `Server\LogDrains` (199/123) remains the next-best zero-nested-child/zero-broadcast candidate per the Phase 11 research.
+- The `save()`/`regenerate()` happy paths are untested (see above) — writing to a server over SSH, same category of gap as Phase 11's proxy `start()` action.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
