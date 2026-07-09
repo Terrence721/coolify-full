@@ -16,6 +16,7 @@ use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SecurityApiTokensController;
+use App\Http\Controllers\SecurityCloudTokensController;
 use App\Http\Controllers\SecurityPrivateKeyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SettingsEmailController;
@@ -46,7 +47,6 @@ use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
 use App\Livewire\Project\Show as ProjectShow;
 use App\Livewire\Security\CloudInitScripts;
-use App\Livewire\Security\CloudTokens;
 use App\Livewire\Security\PrivateKey\Index as SecurityPrivateKeyIndex;
 use App\Livewire\Server\Advanced as ServerAdvanced;
 use App\Livewire\Server\CaCertificate\Show as CaCertificateShow;
@@ -352,7 +352,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/security/private-key/{private_key_uuid}', [SecurityPrivateKeyController::class, 'update'])->name('security.private-key.update');
     Route::delete('/security/private-key/{private_key_uuid}', [SecurityPrivateKeyController::class, 'destroy'])->name('security.private-key.destroy');
 
-    Route::get('/security/cloud-tokens', CloudTokens::class)->name('security.cloud-tokens');
+    Route::get('/security/cloud-tokens', [SecurityCloudTokensController::class, 'index'])->name('security.cloud-tokens');
+    Route::post('/security/cloud-tokens', [SecurityCloudTokensController::class, 'store'])->name('security.cloud-tokens.store');
+    Route::post('/security/cloud-tokens/{id}/validate', [SecurityCloudTokensController::class, 'validateToken'])->name('security.cloud-tokens.validate');
+    Route::delete('/security/cloud-tokens/{id}', [SecurityCloudTokensController::class, 'destroy'])->name('security.cloud-tokens.destroy');
     Route::get('/security/cloud-init-scripts', CloudInitScripts::class)->name('security.cloud-init-scripts');
     Route::get('/security/api-tokens', [SecurityApiTokensController::class, 'index'])->name('security.api-tokens');
     Route::post('/security/api-tokens', [SecurityApiTokensController::class, 'store'])->name('security.api-tokens.store');

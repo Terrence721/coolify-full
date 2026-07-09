@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**29 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its second conversion (Section 21).
+**30 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket has its third conversion (Section 23).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 2 of 59 | 57 |
+| Hard | 3 of 59 | 56 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -465,3 +465,48 @@ With the stale entries gone, PHPStan could actually analyze the new controllers 
 - `Project\Shared\Terminal.php`/`terminal.js`/its Blade view are untouched and still load-bearing for the still-Livewire `ExecuteContainerCommand` pages — not dead code, don't remove them when eventually converting those pages without re-checking.
 - 57 Hard-bucket components remain on Livewire, including the two Database/Service `Heading` variants and `Project/Shared/Logs`/`GetLogs` flagged during this phase's candidate research as genuinely Hard but wider in scope (nest multiple broadcast-driven children) than a single-page pass.
 - No manual browser QA this phase either — same lighter, user-directed automated-checks bar as every phase since Phase 2 (Section 9). This is a real gap worth calling out explicitly for this specific page: a live xterm.js/WebSocket terminal is exactly the kind of interactive, stateful UI that automated `assertInertia()` checks cannot meaningfully exercise — the verification log above proves the page renders and the `connect()` validation logic is correct, not that a real terminal session actually works end-to-end in a browser.
+
+## 23. Phase 9 — `Security\CloudTokens`: a non-broadcast Hard-bucket page (old-style `getListeners()` + nested child)
+
+A third flavor of Hard-bucket page, distinct from both prior phases: no Echo/broadcast dependency (Phase 7) and no raw WebSocket (Phase 8) — this one was Hard-bucket purely because of the two other disqualifiers from the Section 6 triage criteria: old-style `getListeners()` (`CloudProviderTokens` listens for a `tokenAdded` event) and a nested `<livewire:.../>` child (`CloudProviderTokenForm`, the "add token" form). Structurally it's much closer to the Medium-bucket recipe than Phases 7-8 — no new architecture needed, just the established controller/`useForm()`/Pest pattern applied to a page that happened to be split across two Livewire components.
+
+### Design
+
+- **Three Livewire components existed; one was kept, two were folded together.** `Security\CloudTokens` (a thin wrapper) and `CloudProviderTokens` (the real list/validate/delete logic, listening for `tokenAdded`) were both deleted — their combined logic became `SecurityCloudTokensController` + one React page. **`CloudProviderTokenForm.php` and its Blade view were kept untouched** — grepping for its usage turned up two other still-Livewire call sites (`server/new/by-hetzner.blade.php` and `server/cloud-provider-token/show.blade.php`, both using its `modal_mode="true"` variant for on-the-fly token creation during server setup), the same "kept nested Livewire child" pattern as `Heading` (Phase 7) and `Project\Shared\Terminal` (Phase 8). The React page reimplements the form's non-modal ("full page layout") branch directly rather than trying to share code with the still-Livewire component.
+- **The `tokenAdded` event listener had no reason to survive.** In Livewire, `CloudProviderTokenForm::addToken()` dispatches `tokenAdded` so the sibling `CloudProviderTokens` list can refresh itself without a full reload. Once the add-form and the list live in the same React component/request cycle, `useForm()`'s standard `onSuccess` (Inertia auto-refreshes shared props after any successful visit) makes the whole listener mechanism unnecessary — the list is just always current after a submit.
+- **Two Livewire methods, `validateToken()` (API-side, per-row) and the outer `CloudProviderTokens` component, share one name — disambiguated in the controller.** `SecurityCloudTokensController::validateToken(int $id)` is the HTTP action; the private `validateProviderToken()`/`validateHetznerToken()`/`validateDigitalOceanToken()` helpers are faithful ports of the original's provider-specific API-validation logic (Hetzner: `GET /v1/servers`, DigitalOcean: `GET /v2/account`, both with a 10s timeout and try/catch-to-`false`).
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/SecurityCloudTokensController.php` | created | `index()` (list + `canCreate` gate), `store()` (validate provider API + create), `validateToken()` (per-row API check), `destroy()` (blocked if `hasServers()`, matching the original's in-use guard) |
+| `resources/js/Pages/Security/CloudTokens.jsx` | created | Add-token form (`useForm()`, Hetzner-only provider select disabled per the original's current-provider-support state) + saved-tokens list with Validate/Delete actions. Hand-renders the same Security sub-nav copy every other converted Security page already hand-renders (established in Phase 5) |
+| `resources/views/components/security/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Cloud Tokens" link only — `security.private-key.index` (list page, still Livewire) and `security.cloud-init-scripts` (still Livewire) keep theirs |
+| `routes/web.php` | modified | `security.cloud-tokens` repointed at the new controller; new `security.cloud-tokens.{store,validate,destroy}` routes |
+| `app/Livewire/Security/{CloudTokens,CloudProviderTokens}.php` + matching Blade views | **deleted** | Real cutover, grep-confirmed no other references to either class |
+| `tests/v4/Feature/SecurityCloudTokensTest.php` | created | 6 tests: renders page, 403s a non-admin member, adds a token (Hetzner API faked success), rejects a token (Hetzner API faked 401), blocks delete when a server references the token, deletes an unused token |
+
+**Known simplification**: the delete confirmation uses `window.prompt()` requiring the token name typed back (matching `Destination\Show.jsx`'s established pattern from Phase 5), not the original's `x-modal-confirmation` component. Same trade-off already documented and accepted for every prior typed-confirmation delete in this migration.
+
+### The same stale-baseline bug, a third time
+
+Deleting `CloudTokens.php` and `CloudProviderTokens.php` left the same category of stale `phpstan-baseline.neon` entries as Phases 7 and 8 — by now a fully mechanical fix (same script, new file paths). Worth noting as a pattern: **every phase of this migration that deletes a Livewire class will hit this** until the baseline itself is regenerated in a way that stops tracking deleted files, or until PHPStan analysis is run (and the baseline cleaned) as a standard step of the per-page recipe rather than an after-the-fact CI-failure response. Recommended for the next phase's checklist. Unlike Phase 8, PHPStan surfaced **zero new findings** in `SecurityCloudTokensController.php` after the baseline cleanup — the return/param types were written correctly from the start this time, suggesting the Phase 8 fix-up pass established a pattern worth continuing to apply proactively rather than retroactively.
+
+### Phase 9 verification log
+
+| Check | Result |
+|---|---|
+| Pint after all PHP/JS changes | passed |
+| 6 new Feature tests (`SecurityCloudTokensTest`) | 1 failed on first run (`InstanceSettings` singleton gotcha, same as every prior phase touching an abort/error-page path), 6 passed after adding the standard `beforeEach` fixture |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 2 deleted files cleaned up; `[OK] No errors` on the first analysis run afterward — no new findings in the new controller |
+| `yarn build` | Succeeded — `CloudTokens-*.js` (4.4 kB) chunk emitted |
+| Full suite | 355 passed (1308 assertions) — up from 349, no regressions |
+
+## 24. Non-goals of Phase 9
+
+- `CloudProviderTokenForm.php`/its Blade view are untouched and still load-bearing for `server.new.by-hetzner` and `server.cloud-provider-token.show` (both still Livewire) — not dead code.
+- `Security\CloudInitScripts` and `Security\PrivateKey\Index` (the list page, not `Show`) remain on Livewire — both still use the shared `x-security.navbar` Blade partial, now with only the "Cloud Tokens" link converted.
+- `Server\Navbar` remains deferred, unchanged from Phase 8.
+- 56 Hard-bucket components remain on Livewire.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). Lower-stakes than Phase 8's terminal (no live connection state to fail to exercise), but the external Hetzner/DigitalOcean API calls are only verified against `Http::fake()`, not a real provider account.

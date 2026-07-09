@@ -6835,42 +6835,6 @@ parameters:
 			path: app/Livewire/Security/CloudProviderTokenForm.php
 
 		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokens\:\:deleteToken\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokens\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokens\:\:loadTokens\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokens\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokens.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokens\:\:validateToken\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokens.php
-
-		-
-			message: '#^Property App\\Livewire\\Security\\CloudProviderTokens\:\:\$tokens has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokens.php
-
-		-
 			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:createPrivateKey\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
