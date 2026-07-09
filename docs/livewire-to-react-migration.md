@@ -923,3 +923,43 @@ The "Scan for Destinations" action is a genuinely new pattern for this migration
 - The Swarm-mode branch of `add()` (creating a `SwarmDocker` instead of a `StandaloneDocker`) is ported faithfully from the original but has no UI trigger in either the old or new modal (the create form never exposes an `isSwarm` toggle) — same dead-but-faithfully-ported code path as the original.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 45. Phase 20 — `Server\DockerCleanup`: settings form + a real-time executions list with per-execution polling
+
+Manages Docker cleanup settings for a server (cleanup frequency/threshold, force-cleanup, and three "Advanced" destructive options) plus a "Recent executions" history list — the first genuinely new real-time list-with-detail pattern since Phase 7's Deployment Index, and the first to combine Echo-driven list refresh (Phase 15's pattern) with per-item polling (Phase 11's `ActivityLog.jsx` pattern) for two different concerns on the same page.
+
+### Design
+
+- **Settings form**: same instant-save-checkbox + explicit-Save-for-text-fields shape established in Phases 12/14 (`Server\Advanced`, `Server\LogDrains`). The cron-expression validation bug class fixed in Phase 12 (`validate_cron_expression()` before persisting, not after) was ported correctly the first time here, not re-discovered — this migration's standing "any try/catch in ported code is signal" rule (Phase 13) paid off again by keeping the validation-then-persist order intact.
+- **"Trigger Manual Cleanup"**: the original's `manualCleanup()` only calls `DockerCleanupJob::dispatch()` (queued, not `dispatchSync()`), so unlike most SSH-touching actions in this migration, this one's happy path *is* safely testable — verified via `Queue::fake()` + `Queue::assertPushed()`, no untested-SSH gap here.
+- **Executions list — a new hybrid pattern**: the original's `DockerCleanupExecutions` component had three refresh mechanisms layered on top of each other: an unconditional 5-second `wire:poll`, an Echo listener on `DockerCleanupDone` (team channel), and a 1-second client poll while a selected execution's status is `running`. Porting all three literally would be redundant (the Echo listener and the 5s poll both refresh the same list for the same reason). Simplified to two mechanisms with distinct jobs: `useTeamChannel(['DockerCleanupDone'], ...)` (Phase 15's pattern) refreshes the whole list on completion, and a plain `setInterval`-driven `fetch()` against a new JSON endpoint (`GET .../docker-cleanup/executions`, same shape as Phase 11's `ActivityController::show()`) polls every 2s only while the *currently selected* execution is `running` — dropping the redundant unconditional 5s poll.
+- **Log viewer**: the original paginates raw `message` lines 100-at-a-time via server-side state (`$currentPage`) plus a separate structured `cleanup_log` (JSON array of `{command, output}` per cleanup step). Since the full execution payload is already fetched client-side (unlike Terminal's streaming logs), the 100-line chunking was kept as a client-side `slice()` in a small `ExecutionRow` component rather than a server round-trip — same data, simpler mechanism.
+- **Download logs**: a plain `<a href>` to a new streamed-download route (`response()->streamDownload()`), not a `fetch()` — browser-native file download, no JS blob handling needed.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerDockerCleanupController.php` | created | `index()`, `update()` (cron validation before persist), `manualCleanup()` (queued, safely testable), `executions()` (JSON polling endpoint), `downloadLog()` (streamed download) |
+| `resources/js/Pages/Server/DockerCleanup.jsx` | created | Settings form, staleness warning callout, manual-cleanup confirmation modal (no typed text/password — matches the original's lighter-weight `x-modal-confirmation`), executions list with `ExecutionRow` sub-component (client-side log-line pagination + structured cleanup-log blocks) |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Docker Cleanup" link only |
+| `routes/web.php` | modified | `server.docker-cleanup` repointed at the new controller; added `.update`, `.manual-cleanup`, `.executions`, `.download-log` routes |
+| `app/Livewire/Server/DockerCleanup.php` + `DockerCleanupExecutions.php` + matching Blade views | **deleted** | Real cutover, grep-confirmed no other references to either class (the executions component had exactly one consumer — this page — so it was ported inline rather than kept as a separate shared component) |
+| `tests/v4/Feature/ServerDockerCleanupTest.php` | created | 7 tests: renders, 404s for a server owned by another team, updates settings, rejects an invalid cron expression, dispatches the manual-cleanup job via `Queue::fake()` (safe, no SSH), returns executions as JSON, downloads a log |
+
+### Phase 20 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| 7 new Feature tests (`ServerDockerCleanupTest`) | 2 failures on first run — (1) `delete_unused_volumes` isn't cast to `boolean` on `ServerSetting` (only `force_docker_cleanup` is), so the raw SQLite `1` failed a strict `toBeTrue()` assertion; fixed by loosening to `toBeTruthy()` rather than changing the model's casts (out of scope, pre-existing, harmless in practice since PHP/Blade truthy-checks handle `1`/`0` fine). (2) `downloadLog()`'s return type hint (`Illuminate\Http\Response`) didn't match what `response()->streamDownload()` actually returns (`Symfony\Component\HttpFoundation\StreamedResponse`); fixed the type hint. 7 passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 2 deleted files (18 entries total) cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/DockerCleanup.jsx` confirmed present in `manifest.json` |
+| Full suite (`php artisan test --compact`) | 282 passed (775 assertions), no regressions |
+
+## 46. Non-goals of Phase 20
+
+- 9 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 10).
+- The unconditional 5-second list poll from the original was deliberately dropped in favor of Echo-driven refresh only — if Echo/Soketi is down, the list won't self-heal until the next `DockerCleanupDone` broadcast succeeds or the page is reloaded. This is a real, intentional behavior change (not just a implementation detail), and should be called out in manual QA.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
