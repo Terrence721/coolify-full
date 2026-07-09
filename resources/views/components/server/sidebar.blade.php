@@ -23,7 +23,7 @@
             href="{{ route('server.cloudflare-tunnel', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Cloudflare Tunnel</span></a>
     @endif
     @if ($server->isFunctional())
-        <a class="sub-menu-item {{ $activeMenu === 'docker-cleanup' ? 'menu-item-active' : '' }}" {{ wireNavigate() }}
+        <a class="sub-menu-item {{ $activeMenu === 'docker-cleanup' ? 'menu-item-active' : '' }}"
             href="{{ route('server.docker-cleanup', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Docker Cleanup</span>
         </a>
         <a class="sub-menu-item {{ $activeMenu === 'destinations' ? 'menu-item-active' : '' }}"
