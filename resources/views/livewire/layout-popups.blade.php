@@ -1,12 +1,10 @@
 <div x-data="{
     popups: {
-        sponsorship: true,
         notification: true,
         realtime: false,
     },
     isDevelopment: {{ isDev() ? 'true' : 'false' }},
     init() {
-        this.popups.sponsorship = this.shouldShowMonthlyPopup('popupSponsorship');
         this.popups.notification = this.shouldShowMonthlyPopup('popupNotification');
         this.popups.realtime = localStorage.getItem('popupRealtime');
 
@@ -86,52 +84,6 @@
             @endif
         </span>
     @endauth
-    @if (instanceSettings()->is_sponsorship_popup_enabled && !isCloud())
-        <span x-show="popups.sponsorship">
-            <x-popup>
-                <x-slot:customActions>
-                    <div
-                        class="flex md:flex-row flex-col max-w-4xl p-6 mx-auto bg-white border shadow-lg lg:border-t dark:border-coolgray-300 border-neutral-200 dark:bg-coolgray-100 lg:p-8 lg:pb-4 sm:rounded-sm gap-2">
-                        <div class="md:block hidden">
-                            <img src="{{ asset('heart.png') }}" class="w-20 h-20">
-                        </div>
-                        <div class="flex flex-col gap-2 lg:px-10 px-1">
-                            <div class="lg:text-xl text-md dark:text-white font-bold">Love Coolify? Support our work.
-                            </div>
-                            <div class="lg:text-sm text-xs dark:text-white">
-                                We are already profitable thanks to <span class="font-bold text-pink-500">YOU</span>
-                                but...<br />We
-                                would
-                                like to
-                                make
-                                more cool features.
-                            </div>
-                            <div class="lg:text-sm text-xs dark:text-white pt-2 ">
-                                For this we need your help to support our work financially.
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-2 text-center md:mx-auto lg:py-0 pt-2">
-                            <x-forms.button isHighlighted class="md:w-36 w-full"><a target="_blank"
-                                    href="https://github.com/sponsors/coollabsio"
-                                    class="font-bold dark:text-white">GitHub
-                                    Sponsors</a></x-forms.button>
-                            <x-forms.button isHighlighted class="md:w-36 w-full"><a target="_blank"
-                                    href="https://opencollective.com/coollabsio/donate?interval=month&amount=10&name=&legalName=&email="
-                                    class="font-bold dark:text-white">Open
-                                    Collective</a></x-forms.button>
-                            <x-forms.button isHighlighted class="md:w-36 w-full"><a
-                                    href="https://donate.stripe.com/8x2bJ104ifmB9kB45u38402" target="_blank"
-                                    class="font-bold dark:text-white">Stripe</a></x-forms.button>
-                            <div class="pt-4 dark:text-white hover:underline cursor-pointer lg:text-base text-xs"
-                                @click="bannerVisible=false;disableSponsorship()">
-                                Maybe next time
-                            </div>
-                        </div>
-                    </div>
-                </x-slot:customActions>
-            </x-popup>
-        </span>
-    @endif
     @if (request()->query->get('cancelled'))
         <x-banner>
             <div class="flex items-center gap-2">
@@ -209,11 +161,6 @@
         </span>
     @endif
     <script>
-        function disableSponsorship() {
-            // Store current timestamp instead of just 'false'
-            localStorage.setItem('popupSponsorship', Date.now().toString());
-        }
-
         function disableNotification() {
             // Store current timestamp instead of just 'false'
             localStorage.setItem('popupNotification', Date.now().toString());

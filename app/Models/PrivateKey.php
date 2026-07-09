@@ -305,15 +305,17 @@ class PrivateKey extends BaseModel
 
     protected function ensureStorageDirectoryExists()
     {
-        $disk = Storage::disk('ssh-keys');
-        $directoryPath = '';
-
-        if (! $disk->exists($directoryPath)) {
-            $success = $disk->makeDirectory($directoryPath);
-            if (! $success) {
-                throw new \Exception('Failed to create SSH keys storage directory');
-            }
+        // storeInFileSystem() locks and writes the key with raw fopen()/flock() calls against
+        // this real OS path (not the Storage facade), so the directory must be guaranteed to
+        // exist on the real filesystem here too — going through Storage::disk() alone is not
+        // enough, since Storage::fake() (used elsewhere in the test suite) swaps the disk to an
+        // isolated fake root without ever touching this real directory.
+        $realDirectory = dirname($this->getKeyLocation());
+        if (! is_dir($realDirectory) && ! mkdir($realDirectory, 0700, true) && ! is_dir($realDirectory)) {
+            throw new \Exception('Failed to create SSH keys storage directory');
         }
+
+        $disk = Storage::disk('ssh-keys');
 
         // Check if directory is writable by attempting a test file
         $testFilename = '.test_write_'.uniqid();
@@ -329,7 +331,7 @@ class PrivateKey extends BaseModel
 
     public function getKeyLocation()
     {
-        return "/var/www/html/storage/app/ssh/keys/ssh_key@{$this->uuid}";
+        return storage_path("app/ssh/keys/ssh_key@{$this->uuid}");
     }
 
     public function updatePrivateKey(array $data)

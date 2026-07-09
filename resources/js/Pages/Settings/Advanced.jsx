@@ -171,19 +171,9 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             </label>
                         </div>
 
-                        <h4 className="pt-4">Confirmation Settings</h4>
-                        <div className="md:w-96">
-                            <label className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={data.is_sponsorship_popup_enabled}
-                                    onChange={(e) => setData('is_sponsorship_popup_enabled', e.target.checked)}
-                                />
-                                Show Sponsorship Popup
-                            </label>
-                        </div>
                     </div>
 
+                    <h4 className="pt-4">Confirmation Settings</h4>
                     <div className="flex flex-col gap-1 pt-4">
                         {data.disable_two_step_confirmation ? (
                             <div className="pb-4 md:w-96">
