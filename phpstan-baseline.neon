@@ -8257,18 +8257,6 @@ parameters:
 			path: app/Livewire/Storage/Form.php
 
 		-
-			message: '#^Method App\\Livewire\\Storage\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Storage/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Storage\\Index\:\:\$s3 has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Storage/Index.php
-
-		-
 			message: '#^Property App\\Livewire\\Storage\\Resources\:\:\$selectedStorages type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

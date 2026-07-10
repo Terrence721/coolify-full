@@ -13,14 +13,14 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Removed two Hetzner Cloud affiliate-link blocks ("Coolify's affiliate link... supports us (€10) and gives you €20") — one in the shared `Security\CloudProviderTokenForm` Livewire component, one already carried over into the converted `Security\CloudTokens.jsx` page.
 
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
-- 51 of 84 full-page Livewire components converted to Inertia + React.
+- 52 of 84 full-page Livewire components converted to Inertia + React.
 - Easy and Medium buckets: 100% done (25/25).
-- Hard bucket: 24 of 59 done, including the shared `Server` navbar/sidebar chrome and four non-`Server`-scoped Hard-bucket pages (`Security\PrivateKey\Index`, `Destination\Index`, `Project\Show`, `Project\Edit`).
+- Hard bucket: 25 of 59 done, including the shared `Server` navbar/sidebar chrome and five non-`Server`-scoped Hard-bucket pages (`Security\PrivateKey\Index`, `Destination\Index`, `Project\Show`, `Project\Edit`, `Storage\Index`).
 
 ## Still to do
 
 **Migration**
-- 35 Hard-bucket pages remain on Livewire, including 5 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Dynamic Configurations/Logs within Proxy and Logs within Sentinel). `Server\Show` and Terminal both need real design work before conversion (embedded Livewire island / WebSocket bridge, respectively) — see Section 60 of the migration doc.
+- 34 Hard-bucket pages remain on Livewire, including 5 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Dynamic Configurations/Logs within Proxy and Logs within Sentinel). `Server\Show` and Terminal both need real design work before conversion (embedded Livewire island / WebSocket bridge, respectively) — see Section 62 of the migration doc.
 - Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) — see `docs/smoketest.md` for the manual QA checklist that closes this gap.
 - `/terminal` (still Livewire): observed an endless WebSocket reconnect loop during manual QA on 2026-07-10 (handshake authenticates successfully server-side, then the connection closes abnormally, code 1006). Likely just this dev environment lacking a genuinely reachable SSH target, not a code bug — needs real validation once Terminal is converted. See the note in `docs/smoketest.md`'s Terminal checklist.
 

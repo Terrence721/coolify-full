@@ -1303,3 +1303,44 @@ Following Phase 26's precedent, `app/Livewire/Project/DeleteProject.php` (the sh
 - `createEnvironment()`, `update()`, and `destroy()` are all genuinely safe, fully-tested happy paths (no SSH anywhere in this phase's logic) — an unusually clean phase compared to most Server-scoped ones.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 61. Phase 28 — `Storage\Index`: the first genuinely network-touching (non-SSH) untested happy path
+
+Converts the top-level "S3 Storages" list page: a grid of configured S3-compatible storage targets (with a "Not Usable" badge when the last connection check failed) and a "+ Add" modal for registering a new one.
+
+### A new category of untested happy path: outbound S3 API calls, not SSH
+
+Every prior "untested happy path" gap in this migration has been an SSH action (`instant_remote_process()` against a target server). This phase's `store()` action is the first to hit a *different* external dependency: `S3Storage::testConnection()` (`app/Models/S3Storage.php:206`) builds a real Flysystem S3 disk from the submitted credentials and calls `$disk->files()` — a genuine `ListObjectsV2` API call against the S3-compatible endpoint, with a 15-second timeout — before saving. Unlike Phase 21's Hetzner token validation (a plain `Http::post()` call, trivially fakeable with `Http::fake()`), this goes through Laravel's `Storage::build()`/Flysystem abstraction, which doesn't have an equivalent one-line fake for a dynamically-constructed disk. The happy path (a real, reachable S3 endpoint) is therefore left untested here, same as every SSH action — but the validation-rejection path is fully covered, since `SafeWebhookUrl` (already applied identically in the original Livewire `Create` component) rejects unsafe endpoints (`localhost`, loopback, link-local/metadata ranges) *before* `testConnection()` ever runs, making that specific rejection a genuine, network-free happy path.
+
+### Same inline-port, keep-the-shared-child pattern as Phases 18/19/23/24/25
+
+`Storage\Create` (the nested modal component) has a second consumer, `GlobalSearch`, so — matching the established precedent — only `Storage\Index` was deleted; `Create.php`/`create.blade.php` stay in place untouched, and `StorageController::store()` inline-ports the same validation rules, field list, and default-endpoint fallback (`https://s3.{region}.amazonaws.com` when left blank).
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/StorageController.php` | created | `index()` (list + per-storage `isUsable`/`showUrl`), `store()` (inline-ported create logic; SSH-free but network-touching via `testConnection()`) |
+| `resources/js/Pages/Storage/Index.jsx` | created | Grid of storages with "Not Usable" badge, "+ Add" modal (name/description/region/key/secret/bucket/endpoint) |
+| `routes/web.php` | modified | `storage.index` repointed at the new controller; added `.store`; removed the `StorageIndex` import |
+| `resources/views/components/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "S3 Storages" link |
+| `app/Livewire/Storage/Index.php` + matching Blade view | **deleted** | Real cutover; `Storage\Create` untouched (still used by `GlobalSearch`) |
+| `tests/v4/Feature/StorageIndexTest.php` | created | 5 tests: renders with a storage listed, scopes to the current team only, forbids a non-admin from creating (both the page flag and a direct `store()` attempt), rejects an unsafe endpoint without touching the network (real happy path via `SafeWebhookUrl`), rejects a request missing required fields |
+
+### Phase 28 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed (one run hit a 60s git-status timeout under environment load, unrelated to the changes — simple retry succeeded) |
+| PHPStan (`vendor/bin/phpstan analyse`) | 2 stale baseline entries cleaned for the deleted file; `[OK] No errors` |
+| 5 new Feature tests (`StorageIndexTest`) | 1 failure on first run (missing `InstanceSettings` fixture); 5 passed after |
+| Full suite (`php artisan test --compact`) | 296 passed (918 assertions), no regressions |
+| `yarn build` | Succeeded — `Storage/Index.jsx` confirmed present in `manifest.json` |
+
+## 62. Non-goals of Phase 28
+
+- `Storage\Show` (the paired detail page, nesting `storage.form` + `storage.resources`) remains on Livewire — a separate, larger undertaking (52+52 PHP/Blade lines for the page itself, 173+93 for its two nested children) not attempted this phase.
+- `Server\Show` and the Terminal command page remain the only two full pages in the `Server\Navbar` family still on Livewire, unchanged since Phase 25.
+- ~30 other Hard-bucket pages remain untouched; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered (`Project\Index` — simple but doesn't retire `project.add-empty`, still used by Dashboard/GlobalSearch — remains the next-simplest unconverted candidate by line count).
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

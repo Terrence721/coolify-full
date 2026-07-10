@@ -42,6 +42,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SettingsEmailController;
 use App\Http\Controllers\SettingsScheduledJobsController;
 use App\Http\Controllers\SharedVariablesController;
+use App\Http\Controllers\StorageController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TerminalController;
@@ -75,7 +76,6 @@ use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
 use App\Livewire\SharedVariables\Server\Show as ServerSharedVariablesShow;
 use App\Livewire\SharedVariables\Team\Index as TeamSharedVariablesIndex;
 use App\Livewire\Source\Github\Change as GitHubChange;
-use App\Livewire\Storage\Index as StorageIndex;
 use App\Livewire\Storage\Show as StorageShow;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
@@ -165,7 +165,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('storages')->group(function () {
-        Route::get('/', StorageIndex::class)->name('storage.index');
+        Route::get('/', [StorageController::class, 'index'])->name('storage.index');
+        Route::post('/', [StorageController::class, 'store'])->name('storage.store');
         Route::get('/{storage_uuid}', StorageShow::class)->name('storage.show');
         Route::get('/{storage_uuid}/resources', StorageShow::class)->name('storage.resources');
     });

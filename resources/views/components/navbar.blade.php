@@ -207,7 +207,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="S3 Storages" {{ wireNavigate() }}
+                        <a title="S3 Storages"
                             class="{{ request()->is('storages*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('storage.index') }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="menu-item-icon" viewBox="0 0 24 24">
