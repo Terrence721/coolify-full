@@ -249,7 +249,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Keys & Tokens" {{ wireNavigate() }}
+                        <a title="Keys & Tokens"
                             class="{{ request()->is('security*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('security.private-key.index') }}">
                             <svg class="menu-item-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

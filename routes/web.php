@@ -65,7 +65,6 @@ use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
 use App\Livewire\Project\Show as ProjectShow;
-use App\Livewire\Security\PrivateKey\Index as SecurityPrivateKeyIndex;
 use App\Livewire\Server\Index as ServerIndex;
 use App\Livewire\Server\Proxy\DynamicConfigurations as ProxyDynamicConfigurations;
 use App\Livewire\Server\Proxy\Logs as ProxyLogs;
@@ -389,7 +388,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/destination/{destination_uuid}', [DestinationController::class, 'destroy'])->name('destination.destroy');
 
     // Route::get('/security', fn () => view('security.index'))->name('security.index');
-    Route::get('/security/private-key', SecurityPrivateKeyIndex::class)->name('security.private-key.index');
+    Route::get('/security/private-key', [SecurityPrivateKeyController::class, 'index'])->name('security.private-key.index');
+    Route::post('/security/private-key/cleanup', [SecurityPrivateKeyController::class, 'cleanupUnusedKeys'])->name('security.private-key.cleanup');
     // Route::get('/security/private-key/new', SecurityPrivateKeyCreate::class)->name('security.private-key.create');
     Route::post('/security/private-key', [SecurityPrivateKeyController::class, 'store'])->name('security.private-key.store');
     Route::post('/security/private-key/generate', [SecurityPrivateKeyController::class, 'generateKey'])->name('security.private-key.generate');

@@ -18,6 +18,34 @@ class SecurityPrivateKeyController extends Controller
 {
     use AuthorizesRequests;
 
+    public function index(): Response
+    {
+        $privateKeys = PrivateKey::ownedByCurrentTeam(['name', 'uuid', 'is_git_related', 'description', 'team_id'])->get();
+
+        return Inertia::render('Security/PrivateKey/Index', [
+            'privateKeys' => $privateKeys->map(fn (PrivateKey $key) => [
+                'uuid' => $key->uuid,
+                'name' => $key->name,
+                'description' => $key->description,
+                'isInUse' => $key->isInUse(),
+                'canView' => request()->user()->can('view', $key),
+                'showUrl' => route('security.private-key.show', ['private_key_uuid' => $key->uuid]),
+            ]),
+            'canCreate' => request()->user()->can('create', PrivateKey::class),
+            'createKeyUrl' => route('security.private-key.store'),
+            'generateKeyUrl' => route('security.private-key.generate'),
+            'cleanupUnusedKeysUrl' => route('security.private-key.cleanup'),
+        ]);
+    }
+
+    public function cleanupUnusedKeys(): RedirectResponse
+    {
+        $this->authorize('create', PrivateKey::class);
+        PrivateKey::cleanupUnusedKeys();
+
+        return back()->with('success', 'Unused keys have been cleaned up.');
+    }
+
     public function show(string $private_key_uuid): Response
     {
         $privateKey = PrivateKey::ownedByCurrentTeam()->whereUuid($private_key_uuid)->firstOrFail();

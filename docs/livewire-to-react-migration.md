@@ -1152,3 +1152,59 @@ Two fixes followed from this: (1) `submit()` and `regenerateToken()` both needed
 - Observed (not fixed, not in scope) an unrelated pre-existing issue on the still-Livewire `/terminal` page during this phase's manual QA: an endless WebSocket reconnect loop where the handshake authenticates successfully server-side but the connection then closes abnormally (code 1006). Logged in `docs/smoketest.md`'s Terminal checklist and `TODO.md` for real validation once Terminal is converted.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 55. Phase 25 — `Security\PrivateKey\Index`: first page outside `Server\Navbar`/`Security` single-pages this session, and the first shared-component extraction
+
+Converts the top-level "Keys & Tokens → Private Keys" list page: grid of private keys (clickable for Owner/Admin, view-only badge for Members per `PrivateKeyPolicy::view()`), an "+ Add" modal, and a "Delete unused SSH Keys" confirmation.
+
+### Why this page, out of ~39 remaining Hard-bucket pages
+
+The only two full pages left in the `Server\Navbar` family (`Server\Show`, Terminal command) are both large, architecturally-new undertakings — `Server\Show` nests a live `server.validate-and-install` child and was already flagged in Section 40's research as one of the *largest* `Server\Navbar` dependents (669 PHP + 428 Blade lines); Terminal needs an actual WebSocket-in-React bridge, a pattern this migration hasn't built yet. Rather than start either mid-session, a dedicated research pass (Explore agent) surveyed the other ~34 Hard-bucket pages outside that family and ranked `Security\PrivateKey\Index` as the strongest next candidate: 30 PHP + 56 Blade lines, one nested child (`security.private-key.create`), no listeners, no Echo — and Phase 18 had already inline-ported that exact child's create/generate-key logic into `SecurityPrivateKeyController::store()`/`generateKey()` when converting `Server\PrivateKey\Show`. Converting this page needed zero new backend logic, just a second controller action (`index()`) and a second consumer of already-existing endpoints.
+
+### First shared-component extraction of this migration: `PrivateKeyCreateModal.jsx`
+
+Every prior phase needing this exact "+ Add private key" modal (Phase 18's `Server/PrivateKey/Show.jsx`) inlined it directly in the page, since each was the modal's only consumer at the time. This phase makes it a genuine second consumer of the identical UI and behavior, so the modal was extracted into `resources/js/Components/PrivateKeyCreateModal.jsx` (open/onClose/onCreated props, wraps the Generate RSA/ED25519 buttons + create form) and `Server/PrivateKey/Show.jsx` was refactored to use it too — the first time this migration has retrofitted an already-converted page to remove duplication rather than leaving two copies. The underlying Livewire `Security\PrivateKey\Create` component (and its Blade view) is untouched and still serves its three other consumers (`Dashboard`, `GlobalSearch`, `server.new.by-hetzner`).
+
+### A real architectural close-out: `x-security.navbar` retired
+
+Converting this page removed the last consumer of the shared Blade component `resources/views/components/security/navbar.blade.php` (a plain nav partial predating this migration's React-side inline-duplication convention for the Security area — see `Security/CloudTokens.jsx`, `Security/ApiTokens.jsx`, etc., each of which already inlines its own copy of that same 4-link nav rather than sharing a component, matching this page's React version). Grep-confirmed zero remaining `<x-security.navbar>` usages; deleted outright rather than left as dead code.
+
+### Two more stray `wireNavigate()` bugs found and fixed
+
+Same audit habit as earlier this session: grepped every reference to `route('security.private-key.index')` across the app and found two links still carrying `wireNavigate()` that are now navigating into a fully-Inertia `/security/*` area — the main site navbar's "Keys & Tokens" link (`resources/views/components/navbar.blade.php`) and a "Create a new private key" link inside `github-private-repository-deploy-key.blade.php` (a still-Livewire onboarding flow). Both stripped.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/SecurityPrivateKeyController.php` | modified | Added `index()` (list + per-key `canView`/`isInUse`/`showUrl`) and `cleanupUnusedKeys()` (no SSH, plain `safeDelete()` per key) |
+| `resources/js/Components/PrivateKeyCreateModal.jsx` | created | Extracted shared "+ Add" modal (Generate RSA/ED25519 + create form), reused by both PrivateKey pages |
+| `resources/js/Pages/Security/PrivateKey/Index.jsx` | created | Grid of keys, per-key view/view-only rendering, "+ Add" and "Delete unused SSH Keys" modals, inline Security nav (matching the existing convention in sibling Security pages) |
+| `resources/js/Pages/Server/PrivateKey/Show.jsx` | modified | Refactored to consume the new shared `PrivateKeyCreateModal` instead of ~130 duplicated lines |
+| `routes/web.php` | modified | `security.private-key.index` repointed at the new controller action; added `.cleanup`; removed the `SecurityPrivateKeyIndex` import |
+| `resources/views/components/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Keys & Tokens" link |
+| `resources/views/livewire/project/new/github-private-repository-deploy-key.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Create a new private key" link |
+| `app/Livewire/Security/PrivateKey/Index.php` + matching Blade view | **deleted** | Real cutover; `Create.php`/`create.blade.php` untouched (3 other Livewire consumers remain) |
+| `resources/views/components/security/navbar.blade.php` | **deleted** | Last consumer removed by this phase; grep-confirmed zero remaining `<x-security.navbar>` usages |
+| `tests/v4/Feature/SecurityPrivateKeyIndexTest.php` | created | 5 tests: renders with a key listed, scopes to the current team only, creates a key via the shared `store()` endpoint, cleans up unused keys without touching SSH (real happy path — `safeDelete()` has no SSH dependency), forbids a Member from creating |
+
+### Phase 25 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| PHPStan (`vendor/bin/phpstan analyse`) | 2 stale baseline entries cleaned for the deleted file; `[OK] No errors` |
+| 5 new Feature tests (`SecurityPrivateKeyIndexTest`) + 10 existing PrivateKey tests (`SecurityPrivateKeyShowTest`, `ServerPrivateKeyTest`) | all 15 passed on first run, confirming the shared-modal refactor didn't regress `Server/PrivateKey/Show` |
+| Full suite (`php artisan test --compact`) | 288 passed (859 assertions), no regressions |
+| `yarn build` | Succeeded — `Security/PrivateKey/Index.jsx`, `Server/PrivateKey/Show.jsx`, and the shared `PrivateKeyCreateModal` chunk all confirmed present in `manifest.json` |
+
+### An unrelated dev-environment gap found during manual smoke testing, fixed on request
+
+While the user was smoke-testing in parallel with this phase, `/settings` (still fully Livewire) 404'd. Traced to `App\Livewire\Settings\Index::mount()`'s `Server::findOrFail(0)` call (executed whenever `isCloud()` is false, which it always is in this self-hosted fork) — this dev database was missing the built-in `localhost` pseudo-server (id 0) that `database/seeders/ServerSeeder.php` normally creates. Not a code bug and unrelated to this migration; fixed by running `php artisan db:seed --class=ServerSeeder` with the user's explicit go-ahead.
+
+## 56. Non-goals of Phase 25
+
+- `Server\Show` and the Terminal command page (`App\Livewire\Project\Shared\ExecuteContainerCommand`) remain the only two full pages in the `Server\Navbar` family still on Livewire — both large, both needing real design work (embedded-Livewire-island handling for the former, a WebSocket-in-React bridge for the latter) before conversion starts.
+- ~33 other Hard-bucket pages outside that family remain untouched; see the Phase 25 research inventory (not reproduced verbatim here) for the full ranked list — next-best candidates identified: `Destination\Index` (same inline-port pattern as Phase 19's create-modal logic) and the `Project\Show`/`Project\Edit` pair (shared `delete-project` child, convertible together).
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

@@ -6835,18 +6835,6 @@ parameters:
 			path: app/Livewire/Security/PrivateKey/Create.php
 
 		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Index\:\:cleanupUnusedKeys\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Index\:\:render\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Index.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Create\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
