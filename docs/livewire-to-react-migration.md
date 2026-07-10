@@ -1514,3 +1514,45 @@ The first draft of the test suite asserted that a plain "member" inviting an adm
 - No sweep was made for other possible dead-code references to views deleted in earlier phases, beyond what Phase 31 already found via CI — same accepted limitation.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 71. Phase 33 — `Server\Index`: the servers list page, and an explicit scope-reduction on the Hetzner Cloud creation flow
+
+Converts the servers grid (`/servers`) and inline-ports the "Add Server by IP Address" flow from the nested `Server\Create` modal. `Server\Create` itself stays untouched — it still has two other real consumers, `Dashboard` and `GlobalSearch` — same "keep the shared child" pattern as every inline-port since Phase 18/19.
+
+### A modal that looked small until its second-level child was checked
+
+`Server\Create` (42 lines) nests two more Livewire children: `Server\New\ByIp` (143 lines, a plain form — inline-ported into `ServerController::store()`) and `Server\New\ByHetzner` (547 lines — a two-step wizard that calls the live Hetzner Cloud API for locations/server types/images/SSH keys, manages cloud-init scripts, and creates real infrastructure). This is the same "looks simple until you check the nested children" trap the doc already flagged for `Server\Navbar` (Phase 7) and `Server\Show` (Phase 25's non-goals) — except this time the trap was in a second-level nested child of the page's own create modal, not the page itself.
+
+### Explicit scope-reduction: the Hetzner Cloud flow is not ported this phase
+
+Porting `ByHetzner` faithfully means reproducing a real multi-step wizard with cascading live API data (locations → available server types → available images, each filtered by the previous selection), dynamic pricing display, and cloud-init script management — a substantially larger scope than any single form converted so far in this migration. Rather than fold it into this phase or leave a half-working stand-in, the new `Server/Index.jsx`'s "+ Add" modal only offers "Add Server by IP Address". The original `Server\Create` component (with both flows intact) remains fully reachable via `GlobalSearch`'s own "+" menu, which still renders the untouched Livewire component — so Hetzner server creation isn't lost, just not yet available from this specific page. Recorded here as an explicit, deliberate gap for a future dedicated phase, not silently dropped.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerController.php` | created | `index()` (servers grid + create-modal props), `store()` (inline-ported from `Server\New\ByIp::submit()`) |
+| `resources/js/Pages/Server/Index.jsx` | created | Servers grid identical to the original; "+ Add" modal offers the IP-based flow only (see scope-reduction above) |
+| `routes/web.php` | modified | `server.index` repointed at the new controller; added `server.store`; removed the `Server\Index` Livewire import |
+| `app/Livewire/Server/Index.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by route name, never by class |
+| `resources/views/components/navbar.blade.php`, `resources/views/livewire/project/new/select.blade.php` | modified | Stripped `wireNavigate()` from 3 links now pointing at the fully-Inertia `/servers` |
+| `phpstan-baseline.neon` | modified | Cleaned 2 stale entries for the deleted `Server\Index.php` |
+| `tests/v4/Feature/ServerIndexTest.php` | created | 5 tests: renders the page, scopes the list to the current team, creates a server by IP, rejects a duplicate IP within the team, rejects submission without a selected private key |
+
+### Phase 33 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed on first run |
+| PHPStan (`vendor/bin/phpstan analyse`) | `[OK] No errors` after cleaning the 2 stale baseline entries (one run hit the 256M default memory limit from concurrent background verification load; re-ran with `--memory-limit=1G`) |
+| 5 new Feature tests (`ServerIndexTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 322 passed (1065 assertions), no regressions |
+| `yarn build` | Succeeded — `Server/Index.jsx` confirmed present in `manifest.json` |
+
+## 72. Non-goals of Phase 33
+
+- `Server\New\ByHetzner` (Hetzner Cloud server creation) is not ported — see the scope-reduction note above. Still reachable via `GlobalSearch`'s unconverted "+ Add Server" modal.
+- `Server\Create` and `Server\New\ByIp` are left in place on Livewire (still used by `Dashboard` and `GlobalSearch`), per the inline-port pattern.
+- No specific next Hard-bucket candidate has been research-ranked yet; `Dashboard` is a natural next candidate since it nests the same `Server\Create` modal plus two others (`Project\AddEmpty`, already inline-ported for `Project\Index`; `Security\PrivateKey\Create`, already extracted as `PrivateKeyCreateModal.jsx`) — meaning only the Hetzner gap would remain unsolved there too.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

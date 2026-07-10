@@ -164,7 +164,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Servers" {{ wireNavigate() }}
+                        <a title="Servers"
                             class="{{ request()->is('server/*') || request()->is('servers') ? 'menu-item menu-item-active' : 'menu-item' }}"
                             href="/servers">
                             <svg xmlns="http://www.w3.org/2000/svg" class="menu-item-icon" viewBox="0 0 24 24"

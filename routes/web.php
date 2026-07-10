@@ -26,6 +26,7 @@ use App\Http\Controllers\ServerAdvancedController;
 use App\Http\Controllers\ServerCaCertificateController;
 use App\Http\Controllers\ServerCloudflareTunnelController;
 use App\Http\Controllers\ServerCloudProviderTokenController;
+use App\Http\Controllers\ServerController;
 use App\Http\Controllers\ServerDeleteController;
 use App\Http\Controllers\ServerDestinationsController;
 use App\Http\Controllers\ServerDockerCleanupController;
@@ -63,7 +64,6 @@ use App\Livewire\Project\Service\DatabaseBackups as ServiceDatabaseBackups;
 use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
-use App\Livewire\Server\Index as ServerIndex;
 use App\Livewire\Server\Proxy\DynamicConfigurations as ProxyDynamicConfigurations;
 use App\Livewire\Server\Proxy\Logs as ProxyLogs;
 use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
@@ -320,7 +320,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/tasks/{task_uuid}', ServiceConfiguration::class)->name('project.service.scheduled-tasks');
     });
 
-    Route::get('/servers', ServerIndex::class)->name('server.index');
+    Route::get('/servers', [ServerController::class, 'index'])->name('server.index');
+    Route::post('/servers', [ServerController::class, 'store'])->name('server.store');
     // Route::get('/server/new', ServerCreate::class)->name('server.create');
 
     Route::prefix('server/{server_uuid}')->group(function () {
