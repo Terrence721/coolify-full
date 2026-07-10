@@ -1050,3 +1050,60 @@ The original's `wire:poll.5000ms='pollData'` combined with a `poll` boolean that
 - The dynamically-loaded ApexCharts script is a real behavioral difference from every other page in this migration (all prior React pages are self-contained bundles with no runtime `<script src>` injection) — worth a manual QA pass specifically checking that the chart actually renders on a cold page load (first visit, script not yet cached) and not just on a warm one.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 51. Phase 23 — `Server\Proxy\Show`: a dynamically-loaded Monaco editor, a new `'proxy'` sidebar variant, and two distinct "switch proxy" mechanisms
+
+Converts the server's proxy configuration page: choosing a proxy type (Traefik/Caddy/None) when none is set yet, an "out of sync" warning banner, a Monaco-backed YAML editor for the raw proxy configuration, instant-save toggles (`generateExactLabels`, redirect-to-domain), Traefik version/outdated-branch callouts, and a "Reset Configuration" modal gated behind typing the server's name.
+
+### Design: reusing the Livewire root view's Monaco asset, the same pattern as Phase 22's ApexCharts
+
+Exactly like Phase 22's ApexCharts problem: the original page never installs Monaco as a JS dependency — it works only because `layouts/base.blade.php` always loads `public/js/monaco-editor-0.52.2/min/vs/loader.js` as a global `<script>` tag. `resources/js/Components/MonacoEditor.jsx` (new, reusable) injects that same static asset itself on mount via a module-level memoized `loaderPromise` (so repeat mounts across the app don't re-fetch it), then calls `window.monaco.editor.create(...)` with the same options the original Alpine component used (`theme: vs-dark`/`vs`, `wordWrap: 'on'`, `minimap: {enabled: false}`), plus a `MutationObserver` on `document.documentElement`'s `class` attribute so the editor's theme flips immediately when the user toggles dark mode — matching the original's live theme-switch behavior. Built as a standalone component (not inlined into `Server/Proxy.jsx`) since Monaco is very likely needed again by other configuration-editing pages later in the Hard bucket.
+
+### Two distinct "switch proxy" mechanisms, kept separate rather than merged
+
+The original has two different code paths that both change `$server->proxy`, and they are not interchangeable:
+
+- **`selectProxy($type)`** — used only when no proxy is selected yet (`proxySet()` is false). Sets the type directly and, if the server is a genuinely functional/connected server, kicks off `StartProxy::run()` over SSH. On the factory-default (non-functional) server used in tests, that SSH branch is skipped entirely — confirmed safe and exercised as a real happy-path test, same category of finding as Phase 21's `Http::fake()` discovery.
+- **`changeProxy()`** (the "Switch Proxy" button on an already-configured server) — nulls out `$server->proxy` and other proxy-related settings so the page falls back to the "no proxy selected" screen, but is blocked client-side (a toast, no server round-trip at all) unless the proxy container is first stopped, matching the original's `$dispatch('error', ...)` behavior exactly.
+
+Kept as two separate controller actions (`selectProxy()` vs `resetProxySelection()`) rather than one parameterized action, mirroring the original's own separation and avoiding a false abstraction over two behaviorally-different operations.
+
+### A new `'proxy'` sidebar variant, and a partial cutover within it
+
+`ServerChromeData::sidebar()` gained a `'proxy'` variant. Only the "Configuration" link points at the new Inertia route (`<Link>`); "Dynamic Configurations" and "Logs" remain plain `<a>` links to their still-Livewire routes this phase (same precedent as `ServerNavbar.jsx`'s terminal-command link) — `wireNavigate()` was stripped only from the "Configuration" link in `sidebar-proxy.blade.php`, left in place on "Dynamic Configurations" (and never present on "Logs").
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Support/ServerChromeData.php` | modified | Added `'proxy'` sidebar variant (`proxySet`, `urls.configuration/dynamicConfs/logs`) |
+| `resources/js/Components/ServerSidebar.jsx` | modified | Renders the `'proxy'` variant; Configuration via `<Link>`, the other two via plain `<a>` (still Livewire) |
+| `resources/js/Components/MonacoEditor.jsx` | created | Reusable dynamically-loaded Monaco YAML editor, dark-mode-aware |
+| `app/Http/Controllers/ServerProxyController.php` | created | `index()`, `selectProxy()` (SSH-touching, guarded), `resetProxySelection()` (no SSH), `instantSave()` (no SSH), `instantSaveRedirect()` (SSH-touching, unguarded), `submit()` (SSH-touching, unguarded), `resetConfiguration()` (SSH-touching, unguarded), plus private Traefik-version helpers ported from the original's computed properties |
+| `resources/js/Pages/Server/Proxy.jsx` | created | No-proxy-selected screen, main configuration form, Switch Proxy modal/blocked-toast, instant-save toggles, dismissible Traefik warnings (`localStorage`-backed, same key pattern as the original), Reset Configuration modal (typed-name confirmation), Monaco YAML editor |
+| `routes/web.php` | modified | `server.proxy` repointed at the new controller; added `.select`, `.reset-selection`, `.instant-save`, `.instant-save-redirect`, `.submit`, `.reset-configuration` |
+| `resources/views/components/server/sidebar-proxy.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Configuration" link only |
+| `app/Livewire/Server/Proxy.php` + `app/Livewire/Server/Proxy/Show.php` (+ matching Blade views) | **deleted** | Real cutover — `Show` was a thin wrapper, `Proxy` the substantial component this phase actually converts; grep-confirmed no other `<livewire:server.proxy>` consumers |
+| `tests/v4/Feature/ServerProxyTest.php` | created | 7 tests: renders with no proxy selected, 404 for foreign-team server, selects a proxy type without touching SSH (real happy path, non-functional test server), rejects an invalid proxy type, resets proxy selection without touching SSH, instant-saves `generateExactLabels` without touching SSH, 404s on select/reset-selection/instant-save for a foreign-team server |
+
+### Two PHPStan findings fixed, not baseline-suppressed
+
+The first PHPStan run against the new controller surfaced two real, fixable findings rather than pre-existing noise: `getTraefikVersions()` was missing a value-type on its `?array` return (fixed with a `@return array<string, string>|null` PHPDoc), and `newerTraefikBranchAvailable()` had a redundant `isset($outdatedInfo['type'])` check — PHPStan had already inferred, from `Server::$traefik_outdated_info`'s shape, that `'type'` is always present (non-optional) whenever the array itself is non-null, so the `isset()` was dead code and removed.
+
+### Phase 23 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| PHPStan (`vendor/bin/phpstan analyse`) | 2 real findings on first run (above), both fixed; 18 stale baseline entries cleaned for the 2 deleted files; `[OK] No errors` after |
+| 7 new Feature tests (`ServerProxyTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 286 passed (829 assertions), no regressions |
+| `yarn build` | Succeeded — `Proxy-D5ecN3Xb.js` (12.36 kB) confirmed present in `manifest.json` |
+
+## 52. Non-goals of Phase 23
+
+- 6 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 7): Sentinel, Terminal command, and `Server\Show` itself, plus "Dynamic Configurations" and "Logs" within the Proxy area specifically.
+- `instantSaveRedirect()`, `submit()`, and `resetConfiguration()` are all untested on their SSH-touching happy path — each unconditionally calls `setupDefaultRedirect()` / `SaveProxyConfiguration::run()` / `GetProxyConfiguration::run(forceRegenerate: true)` with no early-return guard, same category of gap as `toggleMetrics()` in Phase 22. No `Http::fake()`-equivalent seam exists for these.
+- The Monaco editor, like Phase 22's ApexCharts, is a real runtime `<script src>` injection rather than a bundled dependency — worth a manual QA pass on a genuinely cold page load, same caveat as Phase 22's chart rendering.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

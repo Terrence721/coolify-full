@@ -1,11 +1,10 @@
 import { Link } from '@inertiajs/react';
 
 /**
- * React port of resources/views/components/server/sidebar.blade.php (variant "main") and
- * sidebar-security.blade.php (variant "security"). The other two Blade variants
- * (sidebar-proxy.blade.php, sidebar-sentinel.blade.php) are not ported yet — not needed by
- * this phase's 3 pilot pages (Swarm, Security\TerminalAccess, Delete); add them here, following
- * the same shape, when a page using them gets converted.
+ * React port of resources/views/components/server/sidebar.blade.php (variant "main"),
+ * sidebar-security.blade.php (variant "security"), and sidebar-proxy.blade.php (variant
+ * "proxy"). sidebar-sentinel.blade.php is not ported yet — add it here, following the same
+ * shape, when a page using it gets converted.
  */
 export default function ServerSidebar({ sidebar }) {
     const item = (key, label, href) => (
@@ -23,6 +22,30 @@ export default function ServerSidebar({ sidebar }) {
             <div className="sub-menu-wrapper">
                 {item('patches', 'Server Patching', sidebar.urls.patches)}
                 {item('terminal-access', 'Terminal Access', sidebar.urls.terminalAccess)}
+            </div>
+        );
+    }
+
+    if (sidebar.variant === 'proxy') {
+        return (
+            <div className="sub-menu-wrapper">
+                {item('configuration', 'Configuration', sidebar.urls.configuration)}
+                {sidebar.proxySet && (
+                    <>
+                        <a
+                            className={`sub-menu-item ${sidebar.activeMenu === 'dynamic-confs' ? 'menu-item-active' : ''}`}
+                            href={sidebar.urls.dynamicConfs}
+                        >
+                            <span className="menu-item-label">Dynamic Configurations</span>
+                        </a>
+                        <a
+                            className={`sub-menu-item ${sidebar.activeMenu === 'logs' ? 'menu-item-active' : ''}`}
+                            href={sidebar.urls.logs}
+                        >
+                            <span className="menu-item-label">Logs</span>
+                        </a>
+                    </>
+                )}
             </div>
         );
     }

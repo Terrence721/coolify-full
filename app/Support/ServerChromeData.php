@@ -91,6 +91,19 @@ class ServerChromeData
             ];
         }
 
+        if ($variant === 'proxy') {
+            return [
+                'variant' => 'proxy',
+                'activeMenu' => $activeMenu,
+                'proxySet' => $server->proxySet(),
+                'urls' => [
+                    'configuration' => route('server.proxy', ['server_uuid' => $server->uuid]),
+                    'dynamicConfs' => route('server.proxy.dynamic-confs', ['server_uuid' => $server->uuid]),
+                    'logs' => route('server.proxy.logs', ['server_uuid' => $server->uuid]),
+                ],
+            ];
+        }
+
         return [
             'variant' => 'main',
             'activeMenu' => $activeMenu,
