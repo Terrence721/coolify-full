@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**44 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 13 pages built on it (Section 47).
+**45 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 14 pages built on it (Section 49).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 17 of 59 | 42 |
+| Hard | 18 of 59 | 41 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -1003,5 +1003,50 @@ The shared `Security\CloudProviderTokenForm` component's "Don't have a Hetzner a
 
 - 8 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 9): Sentinel, Proxy, Metrics, Terminal command, and `Server\Show` itself.
 - The next two candidates (`Server\Proxy\Show`, `Server\Sentinel\Show`) are a step up in complexity from everything since Phase 14: both use a dedicated sidebar variant (`x-server.sidebar-proxy`, `x-server.sidebar-sentinel`) that `ServerChromeData::sidebar()` doesn't support yet (only `main`/`security`), and both nest a real, substantial management component (`<livewire:server.proxy>`, `<livewire:server.sentinel>`) rather than a thin settings form — flagged during Phase 11's original scoping as needing their own design pass.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 49. Phase 22 — `Server\Charts` (Metrics): the first page needing a dynamically-loaded third-party chart library
+
+Renders live CPU/memory usage charts for a server (ApexCharts area charts), with an interval selector (5min/10min "live" polling vs. static historical ranges up to 30 days) and an "Enable/Disable Metrics" toggle that starts or restarts the Sentinel monitoring container over SSH.
+
+### Design: a script that only ever loaded because it always shared the Livewire root view
+
+The original page never installs ApexCharts as a JS dependency — `layouts/base.blade.php` (the Livewire root view) unconditionally loads `public/js/apexcharts.js` as a global `<script>` tag on every Livewire page, so `window.ApexCharts` is simply always present by the time any page's inline chart-init script runs. Inertia pages use a separate, minimal root view (`app-inertia.blade.php`) that doesn't load this script at all. Rather than add `apexcharts` as an npm dependency (a dependency change, out of scope without approval) or load it unconditionally on every Inertia page, `Server/Metrics.jsx` lazily injects the same `/js/apexcharts.js` `<script>` tag itself on mount (memoized so a second visit doesn't re-fetch it), then constructs `new window.ApexCharts(...)` exactly as the original inline scripts did — same global asset, same library, loaded on-demand instead of unconditionally.
+
+### A second new pattern: client-driven interval-based polling, not Echo
+
+The original's `wire:poll.5000ms='pollData'` combined with a `poll` boolean that flips permanently to `false` once the selected interval exceeds 10 minutes (short "live" ranges keep polling forever; longer historical ranges fetch once and stop) is a client-timing concern, not a server-broadcast one — there's no natural Echo event for "new metrics sample available." Ported as a plain `setInterval` in the React page with the identical stop condition, rather than reaching for `useTeamChannel` (which wouldn't fit here) or `ActivityLog.jsx` (which is scoped to a single activity ID, not a recurring metrics feed).
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerMetricsController.php` | created | `index()`, `toggleMetrics()` (SSH-touching via `StartSentinel::run()`/`$server->restartSentinel()`, no early-return guard), `data()` (JSON endpoint returning `{cpu, memory}` for a given interval — has a real early-return guard: returns `null` for both without touching SSH if metrics are disabled, confirmed via `HasMetrics::getMetrics()`) |
+| `resources/js/Pages/Server/Metrics.jsx` | created | Lazily-loaded ApexCharts, `useApexChart` hook wrapping chart lifecycle (create/update/destroy) per chart, interval select, Enable/Disable Metrics button, "Sentinel Required" / "Metrics Disabled" callouts matching the original |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Metrics" link only |
+| `routes/web.php` | modified | `server.metrics` repointed at the new controller; added `.toggle`, `.data` routes |
+| `app/Livewire/Server/Charts.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references |
+| `tests/v4/Feature/ServerMetricsTest.php` | created | 5 tests: renders, 404s on index/toggle/data for a server owned by another team, returns `null` cpu/memory without touching SSH when metrics are disabled (exercises the real early-return guard, a genuine safe happy path) |
+
+### A real, if minor, type-correctness fix
+
+`Server::isMetricsEnabled()`/`isSentinelEnabled()` return the raw `is_metrics_enabled` attribute rather than a real PHP `bool` (that column isn't cast to `boolean` on `ServerSetting`, unlike its sibling `force_docker_cleanup`). Passing that raw value straight through as an Inertia prop would have sent `0`/`1` to the frontend instead of `false`/`true`. Caught by a strict Pest assertion on the first test run; fixed by casting at the boundary in the new controller (`(bool) $server->isMetricsEnabled()`) rather than touching the underlying model, since the model's own quirk is pre-existing and out of scope here.
+
+### Phase 22 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| 5 new Feature tests (`ServerMetricsTest`) | 1 failure on first run (the `(bool)` cast issue above); 5 passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 1 deleted file (7 entries) cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/Metrics.jsx` confirmed present in `manifest.json` |
+| Full suite (`php artisan test --compact`) | 285 passed (815 assertions), no regressions |
+
+## 50. Non-goals of Phase 22
+
+- 7 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 8): Sentinel, Proxy, Terminal command, and `Server\Show` itself.
+- `toggleMetrics()`'s happy path is untested in either direction (enable or disable) — both unconditionally touch SSH with no early-return guard, same category of gap as every prior Server-scoped SSH action. Unlike Phase 21's Hetzner API calls, there's no `Http::fake()`-equivalent seam for `instant_remote_process()`.
+- The dynamically-loaded ApexCharts script is a real behavioral difference from every other page in this migration (all prior React pages are self-contained bundles with no runtime `<script src>` injection) — worth a manual QA pass specifically checking that the chart actually renders on a cold page load (first visit, script not yet cached) and not just on a warm one.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

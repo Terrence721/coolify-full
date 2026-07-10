@@ -59,7 +59,7 @@ Settings (instance-wide, root/admin only):
 Auth:
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (17 pages so far) — real-time and non-trivial
+## 4. Hard bucket (18 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -82,7 +82,7 @@ These need the most attention — they're the pages automated checks can't fully
 **`/security/cloud-tokens`, `/security/cloud-init-scripts`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
 - [ ] Already covered above in Section 3's list — no additional real-time behavior to check.
 
-**`Server\Navbar`-dependent pages (13 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
+**`Server\Navbar`-dependent pages (14 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
 
 - [ ] **Chrome itself** (any page below): proxy status badge + Sentinel badge render correctly; Start/Restart/Stop Proxy buttons work and open the live log slide-over; confirm the slide-over shows real streaming output, not just "Waiting for the process to start...".
 - [ ] `/server/{uuid}/swarm` — toggle Swarm Manager/Worker (mutually exclusive), confirm instant-save.
@@ -98,13 +98,14 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/server/{uuid}/destinations` — "Scan for Destinations" against a real server, confirm found networks appear as "Add {name}" buttons; add one and confirm it moves into "Available Destinations"; the "+ Add" modal creates a destination directly (try picking a different server in the dropdown too).
 - [ ] `/server/{uuid}/docker-cleanup` — save settings, toggle the instant-save checkboxes; "Trigger Manual Cleanup" against a real server, confirm a new execution appears in "Recent executions" (open in two tabs to confirm the Echo-driven refresh works in both — note there's no fallback poll anymore, so if Soketi is down the list won't self-update); click a running execution and confirm the log view polls every 2s until it finishes; download a log file; confirm the "Docker Cleanup May Be Stalled" callout appears when appropriate.
 - [ ] `/server/{uuid}/cloud-provider-token` (only visible for servers provisioned through Hetzner) — "Use this token" on a different token; "Validate token" against a real Hetzner API token (both valid and invalid); the "+ Add" modal creates a token and validates it against Hetzner's API before saving.
+- [ ] `/server/{uuid}/metrics` — **cold page load** (hard-refresh so the dynamically-loaded ApexCharts script isn't already cached) confirm both CPU and Memory charts actually render, not just a blank div; switch between "5 minutes (live)" and a longer static range and confirm live polling stops once you pick a static range; "Enable/Disable Metrics" against a real server with Sentinel running.
 
 ## 5. Regression spot-check: still-Livewire areas
 
 Not part of this migration, but worth a quick sanity check that nothing else broke:
 - [ ] Dashboard loads, project list renders.
 - [ ] Open a project → environment → application, confirm the (still-Livewire) Configuration tabs work.
-- [ ] The remaining 8 of 21 `Server\Navbar`-dependent pages (Sentinel, Proxy, Metrics, Terminal command, `Server\Show`) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).
+- [ ] The remaining 7 of 21 `Server\Navbar`-dependent pages (Sentinel, Proxy, Terminal command, `Server\Show`) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).
 - [ ] Global search still finds things across both stacks.
 
 ## 6. Sign-off

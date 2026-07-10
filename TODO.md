@@ -13,14 +13,14 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Removed two Hetzner Cloud affiliate-link blocks ("Coolify's affiliate link... supports us (€10) and gives you €20") — one in the shared `Security\CloudProviderTokenForm` Livewire component, one already carried over into the converted `Security\CloudTokens.jsx` page.
 
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
-- 44 of 84 full-page Livewire components converted to Inertia + React.
+- 45 of 84 full-page Livewire components converted to Inertia + React.
 - Easy and Medium buckets: 100% done (25/25).
-- Hard bucket: 17 of 59 done, including the shared `Server` navbar/sidebar chrome that the remaining Server-scoped pages build on.
+- Hard bucket: 18 of 59 done, including the shared `Server` navbar/sidebar chrome that the remaining Server-scoped pages build on.
 
 ## Still to do
 
 **Migration**
-- 42 Hard-bucket pages remain on Livewire, including 8 of 21 `Server\Navbar`-dependent pages (Sentinel, Proxy, Metrics, Terminal command, `Server\Show`, and others). The next two (`Server\Proxy\Show`, `Server\Sentinel\Show`) need a new sidebar-variant design pass before conversion — see Section 48 of the migration doc.
+- 41 Hard-bucket pages remain on Livewire, including 7 of 21 `Server\Navbar`-dependent pages (Sentinel, Proxy, Terminal command, `Server\Show`, and others). The next two (`Server\Proxy\Show`, `Server\Sentinel\Show`) need a new sidebar-variant design pass before conversion — see Section 48 of the migration doc.
 - Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) — see `docs/smoketest.md` for the manual QA checklist that closes this gap.
 
 **Cleanup opportunities (lower priority, not blocking)**

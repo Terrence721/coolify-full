@@ -6847,48 +6847,6 @@ parameters:
 			path: app/Livewire/Security/PrivateKey/Index.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\Charts\:\:loadData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Charts\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Charts\:\:pollData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Charts\:\:setInterval\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Charts\:\:\$categories has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Charts\:\:\$chartId has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Charts\:\:\$data has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Charts.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Create\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
