@@ -11,7 +11,6 @@
     </a>
     @if ($server->hetzner_server_id)
         <a class="sub-menu-item {{ $activeMenu === 'cloud-provider-token' ? 'menu-item-active' : '' }}"
-            {{ wireNavigate() }}
             href="{{ route('server.cloud-provider-token', ['server_uuid' => $server->uuid]) }}"><span class="menu-item-label">Hetzner Token</span>
         </a>
     @endif

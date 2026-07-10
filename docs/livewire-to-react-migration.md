@@ -13,13 +13,13 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**43 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 12 pages built on it (Section 45).
+**44 of 84** full-page Livewire components converted. The Medium bucket is complete; the Hard bucket now includes the `Server\Navbar` shared-chrome foundation and 13 pages built on it (Section 47).
 
 | Bucket | Converted | Remaining |
 |---|---|---|
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 16 of 59 | 43 |
+| Hard | 17 of 59 | 42 |
 
 Converted so far: `SharedVariables\Index` (pilot), `SharedVariables\Environment\Index`, `SharedVariables\Project\Index`, `SharedVariables\Server\Index`, `Profile\Appearance`, all 6 `Notifications\*` channels (`Webhook`, `Discord`, `Email`, `Slack`, `Telegram`, `Pushover`), `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index`, `Destination\Show`, `Destination\Resources`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail`, `Team\AdminView`, `SettingsOauth`, and `Settings\ScheduledJobs`. The entire notifications area, the profile area, the security/team/admin single-page settings screens, and the instance-wide Settings area are now fully off Livewire. Every remaining unconverted page is Hard bucket. Livewire and Alpine remain fully installed and used by every other page.
 
@@ -961,5 +961,47 @@ Manages Docker cleanup settings for a server (cleanup frequency/threshold, force
 
 - 9 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 10).
 - The unconditional 5-second list poll from the original was deliberately dropped in favor of Echo-driven refresh only — if Echo/Soketi is down, the list won't self-heal until the next `DockerCleanupDone` broadcast succeeds or the page is reloaded. This is a real, intentional behavior change (not just a implementation detail), and should be called out in manual QA.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 47. Phase 21 — `Server\CloudProviderToken\Show`: the first fully-testable SSH-adjacent happy path, and two affiliate-link removals found along the way
+
+Manages which Hetzner Cloud API token a server uses (only shown for servers actually provisioned through Hetzner), following the identical key-card-grid shape as Phase 18's `Server\PrivateKey\Show`: a "Use this token" / "Currently used" grid, a "Validate token" action, and a `+ Add` modal for a shared component (`Security\CloudProviderTokenForm`, also used by the still-Livewire `Server\New\ByHetzner`).
+
+### A genuinely new thing: a fully-testable "external API" happy path
+
+Every prior Server-scoped SSH action in this migration (Phases 11, 13, 14, 15, 16, 17, 18, 19) has had an untested happy-path gap, because `instant_remote_process()`/SSH has no fake/mock seam this migration built. This phase's equivalent risky operation — validating a token against `https://api.hetzner.cloud/v1/servers` via Laravel's `Http` facade — **does** have a built-in fake seam (`Http::fake()`), so for the first time, every action's happy path (`setToken()`, `validateToken()`, `store()`) is fully covered, not just the safe/validation-rejection paths. Worth noting as a category distinction for future phases: outbound HTTP calls to third-party APIs are cheap to fake; SSH to a user's own infrastructure is not.
+
+### Two affiliate links removed, one already shipped to a previously-converted page
+
+The shared `Security\CloudProviderTokenForm` component's "Don't have a Hetzner account?" block included a hardcoded `coolify.io/hetzner` affiliate link and "(Coolify's affiliate link... supports us (€10) and gives you €20)" text — the same category of commercial content removed earlier this session (sponsorship popup, "Sponsor us" nav link, Stripe billing). Since this component is shared with the still-Livewire `Server\New\ByHetzner`, the text was stripped from the original Blade view too, not just left out of this phase's new React port. A repo-wide grep for the same pattern also turned up an **identical copy already carried over into `Security\CloudTokens.jsx`** (converted in an earlier phase, before the de-commercialization directive existed) — fixed there too.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerCloudProviderTokenController.php` | created | `index()`, `setToken()` (validates the token against Hetzner's API for both general validity and access to this specific server, mirroring the original's two-step check), `validateToken()`, `store()` (inline-ported create-token logic) |
+| `resources/js/Pages/Server/CloudProviderToken.jsx` | created | Token-card grid, "Validate token" button, `+ Add` modal (no affiliate text) |
+| `resources/views/livewire/security/cloud-provider-token-form.blade.php` | modified | Removed the affiliate-link block from both the modal and full-page layouts |
+| `resources/js/Pages/Security/CloudTokens.jsx` | modified | Removed the same affiliate-link block, found via a repo-wide grep while working on this phase |
+| `resources/views/components/server/sidebar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Hetzner Token" link only |
+| `routes/web.php` | modified | `server.cloud-provider-token` repointed at the new controller; added `.set`, `.validate`, `.store` routes |
+| `app/Livewire/Server/CloudProviderToken/Show.php` + matching Blade view | **deleted** | Real cutover, grep-confirmed no other references. `App\Livewire\Security\CloudProviderTokenForm` was explicitly **not** touched (beyond the affiliate-text removal) — confirmed still used by `Server\New\ByHetzner` |
+| `tests/v4/Feature/ServerCloudProviderTokenTest.php` | created | 11 tests, all exercising real happy paths via `Http::fake()`: renders, shows the non-Hetzner message, 404s for another team's server, rejects a foreign-team token, associates a valid token, rejects an invalid token, reports no-token-associated, validates a token successfully, creates a token, rejects a Hetzner-invalid token on create, denies a non-admin from creating |
+
+### Phase 21 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| 11 new Feature tests (`ServerCloudProviderTokenTest`) | 11 passed on the first run |
+| PHPStan (`vendor/bin/phpstan analyse`) | Stale baseline entries for the 1 deleted file (11 entries) cleaned proactively; `[OK] No errors` |
+| `yarn build` | Succeeded — `Server/CloudProviderToken.jsx` confirmed present in `manifest.json` |
+| Full suite (`php artisan test --compact`) | 284 passed (801 assertions), no regressions |
+
+## 48. Non-goals of Phase 21
+
+- 8 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 9): Sentinel, Proxy, Metrics, Terminal command, and `Server\Show` itself.
+- The next two candidates (`Server\Proxy\Show`, `Server\Sentinel\Show`) are a step up in complexity from everything since Phase 14: both use a dedicated sidebar variant (`x-server.sidebar-proxy`, `x-server.sidebar-sentinel`) that `ServerChromeData::sidebar()` doesn't support yet (only `main`/`security`), and both nest a real, substantial management component (`<livewire:server.proxy>`, `<livewire:server.sentinel>`) rather than a thin settings form — flagged during Phase 11's original scoping as needing their own design pass.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

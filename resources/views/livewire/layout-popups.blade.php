@@ -102,7 +102,7 @@
                     highly recommended to enable at least
                     one
                     notification channel to receive important alerts.<br>Visit <a
-                        href="{{ route('notifications.email') }}" {{ wireNavigate() }} class="underline dark:text-white">/notification</a> to
+                        href="{{ route('notifications.email') }}" class="underline dark:text-white">/notification</a> to
                     enable notifications.</span>
         </x-slot:description>
         <x-slot:button-text @click="disableNotification()">

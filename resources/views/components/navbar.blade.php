@@ -237,7 +237,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Notifications" {{ wireNavigate() }}
+                        <a title="Notifications"
                             class="{{ request()->is('notifications*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('notifications.email') }}">
                             <svg class="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -292,7 +292,7 @@
                         </li>
                     @endcan
                     <li>
-                        <a title="Profile" {{ wireNavigate() }}
+                        <a title="Profile"
                             class="{{ request()->is('profile*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('profile') }}">
                             <svg class="menu-item-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"

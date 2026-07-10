@@ -89,16 +89,6 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                                     Hetzner Console
                                 </a>{' '}
                                 → choose Project → Security → API Tokens.
-                                <br />
-                                <br />
-                                Don't have a Hetzner account?{' '}
-                                <a href="https://coolify.io/hetzner" target="_blank" rel="noreferrer" className="underline dark:text-white">
-                                    Sign up here
-                                </a>
-                                <br />
-                                <span className="text-xs">
-                                    (Coolify's affiliate link, only new accounts - supports us (€10) and gives you €20)
-                                </span>
                             </div>
                         </div>
                         <div>
