@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationDeploymentController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\ForcePasswordResetController;
 use App\Http\Controllers\NotificationsDiscordController;
 use App\Http\Controllers\NotificationsEmailController;
@@ -55,7 +56,6 @@ use App\Livewire\Project\CloneMe as ProjectCloneMe;
 use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
 use App\Livewire\Project\Database\Backup\Index as DatabaseBackupIndex;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
-use App\Livewire\Project\EnvironmentEdit;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
 use App\Livewire\Project\Resource\Index as ResourceIndex;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
@@ -247,7 +247,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', ResourceIndex::class)->name('project.resource.index');
         Route::get('/clone', ProjectCloneMe::class)->name('project.clone-me')->middleware('can.create.resources');
         Route::get('/new', ResourceCreate::class)->name('project.resource.create')->middleware('can.create.resources');
-        Route::get('/edit', EnvironmentEdit::class)->name('project.environment.edit')->middleware('can.update.resource');
+        Route::get('/edit', [EnvironmentController::class, 'edit'])->name('project.environment.edit')->middleware('can.update.resource');
+        Route::put('/edit', [EnvironmentController::class, 'update'])->name('project.environment.update')->middleware('can.update.resource');
+        Route::delete('/', [EnvironmentController::class, 'destroy'])->name('project.environment.destroy');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}')->group(function () {
         Route::get('/', ApplicationConfiguration::class)->name('project.application.configuration');

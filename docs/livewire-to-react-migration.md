@@ -1429,3 +1429,43 @@ The original `Storage\Show` component is a single class serving both `storage.sh
 - ~29 other Hard-bucket pages remain untouched; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 67. Phase 31 — `Project\EnvironmentEdit`: a real regression found via a CI failure, not a grep
+
+Converts the environment settings page (name/description form + typed-name Delete Environment, resource-count-aware messaging), reached from `Project\Show`'s per-environment "Settings" link. `project.delete-environment` (the nested child) has a second consumer, `Project\Resource\Index` (still Livewire, much larger), so it stays untouched — same inline-port pattern as every phase since 25.
+
+### A real regression this phase surfaced: a dead Livewire class broken by Phase 30's cleanup
+
+Mid-phase, the user pasted a genuine GitHub Actions CI failure: `Parameter #1 $view of function view expects view-string|null, string given.` in `app/Livewire/Team/Storage/Show.php:26`. This is a *different* class from anything converted so far — a separate `App\Livewire\Team\Storage\Show` (namespace `Team\Storage`, not `Storage`) whose `render()` hardcoded `view('livewire.storage.show')`, the exact Blade view deleted in Phase 30. Phase 30's grep sweep checked for `<livewire:storage.show>` tag usage and `StorageShow::class` references — it had no way to catch a second, unrelated class independently hardcoding a `view()` call to the same path string, since that reference isn't a "consumer" in the sense grep was checking for.
+
+Investigated and confirmed **completely dead code**: zero routes reference it, zero Blade `<livewire:team.storage.show>` tags exist anywhere, and the only other mention in the whole repo was its own two entries in `phpstan-baseline.neon`. It had silently worked only by accident, because the view file it hardcoded happened to still exist — coincidental to shared naming with the `Storage\Show` page this migration actually converted, not a real dependency. Deleted the file outright (matching this repo's stated policy on certainly-unused code) rather than patching a broken reference inside dead code, and cleaned its 2 stale baseline entries. This is the first regression this migration has caused in already-shipped work, and it was caught by CI, not by this session's own grep-based verification — worth remembering that a Blade-tag/route grep does not catch every possible reference to a deleted view file, only the common ones.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/EnvironmentController.php` | created | `edit()`, `update()`, `destroy()` (inline-ported `DeleteEnvironment` logic, no SSH) |
+| `resources/js/Pages/Project/EnvironmentEdit.jsx` | created | Name/description form, breadcrumb nav, inline typed-name Delete Environment modal (resource-count-aware messaging, matching the original) |
+| `routes/web.php` | modified | `project.environment.edit` repointed at the new controller; added `.update`, `.destroy`; removed the `EnvironmentEdit` Livewire import |
+| `app/Livewire/Project/EnvironmentEdit.php` (+ matching Blade view) | **deleted** | Real cutover; `DeleteEnvironment.php` untouched (still used by `Project\Resource\Index`) |
+| `app/Livewire/Team/Storage/Show.php` | **deleted** | Unrelated dead-code fix — see above; this file had zero consumers and was only broken by, not related to, this phase's conversion work |
+| `phpstan-baseline.neon` | modified | Cleaned 6 stale entries for the deleted `EnvironmentEdit.php` plus 2 for the dead `Team\Storage\Show.php` |
+| `tests/v4/Feature/ProjectEnvironmentEditTest.php` | created | 5 tests: renders with the auto-created "production" environment, 404s for a foreign-team project, updates name/description, deletes an empty environment, refuses to delete an environment with resources without touching SSH |
+
+### Phase 31 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | fixed import ordering/unused imports on first run; passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Found the `Team\Storage\Show.php` regression (unrelated dead code broken by Phase 30) plus stale entries for this phase's own deleted file; both fixed; `[OK] No errors` after |
+| 5 new Feature tests (`ProjectEnvironmentEditTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 310 passed (1006 assertions), no regressions |
+| `yarn build` | Succeeded — `Project/EnvironmentEdit.jsx` confirmed present in `manifest.json` |
+
+## 68. Non-goals of Phase 31
+
+- `Server\Show` and the Terminal command page remain the only two full pages in the `Server\Navbar` family still on Livewire, unchanged since Phase 25.
+- ~28 other Hard-bucket pages remain untouched; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered.
+- No sweep was made for *other* possible dead-code references to the views deleted in earlier phases (Phase 25's `x-security.navbar`, Phase 26's `Destination\New\Docker`, etc.) — only the one CI surfaced was investigated and fixed. If CI or a future PHPStan run surfaces another, treat it the same way: confirm zero real consumers, then delete outright.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

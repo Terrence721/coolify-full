@@ -3541,42 +3541,6 @@ parameters:
 			path: app/Livewire/Project/DeleteEnvironment.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\EnvironmentEdit\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/EnvironmentEdit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\EnvironmentEdit\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/EnvironmentEdit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\EnvironmentEdit\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/EnvironmentEdit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\EnvironmentEdit\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/EnvironmentEdit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\EnvironmentEdit\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/EnvironmentEdit.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\EnvironmentEdit\:\:\$environment has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/EnvironmentEdit.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\New\\DockerCompose\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -8393,18 +8357,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Team/Member/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Storage\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/Storage/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Team\\Storage\\Show\:\:\$storage has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Team/Storage/Show.php
 
 		-
 			message: '#^Method App\\Livewire\\Upgrade\:\:checkUpdate\(\) has no return type specified\.$#'
