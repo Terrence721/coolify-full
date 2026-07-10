@@ -1,5 +1,7 @@
 # Livewire → React Migration
 
+**Last Updated: July 10, 2026**
+
 ## 1. Why
 
 We are migrating Coolify's UI from Livewire 3 to React 18/19, page by page, over time. This is not a big-bang rewrite: Livewire and React coexist in the same app for as long as the migration takes, and we cut over each page individually.

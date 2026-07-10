@@ -1,5 +1,7 @@
 # Coolify Technology Stack
 
+**Last Updated: July 10, 2026**
+
 ## Frontend
 
 -   Livewire and Alpine.js

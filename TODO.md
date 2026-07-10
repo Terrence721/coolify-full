@@ -1,5 +1,7 @@
 # TODO
 
+**Last Updated: July 10, 2026**
+
 A living list of what's done and what's left on this fork. This is a self-hosted-only fork of Coolify — the goal is a clean, no-frills, enterprise-friendly self-hosted deployment platform with no billing/marketing surface area.
 
 ## Done

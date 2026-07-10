@@ -1,5 +1,7 @@
 # Smoke Test
 
+**Last Updated: July 10, 2026**
+
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). Run this after any batch of migration work, and definitely before considering the whole migration complete. See `docs/command.md` for the commands to start the dev stack.
 
 Check items off as `[x]` as you go, or just read top to bottom and confirm each still works. If something fails, note the page and the exact error (console + Laravel Debugbar) before fixing — that detail is what makes a bug report actionable.

@@ -1,5 +1,7 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
+**Last Updated: July 10, 2026**
+
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
 It showcases real-world engineering work including:
