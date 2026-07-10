@@ -33,7 +33,7 @@
             <ol class="flex items-center">
                 <li class="inline-flex items-center" x-data="{ projectOpen: false, toggle() { this.projectOpen = !this.projectOpen }, open() { this.projectOpen = true }, close() { this.projectOpen = false } }">
                     <div class="flex items-center relative" @mouseenter="open()" @mouseleave="close()">
-                        <a class="text-xs truncate lg:text-sm hover:text-warning" {{ wireNavigate() }}
+                        <a class="text-xs truncate lg:text-sm hover:text-warning"
                             href="{{ route('project.show', ['project_uuid' => data_get($parameters, 'project_uuid')]) }}">
                             {{ $project->name }}</a>
                         <button type="button" @click.stop="toggle()" class="px-1 text-warning">
@@ -114,7 +114,6 @@
                                 @endforeach
                                 <div class="border-t border-neutral-200 dark:border-coolgray-200 mt-1 pt-1">
                                     <a href="{{ route('project.show', ['project_uuid' => data_get($parameters, 'project_uuid')]) }}"
-                                        {{ wireNavigate() }}
                                         class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-coolgray-200">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

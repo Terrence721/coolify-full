@@ -16,6 +16,7 @@ use App\Http\Controllers\NotificationsTelegramController;
 use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityCloudInitScriptsController;
 use App\Http\Controllers\SecurityCloudTokensController;
@@ -53,7 +54,6 @@ use App\Livewire\Project\CloneMe as ProjectCloneMe;
 use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
 use App\Livewire\Project\Database\Backup\Index as DatabaseBackupIndex;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
-use App\Livewire\Project\Edit as ProjectEdit;
 use App\Livewire\Project\EnvironmentEdit;
 use App\Livewire\Project\Index as ProjectIndex;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
@@ -63,7 +63,6 @@ use App\Livewire\Project\Service\DatabaseBackups as ServiceDatabaseBackups;
 use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
-use App\Livewire\Project\Show as ProjectShow;
 use App\Livewire\Server\Index as ServerIndex;
 use App\Livewire\Server\Proxy\DynamicConfigurations as ProxyDynamicConfigurations;
 use App\Livewire\Server\Proxy\Logs as ProxyLogs;
@@ -233,8 +232,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/projects', ProjectIndex::class)->name('project.index');
     Route::prefix('project/{project_uuid}')->group(function () {
-        Route::get('/', ProjectShow::class)->name('project.show');
-        Route::get('/edit', ProjectEdit::class)->name('project.edit')->middleware('can.update.resource');
+        Route::get('/', [ProjectController::class, 'show'])->name('project.show');
+        Route::post('/environment', [ProjectController::class, 'createEnvironment'])->name('project.create-environment');
+        Route::get('/edit', [ProjectController::class, 'edit'])->name('project.edit')->middleware('can.update.resource');
+        Route::put('/edit', [ProjectController::class, 'update'])->name('project.update')->middleware('can.update.resource');
+        Route::delete('/', [ProjectController::class, 'destroy'])->name('project.destroy');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}')->group(function () {
         Route::get('/', ResourceIndex::class)->name('project.resource.index');

@@ -73,7 +73,7 @@
         <!-- Project Level -->
         <li class="inline-flex items-center" x-data="{ projectOpen: false, closeTimeout: null, toggle() { this.projectOpen = !this.projectOpen }, open() { clearTimeout(this.closeTimeout); this.projectOpen = true }, close() { this.closeTimeout = setTimeout(() => { this.projectOpen = false }, 100) } }">
             <div class="flex items-center relative" @mouseenter="open()" @mouseleave="close()">
-                <a class="text-xs truncate lg:text-sm hover:text-warning" {{ wireNavigate() }}
+                <a class="text-xs truncate lg:text-sm hover:text-warning"
                     href="{{ route('project.show', ['project_uuid' => $currentProjectUuid]) }}">
                     {{ data_get($resource, 'environment.project.name', 'Undefined Name') }}
                 </a>
@@ -91,7 +91,7 @@
                     x-transition:leave-end="opacity-0 scale-95"
                     class="absolute z-20 top-full mt-1 w-56 -ml-2 bg-white dark:bg-coolgray-100 rounded-md shadow-lg py-1 border border-neutral-200 dark:border-coolgray-200 max-h-96 overflow-y-auto scrollbar">
                     @foreach ($projects as $project)
-                        <a href="{{ route('project.show', ['project_uuid' => $project->uuid]) }}" {{ wireNavigate() }}
+                        <a href="{{ route('project.show', ['project_uuid' => $project->uuid]) }}"
                             class="block px-4 py-2 text-sm truncate hover:bg-neutral-100 dark:hover:bg-coolgray-200 {{ $project->uuid === $currentProjectUuid ? 'dark:text-warning font-semibold' : '' }}"
                             title="{{ $project->name }}">
                             {{ $project->name }}
@@ -166,7 +166,7 @@
                             </div>
                         @endforeach
                         <div class="border-t border-neutral-200 dark:border-coolgray-200 mt-1 pt-1">
-                            <a href="{{ route('project.show', ['project_uuid' => $currentProjectUuid]) }}" {{ wireNavigate() }}
+                            <a href="{{ route('project.show', ['project_uuid' => $currentProjectUuid]) }}"
                                 class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-coolgray-200">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

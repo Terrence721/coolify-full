@@ -1252,3 +1252,54 @@ Same audit habit as every prior phase: the main site navbar's "Destinations" lin
 - ~32 other Hard-bucket pages remain untouched; the `Project\Show`/`Project\Edit` pair (shared `delete-project` child) identified in Phase 25's research is still the next-best candidate outside the `Server\Navbar` family.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 59. Phase 27 — `Project\Show` + `Project\Edit`: converted as a pair, second shared-modal extraction, and a full component retirement
+
+Converts two pages together, as planned in Phase 26's research: the project's environments list (`Project\Show`, with an inline "+ Add Environment" form and a "Delete Project" action) and the project settings form (`Project\Edit`, name/description + the same delete action). Both share the exact same `project.delete-project` nested child, so converting them separately would have meant either duplicating the delete-modal twice or converting one at a time while the shared child straddles Livewire and React — doing both together avoided that.
+
+### Second shared-component extraction: `DeleteProjectModal.jsx`
+
+Following the precedent set by Phase 25's `PrivateKeyCreateModal.jsx`, the delete-confirmation modal (typed project-name confirmation, blocked with an explanatory message when the project has resources) was built once as `resources/js/Components/DeleteProjectModal.jsx` and used by both `Project/Show.jsx` and `Project/Edit.jsx` from the start — unlike Phase 25, there was no "first inline it, extract later" step, since both consumers converted in the same phase.
+
+### A wider stray-`wireNavigate()` sweep than usual
+
+Because `project.show`/`project.edit` are linked from far more places than a typical single-page phase (project cards on the Dashboard and the Projects index, environment-edit and resource-index breadcrumbs, a shared `resources/breadcrumbs.blade.php` component used across the whole Project/Application/Service/Database area), this phase's stray-link audit was the widest yet: **8 separate `wireNavigate()` instances across 5 files** needed stripping — `dashboard.blade.php` (2, including the project card's `Project::navigateTo()` overlay link, which conditionally targets either the new Inertia `project.show` or the still-Livewire `project.resource.index` depending on environment count — resolved by stripping unconditionally, since a full page load works correctly either way and leaving it in place would blank-page the common case), `project/index.blade.php` (2, same `navigateTo()` pattern), `project/environment-edit.blade.php` (1), `project/resource/index.blade.php` (2), and `components/resources/breadcrumbs.blade.php` (3).
+
+### A third full component retirement
+
+Following Phase 26's precedent, `app/Livewire/Project/DeleteProject.php` (the shared nested child) was deleted outright alongside `Show.php` and `Edit.php` — grep-confirmed zero other consumers of `<livewire:project.delete-project>` beyond the two pages converting this phase.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ProjectController.php` | created | `show()`, `createEnvironment()` (the inline "+ Add Environment" form's submit target, no SSH), `edit()`, `update()`, `destroy()` (inline-ported delete-project logic, no SSH) |
+| `resources/js/Components/DeleteProjectModal.jsx` | created | Shared delete-confirmation modal, reused by both pages from the start |
+| `resources/js/Pages/Project/Show.jsx` | created | Environments grid, "+ Add Environment" modal, Delete Project button |
+| `resources/js/Pages/Project/Edit.jsx` | created | Name/description form, Delete Project button |
+| `routes/web.php` | modified | `project.show`/`project.edit` repointed at the new controller; added `.create-environment`, `.update`, `.destroy`; removed the `ProjectEdit`/`ProjectShow` imports |
+| `resources/views/livewire/dashboard.blade.php`, `resources/views/livewire/project/index.blade.php`, `resources/views/livewire/project/environment-edit.blade.php`, `resources/views/livewire/project/resource/index.blade.php`, `resources/views/components/resources/breadcrumbs.blade.php` | modified | Removed the 8 stray `wireNavigate()` instances described above |
+| `app/Livewire/Project/Show.php` + `Edit.php` + `DeleteProject.php` (+ matching Blade views) | **deleted** | Real cutover of all three — grep-confirmed zero remaining consumers |
+| `tests/v4/Feature/ProjectShowEditTest.php` | created | 7 tests: renders Show with its auto-created "production" environment, 404s for a foreign-team project, creates a new environment, renders Edit, updates name/description, deletes an empty project, refuses to delete a project with resources without touching SSH |
+
+### Phase 27 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | fixed import ordering in the new test file on first run; passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | 14 stale baseline entries cleaned for the 3 deleted files; `[OK] No errors` |
+| 7 new Feature tests (`ProjectShowEditTest`) | 2 failures on first run (a duplicate "production" environment name collision, and a missing `InstanceSettings` fixture — both test-setup bugs, not app bugs); 7 passed after |
+| Full suite (`php artisan test --compact`) | 291 passed (873 assertions), no regressions |
+| `yarn build` | Succeeded — `Project/Show.jsx`, `Project/Edit.jsx`, and the shared `DeleteProjectModal` chunk all confirmed present in `manifest.json` |
+
+### A real model-behavior discovery during test-writing
+
+`Project::booted()`'s `static::created` hook (`app/Models/Project.php:112-123`) auto-creates a "production" `Environment` for every new project — the same "auto-created default row" pattern already seen with `Server` (auto-creates a `coolify` `StandaloneDocker`, Phase 19) and `ServerSetting` (auto-generates a Sentinel token, Phase 24). The first test draft manually created a second "production" environment and hit a unique-constraint violation; fixed by asserting against the auto-created row instead, matching the established fix pattern from Phase 19.
+
+## 60. Non-goals of Phase 27
+
+- `Server\Show` and the Terminal command page remain the only two full pages in the `Server\Navbar` family still on Livewire, unchanged from Phase 25.
+- ~31 other Hard-bucket pages remain untouched outside that family; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered.
+- `createEnvironment()`, `update()`, and `destroy()` are all genuinely safe, fully-tested happy paths (no SSH anywhere in this phase's logic) — an unusually clean phase compared to most Server-scoped ones.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

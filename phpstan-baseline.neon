@@ -3499,54 +3499,6 @@ parameters:
 			path: app/Livewire/Project/DeleteEnvironment.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\DeleteProject\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/DeleteProject.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\DeleteProject\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/DeleteProject.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\DeleteProject\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/DeleteProject.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Edit\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Edit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Edit\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Edit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Edit\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Edit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Edit\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Edit.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Edit\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Edit.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\EnvironmentEdit\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -6665,42 +6617,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Livewire/Project/Shared/Webhooks.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Show\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Show\:\:navigateToEnvironment\(\) has parameter \$environmentUuid with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Show\:\:navigateToEnvironment\(\) has parameter \$projectUuid with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Show\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Show\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Show.php
 
 		-
 			message: '#^Method App\\Livewire\\Security\\CloudProviderTokenForm\:\:addToken\(\) has no return type specified\.$#'

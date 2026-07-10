@@ -14,7 +14,7 @@
             <ol class="flex flex-wrap items-center gap-y-1">
                 <li class="inline-flex items-center">
                     <div class="flex items-center">
-                        <a class="text-xs truncate lg:text-sm" {{ wireNavigate() }}
+                        <a class="text-xs truncate lg:text-sm"
                             href="{{ route('project.show', ['project_uuid' => $project->uuid]) }}">
                             {{ $project->name }}</a>
                     </div>

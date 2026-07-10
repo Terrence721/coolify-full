@@ -30,7 +30,7 @@
             <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 @foreach ($projects as $project)
                     <div class="relative gap-2 cursor-pointer coolbox group">
-                        <a href="{{ $project->navigateTo() }}" {{ wireNavigate() }} class="absolute inset-0"></a>
+                        <a href="{{ $project->navigateTo() }}" class="absolute inset-0"></a>
                         <div class="flex flex-1 mx-6">
                             <div class="flex flex-col justify-center flex-1">
                                 <div class="box-title">{{ $project->name }}</div>
@@ -51,7 +51,7 @@
                                     @endcan
                                 @endif
                                 @can('update', $project)
-                                    <a class="hover:underline" {{ wireNavigate() }}
+                                    <a class="hover:underline"
                                         href="{{ route('project.edit', ['project_uuid' => $project->uuid]) }}">
                                         Settings
                                     </a>
