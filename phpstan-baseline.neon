@@ -7375,70 +7375,10 @@ parameters:
 			path: app/Livewire/Server/Proxy/NewDynamicConfiguration.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:handleSentinelRestarted\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:handleSentinelRestarted\(\) has parameter \$event with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:regenerateSentinelToken\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:restartSentinel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Sentinel\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Sentinel.php
-
-		-
 			message: '#^Property App\\Livewire\\Server\\Sentinel\\Logs\:\:\$parameters type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/Server/Sentinel/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Sentinel\\Show\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Server/Sentinel/Show.php
 
 		-
 			message: '#^Method App\\Livewire\\Server\\Show\:\:checkHetznerServerStatus\(\) has no return type specified\.$#'

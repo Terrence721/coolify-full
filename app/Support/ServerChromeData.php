@@ -104,6 +104,17 @@ class ServerChromeData
             ];
         }
 
+        if ($variant === 'sentinel') {
+            return [
+                'variant' => 'sentinel',
+                'activeMenu' => $activeMenu,
+                'urls' => [
+                    'configuration' => route('server.sentinel', ['server_uuid' => $server->uuid]),
+                    'logs' => route('server.sentinel.logs', ['server_uuid' => $server->uuid]),
+                ],
+            ];
+        }
+
         return [
             'variant' => 'main',
             'activeMenu' => $activeMenu,

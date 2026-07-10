@@ -1,5 +1,5 @@
 <div class="sub-menu-wrapper">
-    <a class="{{ request()->routeIs('server.sentinel') ? 'sub-menu-item menu-item-active' : 'sub-menu-item' }}" {{ wireNavigate() }}
+    <a class="{{ request()->routeIs('server.sentinel') ? 'sub-menu-item menu-item-active' : 'sub-menu-item' }}"
         href="{{ route('server.sentinel', $parameters) }}">
         <span class="menu-item-label">Configuration</span>
     </a>

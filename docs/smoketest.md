@@ -59,7 +59,7 @@ Settings (instance-wide, root/admin only):
 Auth:
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (19 pages so far) — real-time and non-trivial
+## 4. Hard bucket (20 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -78,11 +78,12 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Deliberately kill connectivity (stop the `coolify-realtime` container briefly) — confirm the reconnect/backoff logic kicks in and recovers when it comes back, rather than requiring a full page reload.
 - [ ] Confirm the session-expiry countdown badge appears and counts down.
 - [ ] Try connecting to a container with no shell available — confirm the "Terminal Not Available" message shows instead of a silent failure.
+- [ ] **Known issue observed during Phase 24 manual QA (dev environment, 2026-07-10)**: the client repeatedly logged `[Terminal] Connection timeout after 10000ms` / `WebSocket error` / `Max reconnection attempts reached` in an endless reconnect loop. The `coolify-realtime` container was up/healthy and its logs showed the WebSocket handshake actually succeeding ("Websocket client authentication succeeded") — the connection then closed abnormally (code 1006) right after auth, suggesting the terminal session itself (PTY/SSH to the target server) failed to establish rather than a WebSocket infrastructure problem. Likely cause: no genuinely reachable SSH target server in this dev environment. Needs real validation once Terminal is converted — confirm whether this reproduces against a real, reachable server before treating it as a bug.
 
 **`/security/cloud-tokens`, `/security/cloud-init-scripts`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
 - [ ] Already covered above in Section 3's list — no additional real-time behavior to check.
 
-**`Server\Navbar`-dependent pages (15 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
+**`Server\Navbar`-dependent pages (16 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
 
 - [ ] **Chrome itself** (any page below): proxy status badge + Sentinel badge render correctly; Start/Restart/Stop Proxy buttons work and open the live log slide-over; confirm the slide-over shows real streaming output, not just "Waiting for the process to start...".
 - [ ] `/server/{uuid}/swarm` — toggle Swarm Manager/Worker (mutually exclusive), confirm instant-save.
@@ -100,13 +101,14 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/server/{uuid}/cloud-provider-token` (only visible for servers provisioned through Hetzner) — "Use this token" on a different token; "Validate token" against a real Hetzner API token (both valid and invalid); the "+ Add" modal creates a token and validates it against Hetzner's API before saving.
 - [ ] `/server/{uuid}/metrics` — **cold page load** (hard-refresh so the dynamically-loaded ApexCharts script isn't already cached) confirm both CPU and Memory charts actually render, not just a blank div; switch between "5 minutes (live)" and a longer static range and confirm live polling stops once you pick a static range; "Enable/Disable Metrics" against a real server with Sentinel running.
 - [ ] `/server/{uuid}/proxy` — **cold page load** (hard-refresh so the dynamically-loaded Monaco editor script isn't already cached) confirm the YAML editor actually renders, not a blank div, and its theme matches the current dark/light mode (toggle dark mode with the editor open and confirm it flips live); select a proxy type on a server with none set; "Switch Proxy" while the proxy container is running (confirm the blocked toast) and while stopped (confirm it resets to the selection screen); save a configuration change; "Reset Configuration" (typed server-name confirmation); dismiss a Traefik outdated-version warning and confirm it stays dismissed on reload (`localStorage`).
+- [ ] `/server/{uuid}/sentinel` — Enable Sentinel on a build server (confirm the "cannot be enabled on build servers" error, no restart triggered) and on a normal server (confirm it actually starts); Save the Coolify URL/token/metrics fields against a real server and confirm Sentinel actually restarts afterward (the settings-save cascade described in Section 53 of the migration doc); Regenerate token and confirm the token field updates and Sentinel restarts; Restart/Sync button against a live server; dev-only debug checkbox and custom Docker image override (only if `APP_ENV=local`).
 
 ## 5. Regression spot-check: still-Livewire areas
 
 Not part of this migration, but worth a quick sanity check that nothing else broke:
 - [ ] Dashboard loads, project list renders.
 - [ ] Open a project → environment → application, confirm the (still-Livewire) Configuration tabs work.
-- [ ] The remaining 6 of 21 `Server\Navbar`-dependent pages (Sentinel, Terminal command, `Server\Show`, plus Dynamic Configurations/Logs within the Proxy area) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).
+- [ ] The remaining 5 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Dynamic Configurations/Logs within Proxy and Logs within Sentinel) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).
 - [ ] Global search still finds things across both stacks.
 
 ## 6. Sign-off

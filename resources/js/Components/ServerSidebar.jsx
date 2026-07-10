@@ -2,9 +2,8 @@ import { Link } from '@inertiajs/react';
 
 /**
  * React port of resources/views/components/server/sidebar.blade.php (variant "main"),
- * sidebar-security.blade.php (variant "security"), and sidebar-proxy.blade.php (variant
- * "proxy"). sidebar-sentinel.blade.php is not ported yet — add it here, following the same
- * shape, when a page using it gets converted.
+ * sidebar-security.blade.php (variant "security"), sidebar-proxy.blade.php (variant
+ * "proxy"), and sidebar-sentinel.blade.php (variant "sentinel").
  */
 export default function ServerSidebar({ sidebar }) {
     const item = (key, label, href) => (
@@ -46,6 +45,20 @@ export default function ServerSidebar({ sidebar }) {
                         </a>
                     </>
                 )}
+            </div>
+        );
+    }
+
+    if (sidebar.variant === 'sentinel') {
+        return (
+            <div className="sub-menu-wrapper">
+                {item('configuration', 'Configuration', sidebar.urls.configuration)}
+                <a
+                    className={`sub-menu-item ${sidebar.activeMenu === 'logs' ? 'menu-item-active' : ''}`}
+                    href={sidebar.urls.logs}
+                >
+                    <span className="menu-item-label">Logs</span>
+                </a>
             </div>
         );
     }

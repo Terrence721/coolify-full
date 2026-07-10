@@ -1107,3 +1107,48 @@ The first PHPStan run against the new controller surfaced two real, fixable find
 - The Monaco editor, like Phase 22's ApexCharts, is a real runtime `<script src>` injection rather than a bundled dependency — worth a manual QA pass on a genuinely cold page load, same caveat as Phase 22's chart rendering.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 53. Phase 24 — `Server\Sentinel\Show`: a model-level `updated` event turns a "safe" settings save into a real SSH-adjacent action
+
+Converts the Sentinel configuration page: Enable/Disable Sentinel, Save (Coolify URL, token + regenerate, metrics rate/history/push interval), Restart/Sync, and (dev-only) a debug checkbox and custom Docker image override.
+
+### A genuine finding: `ServerSetting::booted()`'s `static::updated()` hook, not a porting bug
+
+The first attempt at a Feature test for the Save action assumed `submit()` was a safe, SSH-free happy path — identical in shape to Phase 23's `instantSave()`. It wasn't. `ServerSetting::booted()` (`app/Models/ServerSetting.php:237-247`) registers a `static::updated` listener that calls `$settings->server->restartSentinel()` whenever `sentinel_token`, `sentinel_custom_url`, or any of the three metrics-interval fields change — completely independent of which UI framework triggers the save. `restartSentinel()` defaults to `$async = true`, dispatching `StartSentinel` through the queue; under this repo's `QUEUE_CONNECTION=sync` test config, that dispatch executes synchronously inside the same request. The failure surfaced as a bare `404` with no logged exception, traced by bisecting the controller with temporary dumps down to `handleError()`'s `if ($error instanceof ModelNotFoundException) { abort(404); }` branch — something in the synchronously-executed job's model resolution threw a `ModelNotFoundException`, which `handleError()` (called from `restartSentinel()`'s own catch block) turned into a raw `abort(404)` that then propagated straight out past the `updated` event, past `save()`, and out of the controller, since neither `submit()` nor `regenerateToken()` had a wrapping try/catch to begin with.
+
+Two fixes followed from this: (1) `submit()` and `regenerateToken()` both needed the same try/catch around the save that the original Livewire `submit()`/`regenerateSentinelToken()` methods already have — a real gap in the first draft, not a stylistic nicety; (2) the corresponding tests needed `Queue::fake()` (the same technique already established in Phase 20's `ServerDockerCleanupTest`) so the settings-save happy path can be verified without the cascading restart actually dispatching.
+
+### Two sidebar links, one converted
+
+`ServerChromeData::sidebar()` gained a `'sentinel'` variant with two links — "Configuration" (now the converted Inertia route) and "Logs" (`server.sentinel.logs`, left on Livewire, plain `<a>`, `wireNavigate()` untouched) — the same partial-cutover shape as Phase 23's Proxy sidebar.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Support/ServerChromeData.php` | modified | Added `'sentinel'` sidebar variant (`urls.configuration`/`urls.logs`) |
+| `resources/js/Components/ServerSidebar.jsx` | modified | Renders the `'sentinel'` variant |
+| `app/Http/Controllers/ServerSentinelController.php` | created | `index()`, `submit()` (Save button; SSH-adjacent via the model event above, try/catch added), `toggle()` (Enable/Disable; enabling has a real early-return guard for build servers, disabling unconditionally dispatches `StopSentinel`), `restart()` (Restart/Sync button, unconditional), `regenerateToken()` (SSH-adjacent via the same model event) |
+| `resources/js/Pages/Server/Sentinel.jsx` | created | Enable/Disable buttons, Out-of-Sync callout, dev-only debug checkbox, Coolify URL/token fields with Regenerate, metrics rate/history/push-interval fields, Save |
+| `routes/web.php` | modified | `server.sentinel` repointed at the new controller; added `.submit`, `.toggle`, `.restart`, `.regenerate-token`; removed the `SentinelShow` import |
+| `resources/views/components/server/sidebar-sentinel.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Configuration" link only |
+| `app/Livewire/Server/Sentinel.php` + `app/Livewire/Server/Sentinel/Show.php` (+ matching Blade views) | **deleted** | Real cutover — `Show` was a thin wrapper, `Sentinel` the substantial component this phase converts; `Sentinel/Logs.php` + its view are untouched (still Livewire); grep-confirmed no other `<livewire:server.sentinel>` consumers |
+| `tests/v4/Feature/ServerSentinelTest.php` | created | 7 tests: renders, 404 for foreign-team server, saves settings with `Queue::fake()` (real happy path once the cascading dispatch is faked), rejects an invalid token, refuses to enable Sentinel on a build server without touching SSH (real guarded happy path), regenerates the token with `Queue::fake()`, 404s on submit/toggle/regenerate-token for a foreign-team server |
+
+### Phase 24 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| PHPStan (`vendor/bin/phpstan analyse`) | 10 stale baseline entries cleaned for the 2 deleted files; `[OK] No errors` |
+| 7 new Feature tests (`ServerSentinelTest`) | 2 failures on first run (the missing try/catch + missing `Queue::fake()` above); 7 passed after |
+| Full suite (`php artisan test --compact`) | 287 passed (841 assertions), no regressions |
+| `yarn build` | Succeeded — `Sentinel-wW_h8Uo2.js` (4.33 kB) confirmed present in `manifest.json` |
+
+## 54. Non-goals of Phase 24
+
+- 5 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 6): Terminal command, `Server\Show` itself, plus "Dynamic Configurations"/"Logs" within Proxy and "Logs" within Sentinel.
+- `toggle()`'s disable branch and `restart()` are both untested on their SSH-touching happy path — each unconditionally dispatches/runs `StopSentinel`/`StartSentinel` with no early-return guard, same category of gap as every prior Server-scoped SSH action.
+- Observed (not fixed, not in scope) an unrelated pre-existing issue on the still-Livewire `/terminal` page during this phase's manual QA: an endless WebSocket reconnect loop where the handshake authenticates successfully server-side but the connection then closes abnormally (code 1006). Logged in `docs/smoketest.md`'s Terminal checklist and `TODO.md` for real validation once Terminal is converted.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
