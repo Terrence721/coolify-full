@@ -93,7 +93,7 @@ The Livewire → Inertia.js/React migration is being done page-by-page and track
 
 - Laravel 12 (PHP 8.4/8.5)
 - Livewire 3 + Alpine.js (legacy pages, being migrated off)
-- Inertia.js + React 18 (converted pages)
+- Inertia.js + React 19 (converted pages)
 - Tailwind CSS v4
 - PostgreSQL
 - Redis (cache, queues)
