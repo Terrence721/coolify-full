@@ -75,7 +75,6 @@ use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
 use App\Livewire\SharedVariables\Server\Show as ServerSharedVariablesShow;
 use App\Livewire\SharedVariables\Team\Index as TeamSharedVariablesIndex;
 use App\Livewire\Source\Github\Change as GitHubChange;
-use App\Livewire\Storage\Show as StorageShow;
 use App\Livewire\Team\Member\Index as TeamMemberIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -166,8 +165,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('storages')->group(function () {
         Route::get('/', [StorageController::class, 'index'])->name('storage.index');
         Route::post('/', [StorageController::class, 'store'])->name('storage.store');
-        Route::get('/{storage_uuid}', StorageShow::class)->name('storage.show');
-        Route::get('/{storage_uuid}/resources', StorageShow::class)->name('storage.resources');
+        Route::get('/{storage_uuid}', [StorageController::class, 'show'])->name('storage.show');
+        Route::put('/{storage_uuid}', [StorageController::class, 'update'])->name('storage.update');
+        Route::delete('/{storage_uuid}', [StorageController::class, 'destroy'])->name('storage.destroy');
+        Route::post('/{storage_uuid}/test-connection', [StorageController::class, 'testConnection'])->name('storage.test-connection');
+        Route::get('/{storage_uuid}/resources', [StorageController::class, 'resources'])->name('storage.resources');
+        Route::post('/{storage_uuid}/resources/{backup_id}/disable-s3', [StorageController::class, 'disableS3'])->name('storage.resources.disable-s3');
+        Route::post('/{storage_uuid}/resources/{backup_id}/move-backup', [StorageController::class, 'moveBackup'])->name('storage.resources.move-backup');
     });
     Route::prefix('shared-variables')->group(function () {
         Route::get('/', [SharedVariablesController::class, 'index'])->name('shared-variables.index');

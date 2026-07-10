@@ -61,7 +61,7 @@ Settings (instance-wide, root/admin only):
 Auth:
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (26 pages so far) — real-time and non-trivial
+## 4. Hard bucket (28 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -88,6 +88,8 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/project/{uuid}` — confirm the auto-created "production" environment shows; "+ Add Environment" modal creates a new one; "Delete Project" is blocked with an explanation if any environment has resources, and works (typed name confirmation) when genuinely empty. From the Dashboard/Projects list, confirm clicking a project card navigates correctly regardless of whether it has exactly one environment (goes straight to Resources, still Livewire) or zero/multiple (lands here).
 - [ ] `/project/{uuid}/edit` — rename + change description, confirm "Delete Project" here matches the same behavior as the Show page.
 - [ ] `/storages` — "+ Add" modal against a real S3-compatible endpoint (both valid credentials and intentionally-wrong ones, to see the connection-failure error surface); confirm a storage with a failed last connection check shows the "Not Usable" badge.
+- [ ] `/storages/{uuid}` (General tab) — edit credentials and Save (confirm it actually re-tests the connection and rolls back on failure); "Validate Connection" against a real endpoint; "Delete" typed-name confirmation, confirm the message changes when the storage has backup schedules attached.
+- [ ] `/storages/{uuid}/resources` — confirm backup schedules using this storage list correctly grouped by database; search filter narrows the table; move a backup to a different storage via the picker + Save; "Disable S3" on a schedule and confirm it reverts to local-only backups.
 - [ ] `/projects` — confirm each card's whole-card click-through works (both for projects with exactly one environment, landing on the still-Livewire Resources page, and projects with zero/multiple, landing on `/project/{uuid}`); "+ Add Resource" shortcut only appears when the project has an environment; "Settings" link only appears if you can update; "+ Add" modal creates a new project and redirects into its auto-created production environment.
 - [ ] Otherwise already covered above in Section 3's list — no additional real-time behavior to check.
 

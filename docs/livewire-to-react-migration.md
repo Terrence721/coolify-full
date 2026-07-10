@@ -1387,3 +1387,45 @@ The project card's whole-card overlay link uses `Project::navigateTo()` (`app/Mo
 - The `Project\Index`/`AddEmpty` unused-props observation: the original Livewire `Index::mount()` also loaded `$servers`/`$private_keys` into public properties that the Blade view never actually referenced — dead code in the original, not ported (the new controller only sends what `Project/Index.jsx` actually uses).
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 65. Phase 30 — `Storage\Show` + `Storage\Resources`: closes out the whole Storage feature area, and the first real PHPStan findings from a polymorphic relation
+
+Converts the two-tab Storage detail page: General (credentials form, Usable/Not Usable badge, Validate Connection, Delete) and Resources (backup schedules using this storage, with per-row move-to-another-storage and disable-S3 actions). Completes the pairing flagged back in Phase 28 — the whole `Storage\*` Livewire area is now fully retired.
+
+### One Livewire class, two routes, three nested children — untangled into two controller actions
+
+The original `Storage\Show` component is a single class serving both `storage.show` and `storage.resources` routes, picking which nested child to render (`storage.form` or `storage.resources`) based on `request()->route()->getName()`. This phase splits that into what it always structurally was — two separate pages — matching the `DestinationController::show()`/`resources()` precedent from Phase 5: `StorageController::show()` renders `Storage/Show.jsx` (inlining `Storage\Form`'s logic), and `StorageController::resources()` renders `Storage/Resources.jsx` (inlining `Storage\Resources`'s logic). The original's "Save" button lived in the *parent* (`Show`) but dispatched a `submitStorage` browser event that the *child* (`Form`) listened for via `#[On('submitStorage')]` — a Livewire-specific indirection with no React equivalent needed, since the whole form now lives in one page component with a normal `onSubmit` handler.
+
+### A genuinely new class of PHPStan finding: an untyped polymorphic relation
+
+`ScheduledDatabaseBackup::database()` is a `MorphTo` relation — PHPStan types its return as a generic `Illuminate\Database\Eloquent\Model`, so accessing `->name`, `->environment`, or `->uuid` on it (needed to build the resource/backup links in the Resources table) surfaced as 7 real "undefined property" and dead-code findings, the first time this migration has hit a genuinely untyped Eloquent relation rather than a straightforward missing-type-hint gap. This is not a new problem: `app/Contracts/StandaloneDatabaseInstance.php`'s own docblock already documents that PHPStan/Larastan can't resolve `@property` PHPDoc on a plain interface, and explicitly directs this exact category of finding to `phpstan-baseline.neon` rather than per-file suppressions. Rather than hand-transcribing the 7 new error messages into the baseline file (error-prone — the regex-escaping has to match PHPStan's exact output), `vendor/bin/phpstan analyse --generate-baseline` was used to regenerate the whole baseline; the diff was verified line-by-line to confirm it only added the 7 new legitimate entries plus re-affirmed the 10 stale entries already manually removed for the phase's 3 deleted files — nothing else changed.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/StorageController.php` | modified | Added `show()`, `update()` (DB-transactional save + re-test-connection, matching the original's rollback-on-failure behavior), `testConnection()`, `destroy()`, `resources()`, `disableS3()`, `moveBackup()` |
+| `resources/js/Pages/Storage/Show.jsx` | created | Credentials form, Usable/Not Usable badge, Validate Connection button, General/Resources tab nav, inline typed-name Delete Storage modal (backup-count-aware messaging, matching the original) |
+| `resources/js/Pages/Storage/Resources.jsx` | created | Backup schedules table grouped by database, client-side search filter, per-row storage-move `<select>` + Save/Disable S3 actions, links out to still-Livewire resource/backup pages |
+| `routes/web.php` | modified | `storage.show`/`storage.resources` repointed at the new controller actions; added `.update`, `.destroy`, `.test-connection`, `.resources.disable-s3`, `.resources.move-backup`; removed the `StorageShow` import |
+| `app/Livewire/Storage/Show.php` + `Form.php` + `Resources.php` (+ matching Blade views) | **deleted** | Real cutover of all three — grep-confirmed zero remaining consumers; `Storage\Create` stays (still used by `GlobalSearch`) |
+| `phpstan-baseline.neon` | regenerated | Removed 10 stale entries for the 3 deleted files; added 7 real new entries for the polymorphic-relation findings described above |
+| `tests/v4/Feature/StorageShowTest.php` | created | 8 tests: renders Show, 404 for foreign-team storage, rejects an unsafe endpoint on update without touching the network, deletes a storage without touching the network, renders Resources (including the "Deleted database" fallback path for a backup whose polymorphic target no longer exists — a real edge case, not a fixture shortcut), disables S3 for a backup, moves a backup to a different storage, rejects moving a backup to the same storage |
+
+### Phase 30 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| PHPStan (`vendor/bin/phpstan analyse`) | 7 real findings on first run (polymorphic relation, described above), fixed via baseline regeneration (diff verified); `[OK] No errors` after |
+| 8 new Feature tests (`StorageShowTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 307 passed (990 assertions), no regressions |
+| `yarn build` | Succeeded — `Storage/Show.jsx` and `Storage/Resources.jsx` both confirmed present in `manifest.json` |
+
+## 66. Non-goals of Phase 30
+
+- The `App\Contracts\StandaloneDatabaseInstance` plain-interface PHPStan limitation (Section 65) is deliberately left baselined rather than fixed — a real fix means converting it to an abstract base class, touching all 8 database engine models and everything depending on the contract. Logged in `TODO.md` as a lower-priority cleanup item, out of scope for this migration.
+- `Server\Show` and the Terminal command page remain the only two full pages in the `Server\Navbar` family still on Livewire, unchanged since Phase 25.
+- ~29 other Hard-bucket pages remain untouched; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
