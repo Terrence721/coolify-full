@@ -1469,3 +1469,48 @@ Investigated and confirmed **completely dead code**: zero routes reference it, z
 - No sweep was made for *other* possible dead-code references to the views deleted in earlier phases (Phase 25's `x-security.navbar`, Phase 26's `Destination\New\Docker`, etc.) — only the one CI surfaced was investigated and fixed. If CI or a future PHPStan run surfaces another, treat it the same way: confirm zero real consumers, then delete outright.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 69. Phase 32 — `Team\Member\Index`: three near-identical role methods consolidated into one, and the last of `Team\*`'s single-page Livewire components retired
+
+Converts the team members page (member list with role-change/remove actions, plus the invitation panel — generate a link or send by email, and revoke a pending invitation). Reached from `Team\Index`'s "Members" nav tab, alongside the already-converted `Team\AdminView`.
+
+### Consolidating three near-identical methods into one action
+
+The original Livewire component (`Team\Member`) exposed `makeAdmin()`, `makeOwner()`, and `makeReadonly()` as three separate methods, each repeating the same privilege-check shape (`$currentUserRole->lt($targetRole) || $memberRole->gt($currentUserRole)` → "You are not authorized to perform this action.") against a different hardcoded target role. `TeamController::updateMemberRole()` collapses these into one method taking `role` as a validated (`in:owner,admin,member`) request field, reusing the identical check with the requested role substituted in. Same behavior, one code path instead of three.
+
+### Full retirement, not an inline-port: four Livewire classes and one Blade component
+
+Unlike the inline-port pattern used since Phase 18/19 (where a nested child stays because something else still uses it), every nested piece behind this page had zero other consumers, confirmed by grep before deleting: `Team\Member.php` (the wrapping page), `Team\InviteLink.php` (the "generate/send invitation" logic), and `Team\Invitations.php` (the invitation list + revoke action), plus their four Blade views. `Team\Create.php` was checked and kept — `GlobalSearch` still uses it. `resources/views/components/team/navbar.blade.php` (the `x-team.navbar` Blade wrapper shared by `Team\Index`/`Team\AdminView`/`Team\Member`) was also retired outright once this page — its last real consumer — converted, the same closeout pattern as Phase 25's `x-security.navbar`.
+
+### A test-design bug caught before it shipped, not a porting bug
+
+The first draft of the test suite asserted that a plain "member" inviting an admin should hit the business-rule error message ported from `InviteLink::generateInviteLink()`. That scenario is unreachable: `TeamPolicy::manageInvitations()` already returns `false` for the "member" role, so the request never reaches the controller action at all — it 403s at the policy gate first. Caught this before running the suite, not via a test failure; replaced it with two tests that actually exercise reachable code paths: an admin inviting an owner (the real privilege-escalation guard past the gate) and a plain member hitting the endpoint at all (asserting `assertForbidden()`).
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/TeamController.php` | modified | `memberIndex()`, `updateMemberRole()` (consolidates `makeAdmin`/`makeOwner`/`makeReadonly`), `removeMember()`, `sendInvitation()` (ported from `InviteLink::generateInviteLink()`), `deleteInvitation()` (ported from `Invitations::deleteInvitation()`) |
+| `resources/js/Pages/Team/Member/Index.jsx` | created | Member list with role-action buttons (`MemberRow`), invitation panel with a show/hide masked-link toggle and "Copy Invitation Link" (`InvitationRow`); reuses the same General/Members/Admin View nav as `Team/Index.jsx`/`Team/AdminView.jsx`; the "+Add Team" modal is deliberately not ported (documented gap, matching Phase 27/28 precedent for modals not yet needed a second time) |
+| `routes/web.php` | modified | `team.member.index` repointed at `TeamController::memberIndex`; added `.update-role`, `.member.remove`, `.invitation.send`, `.invitation.destroy`; removed the `Team\Member\Index` Livewire import |
+| `app/Livewire/Team/Member/Index.php`, `Team/Member.php`, `Team/InviteLink.php`, `Team/Invitations.php` (+ 4 matching Blade views) | **deleted** | Zero other consumers, confirmed via grep; `Team/Create.php` untouched (still used by `GlobalSearch`) |
+| `resources/views/components/team/navbar.blade.php` (`x-team.navbar`) | **deleted** | Its last real consumer just converted |
+| `phpstan-baseline.neon` | modified | Cleaned 16 stale entries for the 4 deleted files |
+| `tests/v4/Feature/TeamMemberIndexTest.php` | created | 8 tests: renders the page, promotes a member to admin, refuses an admin promoting another admin to owner, removes a member, generates an invitation link, rejects an admin inviting an owner, forbids a plain member from reaching the invitation endpoint, revokes a pending invitation |
+
+### Phase 32 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | fixed import ordering in the new test file; passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | `[OK] No errors` after cleaning the 16 stale baseline entries |
+| 8 new Feature tests (`TeamMemberIndexTest`) | 1 failed on first run (invalid test scenario, see above), fixed by replacing it; all 8 passed after |
+| Full suite (`php artisan test --compact`) | 318 passed (1039 assertions), no regressions |
+| `yarn build` | Succeeded — `Team/Member/Index.jsx` confirmed present in `manifest.json` |
+
+## 70. Non-goals of Phase 32
+
+- No specific next Hard-bucket candidate has been research-ranked yet; ~28 pages remain, per Phase 31's non-goals.
+- No sweep was made for other possible dead-code references to views deleted in earlier phases, beyond what Phase 31 already found via CI — same accepted limitation.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
