@@ -11,7 +11,7 @@
 
 ## Backend
 
--   Laravel 11 (PHP Framework)
+-   Laravel 12 (PHP Framework)
 -   PostgreSQL 15 (Database)
 -   Redis 7 (Caching & Real-time features)
 -   Soketi (WebSocket Server)

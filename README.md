@@ -1,214 +1,114 @@
-🚀 Coolify‑Full (Enhanced Fork) — Senior Full‑Stack Engineering Demonstration
-This repository is a professionally enhanced fork of Coolify, created to demonstrate Senior Full‑Stack Developer capabilities across modern frontend architecture, backend engineering, containerized infrastructure, and cloud‑ready deployment patterns.
+# 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
-It showcases real-world engineering skills including:
+This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
-Migrating legacy Laravel Livewire interfaces to React 19
+It showcases real-world engineering work including:
 
-Building a fully containerized Laravel + React environment using Docker
-
-Improving backend service structure and API boundaries
-
-Enhancing developer experience, documentation, and environment reproducibility
-
-Demonstrating cloud‑aligned architecture suitable for Terraform + Azure DevOps pipelines
+- Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page, with every phase documented and verified
+- Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
+- Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
+## 🧭 Why This Project Matters
 
-🧭 Why This Project Matters
-This project demonstrates how a legacy Laravel application can be modernized into a cloud‑ready, scalable, full‑stack platform using contemporary engineering practices. By forking Coolify and rebuilding major portions of its architecture, this project highlights several senior‑level competencies:
+Rewriting a UI from scratch is easy when there's no existing app to keep working. This project demonstrates the harder, more common real-world task: modernizing a live, actively-used Laravel application's frontend **without a big-bang rewrite** — converting one page at a time, verifying each conversion automatically, and keeping a running audit trail a reviewer can actually check.
 
-Modernization of Legacy Systems
-The original Coolify UI relied heavily on Blade and Livewire. I replaced these components with a React 19 SPA, leveraging modern features such as concurrent rendering, improved transitions, and server component compatibility.
+**Incremental modernization, not a rewrite**
+The original Coolify UI is built on Blade, Livewire, and Alpine.js. Rather than discarding that and building a separate SPA, this fork adopts **Inertia.js**: converted pages become React components rendered through the same Laravel routes, while unconverted pages stay on Livewire. Both stacks coexist in the same app throughout the migration — see [`docs/livewire-to-react-migration.md`](docs/livewire-to-react-migration.md) for the full, phase-by-phase log (page inventory, conversion recipes, what was verified and how).
 
-Cloud‑Native Architecture
-The entire application is fully containerized using Docker, including:
+**Why Inertia over a decoupled SPA + API**
+A plain React SPA would require designing and versioning a whole new API surface before a single page could move. Inertia avoids that: each migrated page stays a normal Laravel route/controller returning props, so migrated and not-yet-migrated pages coexist under the same app, and Laravel's existing routing, auth, CSRF, and session handling keep working unchanged.
 
-Laravel API (PHP‑FPM)
+**De-commercialization**
+This fork also strips the SaaS/billing surface area from upstream Coolify (Stripe integration, subscription gating, sponsor/upsell UI) to produce a clean, no-frills, self-hosted-only platform. See [`TODO.md`](TODO.md) for what's been removed and what's still tracked.
 
-React 19 frontend (Node)
+**Full-stack engineering depth**
+This project demonstrates hands-on experience across:
 
-Nginx reverse proxy
+- Frontend modernization (Livewire → Inertia.js/React)
+- Backend refactoring (Laravel controllers, policies, validation)
+- Containerized development environments (Docker Compose, multiple coordinated services)
+- Test-driven verification (Pest 4 feature tests written alongside every converted page)
+- Documentation and architectural communication as a first-class deliverable, not an afterthought
 
-MySQL database
+## 🧩 What Coolify Is (Summary)
 
-Optional Redis cache
+Coolify is an open-source, self-hostable PaaS — an alternative to Heroku/Netlify/Vercel that manages servers, applications, databases, and services over SSH. This fork focuses on frontend modernization and de-commercialization rather than replicating the full upstream feature set.
 
-This mirrors real enterprise deployment patterns and aligns with Terraform + Azure DevOps workflows.
+## 🏗 Architecture Overview
 
-Full‑Stack Engineering Depth
-This project demonstrates hands‑on experience across:
+This is a **single Laravel application**, not a decoupled frontend/backend split. There is no standalone React app and no separate API server — React pages render through the same Laravel routes as everything else, via Inertia.js.
 
-Frontend modernization
-
-Backend service refactoring
-
-API design
-
-Container orchestration
-
-Developer experience improvements
-
-Documentation and architectural communication
-
-Practical Demonstration of Role Alignment
-This project is intentionally structured to showcase the skills required for a Senior Full‑Stack Developer role, including:
-
-Scalable architecture
-
-Modern frontend engineering
-
-Cloud‑aligned DevOps practices
-
-Strong documentation
-
-Independent execution
-
-Ability to modernize and enhance complex systems
-
-🧩 What Coolify Is (Summary)
-Coolify is an open-source self-hosting platform designed to simplify deployment and infrastructure management.
-This fork focuses on architectural improvements, frontend modernization, and developer experience enhancements, rather than replicating the full Coolify feature set.
-
-🔧 Key Enhancements in This Fork
-1. Full Migration from Livewire → React 19
-Replaced Blade/Livewire UI with a modern React 19 SPA
-
-Implemented React Server Components where appropriate
-
-Improved UI responsiveness using React 19’s concurrent rendering
-
-Added new component structure aligned with enterprise frontend standards
-
-2. Complete Dockerized Architecture
-Multi-container setup including:
-
-Laravel API (PHP-FPM)
-
-React 19 frontend (Node)
-
-Nginx reverse proxy
-
-MySQL database
-
-Optional Redis cache
-
-This provides:
-
-Production-like environment reproducibility
-
-Clean separation of services for scalability
-
-3. Backend Improvements (Laravel)
-Refactored controllers and services for cleaner API boundaries
-
-Improved request validation and error handling
-
-Added new endpoints to support React SPA workflows
-
-Enhanced environment configuration and .env templates
-
-4. DevOps & Cloud Alignment
-Architecture compatible with:
-
-Terraform-managed infrastructure
-
-Azure DevOps pipelines
-
-Container-based CI/CD workflows
-
-Multi-stage Dockerfiles for optimized builds
-
-5. Developer Experience Enhancements
-Simplified onboarding with docker-compose up -d
-
-Clear documentation for running and extending the project
-
-Improved folder structure for frontend/backend separation
-
-Added example tests (PHPUnit + Jest)
-
-🏗 Architecture Overview
-Code
-┌──────────────────────────┐
-│        React 19 SPA      │  (Node container)
-└──────────────┬───────────┘
+```text
+┌─────────────────────────────────────────┐
+│              Laravel app                 │  (nginx + PHP-FPM, one container)
+│  Livewire/Blade pages  +  Inertia/React  │  ← coexist, page-by-page migration
+│  pages, same routes, same auth/session   │
+└──────────────┬────────────────────────────┘
                │
-┌──────────────▼───────────┐
-│       Laravel API         │  (PHP-FPM container)
-│  Authentication / Services│
-└──────────────┬───────────┘
-               │
-┌──────────────▼───────────┐
-│        MySQL Database     │
-└───────────────────────────┘
+       ┌───────┼────────┬─────────────┐
+       ▼       ▼        ▼             ▼
+   Postgres  Redis   Soketi      Vite dev server
+  (database) (cache/  (WebSockets  (asset bundling +
+             queues)  / real-time) HMR only — not
+                                   browsed directly)
+```
 
-┌──────────────────────────┐
-│         Nginx            │  (Reverse proxy)
-└──────────────────────────┘
-▶️ Running the Project
-Prerequisites
-Docker
+Vite's dev server (default port `5173`) exists only to compile and hot-reload JS/CSS assets — you never open it in a browser. The app itself, Livewire pages and Inertia/React pages alike, is served entirely through the Laravel container.
 
-Docker Compose
+## ▶️ Running the Project
 
-Start the full stack
-Code
-docker-compose up -d
-Access the application
-React frontend: http://localhost:3000
+**Prerequisites**
 
-Laravel API: http://localhost:8000
+- Docker
+- Docker Compose
 
-📚 Frontend Migration in Progress
-The Livewire → React migration is being done page-by-page and tracked as a living, audited process:
+**Start the dev stack**
 
-docs/livewire-to-react-migration.md  
-Full migration log, including page inventory, triage (Easy/Medium/Hard), conversion recipes, and verification logs.
+```bash
+spin up
+# or, equivalently:
+docker compose -f docker-compose.dev.yml up -d
+```
 
-docs/architecture.md  
-Verified repository/backend/frontend structure, deployment flow, and Docker/CI setup.
+**Access the application**
 
-TECH_STACK.md  
-Current technology stack, including the coexistence of Livewire/Alpine and Inertia.js/React frontends.
+- App (Livewire + Inertia/React pages, same origin): [http://localhost:8000](http://localhost:8000)
+- Vite dev server (asset bundling/HMR, not for browsing): `http://localhost:5173`
 
-🧰 Tech Stack
-Code
-React 19
-Laravel 10
-PHP-FPM
-Node.js 20
-Docker & Docker Compose
-MySQL 8
-Nginx
-Vite
-Redis (optional)
-Jest + React Testing Library
-PHPUnit
-📄 Disclaimer
-This repository is a modified fork of Coolify and is intended solely for educational and portfolio purposes.
-All original Coolify branding, trademarks, and documentation belong to their respective owners.
+## 📚 Frontend Migration in Progress
 
-🎯 Why This Project Demonstrates Senior Full‑Stack Ability
+The Livewire → Inertia.js/React migration is being done page-by-page and tracked as a living, audited process:
+
+- [`docs/livewire-to-react-migration.md`](docs/livewire-to-react-migration.md) — full migration log: page inventory, triage (Easy/Medium/Hard buckets), conversion recipes, and per-phase verification results.
+- [`docs/smoketest.md`](docs/smoketest.md) — manual QA checklist for behavior automated checks can't fully exercise (real-time/SSH-dependent pages).
+- [`docs/architecture.md`](docs/architecture.md) — verified repository structure, backend/frontend layout, and Docker setup.
+- [`TECH_STACK.md`](TECH_STACK.md) — current technology stack, including the coexistence of Livewire/Alpine and Inertia.js/React.
+- [`TODO.md`](TODO.md) — living list of what's done and what's left, including the de-commercialization work.
+
+## 🧰 Tech Stack
+
+- Laravel 12 (PHP 8.4/8.5)
+- Livewire 3 + Alpine.js (legacy pages, being migrated off)
+- Inertia.js + React 18 (converted pages)
+- Tailwind CSS v4
+- PostgreSQL
+- Redis (cache, queues)
+- Soketi (WebSocket server for real-time features)
+- Docker & Docker Compose
+- Pest 4 (feature/unit testing), PHPStan/Larastan (static analysis), Laravel Pint (code style)
+
+## 📄 Disclaimer
+
+This repository is a modified fork of Coolify and is intended solely for educational and portfolio purposes. All original Coolify branding, trademarks, and documentation belong to their respective owners.
+
+## 🎯 Why This Project Demonstrates Senior Full-Stack Ability
+
 This fork highlights:
 
-Modernization of legacy systems
-
-Full-stack proficiency (Laravel + React 19)
-
-Cloud-native containerization
-
-Scalable architecture design
-
-Strong documentation and communication
-
-Ability to work independently and deliver complex improvements
-
-Alignment with enterprise DevOps practices
-
-This project reflects the technical depth, architectural thinking, and execution expected of a Senior Full‑Stack Developer.
-
-Alignment with enterprise DevOps practices
-
-This project reflects the technical depth, architectural thinking, and execution expected of a Senior Full‑Stack Developer.
+- Modernizing a legacy system incrementally, without breaking it mid-migration
+- Full-stack proficiency across Laravel, Livewire, and React/Inertia
+- Judgment about **when not** to introduce new architecture (e.g., reusing existing shared components instead of duplicating logic, documenting deliberately-skipped verification steps rather than silently omitting them)
+- Test-driven verification and an honest, audited paper trail — including documented gaps, not just successes
+- Clear technical documentation as a deliverable in its own right
