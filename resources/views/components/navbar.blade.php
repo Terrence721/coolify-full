@@ -194,7 +194,7 @@
                         </a>
                     </li>
                     <li>
-                        <a title="Destinations" {{ wireNavigate() }}
+                        <a title="Destinations"
                             class="{{ request()->is('destination*') ? 'menu-item-active menu-item' : 'menu-item' }}"
                             href="{{ route('destination.index') }}">
 

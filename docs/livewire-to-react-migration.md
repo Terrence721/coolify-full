@@ -1208,3 +1208,47 @@ While the user was smoke-testing in parallel with this phase, `/settings` (still
 - ~33 other Hard-bucket pages outside that family remain untouched; see the Phase 25 research inventory (not reproduced verbatim here) for the full ranked list — next-best candidates identified: `Destination\Index` (same inline-port pattern as Phase 19's create-modal logic) and the `Project\Show`/`Project\Edit` pair (shared `delete-project` child, convertible together).
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 57. Phase 26 — `Destination\Index`: second inline-port of a create-modal, and a full component retirement
+
+Converts the top-level "Destinations" list page: a grid of standalone/swarm Docker network destinations (with a deprecated badge for swarm ones), and a "+ Add" modal for creating a new standalone destination directly from this page (server picker included, not scoped to any one server).
+
+### Reusing Phase 19's inline-port pattern a second time
+
+Exactly like Phase 25 reused Phase 18's private-key create logic, this phase reuses Phase 19's `ServerDestinationsController::create()` — the same name/network/server-select fields, the same duplicate-network rejection (`Exception('Network already added to this server.')`), the same unconditional `StandaloneDocker::create()` (the original `Destination\New\Docker` component's `isSwarm` property was always `false` in practice — grep-confirmed its one consumer, this very page, never passed a different value). Added as `DestinationController::store()` (a new top-level, non-server-scoped route) alongside the existing `show()`/`resources()`/`update()`/`destroy()` methods from Phase 5.
+
+### A full component retirement, not just the page
+
+Unlike Phase 25 (where the shared `Create` component survived for its other consumers), grep confirmed `Destination\New\Docker` had exactly one consumer — this page — so both `app/Livewire/Destination/Index.php` and `app/Livewire/Destination/New/Docker.php` (plus their views) were deleted outright. This is the first phase in the migration to fully retire a nested-child component rather than leaving it in place for others.
+
+### One more stray `wireNavigate()` found
+
+Same audit habit as every prior phase: the main site navbar's "Destinations" link (`resources/views/components/navbar.blade.php`) still carried `{{ wireNavigate() }}`, now pointing into a fully-Inertia target. Stripped. (`AppLayout.jsx`'s own "Destinations" nav entry was already a plain Inertia route, unaffected.)
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/DestinationController.php` | modified | Added `index()` (list + per-destination `isSwarm`/`showUrl`) and `store()` (inline-ported create logic, no SSH) |
+| `resources/js/Pages/Destination/Index.jsx` | created | Grid of destinations, deprecated badge for swarm entries, "+ Add" modal with auto-generated name (server + network, kebab-cased, mirroring the original's `generateName()`) |
+| `routes/web.php` | modified | `destination.index` repointed at the new controller action; added `.store`; removed the `DestinationIndex` import |
+| `resources/views/components/navbar.blade.php` | modified | Removed `{{ wireNavigate() }}` from the "Destinations" link |
+| `app/Livewire/Destination/Index.php` + `app/Livewire/Destination/New/Docker.php` (+ matching Blade views) | **deleted** | Real cutover of both — grep-confirmed zero remaining consumers of either |
+| `tests/v4/Feature/DestinationIndexTest.php` | created | 5 tests: renders with the auto-created `coolify` destination listed, excludes servers not marked reachable/usable, creates a destination via the store endpoint, rejects a duplicate network, 404s when the targeted server belongs to another team |
+
+### Phase 26 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| PHPStan (`vendor/bin/phpstan analyse`) | 5 stale baseline entries cleaned for the 2 deleted files; `[OK] No errors` |
+| 5 new Feature tests (`DestinationIndexTest`) + 9 existing Destination tests (`DestinationShowTest`, `ServerDestinationsTest`) | all 14 passed on first run |
+| Full suite (`php artisan test --compact`) | 288 passed (859 assertions), no regressions |
+| `yarn build` | Succeeded — `Destination/Index.jsx` confirmed present in `manifest.json` |
+
+## 58. Non-goals of Phase 26
+
+- `Server\Show` and the Terminal command page remain the only two full pages in the `Server\Navbar` family still on Livewire, unchanged from Phase 25 — both still need real design work before conversion starts.
+- ~32 other Hard-bucket pages remain untouched; the `Project\Show`/`Project\Edit` pair (shared `delete-project` child) identified in Phase 25's research is still the next-best candidate outside the `Server\Navbar` family.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

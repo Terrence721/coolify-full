@@ -47,7 +47,6 @@ use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Dashboard;
-use App\Livewire\Destination\Index as DestinationIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
 use App\Livewire\Project\CloneMe as ProjectCloneMe;
@@ -381,7 +380,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/security/terminal-access', [ServerSecurityTerminalAccessController::class, 'index'])->name('server.security.terminal-access')->middleware('can.update.resource');
         Route::put('/security/terminal-access', [ServerSecurityTerminalAccessController::class, 'toggle'])->name('server.security.terminal-access.toggle')->middleware('can.update.resource');
     });
-    Route::get('/destinations', DestinationIndex::class)->name('destination.index');
+    Route::get('/destinations', [DestinationController::class, 'index'])->name('destination.index');
+    Route::post('/destinations', [DestinationController::class, 'store'])->name('destination.store');
     Route::get('/destination/{destination_uuid}', [DestinationController::class, 'show'])->name('destination.show');
     Route::get('/destination/{destination_uuid}/resources', [DestinationController::class, 'resources'])->name('destination.resources');
     Route::put('/destination/{destination_uuid}', [DestinationController::class, 'update'])->name('destination.update');

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\Server;
 use App\Models\Service;
 use App\Models\StandaloneDocker;
+use App\Models\SwarmDocker;
 use App\Support\DatabaseEngineRegistry;
+use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +21,60 @@ use Inertia\Response;
 class DestinationController extends Controller
 {
     use AuthorizesRequests;
+
+    public function index(): Response
+    {
+        $servers = Server::isUsable()->get();
+        $destinations = $servers
+            ->flatMap(fn (Server $server) => $server->standaloneDockers->concat($server->swarmDockers))
+            ->values();
+
+        return Inertia::render('Destination/Index', [
+            'canCreate' => auth()->user()?->can('createAnyResource') ?? false,
+            'hasServers' => $servers->count() > 0,
+            'servers' => $servers->map(fn (Server $s) => [
+                'id' => $s->id,
+                'name' => $s->name,
+            ]),
+            'destinations' => $destinations->map(fn ($destination) => [
+                'uuid' => $destination->uuid,
+                'name' => $destination->name,
+                'serverName' => $destination->server->name,
+                'isSwarm' => $destination->getMorphClass() === SwarmDocker::class,
+                'showUrl' => route('destination.show', ['destination_uuid' => $destination->uuid]),
+            ]),
+            'createUrl' => route('destination.store'),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = Validator::make($request->all(), [
+            'name' => ['required', 'string'],
+            'network' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/'],
+            'server_id' => ['required', 'integer'],
+        ])->validate();
+
+        $selectedServer = Server::ownedByCurrentTeam()->whereKey($validated['server_id'])->firstOrFail();
+
+        $this->authorize('create', StandaloneDocker::class);
+
+        try {
+            if ($selectedServer->standaloneDockers()->where('network', $validated['network'])->exists()) {
+                throw new Exception('Network already added to this server.');
+            }
+
+            $docker = StandaloneDocker::create([
+                'name' => $validated['name'],
+                'network' => $validated['network'],
+                'server_id' => $selectedServer->id,
+            ]);
+        } catch (Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('destination.show', ['destination_uuid' => $docker->uuid]);
+    }
 
     public function show(string $destination_uuid): Response|RedirectResponse
     {

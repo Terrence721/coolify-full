@@ -763,36 +763,6 @@ parameters:
 			path: app/Livewire/DeploymentsIndicator.php
 
 		-
-			message: '#^Property App\\Livewire\\Destination\\Index\:\:\$destinations with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Destination/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Destination\\Index\:\:\$servers has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Destination/Index.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: app/Livewire/Destination/New/Docker.php
-
-		-
-			message: '#^Property App\\Livewire\\Destination\\New\\Docker\:\:\$name \(string\) does not accept Illuminate\\Support\\Stringable\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Destination/New/Docker.php
-
-		-
-			message: '#^Property App\\Livewire\\Destination\\New\\Docker\:\:\$servers has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Destination/New/Docker.php
-
-		-
 			message: '#^Access to an undefined property App\\Livewire\\GlobalSearch\:\:\$services\.$#'
 			identifier: property.notFound
 			count: 4

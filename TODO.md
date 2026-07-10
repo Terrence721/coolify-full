@@ -13,14 +13,14 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Removed two Hetzner Cloud affiliate-link blocks ("Coolify's affiliate link... supports us (€10) and gives you €20") — one in the shared `Security\CloudProviderTokenForm` Livewire component, one already carried over into the converted `Security\CloudTokens.jsx` page.
 
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
-- 48 of 84 full-page Livewire components converted to Inertia + React.
+- 49 of 84 full-page Livewire components converted to Inertia + React.
 - Easy and Medium buckets: 100% done (25/25).
-- Hard bucket: 21 of 59 done, including the shared `Server` navbar/sidebar chrome and the first non-`Server`-scoped Hard-bucket page (`Security\PrivateKey\Index`).
+- Hard bucket: 22 of 59 done, including the shared `Server` navbar/sidebar chrome and two non-`Server`-scoped Hard-bucket pages (`Security\PrivateKey\Index`, `Destination\Index`).
 
 ## Still to do
 
 **Migration**
-- 38 Hard-bucket pages remain on Livewire, including 5 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Dynamic Configurations/Logs within Proxy and Logs within Sentinel). `Server\Show` and Terminal both need real design work before conversion (embedded Livewire island / WebSocket bridge, respectively) — see Section 56 of the migration doc for the next-best candidates identified outside that family (`Destination\Index`, the `Project\Show`/`Project\Edit` pair).
+- 37 Hard-bucket pages remain on Livewire, including 5 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Dynamic Configurations/Logs within Proxy and Logs within Sentinel). `Server\Show` and Terminal both need real design work before conversion (embedded Livewire island / WebSocket bridge, respectively) — see Section 58 of the migration doc for the next-best candidate identified outside that family (the `Project\Show`/`Project\Edit` pair, sharing a `delete-project` child).
 - Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) — see `docs/smoketest.md` for the manual QA checklist that closes this gap.
 - `/terminal` (still Livewire): observed an endless WebSocket reconnect loop during manual QA on 2026-07-10 (handshake authenticates successfully server-side, then the connection closes abnormally, code 1006). Likely just this dev environment lacking a genuinely reachable SSH target, not a code bug — needs real validation once Terminal is converted. See the note in `docs/smoketest.md`'s Terminal checklist.
 
