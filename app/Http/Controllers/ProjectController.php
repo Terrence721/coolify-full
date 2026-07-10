@@ -19,6 +19,58 @@ class ProjectController extends Controller
 {
     use AuthorizesRequests;
 
+    public function index(): Response
+    {
+        $projects = Project::ownedByCurrentTeamCached();
+
+        return Inertia::render('Project/Index', [
+            'projects' => $projects->map(fn (Project $project) => [
+                'uuid' => $project->uuid,
+                'name' => $project->name,
+                'description' => $project->description,
+                'canUpdate' => auth()->user()?->can('update', $project) ?? false,
+                'navigateUrl' => $project->navigateTo(),
+                'editUrl' => route('project.edit', ['project_uuid' => $project->uuid]),
+                'addResourceUrl' => $project->environments->first()
+                    ? route('project.resource.create', [
+                        'project_uuid' => $project->uuid,
+                        'environment_uuid' => $project->environments->first()->uuid,
+                    ])
+                    : null,
+            ]),
+            'canCreate' => auth()->user()?->can('createAnyResource') ?? false,
+            'createUrl' => route('project.store'),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $this->authorize('createAnyResource');
+
+        $validated = Validator::make(
+            $request->all(),
+            [
+                'name' => ValidationPatterns::nameRules(),
+                'description' => ValidationPatterns::descriptionRules(),
+            ],
+            ValidationPatterns::combinedMessages(),
+        )->validate();
+
+        $project = Project::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? '',
+            'team_id' => currentTeam()->id,
+            'uuid' => (string) new Cuid2,
+        ]);
+
+        $productionEnvironment = $project->environments()->where('name', 'production')->first();
+
+        return redirect()->route('project.resource.index', [
+            'project_uuid' => $project->uuid,
+            'environment_uuid' => $productionEnvironment->uuid,
+        ]);
+    }
+
     public function show(string $project_uuid): Response
     {
         $project = Project::where('team_id', currentTeam()->id)->where('uuid', $project_uuid)->firstOrFail();

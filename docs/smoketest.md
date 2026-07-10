@@ -59,7 +59,7 @@ Settings (instance-wide, root/admin only):
 Auth:
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (25 pages so far) — real-time and non-trivial
+## 4. Hard bucket (26 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -80,12 +80,13 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Try connecting to a container with no shell available — confirm the "Terminal Not Available" message shows instead of a silent failure.
 - [ ] **Known issue observed during Phase 24 manual QA (dev environment, 2026-07-10)**: the client repeatedly logged `[Terminal] Connection timeout after 10000ms` / `WebSocket error` / `Max reconnection attempts reached` in an endless reconnect loop. The `coolify-realtime` container was up/healthy and its logs showed the WebSocket handshake actually succeeding ("Websocket client authentication succeeded") — the connection then closed abnormally (code 1006) right after auth, suggesting the terminal session itself (PTY/SSH to the target server) failed to establish rather than a WebSocket infrastructure problem. Likely cause: no genuinely reachable SSH target server in this dev environment. Needs real validation once Terminal is converted — confirm whether this reproduces against a real, reachable server before treating it as a bug.
 
-**`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
+**`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`, `/projects`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
 - [ ] `/security/private-key` — as an Admin/Owner, confirm every key is clickable; as a Member, confirm keys still render but are view-only (not clickable, tooltip explains why); "+ Add" modal (Generate RSA/ED25519 buttons + manual paste), confirm the created key appears in the grid immediately; "Delete unused SSH Keys" confirmation modal, confirm only genuinely-unused keys (the "Unused" badge) disappear.
 - [ ] `/destinations` — confirm the grid lists destinations across all usable servers, with a "Deprecated" badge on swarm ones; "+ Add" modal, confirm picking a different server updates the auto-generated name, and submitting redirects into the new destination's Show page.
 - [ ] `/project/{uuid}` — confirm the auto-created "production" environment shows; "+ Add Environment" modal creates a new one; "Delete Project" is blocked with an explanation if any environment has resources, and works (typed name confirmation) when genuinely empty. From the Dashboard/Projects list, confirm clicking a project card navigates correctly regardless of whether it has exactly one environment (goes straight to Resources, still Livewire) or zero/multiple (lands here).
 - [ ] `/project/{uuid}/edit` — rename + change description, confirm "Delete Project" here matches the same behavior as the Show page.
 - [ ] `/storages` — "+ Add" modal against a real S3-compatible endpoint (both valid credentials and intentionally-wrong ones, to see the connection-failure error surface); confirm a storage with a failed last connection check shows the "Not Usable" badge.
+- [ ] `/projects` — confirm each card's whole-card click-through works (both for projects with exactly one environment, landing on the still-Livewire Resources page, and projects with zero/multiple, landing on `/project/{uuid}`); "+ Add Resource" shortcut only appears when the project has an environment; "Settings" link only appears if you can update; "+ Add" modal creates a new project and redirects into its auto-created production environment.
 - [ ] Otherwise already covered above in Section 3's list — no additional real-time behavior to check.
 
 **`Server\Navbar`-dependent pages (16 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.

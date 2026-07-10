@@ -3535,30 +3535,6 @@ parameters:
 			path: app/Livewire/Project/EnvironmentEdit.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Index\:\:\$private_keys has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Index\:\:\$projects has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Index\:\:\$servers has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Index.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\New\\DockerCompose\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1

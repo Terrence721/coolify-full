@@ -56,7 +56,6 @@ use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
 use App\Livewire\Project\Database\Backup\Index as DatabaseBackupIndex;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
 use App\Livewire\Project\EnvironmentEdit;
-use App\Livewire\Project\Index as ProjectIndex;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
 use App\Livewire\Project\Resource\Index as ResourceIndex;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
@@ -231,7 +230,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{uuid}', [Controller::class, 'acceptInvitation'])->name('team.invitation.accept');
     });
 
-    Route::get('/projects', ProjectIndex::class)->name('project.index');
+    Route::get('/projects', [ProjectController::class, 'index'])->name('project.index');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('project.store');
     Route::prefix('project/{project_uuid}')->group(function () {
         Route::get('/', [ProjectController::class, 'show'])->name('project.show');
         Route::post('/environment', [ProjectController::class, 'createEnvironment'])->name('project.create-environment');

@@ -1344,3 +1344,44 @@ Every prior "untested happy path" gap in this migration has been an SSH action (
 - ~30 other Hard-bucket pages remain untouched; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered (`Project\Index` — simple but doesn't retire `project.add-empty`, still used by Dashboard/GlobalSearch — remains the next-simplest unconverted candidate by line count).
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 63. Phase 29 — `Project\Index`: the Projects landing page, no component retirement this time
+
+Converts the top-level "Projects" list page: a grid of project cards (whole-card click-through via `Project::navigateTo()`, a conditional "+ Add Resource" shortcut when the project has an environment, a "Settings" link when the user can update), and a "+ Add" modal for creating a new empty project.
+
+### The first phase in a while where the shared child stays exactly as it was found
+
+Unlike the last several phases, `project.add-empty` (the nested "+ Add" modal) has two other live consumers — `Dashboard` and `GlobalSearch`, both still Livewire — so this phase inline-ports its `submit()` logic (validate name/description, `Project::create()`, redirect into the auto-created "production" environment — see Phase 27's Section 59 for that auto-creation behavior) into `ProjectController::store()` without touching `AddEmpty.php` at all. No component retirement this phase, just a second consumer of an existing shared component, mirroring Phase 25's `PrivateKey\Create` and Phase 28's `Storage\Create` precedent.
+
+### `Project::navigateTo()`'s dual-target link, resolved the same way as Phase 27
+
+The project card's whole-card overlay link uses `Project::navigateTo()` (`app/Models/Project.php:233-243`), which returns `project.resource.index` (still Livewire) when the project has exactly one environment, or `project.show` (now Inertia) otherwise. Same resolution as Phase 27's identical link on the Dashboard/old `project.index` view: rendered as a plain `<a>` (not an Inertia `<Link>`), so a full page load works correctly regardless of which target it resolves to.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ProjectController.php` | modified | Added `index()` (project grid, per-project `navigateUrl`/`editUrl`/`addResourceUrl`) and `store()` (inline-ported `AddEmpty` logic, no SSH) |
+| `resources/js/Pages/Project/Index.jsx` | created | Project grid with whole-card click-through, conditional "+ Add Resource"/"Settings" links, "+ Add" modal |
+| `routes/web.php` | modified | `project.index` repointed at the new controller; added `.store`; removed the `ProjectIndex` import |
+| `app/Livewire/Project/Index.php` + matching Blade view | **deleted** | Real cutover; `AddEmpty.php` untouched (still used by `Dashboard`, `GlobalSearch`) |
+| `tests/v4/Feature/ProjectIndexTest.php` | created | 3 tests: renders with a project listed, scopes to the current team only, creates a new project and redirects into its auto-created production environment |
+
+### Phase 29 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed |
+| PHPStan (`vendor/bin/phpstan analyse`) | 4 stale baseline entries cleaned for the deleted file; `[OK] No errors` |
+| 3 new Feature tests (`ProjectIndexTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 299 passed (949 assertions), no regressions |
+| `yarn build` | Succeeded — `Project/Index.jsx` confirmed present in `manifest.json` |
+
+## 64. Non-goals of Phase 29
+
+- `Storage\Show` remains on Livewire, unchanged since Phase 28.
+- `Server\Show` and the Terminal command page remain the only two full pages in the `Server\Navbar` family still on Livewire, unchanged since Phase 25.
+- ~29 other Hard-bucket pages remain untouched; no specific next candidate has been research-ranked yet beyond what Phase 25's inventory already covered.
+- The `Project\Index`/`AddEmpty` unused-props observation: the original Livewire `Index::mount()` also loaded `$servers`/`$private_keys` into public properties that the Blade view never actually referenced — dead code in the original, not ported (the new controller only sends what `Project/Index.jsx` actually uses).
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
