@@ -1,10 +1,10 @@
 ---
 id: task-00001
 title: Implement Docker build caching for Coolify staging builds
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2025-08-26 12:15'
-updated_date: '2025-08-26 12:16'
+updated_date: '2026-07-12 00:00'
 labels:
   - heyandras
   - performance
@@ -21,14 +21,18 @@ Implement comprehensive Docker build caching to reduce staging build times by 50
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Docker BuildKit cache mounts are added to Composer dependency installation in production Dockerfile
-- [ ] #2 Docker BuildKit cache mounts are added to NPM dependency installation in production Dockerfile
+- [x] #1 Docker BuildKit cache mounts are added to Composer dependency installation in production Dockerfile
+- [x] #2 Docker BuildKit cache mounts are added to NPM dependency installation in production Dockerfile
 - [ ] #3 GitHub Actions BuildX setup is configured for both AMD64 and AARCH64 jobs
 - [ ] #4 Registry cache-from and cache-to configurations are implemented for both architecture builds
 - [ ] #5 Build time reduction of at least 40% is achieved in staging builds
 - [ ] #6 GitHub Actions minutes consumption is reduced compared to baseline
 - [ ] #7 All existing build functionality remains intact with no regressions
 <!-- AC:END -->
+
+## Implementation Notes (2026-07-12)
+
+Re-audited against the actual codebase. #1 and #2 are done: `docker/production/Dockerfile` has BuildKit cache mounts wrapping both `composer install` (`--mount=type=cache,target=/tmp/cache`) and `yarn install` (`--mount=type=cache,target=/usr/local/share/.cache/yarn`) — this fork uses Yarn, not NPM, so #2 is satisfied via the equivalent Yarn cache mount. #3–#7 are out of scope for this fork: they all depend on `.github/workflows/coolify-staging-build.yml`, upstream Coolify's cloud staging-build pipeline, which doesn't exist here — this fork's only workflow is `.github/workflows/quality.yml` (Pint/PHPStan/Pest). See implementation notes on subtasks 00001.02 through 00001.06.
 
 ## Implementation Plan
 

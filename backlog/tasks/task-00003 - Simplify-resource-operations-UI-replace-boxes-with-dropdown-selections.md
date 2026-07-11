@@ -1,10 +1,10 @@
 ---
 id: task-00003
 title: Simplify resource operations UI - replace boxes with dropdown selections
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-08-26 13:22'
-updated_date: '2025-08-26 13:22'
+updated_date: '2026-07-12 00:00'
 labels:
   - ui
   - frontend
@@ -19,12 +19,16 @@ Replace the current box-based layout in resource-operations.blade.php with clean
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Clone section shows a dropdown to select server/destination instead of multiple boxes
-- [ ] #2 Move section shows a dropdown to select project/environment instead of multiple boxes
-- [ ] #3 Single "Clone Resource" button that triggers modal after dropdown selection
-- [ ] #4 Single "Move Resource" button that triggers modal after dropdown selection
-- [ ] #5 Authorization warnings remain in place for users without permissions
-- [ ] #6 All existing functionality preserved (cloning, moving, success messages)
-- [ ] #7 Clean, simple interface that scales well with many options
-- [ ] #8 Mobile-friendly dropdown interface
+- [x] #1 Clone section shows a dropdown to select server/destination instead of multiple boxes
+- [x] #2 Move section shows a dropdown to select project/environment instead of multiple boxes
+- [x] #3 Single "Clone Resource" button that triggers modal after dropdown selection
+- [x] #4 Single "Move Resource" button that triggers modal after dropdown selection
+- [x] #5 Authorization warnings remain in place for users without permissions
+- [x] #6 All existing functionality preserved (cloning, moving, success messages)
+- [x] #7 Clean, simple interface that scales well with many options
+- [x] #8 Mobile-friendly dropdown interface
 <!-- AC:END -->
+
+## Implementation Notes (2026-07-12)
+
+Re-audited against the actual codebase. `resources/views/livewire/project/shared/resource-operations.blade.php` already implements every AC: `<select>` dropdowns for server/destination (Clone) and project/environment (Move), each gated by `x-show` behind a single highlighted action button, `@can('update', $resource)` / `@else` authorization callouts on both sections, and responsive `flex-col lg:flex-row` layout. `App\Livewire\Project\Shared\ResourceOperations` still has both `cloneTo()` and `moveTo()` methods backing the buttons. No changes needed — this task was already complete, just never marked so.
