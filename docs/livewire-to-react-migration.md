@@ -1556,3 +1556,54 @@ Porting `ByHetzner` faithfully means reproducing a real multi-step wizard with c
 - No specific next Hard-bucket candidate has been research-ranked yet; `Dashboard` is a natural next candidate since it nests the same `Server\Create` modal plus two others (`Project\AddEmpty`, already inline-ported for `Project\Index`; `Security\PrivateKey\Create`, already extracted as `PrivateKeyCreateModal.jsx`) — meaning only the Hetzner gap would remain unsolved there too.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 73. Phase 34 — `Project\CloneMe`: no nested children, but three real pre-existing bugs surfaced by the first automated test to exercise `clone_application()`
+
+Converts the environment-clone page (`/project/{uuid}/environment/{uuid}/clone`) — pick a destination server/network, review the resources that will be cloned, and clone into either a brand-new project or a new environment within the same project. Chosen after Phase 33 specifically *because* it has zero nested Livewire children (confirmed via grep before starting) — a deliberate return to a structurally simple candidate after Phase 33's nested-modal complexity. Its size (448 PHP lines) comes entirely from one big, single-purpose action (`clone()`), not from UI complexity or a wizard shape.
+
+### Three real, pre-existing bugs found via the first automated test of `clone_application()`
+
+This is the first time any test in the repo has exercised `clone_application()` (the shared helper used for both this page and, presumably, other clone-adjacent flows) end-to-end with a real `Application`. It surfaced three latent bugs, none introduced by this phase, all fixed before the test could pass:
+
+1. **`App\Models\ApplicationSetting`**: 11 columns documented in the class's own `@property bool ...` docblock (`is_gzip_enabled`, `is_stripprefix_enabled`, `is_log_drain_enabled`, `is_gpu_enabled`, `is_include_timestamps`, `is_swarm_only_worker_nodes`, `is_raw_compose_deployment_enabled`, `is_consistent_container_name_enabled`, `connect_to_docker_network`, `is_env_sorting_enabled`, `disable_build_cache`) were missing from `$casts`, so a fresh DB read returned raw ints instead of bools. `fqdnLabelsForTraefik()`'s strict `?bool` parameter type rejected the int, throwing a `TypeError` the moment `clone_application()` tried to regenerate labels for a cloned application with a non-default proxy-label setting. Fixed by adding all 11 to `$casts` — completing a contract the docblock already declared, not introducing new behavior. Checked first for any `=== true`/`=== false` strict-comparison call sites that could change behavior under a real bool instead of an int; found none for these 11 (two other docblocked-bool columns on this same model, `health_check_enabled` and a sibling on `Application`, were deliberately *not* touched — see non-goals).
+2. **`App\Models\Application`**: same gap, one column (`is_http_basic_auth_enabled`), same fix, same care taken (grepped for strict comparisons on this specific attribute first — found only an unrelated request-input comparison, not a model-attribute one).
+3. **`bootstrap/helpers/applications.php`**: `clone_application()` passed a `Illuminate\Support\Stringable` (from `str(...)->replace(...)`) directly to `base64_encode()`, which requires a plain `string`. Under this file's `declare(strict_types=1)`, PHP does not auto-coerce `Stringable` objects for built-in functions' scalar parameters, so this threw a `TypeError` the moment the label-regeneration branch was reached. Fixed with an explicit `->toString()`. Note: `App\Models\Application::parseContainerLabels()` has the exact same pattern at two call sites and was **not** touched — same bug, different file, but outside this phase's blast radius (see non-goals).
+
+None of these were reachable via this migration's usual "safe/validation-rejection path" testing convention (Section on untested happy-path gaps) — cloning a real application with real labels regenerated is itself the happy path, and there was no way to test the new `clone()` action meaningfully without hitting it.
+
+### A minor PHPStan finding: `Collection::flatMap()`'s generics vs. an untyped `concat()`
+
+`Server::destinations()` returns `$standaloneDockers->concat($swarmDockers)` — a plain `Collection` with no propagated generic type. Chaining `$servers->flatMap(fn ($server) => $server->destinations())` left PHPStan unable to resolve the closure's return generics (`TFlatMapKey`/`TFlatMapValue`). Rewritten as a plain `foreach` with `firstWhere()` instead of `flatMap()` — avoids the inference gap entirely rather than baselining it, since the original Livewire component's identical `flatMap()` call was apparently never PHPStan-checked as a route-bound Livewire property access (no matching baseline entry existed for it).
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/EnvironmentController.php` | modified | `cloneMe()` (page), `clone()` (full port of `CloneMe::clone()` — project/environment cloning, volume/backup/tag/env-var replication, optional volume-data cloning via `VolumeCloneJob`) |
+| `resources/js/Pages/Project/CloneMe.jsx` | created | Name input, click-to-select destination table, read-only resources table, dual submit buttons (new project / new environment) |
+| `routes/web.php` | modified | `project.clone-me` repointed at the new controller; added `project.clone-me.store`; removed the `Project\CloneMe` Livewire import |
+| `app/Livewire/Project/CloneMe.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by route name, never by class |
+| `resources/views/livewire/project/resource/index.blade.php` | modified | Stripped `wireNavigate()` from 2 "Clone" links now pointing at the fully-Inertia clone page |
+| `app/Models/ApplicationSetting.php`, `app/Models/Application.php` | modified | Added the 12 missing boolean casts described above |
+| `bootstrap/helpers/applications.php` | modified | Fixed the `Stringable`-into-`base64_encode()` bug in `clone_application()` |
+| `phpstan-baseline.neon` | modified | Cleaned 23 stale entries for the deleted `CloneMe.php` |
+| `tests/v4/Feature/ProjectCloneMeTest.php` | created | 5 tests: renders the page, clones into a new project (with a real `Application`, exercising the full `clone_application()` path), clones into a new environment in the same project, rejects a duplicate project name, rejects submission without a destination |
+| `SECURITY.md`, `CODE_OF_CONDUCT.md` | **deleted** | Unrelated to this phase — found during a user-directed doc sweep. Both were leftover upstream-Coolify files pointing real security/conduct reports at `security@coollabs.io`/`hi@coollabs.io`, coollabs' own addresses, not this fork's. Deleted per explicit user approval rather than rewritten, since this fork has no formal community/security process to document. |
+
+### Phase 34 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed on every run |
+| PHPStan (`vendor/bin/phpstan analyse --memory-limit=1G`) | found 1 real `flatMap()` generics finding from this phase's own code; fixed by rewriting rather than baselining; `[OK] No errors` after, plus cleaning the 23 stale `CloneMe.php` baseline entries |
+| 5 new Feature tests (`ProjectCloneMeTest`) | failed 3 times in a row on the "clones into a new project/environment" tests — each failure was a different real pre-existing bug (see above), fixed in sequence; all 5 passed once all three were fixed |
+| Full suite (`php artisan test --compact`) | 327 passed (1087 assertions), no regressions |
+| `yarn build` | Succeeded — `Project/CloneMe.jsx` confirmed present in `manifest.json` |
+
+## 74. Non-goals of Phase 34
+
+- `App\Models\Application::parseContainerLabels()` has the same `Stringable`-into-`base64_encode()` bug pattern as the one fixed in `clone_application()`, at two call sites. Not fixed — outside this phase's blast radius, and only reachable when `mb_detect_encoding()` fails on already-decoded labels, a narrower trigger than this phase hit. Logged in `TODO.md` for a future pass.
+- Two more docblocked-`bool` columns with missing casts were found but deliberately **not** fixed: `Application::health_check_enabled` and `Application::custom_healthcheck_found`. Unlike the 12 columns that were fixed, `health_check_enabled` has a real `=== false` strict-comparison call site (`app/Models/Application.php:1491`) — adding the cast would silently change existing health-check behavior (a currently-always-false comparison against a raw int would start correctly evaluating true), which is a real behavior change requiring its own dedicated verification, not a side effect of a Project page conversion. Logged in `TODO.md`, not fixed here.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

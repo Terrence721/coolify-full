@@ -1,6 +1,6 @@
 # Smoke Test
 
-**Last Updated: July 10, 2026**
+**Last Updated: July 11, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). Run this after any batch of migration work, and definitely before considering the whole migration complete. See `docs/command.md` for the commands to start the dev stack.
 
@@ -61,7 +61,7 @@ Settings (instance-wide, root/admin only):
 Auth:
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (31 pages so far) — real-time and non-trivial
+## 4. Hard bucket (32 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -82,7 +82,7 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Try connecting to a container with no shell available — confirm the "Terminal Not Available" message shows instead of a silent failure.
 - [ ] **Known issue observed during Phase 24 manual QA (dev environment, 2026-07-10)**: the client repeatedly logged `[Terminal] Connection timeout after 10000ms` / `WebSocket error` / `Max reconnection attempts reached` in an endless reconnect loop. The `coolify-realtime` container was up/healthy and its logs showed the WebSocket handshake actually succeeding ("Websocket client authentication succeeded") — the connection then closed abnormally (code 1006) right after auth, suggesting the terminal session itself (PTY/SSH to the target server) failed to establish rather than a WebSocket infrastructure problem. Likely cause: no genuinely reachable SSH target server in this dev environment. Needs real validation once Terminal is converted — confirm whether this reproduces against a real, reachable server before treating it as a bug.
 
-**`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`, `/projects`, `/team/members`, `/servers`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
+**`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`, `/projects`, `/team/members`, `/servers`, `/project/{uuid}/environment/{uuid}/clone`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
 - [ ] `/security/private-key` — as an Admin/Owner, confirm every key is clickable; as a Member, confirm keys still render but are view-only (not clickable, tooltip explains why); "+ Add" modal (Generate RSA/ED25519 buttons + manual paste), confirm the created key appears in the grid immediately; "Delete unused SSH Keys" confirmation modal, confirm only genuinely-unused keys (the "Unused" badge) disappear.
 - [ ] `/destinations` — confirm the grid lists destinations across all usable servers, with a "Deprecated" badge on swarm ones; "+ Add" modal, confirm picking a different server updates the auto-generated name, and submitting redirects into the new destination's Show page.
 - [ ] `/project/{uuid}` — confirm the auto-created "production" environment shows; "+ Add Environment" modal creates a new one; "Delete Project" is blocked with an explanation if any environment has resources, and works (typed name confirmation) when genuinely empty. From the Dashboard/Projects list, confirm clicking a project card navigates correctly regardless of whether it has exactly one environment (goes straight to Resources, still Livewire) or zero/multiple (lands here).
@@ -94,6 +94,7 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/projects` — confirm each card's whole-card click-through works (both for projects with exactly one environment, landing on the still-Livewire Resources page, and projects with zero/multiple, landing on `/project/{uuid}`); "+ Add Resource" shortcut only appears when the project has an environment; "Settings" link only appears if you can update; "+ Add" modal creates a new project and redirects into its auto-created production environment.
 - [ ] `/team/members` — as Owner, promote a member to Admin and to Owner, demote back down; as Admin, confirm you can't promote another Admin to Owner (error toast, no change); remove a member; generate an invitation link and confirm "Copy Invitation Link" actually copies it; send an invitation by email (only when transactional email is enabled) and confirm it arrives; as Admin, confirm you can't invite an Owner; revoke a pending invitation.
 - [ ] `/servers` — confirm the grid lists every server owned by the team, with the red-border/"Not reachable"/"Not usable"/"Disabled by the system" states showing correctly; "+ Add" modal creates a server via the IP flow and redirects into its Show page; confirm submitting a duplicate IP shows the right error; confirm the "Connect a Hetzner Server" option is **not** present here (known gap, Phase 33) — it's still reachable via the global "+" search menu's own Add Server modal, unconverted.
+- [ ] `/project/{uuid}/environment/{uuid}/clone` — select a destination server/network from the table, confirm the resources list matches the source environment; "Clone to new Project" with a name that already exists shows the right error without creating anything; a genuinely new name creates the project + clones every application/database/service (tags, scheduled backups/tasks, env vars all carried over); "Clone to new Environment" does the same within the same project; toggle "Clone volume data too" and confirm it doesn't error even without real volume data to copy (the underlying `VolumeCloneJob`/start-stop dispatches are SSH-adjacent and thus part of the standing untested-happy-path gap noted in Section 4's intro above).
 - [ ] Otherwise already covered above in Section 3's list — no additional real-time behavior to check.
 
 **`Server\Navbar`-dependent pages (16 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.

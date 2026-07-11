@@ -53,7 +53,6 @@ use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
-use App\Livewire\Project\CloneMe as ProjectCloneMe;
 use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
 use App\Livewire\Project\Database\Backup\Index as DatabaseBackupIndex;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
@@ -248,7 +247,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}')->group(function () {
         Route::get('/', ResourceIndex::class)->name('project.resource.index');
-        Route::get('/clone', ProjectCloneMe::class)->name('project.clone-me')->middleware('can.create.resources');
+        Route::get('/clone', [EnvironmentController::class, 'cloneMe'])->name('project.clone-me')->middleware('can.create.resources');
+        Route::post('/clone', [EnvironmentController::class, 'clone'])->name('project.clone-me.store')->middleware('can.create.resources');
         Route::get('/new', ResourceCreate::class)->name('project.resource.create')->middleware('can.create.resources');
         Route::get('/edit', [EnvironmentController::class, 'edit'])->name('project.environment.edit')->middleware('can.update.resource');
         Route::put('/edit', [EnvironmentController::class, 'update'])->name('project.environment.update')->middleware('can.update.resource');

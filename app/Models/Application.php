@@ -480,6 +480,7 @@ class Application extends BaseModel
             'restart_count' => 'integer',
             'max_restart_count' => 'integer',
             'last_restart_at' => 'datetime',
+            'is_http_basic_auth_enabled' => 'boolean',
         ];
     }
 

@@ -7,7 +7,7 @@
             <h1>Resources</h1>
             @if ($environment->isEmpty())
                 @can('createAnyResource')
-                    <a class="button" {{ wireNavigate() }}
+                    <a class="button"
                         href="{{ route('project.clone-me', ['project_uuid' => data_get($project, 'uuid'), 'environment_uuid' => data_get($environment, 'uuid')]) }}">
                         Clone
                     </a>
@@ -19,7 +19,7 @@
                         New</a>
                 @endcan
                 @can('createAnyResource')
-                    <a class="button" {{ wireNavigate() }}
+                    <a class="button"
                         href="{{ route('project.clone-me', ['project_uuid' => data_get($project, 'uuid'), 'environment_uuid' => data_get($environment, 'uuid')]) }}">
                         Clone
                     </a>
