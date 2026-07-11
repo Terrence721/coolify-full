@@ -1932,3 +1932,47 @@ Converts the single-backup detail page (`project.database.backup.execution` — 
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 89. Phase 42 — `Settings\Backup`: closes out the backup Livewire island, extracts shared components/backend logic for reuse across both backup surfaces, and fixes a real behavioral regression found via PHPStan
+
+Converts the instance-wide Settings → Backup page (`settings.backup`), the last consumer of the `BackupEdit`/`BackupExecutions` Livewire islands that Phase 41 left in place (it only removed the `<livewire:...>` tags from `Project\Database\Backup\Execution`, since this page and the service-database branch of `scheduled-backups.blade.php` were both still using them). This phase converts the settings surface; the service-database branch stays Livewire — untouched, out of scope.
+
+Phase 41's `Execution.jsx` had grown into a single 491-line file with `BackupEditForm`, `ExecutionCard`, the executions-list-with-polling logic, and `PasswordConfirmModal` all inline. This phase's real prerequisite was extracting all four into standalone `resources/js/Components/*.jsx` files — the established "extract only once there's a genuine second consumer" rule, exercised on this component family for the first time. `Execution.jsx` itself shrank to 40 lines (heading/checker plus the two extracted components). On the backend, `ProjectDatabaseBackupController`'s private `backupEditProps()`/`executionProps()` plus the schedule-update/execution-delete/cleanup logic moved into a new `App\Http\Controllers\Concerns\ManagesScheduledDatabaseBackups` trait, used by both `ProjectDatabaseBackupController` and the new `SettingsBackupController` — the two controllers share the exact same `ScheduledDatabaseBackup`/`ScheduledDatabaseBackupExecution` shape and validation rules, just against a different owning database (a team's real database vs. the hardcoded `id=0` `coolify-db`).
+
+### A real regression found by PHPStan, not by a test
+
+PHPStan flagged `SettingsBackupController::index()` as dead code (`booleanAnd.alwaysFalse`): `if ($backup && ! $server->isFunctional())` can never be true, because the method already returns early a few lines above when `! $server->isFunctional()`. Tracing this back to the original Livewire `mount()` showed why the check exists at all: the original has **no early return** on a non-functional server — it always resolves `$database`/`$backup` and disables the backup schedule as a side effect (`$backup->enabled = false; $backup->save();`) whenever the server is unhealthy, regardless of what the page ends up rendering; only the Blade template's `@if ($server->isFunctional())` decides what's shown afterward. My first-draft controller's early return for the "not functional" response accidentally skipped this side effect entirely, meaning a backup schedule would never get auto-disabled when the root server went unhealthy. Fixed by computing `$serverFunctional` once, running the disable-if-unhealthy side effect unconditionally (matching `mount()`), and only branching on it for the response afterward.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `resources/js/Components/BackupEditForm.jsx`, `BackupExecutionsList.jsx`, `ExecutionCard.jsx`, `PasswordConfirmModal.jsx` | created (extracted from Phase 41's `Execution.jsx`) | Now shared by both `Project/Database/Backup/Execution.jsx` and the new `SettingsBackup.jsx` |
+| `resources/js/Pages/Project/Database/Backup/Execution.jsx` | modified | Shrank from 491 to 40 lines, now composes the 4 extracted components |
+| `resources/js/Pages/SettingsBackup.jsx` | created | Identity form (UUID/Name/User/Password readonly, Description editable — matches the original's readonly fields exactly), server-not-functional / no-database / full states mirrored from the original Blade's 3-way branch, reuses `BackupEditForm`/`BackupExecutionsList` unmodified |
+| `app/Http/Controllers/Concerns/ManagesScheduledDatabaseBackups.php` | created | `backupEditProps()`, `executionProps()`, `applyBackupScheduleUpdate()`, `deleteBackupScheduleFiles()`, `deleteBackupExecution()`, `cleanupFailedBackupExecutions()`, `cleanupDeletedBackupExecutions()`, `s3StorageOptions()` — extracted from `ProjectDatabaseBackupController`, now shared |
+| `app/Http/Controllers/ProjectDatabaseBackupController.php` | modified | Uses the new trait instead of its own private copies; behavior unchanged |
+| `app/Http/Controllers/SettingsBackupController.php` | created | `index()`, `update()` (identity), `addDatabase()`, `updateSchedule()`, `backupNow()`, `cleanupFailedExecutions()`, `cleanupDeletedExecutions()`, `destroyExecution()` |
+| `routes/web.php` | modified | Repointed `settings.backup` at the controller; added `.update`/`.add-database`/`.schedule.update`/`.backup-now`/`.cleanup-failed`/`.cleanup-deleted`/`.execution.destroy`; removed the `SettingsBackup` Livewire import |
+| `app/Livewire/SettingsBackup.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by the route name |
+| `tests/v4/Feature/SettingsBackupControllerTest.php` | created | 12 tests: non-admin redirect, server-not-functional/no-database/full render states, identity update, schedule update (+ invalid cron rejection), Backup Now dispatch, cleanup failed/deleted, execution delete (correct/incorrect password) |
+| `phpstan-baseline.neon` | regenerated | Removed stale entries for the deleted Livewire file and the trait's moved-from-controller code; the two `property.notFound`/`nullsafe.neverNull` entries left on the trait are the same pre-existing `StandaloneDatabaseInstance` interface gap documented elsewhere, not new |
+
+### Phase 42 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | Caught the real dead-code/lost-side-effect bug above before any test ran; baseline regenerated twice (once after the trait extraction, once after deleting the old Livewire file); `[OK] No errors` |
+| 12 new Feature tests | 2 early failures during development, not from production code: the standard `isInstanceAdmin()` test convention (`User::forceCreate(['id' => 0])`, which auto-provisions and owns a "Root Team" id 0 via `User`'s `created` hook) needs that Root Team's `show_boarding` explicitly set to `false` afterward — `Team::factory()`'s default disables it, but the auto-provisioned Root Team keeps the schema default of `true`, which the `DecideWhatToDoWithUser` middleware redirects to `/onboarding`. Fixed in the test helper once found; all 12 passed after |
+| Full suite (`php artisan test --compact`) | 595 passed (2542 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in ~7s — `SettingsBackup-*.js` and `BackupExecutionsList-*.js` confirmed as separate chunks |
+
+## 90. Non-goals of Phase 42
+
+- `addDatabase()`'s real SSH-touching happy path (`instant_remote_process(['docker inspect coolify-db'], ...)`) remains untested beyond what's implied by the "no database" render test — same standing untested-happy-path convention as every SSH-adjacent action in this migration.
+- `updateSchedule()`'s and `backupNow()`'s real SSH-touching happy paths remain untested beyond validation/rejection, matching Phase 41.
+- The service-database branch of `scheduled-backups.blade.php` (which also renders `BackupEdit`/`BackupExecutions` as Livewire islands, for `Project\Service\DatabaseBackups`) stays Livewire — this phase only converts the instance-wide Settings surface.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

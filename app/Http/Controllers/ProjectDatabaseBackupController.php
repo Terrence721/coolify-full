@@ -9,6 +9,7 @@ use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Actions\Docker\GetContainersStatus;
 use App\Contracts\StandaloneDatabaseInstance;
+use App\Http\Controllers\Concerns\ManagesScheduledDatabaseBackups;
 use App\Jobs\DatabaseBackupJob;
 use App\Models\S3Storage;
 use App\Models\ScheduledDatabaseBackup;
@@ -27,6 +28,7 @@ use Spatie\Activitylog\Models\Activity;
 class ProjectDatabaseBackupController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesScheduledDatabaseBackups;
 
     public function index(string $project_uuid, string $environment_uuid, string $database_uuid): Response|RedirectResponse
     {
@@ -52,7 +54,7 @@ class ProjectDatabaseBackupController extends Controller
             'scheduledBackups' => $database->scheduledBackups->sortByDesc('created_at')->values()->map(
                 fn (ScheduledDatabaseBackup $backup) => $this->backupProps($backup, $parameters)
             ),
-            's3Storages' => currentTeam()->s3s->map(fn (S3Storage $s3) => ['id' => $s3->id, 'name' => $s3->name])->values(),
+            's3Storages' => $this->s3StorageOptions(currentTeam()->id),
             'canUpdate' => auth()->user()?->can('update', $database) ?? false,
             'urls' => [
                 'store' => route('project.database.backup.store', $parameters),
@@ -144,8 +146,12 @@ class ProjectDatabaseBackupController extends Controller
             'heading' => $this->headingProps($database, $parameters),
             'configurationChecker' => $this->configurationCheckerProps($database),
             'backup' => $this->backupEditProps($backup),
-            's3Storages' => currentTeam()->s3s->map(fn (S3Storage $s3) => ['id' => $s3->id, 'name' => $s3->name])->values(),
-            'executions' => $executions->map(fn (ScheduledDatabaseBackupExecution $execution) => $this->executionProps($execution, $parameters, $backup_uuid)),
+            's3Storages' => $this->s3StorageOptions(currentTeam()->id),
+            'executions' => $executions->map(fn (ScheduledDatabaseBackupExecution $execution) => $this->executionProps(
+                $execution,
+                route('project.database.backup.execution.destroy', [...$parameters, 'backup_uuid' => $backup_uuid, 'execution_id' => $execution->id]),
+                route('download.backup', ['executionId' => $execution->id]),
+            )),
             'executionsCount' => $count,
             'skip' => $skip,
             'defaultTake' => $defaultTake,
@@ -177,64 +183,10 @@ class ProjectDatabaseBackupController extends Controller
 
         $this->authorize('manageBackups', $database);
 
-        $validated = Validator::make($request->all(), [
-            'enabled' => 'required|boolean',
-            'frequency' => 'required|string',
-            'save_s3' => 'required|boolean',
-            'disable_local_backup' => 'required|boolean',
-            's3_storage_id' => 'nullable|integer',
-            'databases_to_backup' => 'nullable|string',
-            'dump_all' => 'required|boolean',
-            'timeout' => 'required|integer|min:60|max:36000',
-            'database_backup_retention_amount_locally' => 'required|integer|min:0',
-            'database_backup_retention_days_locally' => 'required|integer|min:0',
-            'database_backup_retention_max_storage_locally' => 'required|numeric|min:0',
-            'database_backup_retention_amount_s3' => 'required|integer|min:0',
-            'database_backup_retention_days_s3' => 'required|integer|min:0',
-            'database_backup_retention_max_storage_s3' => 'required|numeric|min:0',
-        ])->validate();
-
-        if (! validate_cron_expression($validated['frequency'])) {
-            return back()->with('error', 'Invalid Cron / Human expression');
+        $error = $this->applyBackupScheduleUpdate($request, $backup, currentTeam()->id);
+        if ($error) {
+            return back()->with('error', $error);
         }
-
-        if (filled($validated['databases_to_backup'] ?? null)) {
-            try {
-                validateDatabasesBackupInput($validated['databases_to_backup']);
-            } catch (\Throwable $e) {
-                return back()->with('error', $e->getMessage());
-            }
-        }
-
-        $availableS3Ids = currentTeam()->s3s->pluck('id');
-        $saveS3 = $validated['save_s3'];
-        $s3StorageId = $validated['s3_storage_id'] ?? null;
-        if ($saveS3 && ! $availableS3Ids->contains($s3StorageId)) {
-            $saveS3 = false;
-            $s3StorageId = null;
-        }
-
-        $disableLocalBackup = $validated['disable_local_backup'];
-        if ($disableLocalBackup && ! $saveS3) {
-            $disableLocalBackup = false;
-        }
-
-        $backup->update([
-            'enabled' => $validated['enabled'],
-            'frequency' => $validated['frequency'],
-            'database_backup_retention_amount_locally' => $validated['database_backup_retention_amount_locally'],
-            'database_backup_retention_days_locally' => $validated['database_backup_retention_days_locally'],
-            'database_backup_retention_max_storage_locally' => $validated['database_backup_retention_max_storage_locally'],
-            'database_backup_retention_amount_s3' => $validated['database_backup_retention_amount_s3'],
-            'database_backup_retention_days_s3' => $validated['database_backup_retention_days_s3'],
-            'database_backup_retention_max_storage_s3' => $validated['database_backup_retention_max_storage_s3'],
-            'save_s3' => $saveS3,
-            'disable_local_backup' => $disableLocalBackup,
-            's3_storage_id' => $s3StorageId,
-            'databases_to_backup' => $validated['databases_to_backup'] ?? null,
-            'dump_all' => $validated['dump_all'],
-            'timeout' => $validated['timeout'],
-        ]);
 
         return back()->with('success', 'Backup updated successfully.');
     }
@@ -257,24 +209,7 @@ class ProjectDatabaseBackupController extends Controller
             return back()->with('error', 'The provided password is incorrect.');
         }
 
-        $server = $database->destination?->server;
-        $filenames = $backup->executions()
-            ->whereNotNull('filename')
-            ->where('filename', '!=', '')
-            ->pluck('filename')
-            ->filter()
-            ->all();
-
-        if (! empty($filenames)) {
-            if ($request->boolean('delete_associated_backups_locally') && $server) {
-                deleteBackupsLocally($filenames, $server);
-            }
-            if ($request->boolean('delete_associated_backups_s3') && $backup->s3) {
-                deleteBackupsS3($filenames, $backup->s3);
-            }
-        }
-
-        $backup->delete();
+        $this->deleteBackupScheduleFiles($request, $backup, $database->destination?->server);
 
         return redirect()->route('project.database.backup.index', compact('project_uuid', 'environment_uuid', 'database_uuid'))
             ->with('success', 'Scheduled backup deleted.');
@@ -311,7 +246,7 @@ class ProjectDatabaseBackupController extends Controller
             return $backup;
         }
 
-        $backup->executions()->where('status', 'failed')->delete();
+        $this->cleanupFailedBackupExecutions($backup);
 
         return back()->with('success', 'Failed backups cleaned up.');
     }
@@ -328,12 +263,10 @@ class ProjectDatabaseBackupController extends Controller
             return $backup;
         }
 
-        $deletedCount = $backup->executions()->where('local_storage_deleted', true)->count();
+        $deletedCount = $this->cleanupDeletedBackupExecutions($backup);
         if ($deletedCount === 0) {
             return back()->with('info', 'No backup entries found that are deleted from local storage.');
         }
-
-        $backup->executions()->where('local_storage_deleted', true)->delete();
 
         return back()->with('success', "Cleaned up {$deletedCount} backup entries deleted from local storage.");
     }
@@ -356,27 +289,12 @@ class ProjectDatabaseBackupController extends Controller
             return back()->with('error', 'The provided password is incorrect.');
         }
 
-        $execution = $backup->executions()->where('id', $execution_id)->first();
-        if (! $execution) {
-            return back()->with('error', 'Backup execution not found.');
+        $error = $this->deleteBackupExecution($request, $backup, $execution_id, $database->destination?->server);
+        if ($error) {
+            return back()->with('error', $error);
         }
 
-        $server = $database->destination?->server;
-
-        try {
-            if ($execution->filename) {
-                deleteBackupsLocally($execution->filename, $server);
-                if ($request->boolean('delete_backup_s3') && $backup->s3) {
-                    deleteBackupsS3($execution->filename, $backup->s3);
-                }
-            }
-
-            $execution->delete();
-
-            return back()->with('success', 'Backup deleted.');
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Failed to delete backup: '.$e->getMessage());
-        }
+        return back()->with('success', 'Backup deleted.');
     }
 
     public function start(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
@@ -533,69 +451,6 @@ class ProjectDatabaseBackupController extends Controller
             'timingText' => $timingText,
             'sizeText' => $sizeText,
             'executeUrl' => route('project.database.backup.execution', [...$parameters, 'backup_uuid' => $backup->uuid]),
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function backupEditProps(ScheduledDatabaseBackup $backup): array
-    {
-        return [
-            'id' => $backup->id,
-            'databaseName' => $backup->database?->name,
-            'databaseType' => $backup->database_type,
-            'databaseId' => $backup->database_id,
-            'status' => $backup->database?->status,
-            'enabled' => (bool) $backup->enabled,
-            'frequency' => $backup->frequency,
-            'timezone' => data_get($backup->server(), 'settings.server_timezone', 'Instance timezone'),
-            'timeout' => $backup->timeout,
-            'saveS3' => (bool) $backup->save_s3,
-            'disableLocalBackup' => (bool) $backup->disable_local_backup,
-            's3StorageId' => $backup->s3_storage_id,
-            'databasesToBackup' => $backup->databases_to_backup,
-            'dumpAll' => (bool) $backup->dump_all,
-            'databaseBackupRetentionAmountLocally' => $backup->database_backup_retention_amount_locally,
-            'databaseBackupRetentionDaysLocally' => $backup->database_backup_retention_days_locally,
-            'databaseBackupRetentionMaxStorageLocally' => (float) $backup->database_backup_retention_max_storage_locally,
-            'databaseBackupRetentionAmountS3' => $backup->database_backup_retention_amount_s3,
-            'databaseBackupRetentionDaysS3' => $backup->database_backup_retention_days_s3,
-            'databaseBackupRetentionMaxStorageS3' => (float) $backup->database_backup_retention_max_storage_s3,
-        ];
-    }
-
-    /**
-     * @param  array<string, string>  $parameters
-     * @return array<string, mixed>
-     */
-    private function executionProps(ScheduledDatabaseBackupExecution $execution, array $parameters, string $backup_uuid): array
-    {
-        $server = $execution->scheduledDatabaseBackup?->server();
-        $timingText = null;
-        if ($execution->status === 'running') {
-            $timingText = 'Running for '.calculateDuration($execution->created_at, now());
-        } elseif ($execution->finished_at) {
-            $timingText = Carbon::parse($execution->finished_at)->diffForHumans()
-                .' ('.calculateDuration($execution->created_at, $execution->finished_at).')'
-                .' • '.Carbon::parse($execution->finished_at)->format('M j, H:i');
-        }
-
-        return [
-            'id' => $execution->id,
-            'status' => $execution->status,
-            's3Uploaded' => $execution->s3_uploaded,
-            'timingText' => $timingText,
-            'startedAt' => $server ? formatDateInServerTimezone($execution->created_at, $server) : null,
-            'finishedAt' => ($execution->finished_at && $server) ? formatDateInServerTimezone($execution->finished_at, $server) : null,
-            'databaseName' => $execution->database_name,
-            'size' => $execution->size ? formatBytes($execution->size) : null,
-            'filename' => $execution->filename,
-            'message' => $execution->message,
-            'localStorageDeleted' => (bool) $execution->local_storage_deleted,
-            's3StorageDeleted' => (bool) $execution->s3_storage_deleted,
-            'destroyUrl' => route('project.database.backup.execution.destroy', [...$parameters, 'backup_uuid' => $backup_uuid, 'execution_id' => $execution->id]),
-            'downloadUrl' => route('download.backup', ['executionId' => $execution->id]),
         ];
     }
 }

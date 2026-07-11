@@ -169,10 +169,130 @@ parameters:
 			path: app/Http/Controllers/ApplicationDeploymentController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$mariadb_database\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$mysql_database\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$postgres_db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>supportsBackup" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type Illuminate\\Database\\Eloquent\\Model\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseBackupController.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>ssl_certificate" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/ServerCaCertificateController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SettingsBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/SettingsBackupController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type Illuminate\\Database\\Eloquent\\Model\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: app/Http/Controllers/SettingsBackupController.php
 
 		-
 			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledDatabaseBackup and ''server'' will always evaluate to true\.$#'
@@ -7147,48 +7267,6 @@ parameters:
 			path: app/Livewire/Settings/Index.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsBackup\:\:addCoolifyDatabase\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsBackup\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
-			message: '#^Method App\\Livewire\\SettingsBackup\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
-			message: '#^Property App\\Livewire\\SettingsBackup\:\:\$backup type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
-			message: '#^Property App\\Livewire\\SettingsBackup\:\:\$executions has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
-			message: '#^Property App\\Livewire\\SettingsBackup\:\:\$s3s has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/SettingsBackup.php
-
-		-
 			message: '#^Method App\\Livewire\\SettingsDropdown\:\:closeWhatsNewModal\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -13391,106 +13469,3 @@ parameters:
 			identifier: trait.unused
 			count: 1
 			path: app/Traits/SaveFromRedirect.php
-
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$mariadb_database\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$mysql_database\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$postgres_db\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>supportsBackup" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Using nullsafe property access on non\-nullable type Illuminate\\Database\\Eloquent\\Model\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
