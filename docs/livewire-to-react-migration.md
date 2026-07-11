@@ -1749,3 +1749,44 @@ Earlier phases (`Server\DockerCleanup`, the Application Deployment pages, `Serve
 - No specific next Hard-bucket candidate has been research-ranked yet beyond `Server\Proxy\Logs`/`Server\Sentinel\Logs` needing their own `GetLogs`-porting phase.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 81. Phase 38 — `Source\Github\Change`: the largest single-class conversion since Phase 34, and zero nested Livewire children despite 435 PHP + 422 Blade lines
+
+Converts the GitHub App configuration page (`/source/github/{uuid}`, plus `/permissions` and `/resources` sibling routes) — GitHub App registration (automated manifest flow or manual entry), a 3-tab configuration UI (General/Permissions/Resources) once registered, and delete. Investigated for nested Livewire children and real-time listeners first (per this migration's standard opening move) — found none of either, despite the size. The complexity here is genuinely all business logic (JWT generation for GitHub's API, a client-side manifest-flow form-post to GitHub itself, cache-backed setup-state tokens), not UI nesting — a different shape of "big" than Phase 34's `Project\CloneMe` or Phase 33's `Server\Index`, but the same lesson: size alone doesn't predict Hard-bucket difficulty as reliably as checking for nested children does.
+
+### A pure client-side external redirect, not a backend action
+
+The "Register Now" button doesn't call this app's backend at all — the original's `createGithubApp()` JS function builds a GitHub App manifest client-side and submits a real `<form method="post">` directly to `github.com/settings/apps/new`, using a `manifestState` value cached server-side (via `Cache::put()`, keyed by a random token) so GitHub's callback can be verified later. Ported as an equivalent plain JS function in the React component — no new backend endpoint needed for this specific flow, just the same server-computed `manifestState` passed down as a prop exactly like the original passed it to Alpine/Blade via `@js()`.
+
+### A `session('from')` redirect-back path, easy to miss without reading `mount()` fully
+
+When a user navigates here mid-flow from an application's "select a source" screen (tracked via `session('from')`, set elsewhere), completing GitHub App installation should redirect back to resume that flow rather than land on this page. Ported into `SourceGithubController::show()` unchanged — it's exactly the kind of behavior that's invisible from the Blade view alone and only surfaces by reading the original `mount()` method line by line, which is why this migration's recipe has always included reading the full original class, not just skimming for obvious nested-component/real-time flags.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/SourceGithubController.php` | created | `show()` (handles all 3 tab routes + the mid-flow redirect-back), `update()`, `updateName()` (calls GitHub's API to sync the app slug), `checkPermissions()` (dispatches `GithubAppPermissionJob` sync), `instantSaveSystemWide()`, `createManual()`, `destroy()` |
+| `resources/js/Pages/Source/Github/Change.jsx` | created | Pre-registration state (Register Now / Manual Installation cards) and post-registration state (3-tab config UI), inline typed-name delete confirmation modal, the ported `createGithubApp()` manifest-flow function |
+| `routes/web.php` | modified | `source.github.show`/`.permissions`/`.resources` repointed at the new controller; added `.update`/`.update-name`/`.check-permissions`/`.instant-save`/`.create-manual`/`.destroy`; removed the Livewire import |
+| `app/Livewire/Source/Github/Change.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by route name, never by class |
+| `resources/views/source/all.blade.php` | modified | Stripped `wireNavigate()` from the one link to `source.github.show`, now fully Inertia |
+| `phpstan-baseline.neon` | modified | Cleaned 16 stale entries for the deleted `Change.php` |
+| `tests/v4/Feature/SourceGithubChangeTest.php` | created | 7 tests: renders pre-registration state, renders the tabbed post-registration state with the correct `activeTab`, 404s for a foreign-team app, updates the configuration, rejects an unsafe (SSRF-guarded) `apiUrl`, rejects deleting an app still used by an application, deletes a genuinely-unused app |
+
+### Phase 38 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | fixed import ordering in the new test file; passed after |
+| PHPStan (`vendor/bin/phpstan analyse --memory-limit=1G`) | `[OK] No errors` after cleaning the 16 stale baseline entries |
+| 7 new Feature tests (`SourceGithubChangeTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 347 passed (1188 assertions), no regressions |
+| `yarn build` | Succeeded — `Source/Github/Change.jsx` confirmed present in `manifest.json` |
+
+## 82. Non-goals of Phase 38
+
+- `updateName()`'s real GitHub-API-calling happy path (fetching the app's slug and renaming both the app and its associated private key) remains untested — verified only via the surrounding validation/authorization paths in Pest, per this migration's standing untested-happy-path convention.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

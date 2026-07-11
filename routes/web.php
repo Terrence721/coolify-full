@@ -46,6 +46,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SettingsEmailController;
 use App\Http\Controllers\SettingsScheduledJobsController;
 use App\Http\Controllers\SharedVariablesController;
+use App\Http\Controllers\SourceGithubController;
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamController;
@@ -72,7 +73,6 @@ use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesS
 use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
 use App\Livewire\SharedVariables\Server\Show as ServerSharedVariablesShow;
 use App\Livewire\SharedVariables\Team\Index as TeamSharedVariablesIndex;
-use App\Livewire\Source\Github\Change as GitHubChange;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
 use App\Providers\RouteServiceProvider;
@@ -432,9 +432,15 @@ Route::middleware(['auth'])->group(function () {
             'sources' => $sources,
         ]);
     })->name('source.all');
-    Route::get('/source/github/{github_app_uuid}', GitHubChange::class)->name('source.github.show');
-    Route::get('/source/github/{github_app_uuid}/permissions', GitHubChange::class)->name('source.github.permissions');
-    Route::get('/source/github/{github_app_uuid}/resources', GitHubChange::class)->name('source.github.resources');
+    Route::get('/source/github/{github_app_uuid}', [SourceGithubController::class, 'show'])->name('source.github.show');
+    Route::get('/source/github/{github_app_uuid}/permissions', [SourceGithubController::class, 'show'])->name('source.github.permissions');
+    Route::get('/source/github/{github_app_uuid}/resources', [SourceGithubController::class, 'show'])->name('source.github.resources');
+    Route::put('/source/github/{github_app_uuid}', [SourceGithubController::class, 'update'])->name('source.github.update');
+    Route::post('/source/github/{github_app_uuid}/update-name', [SourceGithubController::class, 'updateName'])->name('source.github.update-name');
+    Route::post('/source/github/{github_app_uuid}/check-permissions', [SourceGithubController::class, 'checkPermissions'])->name('source.github.check-permissions');
+    Route::post('/source/github/{github_app_uuid}/instant-save', [SourceGithubController::class, 'instantSaveSystemWide'])->name('source.github.instant-save');
+    Route::post('/source/github/{github_app_uuid}/create-manual', [SourceGithubController::class, 'createManual'])->name('source.github.create-manual');
+    Route::delete('/source/github/{github_app_uuid}', [SourceGithubController::class, 'destroy'])->name('source.github.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {
