@@ -18,6 +18,7 @@ use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectResourceController;
 use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityCloudInitScriptsController;
 use App\Http\Controllers\SecurityCloudTokensController;
@@ -57,7 +58,6 @@ use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
 use App\Livewire\Project\Database\Backup\Index as DatabaseBackupIndex;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
-use App\Livewire\Project\Resource\Index as ResourceIndex;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
 use App\Livewire\Project\Service\DatabaseBackups as ServiceDatabaseBackups;
 use App\Livewire\Project\Service\Index as ServiceIndex;
@@ -246,7 +246,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/', [ProjectController::class, 'destroy'])->name('project.destroy');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}')->group(function () {
-        Route::get('/', ResourceIndex::class)->name('project.resource.index');
+        Route::get('/', [ProjectResourceController::class, 'index'])->name('project.resource.index');
         Route::get('/clone', [EnvironmentController::class, 'cloneMe'])->name('project.clone-me')->middleware('can.create.resources');
         Route::post('/clone', [EnvironmentController::class, 'clone'])->name('project.clone-me.store')->middleware('can.create.resources');
         Route::get('/new', ResourceCreate::class)->name('project.resource.create')->middleware('can.create.resources');

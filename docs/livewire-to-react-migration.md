@@ -1607,3 +1607,55 @@ None of these were reachable via this migration's usual "safe/validation-rejecti
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 75. Phase 35 — `Project\Resource\Index`: the environment resources page, a third shared-modal extraction, and a real null-safety bug in `Service::serverStatus()`
+
+Converts the resources listing page (`/project/{uuid}/environment/{uuid}`) — the two-level project/environment breadcrumb dropdown, a client-side search box filtering applications/databases/services by name/fqdn/description/tag, and the environment's "Delete Environment"/"+ New"/"Clone" actions. Chosen specifically for having zero nested Livewire children in its own Blade view (confirmed via grep before starting) — after Phase 33's nested-modal complexity, a deliberate return to a structurally simple candidate, same reasoning as Phase 34.
+
+### Third shared-component extraction: `DeleteEnvironmentModal.jsx`
+
+This page's "Delete Environment" button was the **second** real consumer of the exact typed-name-confirmation delete flow already built inline in Phase 31's `Project/EnvironmentEdit.jsx` (which itself already reuses `EnvironmentController::destroy()` — no new backend logic needed at all here). Extracted the existing inline modal out of `EnvironmentEdit.jsx` into `resources/js/Components/DeleteEnvironmentModal.jsx` and refactored `EnvironmentEdit.jsx` to use it, then used it here too — same "extract only once there's a genuine second consumer" discipline as `PrivateKeyCreateModal.jsx` (Phase 25) and `DeleteProjectModal.jsx` (Phase 27).
+
+### A full component retirement bundled with this phase: `Project\DeleteEnvironment`
+
+The nested `<livewire:project.delete-environment>` child (kept alive since Phase 31 specifically because this page was its last real consumer) now has zero consumers, confirmed via grep. Deleted outright — its logic was never actually needed, since `EnvironmentController::destroy()` already covers the same behavior.
+
+### A real bug: `Service::serverStatus()` had no null-safety, unlike its `Application` sibling
+
+The first automated test to render a `Service` through this page's `toSearchableArray()` (which reads `$item->server_status`) crashed with `Call to a member function isFunctional() on null`. `Service::server()` is a direct `belongsTo(Server::class)` via `server_id` — nullable, and clearly reachable in practice (a service without a server attached yet). `Service::serverStatus()`'s accessor called `$this->server->isFunctional()` with no guard at all. Compared this against `Application::serverStatus()`, which handles the identical situation correctly (`$mainServer?->isFunctional() ?? false`) — confirming this was a real, pre-existing oversight on `Service`'s side, not a deliberate difference. Fixed to match: `$this->server?->isFunctional() ?? false`. Grepped for any other direct usage of `Service::$server_status` first — found none, so no risk of the null-safety fix silently changing other behavior.
+
+### A front-end simplification: no JS-computed flyout positioning
+
+The original Blade view's second-level "environment → its resources" flyout used Alpine state (`envPositions`) to compute each row's pixel offset via `$el.offsetTop`, so the flyout could be absolutely positioned next to the hovered row. The React version positions each row's flyout relative to its own wrapping element (`absolute left-full top-0` on a per-row `relative` container) instead — same visual behavior, no JS position-tracking needed. Consistent with this migration's standing allowance for front-end simplifications that preserve behavior without preserving exact implementation technique.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ProjectResourceController.php` | created | `index()` — resources grid, breadcrumb dropdown data (all projects, all sibling environments with their own resource lists), search-ready flattened arrays for applications/databases/services |
+| `resources/js/Pages/Project/Resource/Index.jsx` | created | Breadcrumb dropdowns, client-side search/filter (mirrors the original's `filterAndSort` logic via `useMemo`), resource cards grouped by type, empty states |
+| `resources/js/Components/DeleteEnvironmentModal.jsx` | created | Extracted from `EnvironmentEdit.jsx`; see above |
+| `resources/js/Pages/Project/EnvironmentEdit.jsx` | modified | Refactored to use the extracted `DeleteEnvironmentModal` instead of its own inline copy |
+| `routes/web.php` | modified | `project.resource.index` repointed at the new controller; removed the `Resource\Index` Livewire import |
+| `app/Livewire/Project/Resource/Index.php`, `app/Livewire/Project/DeleteEnvironment.php` (+ matching Blade views) | **deleted** | Confirmed via grep: zero remaining consumers of either |
+| `resources/views/components/resources/breadcrumbs.blade.php` | modified | Stripped `wireNavigate()` from 2 links now pointing at the fully-Inertia resource index (shared component, still used by not-yet-converted Application/Database/Service Configuration pages — only the specific links targeting `project.resource.index` were touched) |
+| `app/Models/Service.php` | modified | Fixed `serverStatus()`'s missing null-safety, described above |
+| `phpstan-baseline.neon` | modified | Cleaned 18 stale entries for the 2 deleted files |
+| `tests/v4/Feature/ProjectResourceIndexTest.php` | created | 4 tests: renders the empty-state page, lists applications/services with correct configuration links (this is what caught the `Service::serverStatus()` bug), lists sibling environments with their own resources for the breadcrumb dropdown, 404s for a foreign-team project |
+
+### Phase 35 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed every run |
+| PHPStan (`vendor/bin/phpstan analyse --memory-limit=1G`) | found 2 real findings from this phase's own code (missing generics PHPDoc on `toSearchableArray()`); fixed; `[OK] No errors` after cleaning the 18 stale baseline entries |
+| 4 new Feature tests (`ProjectResourceIndexTest`) | 1 failed on first run (the `Service::serverStatus()` crash, a real bug — see above); fixed; all 4 passed after |
+| Full suite (`php artisan test --compact`) | 330 passed (1105 assertions), no regressions |
+| `yarn build` | Succeeded — `Project/Resource/Index.jsx` confirmed present in `manifest.json` |
+
+## 76. Non-goals of Phase 35
+
+- `Project\Resource\Create` (the "+ New" resource wizard) remains on Livewire — it nests 6 different resource-creation flows (git repo, GitHub private repo, deploy-key GitHub, Dockerfile, Docker Compose, Docker image) plus a type-selector, a substantially larger scope than this phase.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

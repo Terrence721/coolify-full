@@ -105,7 +105,7 @@
         <li class="inline-flex items-center" x-data="{ envOpen: false, activeEnv: null, envPositions: {}, closeTimeout: null, envTimeout: null, toggle() { this.envOpen = !this.envOpen; if (!this.envOpen) { this.activeEnv = null; } }, open() { clearTimeout(this.closeTimeout); this.envOpen = true }, close() { this.closeTimeout = setTimeout(() => { this.envOpen = false; this.activeEnv = null; }, 100) }, openEnv(id) { clearTimeout(this.closeTimeout); clearTimeout(this.envTimeout); this.activeEnv = id }, closeEnv() { this.envTimeout = setTimeout(() => { this.activeEnv = null; }, 100) } }">
             <div class="flex items-center relative" @mouseenter="open()"
                 @mouseleave="close()">
-                <a class="text-xs truncate lg:text-sm hover:text-warning" {{ wireNavigate() }}
+                <a class="text-xs truncate lg:text-sm hover:text-warning"
                     href="{{ route('project.resource.index', [
                         'environment_uuid' => $currentEnvironmentUuid,
                         'project_uuid' => $currentProjectUuid,
@@ -151,7 +151,7 @@
                                 <a href="{{ route('project.resource.index', [
                                         'environment_uuid' => $environment->uuid,
                                         'project_uuid' => $currentProjectUuid,
-                                    ]) }}" {{ wireNavigate() }}
+                                    ]) }}"
                                     class="flex items-center justify-between gap-2 px-4 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-coolgray-200 {{ $environment->uuid === $currentEnvironmentUuid ? 'dark:text-warning font-semibold' : '' }}"
                                     title="{{ $environment->name }}">
                                     <span class="truncate">{{ $environment->name }}</span>
