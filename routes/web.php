@@ -56,7 +56,6 @@ use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
-use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
@@ -326,7 +325,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/backups', [ProjectDatabaseBackupController::class, 'index'])->name('project.database.backup.index');
         Route::post('/backups', [ProjectDatabaseBackupController::class, 'store'])->name('project.database.backup.store');
-        Route::get('/backups/{backup_uuid}', DatabaseBackupExecution::class)->name('project.database.backup.execution');
+        Route::get('/backups/{backup_uuid}', [ProjectDatabaseBackupController::class, 'execution'])->name('project.database.backup.execution');
+        Route::put('/backups/{backup_uuid}', [ProjectDatabaseBackupController::class, 'updateBackupSchedule'])->name('project.database.backup.update');
+        Route::delete('/backups/{backup_uuid}', [ProjectDatabaseBackupController::class, 'destroyBackupSchedule'])->name('project.database.backup.destroy');
+        Route::post('/backups/{backup_uuid}/backup-now', [ProjectDatabaseBackupController::class, 'backupNow'])->name('project.database.backup.backup-now');
+        Route::post('/backups/{backup_uuid}/cleanup-failed', [ProjectDatabaseBackupController::class, 'cleanupFailedExecutions'])->name('project.database.backup.cleanup-failed');
+        Route::post('/backups/{backup_uuid}/cleanup-deleted', [ProjectDatabaseBackupController::class, 'cleanupDeletedExecutions'])->name('project.database.backup.cleanup-deleted');
+        Route::delete('/backups/{backup_uuid}/executions/{execution_id}', [ProjectDatabaseBackupController::class, 'destroyExecution'])->name('project.database.backup.execution.destroy');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}')->group(function () {
         Route::get('/', ServiceConfiguration::class)->name('project.service.configuration');

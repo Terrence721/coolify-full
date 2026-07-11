@@ -1890,3 +1890,45 @@ Designing a safe (non-SSH) test for the Start/Restart buttons meant using a fres
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 87. Phase 41 — `Project\Database\Backup\Execution`: closes out the standalone-database backup page family, reuses Phase 40's `DatabaseHeading`/`ConfigurationChecker`, and fixes a real broadcast-channel bug
+
+Converts the single-backup detail page (`project.database.backup.execution` — reached by clicking a card on the Phase 40 Index page), which edits a `ScheduledDatabaseBackup`'s settings and lists/manages its executions. Like Phase 40's `Backup\Index`, the original Livewire class itself is a thin mount-only wrapper; the real complexity lives in 3 nested children (`Project\Database\BackupEdit`, `BackupExecutions`, `BackupNow`). Research confirmed all 3 stay in place — they're still used by `settings-backup.blade.php` (the instance-wide Settings → Backup page) and by `scheduled-backups.blade.php`'s `type === 'service-database'` branch (the service-database equivalent of this same feature, still Livewire) — so only their `<livewire:...>` tags were removed from the now-deleted `execution.blade.php`, matching Phase 40's pattern exactly. `DatabaseHeading.jsx` and `ConfigurationChecker.jsx`, both built in Phase 40 specifically anticipating reuse, are used here unmodified — the first payoff of that investment.
+
+### A dead `wireNavigate()` link found, but deliberately left alone
+
+`scheduled-backups.blade.php`'s `type === 'database'` branch (the card that links to this page) still has `{{ wireNavigate() }}` on its href — normally something this migration's recipe strips once the destination becomes Inertia. Investigation showed that branch is now **entirely unreachable**: `ScheduledBackups` is only ever rendered with `type === 'database'` by `Project\Database\Backup\Index`, which Phase 40 already deleted. The only remaining renderer (`Project\Service\DatabaseBackups`) always sets `type === 'service-database'`. Left the dead branch as-is rather than editing unreachable code in a file this phase isn't otherwise touching — noted here and in `todo.md`'s cleanup list instead of silently fixing or silently ignoring it.
+
+### A second real pre-existing bug: `BackupExecutions` listens on the wrong Echo channel
+
+`App\Livewire\Project\Database\BackupExecutions::getListeners()` subscribes to `"echo-private:team.{$userId},BackupCreated"` using `Auth::id()` — but `BackupCreated::broadcastOn()` broadcasts on `PrivateChannel("team.{$teamId}")`, keyed by **team** ID, not **user** ID. Since a user's ID essentially never equals their current team's ID, this listener has likely never fired in production; `wire:poll.5000ms` was doing all the real work silently covering for it. The React port uses `useTeamChannel(['BackupCreated'], ...)` — the correctly-team-scoped hook already established throughout this migration — fixing the mismatch as a side effect of porting to the existing hook, alongside keeping the same 5-second polling fallback for parity.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectDatabaseBackupController.php` | modified | Added `execution()`, `updateBackupSchedule()`, `destroyBackupSchedule()`, `backupNow()`, `cleanupFailedExecutions()`, `cleanupDeletedExecutions()`, `destroyExecution()`, plus private `resolveBackup()`/`backupEditProps()`/`executionProps()` — extended rather than a new controller, since Index/Execution are two views of one feature area |
+| `resources/js/Pages/Project/Database/Backup/Execution.jsx` | created | `BackupEditForm` (all settings fields, per-engine conditional databases-to-backup input, retention settings), `ExecutionCard` (status/timing/size, download link, delete), a shared `PasswordConfirmModal` (typed-confirmation + password + optional checkboxes, reused 3 times: schedule delete, execution delete, cleanup-deleted) |
+| `routes/web.php` | modified | Repointed `project.database.backup.execution` at the controller; added `.update`/`.destroy`/`.backup-now`/`.cleanup-failed`/`.cleanup-deleted`/`.execution.destroy`; removed the now-unused `DatabaseBackupExecution` Livewire import |
+| `app/Livewire/Project/Database/Backup/Execution.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by route name |
+| `tests/v4/Feature/ProjectDatabaseBackupExecutionTest.php` | created | 11 tests: renders with executions, 404-redirects for a foreign backup UUID, updates the schedule, rejects an invalid cron expression, deletes the schedule (correct/incorrect password), dispatches `DatabaseBackupJob` for Backup Now (plain `ShouldQueue` job this time — `Queue::assertPushed()` works directly, unlike Phase 40's lorisleiva-Action case), cleans up failed/deleted executions, deletes a single execution (correct/incorrect password) |
+| `phpstan-baseline.neon` | modified | Removed all stale entries for the deleted `Execution.php`; regenerated entries for the controller's growth against the same pre-existing `StandaloneDatabaseInstance` interface gap (count bumps, not new categories of error) |
+
+### Phase 41 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | fixed unused imports in the new test file; passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Baseline fully regenerated for `ProjectDatabaseBackupController.php` (all pre-existing-gap noise) after removing the deleted-file entries; `[OK] No errors` |
+| 11 new Feature tests | All 11 passed on the first run |
+| Full suite (`php artisan test --compact`) | 583 passed (2472 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 6.42s — `Execution-*.js` confirmed in the build output |
+
+## 88. Non-goals of Phase 41
+
+- `updateBackupSchedule()`'s and `backupNow()`'s real SSH-touching happy paths remain untested beyond validation/rejection — same standing convention.
+- The dead `wireNavigate()` branch in `scheduled-backups.blade.php` (see above) was identified but deliberately not touched this phase.
+- Settings → Backup (`settings-backup.blade.php`, instance-wide) and `Project\Service\DatabaseBackups` (the service-database equivalent) both still render `BackupEdit`/`BackupExecutions` as Livewire islands — converting either is separate future work.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

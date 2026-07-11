@@ -68,7 +68,7 @@ Auth:
 
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (41 pages so far) — real-time and non-trivial
+## 4. Hard bucket (42 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -79,6 +79,15 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Change an environment variable, confirm the "configuration changed" banner appears and the diff modal shows the right redaction (non-admins see masked env values, admins see real ones).
 - [ ] Test Stop/Restart/Force-deploy buttons.
 - [ ] Filter by PR ID, confirm pagination (prev/next) works.
+
+**`/project/{uuid}/environment/{uuid}/database/{uuid}/backups/{backup_uuid}` (Database Backup Execution)**
+
+- [ ] Trigger a real backup run (Backup Now or wait for the schedule). Confirm a new execution card appears **without a manual refresh** (Echo-driven via `BackupCreated` — this listener was broken in the original Livewire code, listening on the wrong channel; confirm it's actually correct now, not just relying on the 5s poll fallback).
+- [ ] Edit and Save the schedule form (frequency, retention settings, S3 toggle); confirm the per-engine "Databases To Backup"/"Backup All Databases" fields show correctly for each database engine.
+- [ ] "Delete Backups and Schedule" — confirm the typed-database-name + password confirmation both gate the button, and a wrong password shows an error without deleting anything.
+- [ ] Delete a single execution — confirm the S3 checkbox only appears when that execution was actually uploaded to S3, and the delete redirects back to the same page (not the Index).
+- [ ] "Cleanup Failed Backups" and "Cleanup Deleted" (typed-confirmation + password) both actually remove the expected rows and nothing else.
+- [ ] Download a successful execution's backup file.
 
 **`/terminal` (live SSH terminal)** — the highest-risk page in the whole migration so far:
 
