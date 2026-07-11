@@ -1,6 +1,7 @@
 # Coolify Technology Stack
 
-**Last Updated: July 10, 2026**
+<!-- markdownlint-disable-next-line MD036 -->
+**Last Updated: July 12, 2026**
 
 ## Frontend
 

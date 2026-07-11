@@ -1,6 +1,7 @@
 Position Alignment — Senior Full‑Stack Developer
 
-**Last Updated: July 10, 2026**
+<!-- markdownlint-disable-next-line MD036 -->
+**Last Updated: July 12, 2026**
 
 This document explains how the enhancements in my Coolify‑Full fork directly align with the competencies, responsibilities, and expectations outlined in the Senior Full‑Stack Developer role.
 

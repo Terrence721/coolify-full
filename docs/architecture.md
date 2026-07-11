@@ -1,6 +1,7 @@
 # Architecture Overview
 
-**Last Updated: July 10, 2026**
+<!-- markdownlint-disable-next-line MD036 -->
+**Last Updated: July 12, 2026**
 
 This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
 
@@ -39,7 +40,7 @@ There is no `agents/` directory and no separate agent codebase in this repositor
 
 ## 3. Backend (`app/`)
 
-- **`Actions/`** — domain actions using `lorisleiva/laravel-actions`, organized by area: `Application/`, `Database/`, `Docker/`, `Proxy/`, `Server/`, `Service/`, `Shared/`, `CoolifyTask/`, `Fortify/`, `User/`. `CoolifyTask/RunRemoteProcess.php` is the action that actually runs commands on remote servers over SSH (via the `instant_remote_process()` / `SshMultiplexingHelper` helpers in `bootstrap/helpers/remoteProcess.php`) — this is the real "remote execution" layer, not a separate agent process. There is no `Stripe/` subfolder — this fork removed the Stripe/subscription billing subsystem entirely (see [TODO.md](../TODO.md)).
+- **`Actions/`** — domain actions using `lorisleiva/laravel-actions`, organized by area: `Application/`, `Database/`, `Docker/`, `Proxy/`, `Server/`, `Service/`, `Shared/`, `CoolifyTask/`, `Fortify/`, `User/`. `CoolifyTask/RunRemoteProcess.php` is the action that actually runs commands on remote servers over SSH (via the `instant_remote_process()` / `SshMultiplexingHelper` helpers in `bootstrap/helpers/remoteProcess.php`) — this is the real "remote execution" layer, not a separate agent process. There is no `Stripe/` subfolder — this fork removed the Stripe/subscription billing subsystem entirely (see [todo.md](../todo.md)).
 - **`Http/Controllers/`** — REST API controllers (`Api/`) plus the growing set of Inertia page controllers created during the React migration (see the migration doc).
 - **`Livewire/`** — the UI layer for pages not yet migrated to Inertia/React. As of the latest phase, more full-page components have been converted to Inertia/React than remain on Livewire — see [livewire-to-react-migration.md](livewire-to-react-migration.md) for the exact running count.
 - **`Models/`** — Eloquent models (`Server`, `Application`, `Service`, `Project`, `Team`, standalone database models, etc.).
@@ -81,7 +82,7 @@ A deployment does not go through a separate agent service — it's a Laravel job
 ## 6. Docker & environments
 
 | File | Purpose |
-|---|---|
+| --- | --- |
 | `docker-compose.yml` | Base/production service definitions |
 | `docker-compose.dev.yml` | Local development override — adds `postgres`, `redis`, `soketi`, `vite`, `testing-host`, `mailpit`, `minio` alongside the `coolify` app container |
 | `docker-compose.prod.yml` | Production-specific overrides |

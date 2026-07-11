@@ -1,6 +1,7 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
-**Last Updated: July 10, 2026**
+<!-- markdownlint-disable-next-line MD036 -->
+**Last Updated: July 12, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -23,7 +24,7 @@ The original Coolify UI is built on Blade, Livewire, and Alpine.js. Rather than 
 A plain React SPA would require designing and versioning a whole new API surface before a single page could move. Inertia avoids that: each migrated page stays a normal Laravel route/controller returning props, so migrated and not-yet-migrated pages coexist under the same app, and Laravel's existing routing, auth, CSRF, and session handling keep working unchanged.
 
 **De-commercialization**
-This fork also strips the SaaS/billing surface area from upstream Coolify (Stripe integration, subscription gating, sponsor/upsell UI) to produce a clean, no-frills, self-hosted-only platform. See [`TODO.md`](TODO.md) for what's been removed and what's still tracked.
+This fork also strips the SaaS/billing surface area from upstream Coolify (Stripe integration, subscription gating, sponsor/upsell UI) to produce a clean, no-frills, self-hosted-only platform. See [`todo.md`](todo.md) for what's been removed and what's still tracked.
 
 **Full-stack engineering depth**
 This project demonstrates hands-on experience across:
@@ -61,12 +62,12 @@ Vite's dev server (default port `5173`) exists only to compile and hot-reload JS
 
 ## ▶️ Running the Project
 
-**Prerequisites**
+### Prerequisites
 
 - Docker
 - Docker Compose
 
-**Start the dev stack**
+### Start the dev stack
 
 ```bash
 spin up
@@ -74,7 +75,7 @@ spin up
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-**Access the application**
+### Access the application
 
 - App (Livewire + Inertia/React pages, same origin): [http://localhost:8000](http://localhost:8000)
 - Vite dev server (asset bundling/HMR, not for browsing): `http://localhost:5173`
@@ -87,7 +88,7 @@ The Livewire → Inertia.js/React migration is being done page-by-page and track
 - [`docs/smoketest.md`](docs/smoketest.md) — manual QA checklist for behavior automated checks can't fully exercise (real-time/SSH-dependent pages).
 - [`docs/architecture.md`](docs/architecture.md) — verified repository structure, backend/frontend layout, and Docker setup.
 - [`TECH_STACK.md`](TECH_STACK.md) — current technology stack, including the coexistence of Livewire/Alpine and Inertia.js/React.
-- [`TODO.md`](TODO.md) — living list of what's done and what's left, including the de-commercialization work.
+- [`todo.md`](todo.md) — living list of what's done and what's left, including the de-commercialization work.
 
 ## 🧰 Tech Stack
 
