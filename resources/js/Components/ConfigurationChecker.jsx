@@ -1,7 +1,14 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
-import { useTeamChannel } from '../../../../hooks/useTeamChannel';
+import { useTeamChannel } from '../hooks/useTeamChannel';
 
+/**
+ * Shared across every resource type (Application, Database, Service) — mirrors
+ * App\Livewire\Project\Shared\ConfigurationChecker, which broadcasts the same
+ * ApplicationConfigurationChanged event name regardless of resource type. First
+ * built for Project/Application/Deployment/Index (Phase 7); moved here in Phase 40
+ * once Project/Database/Backup/Index became a second consumer.
+ */
 export default function ConfigurationChecker({ configurationChecker }) {
     const [modalOpen, setModalOpen] = useState(false);
     const [expandedRows, setExpandedRows] = useState({});

@@ -19,6 +19,7 @@ use App\Http\Controllers\NotificationsWebhookController;
 use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectDatabaseBackupController;
 use App\Http\Controllers\ProjectResourceController;
 use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityCloudInitScriptsController;
@@ -56,7 +57,6 @@ use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
 use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
-use App\Livewire\Project\Database\Backup\Index as DatabaseBackupIndex;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
@@ -318,7 +318,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/logs', Logs::class)->name('project.database.logs');
         Route::get('/terminal', ExecuteContainerCommand::class)->name('project.database.command')->middleware('can.access.terminal');
-        Route::get('/backups', DatabaseBackupIndex::class)->name('project.database.backup.index');
+
+        Route::post('/start', [ProjectDatabaseBackupController::class, 'start'])->name('project.database.start');
+        Route::post('/stop', [ProjectDatabaseBackupController::class, 'stop'])->name('project.database.stop');
+        Route::post('/restart', [ProjectDatabaseBackupController::class, 'restart'])->name('project.database.restart');
+        Route::post('/check-status', [ProjectDatabaseBackupController::class, 'checkStatus'])->name('project.database.check-status');
+
+        Route::get('/backups', [ProjectDatabaseBackupController::class, 'index'])->name('project.database.backup.index');
+        Route::post('/backups', [ProjectDatabaseBackupController::class, 'store'])->name('project.database.backup.store');
         Route::get('/backups/{backup_uuid}', DatabaseBackupExecution::class)->name('project.database.backup.execution');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}')->group(function () {

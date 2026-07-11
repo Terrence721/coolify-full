@@ -1841,3 +1841,52 @@ The first test run surfaced a genuine bug in the shared-controller design: `upda
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
 - The `yarn build` slowness investigated this phase is an environment characteristic of this specific Windows/Docker Desktop setup, not something fixed in the codebase — see `docs/command.md` for the workaround; the underlying WSL2 bind-mount performance issue itself is out of scope for this migration.
+
+## 85. Phase 40 — `Project\Database\Backup\Index`: a thin controller wrapping 4 still-Livewire nested children, a first shared-component extraction outside the SharedVariables family, and two real pre-existing bugs
+
+Converts the standalone-database backups page (`project.database.backup.index`, distinct from `project.service.database.backups`, which serves the same UI for service-databases and stays Livewire). The original Livewire class itself is tiny (mount-only, resolves project/environment/database from route params, redirects to Configuration if the engine doesn't support backups) — nearly all the real complexity lives in 4 nested Livewire children (`Project\Shared\ConfigurationChecker`, `Project\Database\Heading`, `Project\Database\CreateScheduledBackup`, `Project\Database\ScheduledBackups`). Research confirmed all 4 children are still used by other still-Livewire pages (`Database\Configuration`, `Service\DatabaseBackups`, `Shared\Logs`, `Shared\ExecuteContainerCommand`, `Backup\Execution`), so none of them could be deleted — only their `<livewire:...>` tags were removed from the now-deleted `backup/index.blade.php`, and React equivalents were built fresh for this one page.
+
+### `ConfigurationChecker` becomes a second consumer, so it moved to a shared location
+
+`Project/Application/Deployment/ConfigurationChecker.jsx` (built in Phase 7) already degrades correctly for a resource with no diff data (`diff.changes` defaults to `[]`, producing the plain "Please redeploy..." banner with no "View changes" button) — exactly what `App\Livewire\Project\Shared\ConfigurationChecker` does for non-Application resources (`$this->configurationDiff = []` for anything that isn't `Application`). Rather than duplicate the file, it moved to `resources/js/Components/ConfigurationChecker.jsx` and the Deployment/Index page's import was updated — the established "extract only once there's a genuine second consumer" rule (first applied in Phase 25), now exercised outside the `SharedVariablesManager`/`DeleteEnvironmentModal`/`DeleteProjectModal` family for the first time.
+
+### Dead code found and dropped: the custom-type selector can never fire on this route
+
+`ScheduledBackups.blade.php`'s "Select the type of database..." branch (`@if ($database->is_migrated && blank($database->custom_type))`) looked like it needed porting, but `is_migrated`/`custom_type` only exist as columns on `service_databases` (added by `2025_04_30_134146_add_is_migrated_to_services.php`) — never on `standalone_postgresqls`/`standalone_mysqls`/`standalone_mariadbs`/`standalone_mongodbs`. Since `Environment::databases()` (which this route resolves against) only ever returns standalone engine instances, `$database->is_migrated` is always `null` here, and the branch is permanently dead on this specific page (it's only real for `project.service.database.backups`, which stays Livewire). Confirmed via grep before writing any code, then dropped `setCustomType()`, its route, and the `CustomTypeForm` React component entirely rather than port unreachable UI.
+
+### Two real pre-existing bugs found via test design, before either test ran
+
+Designing a safe (non-SSH) test for the Start/Restart buttons meant using a freshly-created, not-yet-marked-reachable `Server` — which surfaces `StartDatabase`/`RestartDatabase`'s existing `handle()` behavior: when `$server->isFunctional()` is false, both actions return the **string** `'Server is not functional'` instead of an `Activity`. The original `Heading.php` (and my first-draft controller, copied faithfully from it) both do `$activity = StartDatabase::run($database); ... $activity->id` unconditionally — a fatal error waiting to happen on a string. Fixed by checking `$activity instanceof \Spatie\Activitylog\Models\Activity` before touching `->id`, falling back to the string itself as a flashed error message. This is the same class of bug as Phase 34/35's finds: a real, pre-existing flaw surfaced by writing a *safe* test, not by SSH-mocking infrastructure this migration doesn't have.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectDatabaseBackupController.php` | created | `index()`, `store()`, `start()`/`restart()`/`stop()`/`checkStatus()` (the `Heading` actions, reusable once Configuration/Logs/Terminal convert), plus private `resolveDatabase()`/`headingProps()`/`configurationCheckerProps()`/`backupProps()` |
+| `resources/js/Components/ConfigurationChecker.jsx` | moved (from `Pages/Project/Application/Deployment/`) | Now shared by `Deployment/Index` and `Database/Backup/Index` |
+| `resources/js/Components/DatabaseHeading.jsx` | created | Nav (Configuration/Logs/Terminal-if-permitted/Backups, plain `<a>` since only Backups is Inertia so far) + Start/Restart/Stop actions + activity-monitor slide-over (`ActivityLog.jsx`, same `flash.activityId`/`activityContext` pattern as `ServerNavbar.jsx`) + `wire:poll.10000ms`-equivalent status-check fallback |
+| `resources/js/Pages/Project/Database/Backup/Index.jsx` | created | Scheduled-backups list (status-badged cards linking to the still-Livewire Execution page), "+ Add" modal (frequency/S3), no delete affordance (matches the original — deletion was never reachable from this page for standalone databases, only from the service-database variant) |
+| `routes/web.php` | modified | Added `project.database.{start,stop,restart,check-status}` + `.backup.{index,store}`; removed the `DatabaseBackupIndex` Livewire import |
+| `app/Livewire/Project/Database/Backup/Index.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by route name |
+| `resources/views/livewire/project/database/heading.blade.php` | modified | Stripped `wireNavigate()` from the Backups nav link, now Inertia |
+| `tests/v4/Feature/ProjectDatabaseBackupIndexTest.php` | created | 11 tests: renders with backups, redirects for a non-backup-supporting engine (Redis), redirects for a foreign-team database, creates (with and without S3), rejects an invalid cron expression, rejects S3 without a valid storage, check-status/start/restart all correctly report "server not functional" without crashing, stop dispatches `StopDatabase` (via `Bus::fake()` + `JobDecorator::decorates()`, the established pattern for asserting on `lorisleiva/laravel-actions` dispatches) |
+| `phpstan-baseline.neon` | modified | Removed 3 stale entries for the deleted Livewire file; added 16 new entries for the pre-existing, already-documented `StandaloneDatabaseInstance` plain-interface gap (Section: see `todo.md`'s Cleanup opportunities) |
+
+### Phase 40 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | fixed import ordering, unused imports; passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | 16 `property.notFound`/`method.notFound`/`nullsafe.neverNull` errors, all instances of the pre-existing `StandaloneDatabaseInstance` interface gap (PHPStan can't resolve `@property` on a plain interface) — baselined, matching the established precedent for this exact gap, not a new problem |
+| 11 new Feature tests | 2 failed on first run: `save_s3` compared with `toBeTrue()` against a raw un-cast SQLite integer (same class of issue as Phase 39), and `Queue::assertPushed(StopDatabase::class)` failing because `lorisleiva/laravel-actions` wraps dispatched actions in a `JobDecorator` rather than pushing the action class itself — fixed using the existing `Bus::fake()` + `JobDecorator::decorates()` pattern already established in `tests/Unit/Database/StartDatabaseTest.php`; all 11 passed after |
+| Full suite (`php artisan test --compact`) | 572 passed (2429 assertions), no regressions |
+| `yarn build` (native Windows, per Phase 39's documented workaround) | Succeeded in 8.96s — `Project/Database/Backup/Index.jsx` confirmed in `manifest.json` |
+
+## 86. Non-goals of Phase 40
+
+- `store()`'s S3-backup-creation happy path and the actual scheduled-backup cron execution are untested beyond validation/rejection paths — same standing untested-happy-path convention as every SSH-adjacent action in this migration.
+- `start()`/`restart()`'s real, server-functional success path (an `Activity` actually returned) remains untested — only the "not functional" branch (now bug-fixed) was safe to exercise without SSH mocking.
+- Configuration/Logs/Terminal (the other 3 tabs `DatabaseHeading` links to) remain Livewire; `DatabaseHeading.jsx`/`ConfigurationChecker.jsx` were built to be directly reusable once those convert, but that's future work, not done here.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

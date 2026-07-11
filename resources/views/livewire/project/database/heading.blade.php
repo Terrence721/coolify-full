@@ -27,7 +27,7 @@
                 </a>
             @endcan
             @if (\App\Support\DatabaseEngineRegistry::forInstance($database)?->supportsBackup ?? false)
-                <a class="shrink-0 {{ request()->routeIs('project.database.backup.index') ? 'dark:text-white' : '' }}" {{ wireNavigate() }}
+                <a class="shrink-0 {{ request()->routeIs('project.database.backup.index') ? 'dark:text-white' : '' }}"
                     href="{{ route('project.database.backup.index', $parameters) }}">
                     Backups
                 </a>

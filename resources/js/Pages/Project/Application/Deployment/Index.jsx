@@ -2,7 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import { useTeamChannel } from '../../../../hooks/useTeamChannel';
 import Heading from './Heading';
-import ConfigurationChecker from './ConfigurationChecker';
+import ConfigurationChecker from '../../../../Components/ConfigurationChecker';
 
 const STATUS_LABELS = {
     in_progress: 'In Progress',
