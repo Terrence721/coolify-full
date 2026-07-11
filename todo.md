@@ -1,12 +1,14 @@
 # TODO
 
+<!-- markdownlint-disable-next-line MD036 -->
 **Last Updated: July 12, 2026**
 
 A living list of what's done and what's left on this fork. This is a self-hosted-only fork of Coolify — the goal is a clean, no-frills, enterprise-friendly self-hosted deployment platform with no billing/marketing surface area.
 
 ## Done
 
-**De-commercialization**
+### De-commercialization
+
 - Removed the "Love Coolify? Support our work" sponsorship popup and its Settings toggle.
 - Removed the "Sponsor us" navbar link.
 - Trimmed the navbar's bottom menu down to just Theme and Logout (removed What's New, Upgrade, Feedback).
@@ -15,9 +17,11 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Removed two Hetzner Cloud affiliate-link blocks ("Coolify's affiliate link... supports us (€10) and gives you €20") — one in the shared `Security\CloudProviderTokenForm` Livewire component, one already carried over into the converted `Security\CloudTokens.jsx` page.
 
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
-- 63 of 84 full-page Livewire components converted to Inertia + React.
+
+- 67 of 84 full-page Livewire components converted to Inertia + React.
 - Easy and Medium buckets: 100% done (25/25).
-- Hard bucket: 36 of 59 done, including the shared `Server` navbar/sidebar chrome (17 of its 21 dependent pages converted) and fifteen non-`Server`-navbar-scoped Hard-bucket pages (`Security\PrivateKey\Index`, `Destination\Index`, `Project\Show`, `Project\Edit`, `Storage\Index`, `Project\Index`, `Storage\Show`, `Storage\Resources`, `Project\EnvironmentEdit`, `Team\Member\Index`, `Server\Index`, `Project\CloneMe`, `Project\Resource\Index`, `Dashboard`, `Source\Github\Change`). The whole `Storage\*` Livewire area, every `Team\*` single-page Livewire component, and every `Project\Environment`/`Project\DeleteEnvironment`/`Project\Resource\Index` component are now fully retired.
+- Hard bucket: 40 of 59 done, including the shared `Server` navbar/sidebar chrome (17 of its 21 dependent pages converted) and nineteen non-`Server`-navbar-scoped Hard-bucket pages (`Security\PrivateKey\Index`, `Destination\Index`, `Project\Show`, `Project\Edit`, `Storage\Index`, `Project\Index`, `Storage\Show`, `Storage\Resources`, `Project\EnvironmentEdit`, `Team\Member\Index`, `Server\Index`, `Project\CloneMe`, `Project\Resource\Index`, `Dashboard`, `Source\Github\Change`, `SharedVariables\Team\Index`, `SharedVariables\Project\Show`, `SharedVariables\Environment\Show`, `SharedVariables\Server\Show`). The whole `Storage\*` Livewire area, every `Team\*` single-page Livewire component, every `Project\Environment`/`Project\DeleteEnvironment`/`Project\Resource\Index` component, and now every `SharedVariables\*` single-page Livewire component are fully retired.
+- Converted the 4 `SharedVariables` "Show" pages (`Team\Index`, `Project\Show`, `Environment\Show`, `Server\Show`) on 2026-07-12 — 4 near-identical Livewire classes consolidated into one DRY controller (`resolveOwner()` dispatch pattern, matching the Phase 32 precedent) rather than 4 sets of near-duplicate methods. Also surfaced and fixed a real Laravel routing bug: controller methods with a typed scalar parameter (`int $variable_id`) bound to routes with more URI segments than the method declares get the wrong value spliced in positionally, since Laravel doesn't bind route params to controller params by name for scalar types — fixed by reading `$request->route('variable_id')` directly instead. See Section 83 of the migration doc. Also root-caused and documented (in `docs/command.md`) a `yarn build` performance issue specific to this Windows/Docker Desktop dev setup — see the "Cleanup opportunities" note below.
 - Converted `Source\Github\Change` on 2026-07-12 — 435 PHP + 422 Blade lines, the largest single-class conversion since `Project\CloneMe`, but zero nested Livewire children (the size is all business logic: GitHub App registration via a client-side manifest-flow form-post, JWT generation, a 3-tab config UI). See Section 81 of the migration doc.
 - Converted `Server\Proxy\DynamicConfigurations` on 2026-07-12, along with two more fully-retired Livewire components (`Server\Proxy\NewDynamicConfiguration`, `Server\Proxy\DynamicConfigurationNavbar`) — the first newly-converted page to reuse the existing `useTeamChannel` Echo-in-React hook. See Section 79 of the migration doc.
 - `Server\Index`'s "Add Server" modal only ports the IP-based creation flow — Hetzner Cloud server creation (`Server\New\ByHetzner`, a ~550-line multi-step wizard with live Hetzner API calls) is intentionally not ported yet; it's still reachable via `GlobalSearch`'s own unconverted Add Server modal. See Section 71 of the migration doc.
@@ -30,12 +34,18 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 
 ## Still to do
 
-**Migration**
+### Migration
+
 - 23 Hard-bucket pages remain on Livewire, including 4 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Logs within Proxy and Logs within Sentinel). `Server\Show` and Terminal both need real design work before conversion (embedded Livewire island / WebSocket bridge, respectively) — see Section 68 of the migration doc. `Server\Proxy\Logs` and `Server\Sentinel\Logs` both nest the shared `Project\Shared\GetLogs` component (292 PHP + 564 Blade lines, real `wire:poll.2000ms` live log tailing, shared by 12 consumers including 8 still-Livewire database engine pages) — porting it is its own phase, not a quick follow-on. `Project\Resource\Create` (the "+ New" resource wizard) is next in the `Project\*` area but nests 6 separate resource-creation flows — a substantially larger scope than the last few phases.
 - Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) — see `docs/smoketest.md` for the manual QA checklist that closes this gap.
 - `/terminal` (still Livewire): observed an endless WebSocket reconnect loop during manual QA on 2026-07-10 (handshake authenticates successfully server-side, then the connection closes abnormally, code 1006). Likely just this dev environment lacking a genuinely reachable SSH target, not a code bug — needs real validation once Terminal is converted. See the note in `docs/smoketest.md`'s Terminal checklist.
 
-**Cleanup opportunities (lower priority, not blocking)**
+### Repository configuration
+
+- Set up GitHub repository secrets and repository variables (Settings → Secrets and variables) for this fork.
+
+### Cleanup opportunities (lower priority, not blocking)
+
 - Found and fixed one real regression from this migration via a CI failure on 2026-07-10: `App\Livewire\Team\Storage\Show.php` (a separate, completely dead Livewire class with zero routes/consumers) hardcoded `view('livewire.storage.show')`, the Blade view deleted in Phase 30 — it only "worked" by coincidence of the shared view path, not a real dependency. Deleted outright. No sweep was done for similar dead-code references to views deleted in other phases (e.g. Phase 25's `x-security.navbar`, Phase 26's `Destination\New\Docker`) — only the one CI surfaced was checked. If PHPStan/CI turns up another, same fix: confirm zero real consumers, delete outright.
 - Chrome DevTools' Issues tab flagged 14 instances of "A form field element should have an id or name attribute" on the converted Server/Metrics page during manual QA on 2026-07-10 — likely `<input>`/`<select>` elements across several converted React pages missing an explicit `id`/`name` (relying only on a wrapping `<label>` for the accessible name). Worth a dedicated accessibility pass across `resources/js/Pages/` once the migration itself is further along.
 - `App\Contracts\StandaloneDatabaseInstance` is a plain interface, and PHPStan/Larastan doesn't resolve `@property` PHPDoc declared on a plain interface (only on classes) — so any polymorphic `MorphTo` relation resolving to a standalone database model (e.g. `ScheduledDatabaseBackup::database()`, used in `StorageController::resources()`) shows `->name`/`->environment`/`->uuid` etc. as "undefined property" to static analysis, even though every real instance has them. Already an accepted, pre-existing gap tracked via `phpstan-baseline.neon` rather than per-file suppressions (see the interface's own docblock) — a real fix would mean converting the interface into an abstract base class so PHPStan can see the declared properties, which touches all 8 database engine models and everything that depends on the contract. Out of scope for the Livewire→Inertia migration; worth a dedicated pass if you want PHPStan fully clean without any baseline entries.
@@ -44,6 +54,8 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - `App\Models\Application::parseContainerLabels()` has the same `Stringable`-into-`base64_encode()` bug pattern fixed elsewhere on 2026-07-11 (see above), at two call sites. Not fixed — only reachable when `mb_detect_encoding()` fails on already-decoded labels, a narrower trigger than the one that surfaced the bug during the `Project\CloneMe` conversion.
 - `Application::health_check_enabled` and `Application::custom_healthcheck_found` are also documented as `@property bool` but missing from `$casts` (same gap as the 12 columns fixed on 2026-07-11). Deliberately not fixed — `health_check_enabled` has a real `=== false` strict-comparison call site (`app/Models/Application.php:1491`) that currently never evaluates true against a raw int, so adding the cast would be a genuine behavior change needing its own dedicated verification, not a side effect of a Project page conversion.
 - Once the Livewire→React migration is 100% complete, flip `'livewire' => true` off in `config/debugbar.php` (see conversation history — intentionally left on until then, since it's still useful for the pages that haven't converted yet).
+- `docker exec coolify-vite yarn build` took over 3 hours to complete on 2026-07-12 (Windows/Docker Desktop dev environment), root-caused to Docker Desktop's WSL2 9P bind-mount bridge plus Windows Defender scanning each cross-boundary file access — not a code issue. Worked around by running `yarn build` natively on the Windows host instead (completes in under 10 seconds once the missing `@rolldown/binding-win32-x64-msvc` optional dependency is fetched). Full root-cause and workaround steps documented in `docs/command.md`. The real long-term fix — moving the repo into the WSL2 filesystem instead of bind-mounting from `C:\Users\...` — is a dev-environment change, not a code change, and out of scope here.
 
-**Verification standing habit**
+### Verification standing habit
+
 - Every change in this repo is expected to go through: `vendor/bin/pint --dirty --format agent`, `vendor/bin/phpstan analyse`, `php artisan test --compact`, and `yarn build` before being considered done. See `docs/command.md` for the exact commands.

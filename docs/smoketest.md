@@ -1,5 +1,6 @@
 # Smoke Test
 
+<!-- markdownlint-disable-next-line MD036 -->
 **Last Updated: July 12, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). Run this after any batch of migration work, and definitely before considering the whole migration complete. See `docs/command.md` for the commands to start the dev stack.
@@ -32,10 +33,12 @@ These verify the Livewire↔Inertia coexistence boundary itself, not any one pag
 ## 3. Medium bucket (20 pages) — forms, no real-time dependency
 
 Notifications (`/notifications/{channel}` for discord, email, slack, telegram, pushover, webhook):
+
 - [ ] Each channel's toggle/URL form saves successfully and shows a success toast.
 - [ ] Email channel specifically: SMTP block, Resend block, and the test-send action all work independently.
 
 Profile & Security:
+
 - [ ] `/profile` — name/email change (with verification-code flow) and password change both work.
 - [ ] `/security/api-tokens` — create a token (copy the plaintext value shown once), revoke it.
 - [ ] `/security/private-key/{uuid}` — edit name/description, reveal-to-edit the private key field, delete.
@@ -43,15 +46,18 @@ Profile & Security:
 - [ ] `/security/cloud-init-scripts` — create a script via the modal, edit it, delete it.
 
 Team & Admin:
+
 - [ ] `/team` — rename the team; confirm the delete-team section shows the correct blocking reason if resources exist.
 - [ ] `/team/admin-view` — search users, delete-user flow (password-confirmed).
 - [ ] `/admin` (root only) — user search + "switch to user" impersonation, then switch back.
 
 Tags & Destinations:
+
 - [ ] `/tags` — pick a tag, confirm applications/deployments list, trigger a redeploy.
 - [ ] `/destination/{uuid}` and its Resources tab — edit name, view the resource list, delete (on a non-`coolify`-network destination).
 
 Settings (instance-wide, root/admin only):
+
 - [ ] `/settings/updates` — check-for-updates action, auto-update toggle.
 - [ ] `/settings/advanced` — toggle each setting; specifically confirm the two password-confirmed one-way toggles (enable registration, disable two-step confirmation) require the password.
 - [ ] `/settings/oauth` — edit a provider's fields, save.
@@ -59,13 +65,15 @@ Settings (instance-wide, root/admin only):
 - [ ] `/settings/email` — same SMTP/Resend/test-send pattern as Notifications Email, at instance scope.
 
 Auth:
+
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (36 pages so far) — real-time and non-trivial
+## 4. Hard bucket (40 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
 **`/project/.../deployment` (Application Deployment Index)**
+
 - [ ] Trigger a deploy. Confirm the Heading's status badge updates **without a manual refresh** (Echo-driven via `ServiceStatusChanged`/`ServiceChecked`).
 - [ ] Confirm the deployment list updates live as the deployment progresses (5s poll + Echo).
 - [ ] Change an environment variable, confirm the "configuration changed" banner appears and the diff modal shows the right redaction (non-admins see masked env values, admins see real ones).
@@ -73,6 +81,7 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Filter by PR ID, confirm pagination (prev/next) works.
 
 **`/terminal` (live SSH terminal)** — the highest-risk page in the whole migration so far:
+
 - [ ] Select a server, click Connect. Confirm a real shell prompt appears (not just a blank black box).
 - [ ] Type a command, confirm output streams back.
 - [ ] Test fullscreen toggle, and on a narrow/mobile viewport confirm the mobile key toolbar (arrows/tab/esc) works.
@@ -82,7 +91,8 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Try connecting to a container with no shell available — confirm the "Terminal Not Available" message shows instead of a silent failure.
 - [ ] **Known issue observed during Phase 24 manual QA (dev environment, 2026-07-10)**: the client repeatedly logged `[Terminal] Connection timeout after 10000ms` / `WebSocket error` / `Max reconnection attempts reached` in an endless reconnect loop. The `coolify-realtime` container was up/healthy and its logs showed the WebSocket handshake actually succeeding ("Websocket client authentication succeeded") — the connection then closed abnormally (code 1006) right after auth, suggesting the terminal session itself (PTY/SSH to the target server) failed to establish rather than a WebSocket infrastructure problem. Likely cause: no genuinely reachable SSH target server in this dev environment. Needs real validation once Terminal is converted — confirm whether this reproduces against a real, reachable server before treating it as a bug.
 
-**`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`, `/projects`, `/team/members`, `/servers`, `/project/{uuid}/environment/{uuid}/clone`, `/project/{uuid}/environment/{uuid}`, `/` (Dashboard), `/source/github/{uuid}`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
+**`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`, `/projects`, `/team/members`, `/servers`, `/project/{uuid}/environment/{uuid}/clone`, `/project/{uuid}/environment/{uuid}`, `/` (Dashboard), `/source/github/{uuid}`, `/shared-variables/team`, `/shared-variables/project/{uuid}`, `/shared-variables/environments/project/{uuid}/environment/{uuid}`, `/shared-variables/server/{uuid}`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
+
 - [ ] `/security/private-key` — as an Admin/Owner, confirm every key is clickable; as a Member, confirm keys still render but are view-only (not clickable, tooltip explains why); "+ Add" modal (Generate RSA/ED25519 buttons + manual paste), confirm the created key appears in the grid immediately; "Delete unused SSH Keys" confirmation modal, confirm only genuinely-unused keys (the "Unused" badge) disappear.
 - [ ] `/destinations` — confirm the grid lists destinations across all usable servers, with a "Deprecated" badge on swarm ones; "+ Add" modal, confirm picking a different server updates the auto-generated name, and submitting redirects into the new destination's Show page.
 - [ ] `/project/{uuid}` — confirm the auto-created "production" environment shows; "+ Add Environment" modal creates a new one; "Delete Project" is blocked with an explanation if any environment has resources, and works (typed name confirmation) when genuinely empty. From the Dashboard/Projects list, confirm clicking a project card navigates correctly regardless of whether it has exactly one environment (goes straight to Resources, now also Inertia — see below) or zero/multiple (lands here).
@@ -98,6 +108,7 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/project/{uuid}/environment/{uuid}` — hover the Project breadcrumb, confirm the dropdown lists every project; hover the Environment breadcrumb, confirm sibling environments list and each expands into its own resources flyout on hover; search box filters applications/databases/services live by name/fqdn/description/tag; status badges (running/exited/starting/restarting/degraded) render correctly on each resource card; "Delete Environment" is blocked with an explanation if the environment has resources, and works (typed name confirmation) when genuinely empty; "+ New" and "Clone" links only appear when you can create resources.
 - [ ] `/` (Dashboard) — Projects section: "+ Add" modal (only when you have projects and can create) creates a project and appears immediately; empty state's inline "Add" opens the same modal. Servers section: "+ Add" modal (only when you have servers, private keys, and can create) creates a server via the IP flow; "no private keys found" empty state's inline "add" opens the shared `PrivateKeyCreateModal` and the newly-created key becomes usable without a page reload; "no servers found" empty state's inline "Add" opens the Add Server modal. Confirm the logo and sidebar "Dashboard" link both navigate here via a real Inertia transition (not a full page reload).
 - [ ] `/source/github/{uuid}` — pre-registration state: "Register Now" against a real GitHub account (confirm the manifest-flow form-post actually lands on GitHub's app-creation page with fields pre-filled); "Manual Installation" creates a stub app with placeholder IDs and lands on the tabbed config. Post-registration: General tab "Save" persists changes, "Sync Name" against a real GitHub App (calls GitHub's API), "System Wide?" toggle instant-saves (non-cloud only); Permissions tab "Refetch" against a real installation (calls `GithubAppPermissionJob` for real); Resources tab search filters live, resource links navigate correctly; "Delete" typed-name confirmation, confirm it's blocked with an explanation if any application still uses this source.
+- [ ] `/shared-variables/team`, `/shared-variables/project/{uuid}`, `/shared-variables/environments/project/{uuid}/environment/{uuid}`, `/shared-variables/server/{uuid}` — "+ Add" modal creates a variable (test both single-line and "Is Multiline?" toggled); confirm a locked variable (after clicking "Lock") shows a masked key with only the comment editable, and its delete confirmation requires typing the exact key; toggle "Is Multiline?" on an unlocked variable and confirm it instant-saves without a page reload; switch to Developer view, edit the raw `KEY=value` text, "Save All Environment Variables", and confirm removed lines actually delete those variables while edited lines update in Normal view; on the Server page specifically, confirm `COOLIFY_SERVER_UUID`/`COOLIFY_SERVER_NAME` never appear in the list and can't be created manually (typing that key into "+ Add" should show an error, not silently succeed).
 - [ ] Otherwise already covered above in Section 3's list — no additional real-time behavior to check.
 
 **`Server\Navbar`-dependent pages (17 of 21, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
@@ -124,6 +135,7 @@ These need the most attention — they're the pages automated checks can't fully
 ## 5. Regression spot-check: still-Livewire areas
 
 Not part of this migration, but worth a quick sanity check that nothing else broke:
+
 - [ ] Dashboard loads, project list renders.
 - [ ] Open a project → environment → application, confirm the (still-Livewire) Configuration tabs work.
 - [ ] The remaining 4 of 21 `Server\Navbar`-dependent pages (Terminal command, `Server\Show`, plus Logs within Proxy and Logs within Sentinel) are still fully Livewire — confirm they still render and proxy status still updates live via Livewire's own Echo wiring (not the React `ServerNavbar`).

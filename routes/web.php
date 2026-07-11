@@ -69,10 +69,6 @@ use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
 use App\Livewire\Server\Show as ServerShow;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\SettingsBackup;
-use App\Livewire\SharedVariables\Environment\Show as EnvironmentSharedVariablesShow;
-use App\Livewire\SharedVariables\Project\Show as ProjectSharedVariablesShow;
-use App\Livewire\SharedVariables\Server\Show as ServerSharedVariablesShow;
-use App\Livewire\SharedVariables\Team\Index as TeamSharedVariablesIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
 use App\Providers\RouteServiceProvider;
@@ -172,13 +168,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::prefix('shared-variables')->group(function () {
         Route::get('/', [SharedVariablesController::class, 'index'])->name('shared-variables.index');
-        Route::get('/team', TeamSharedVariablesIndex::class)->name('shared-variables.team.index');
+
+        Route::get('/team', [SharedVariablesController::class, 'teamShow'])->name('shared-variables.team.index');
+        Route::post('/team', [SharedVariablesController::class, 'storeVariable'])->name('shared-variables.team.store');
+        Route::put('/team/{variable_id}', [SharedVariablesController::class, 'updateVariable'])->name('shared-variables.team.update');
+        Route::post('/team/{variable_id}/lock', [SharedVariablesController::class, 'lockVariable'])->name('shared-variables.team.lock');
+        Route::delete('/team/{variable_id}', [SharedVariablesController::class, 'destroyVariable'])->name('shared-variables.team.destroy');
+        Route::post('/team/bulk-update', [SharedVariablesController::class, 'bulkUpdateVariables'])->name('shared-variables.team.bulk-update');
+
         Route::get('/projects', [SharedVariablesController::class, 'project'])->name('shared-variables.project.index');
-        Route::get('/project/{project_uuid}', ProjectSharedVariablesShow::class)->name('shared-variables.project.show');
+        Route::get('/project/{project_uuid}', [SharedVariablesController::class, 'projectShow'])->name('shared-variables.project.show');
+        Route::post('/project/{project_uuid}', [SharedVariablesController::class, 'storeVariable'])->name('shared-variables.project.store');
+        Route::put('/project/{project_uuid}/{variable_id}', [SharedVariablesController::class, 'updateVariable'])->name('shared-variables.project.update');
+        Route::post('/project/{project_uuid}/{variable_id}/lock', [SharedVariablesController::class, 'lockVariable'])->name('shared-variables.project.lock');
+        Route::delete('/project/{project_uuid}/{variable_id}', [SharedVariablesController::class, 'destroyVariable'])->name('shared-variables.project.destroy');
+        Route::post('/project/{project_uuid}/bulk-update', [SharedVariablesController::class, 'bulkUpdateVariables'])->name('shared-variables.project.bulk-update');
+
         Route::get('/environments', [SharedVariablesController::class, 'environment'])->name('shared-variables.environment.index');
-        Route::get('/environments/project/{project_uuid}/environment/{environment_uuid}', EnvironmentSharedVariablesShow::class)->name('shared-variables.environment.show');
+        Route::get('/environments/project/{project_uuid}/environment/{environment_uuid}', [SharedVariablesController::class, 'environmentShow'])->name('shared-variables.environment.show');
+        Route::post('/environments/project/{project_uuid}/environment/{environment_uuid}', [SharedVariablesController::class, 'storeVariable'])->name('shared-variables.environment.store');
+        Route::put('/environments/project/{project_uuid}/environment/{environment_uuid}/{variable_id}', [SharedVariablesController::class, 'updateVariable'])->name('shared-variables.environment.update');
+        Route::post('/environments/project/{project_uuid}/environment/{environment_uuid}/{variable_id}/lock', [SharedVariablesController::class, 'lockVariable'])->name('shared-variables.environment.lock');
+        Route::delete('/environments/project/{project_uuid}/environment/{environment_uuid}/{variable_id}', [SharedVariablesController::class, 'destroyVariable'])->name('shared-variables.environment.destroy');
+        Route::post('/environments/project/{project_uuid}/environment/{environment_uuid}/bulk-update', [SharedVariablesController::class, 'bulkUpdateVariables'])->name('shared-variables.environment.bulk-update');
+
         Route::get('/servers', [SharedVariablesController::class, 'server'])->name('shared-variables.server.index');
-        Route::get('/server/{server_uuid}', ServerSharedVariablesShow::class)->name('shared-variables.server.show');
+        Route::get('/server/{server_uuid}', [SharedVariablesController::class, 'serverShow'])->name('shared-variables.server.show');
+        Route::post('/server/{server_uuid}', [SharedVariablesController::class, 'storeVariable'])->name('shared-variables.server.store');
+        Route::put('/server/{server_uuid}/{variable_id}', [SharedVariablesController::class, 'updateVariable'])->name('shared-variables.server.update');
+        Route::post('/server/{server_uuid}/{variable_id}/lock', [SharedVariablesController::class, 'lockVariable'])->name('shared-variables.server.lock');
+        Route::delete('/server/{server_uuid}/{variable_id}', [SharedVariablesController::class, 'destroyVariable'])->name('shared-variables.server.destroy');
+        Route::post('/server/{server_uuid}/bulk-update', [SharedVariablesController::class, 'bulkUpdateVariables'])->name('shared-variables.server.bulk-update');
     });
 
     Route::prefix('team')->group(function () {
