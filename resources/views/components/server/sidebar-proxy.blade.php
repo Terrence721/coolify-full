@@ -4,7 +4,7 @@
         <span class="menu-item-label">Configuration</span>
     </a>
     @if ($server->proxySet())
-        <a class="{{ request()->routeIs('server.proxy.dynamic-confs') ? 'sub-menu-item menu-item-active' : 'sub-menu-item' }}" {{ wireNavigate() }}
+        <a class="{{ request()->routeIs('server.proxy.dynamic-confs') ? 'sub-menu-item menu-item-active' : 'sub-menu-item' }}"
             href="{{ route('server.proxy.dynamic-confs', $parameters) }}">
             <span class="menu-item-label">Dynamic Configurations</span>
         </a>

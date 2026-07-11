@@ -63,7 +63,6 @@ use App\Livewire\Project\Service\DatabaseBackups as ServiceDatabaseBackups;
 use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
-use App\Livewire\Server\Proxy\DynamicConfigurations as ProxyDynamicConfigurations;
 use App\Livewire\Server\Proxy\Logs as ProxyLogs;
 use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
 use App\Livewire\Server\Show as ServerShow;
@@ -371,7 +370,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/proxy/instant-save-redirect', [ServerProxyController::class, 'instantSaveRedirect'])->name('server.proxy.instant-save-redirect');
         Route::post('/proxy/submit', [ServerProxyController::class, 'submit'])->name('server.proxy.submit');
         Route::post('/proxy/reset-configuration', [ServerProxyController::class, 'resetConfiguration'])->name('server.proxy.reset-configuration');
-        Route::get('/proxy/dynamic', ProxyDynamicConfigurations::class)->name('server.proxy.dynamic-confs');
+        Route::get('/proxy/dynamic', [ServerProxyController::class, 'dynamicConfigurations'])->name('server.proxy.dynamic-confs');
+        Route::post('/proxy/dynamic', [ServerProxyController::class, 'storeDynamicConfiguration'])->name('server.proxy.dynamic-confs.store');
+        Route::delete('/proxy/dynamic', [ServerProxyController::class, 'destroyDynamicConfiguration'])->name('server.proxy.dynamic-confs.destroy');
         Route::get('/proxy/logs', ProxyLogs::class)->name('server.proxy.logs');
         Route::post('/proxy-actions/restart', [ServerProxyActionsController::class, 'restart'])->name('server.proxy-actions.restart');
         Route::post('/proxy-actions/stop', [ServerProxyActionsController::class, 'stop'])->name('server.proxy-actions.stop');

@@ -6835,78 +6835,6 @@ parameters:
 			path: app/Livewire/Server/New/ByIp.php
 
 		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\DynamicConfigurationNavbar\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurationNavbar.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurationNavbar\:\:\$fileName has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurationNavbar.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurationNavbar\:\:\$newFile has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurationNavbar.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurationNavbar\:\:\$server_id has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurationNavbar.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurationNavbar\:\:\$value has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurationNavbar.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:initLoadDynamicConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:loadDynamicConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:\$contents with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\DynamicConfigurations\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/DynamicConfigurations.php
-
-		-
 			message: '#^Method App\\Livewire\\Server\\Proxy\\Logs\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -6917,36 +6845,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Server/Proxy/Logs.php
-
-		-
-			message: '#^Call to function is_null\(\) with App\\Models\\Server will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Livewire/Server/Proxy/NewDynamicConfiguration.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\NewDynamicConfiguration\:\:addDynamicConfiguration\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/NewDynamicConfiguration.php
-
-		-
-			message: '#^Method App\\Livewire\\Server\\Proxy\\NewDynamicConfiguration\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Server/Proxy/NewDynamicConfiguration.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\NewDynamicConfiguration\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/NewDynamicConfiguration.php
-
-		-
-			message: '#^Property App\\Livewire\\Server\\Proxy\\NewDynamicConfiguration\:\:\$server_id has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Server/Proxy/NewDynamicConfiguration.php
 
 		-
 			message: '#^Property App\\Livewire\\Server\\Sentinel\\Logs\:\:\$parameters type has no value type specified in iterable type array\.$#'

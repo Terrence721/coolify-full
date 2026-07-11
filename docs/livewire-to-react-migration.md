@@ -1703,3 +1703,49 @@ The original Livewire `dashboard.blade.php` gated its "+ Add" buttons only by co
 - No specific next Hard-bucket candidate has been research-ranked yet beyond that.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 79. Phase 37 — `Server\Proxy\DynamicConfigurations`: the third of five remaining `Server\Navbar` pages, and the first use of the existing Echo-in-React bridge
+
+Converts the proxy dynamic-configurations page (`/server/{uuid}/proxy/dynamic`) — one of the 5 `Server\Navbar`-dependent pages TODO.md had flagged as remaining, and the first of those 5 that turned out **not** to need new design work (unlike `Server\Show` and Terminal, which do). Lists every dynamic proxy config file on the server (Traefik `.yaml`/Caddy `.caddy`), with per-file Edit/Delete and a "+ Add" flow, all backed by real SSH reads/writes.
+
+### Three Livewire classes, all exclusively used by this one page
+
+`DynamicConfigurations` (75 lines, the page itself — has an `echo-private:team.{id},ProxyStatusChangedUI` listener), `NewDynamicConfiguration` (110 lines, the add/edit form — reused for both flows via a `newFile` flag), and `DynamicConfigurationNavbar` (62 lines, per-file Edit/Delete controls). Grepped all three for other consumers before starting — zero found for any — so all three were fully retired, not inline-ported-and-kept, following the same "confirm zero real consumers, then delete outright" discipline as every full retirement since Phase 18.
+
+### First real use of the already-built `useTeamChannel` Echo bridge
+
+Earlier phases (`Server\DockerCleanup`, the Application Deployment pages, `Server\Resources`) already built `resources/js/hooks/useTeamChannel.js` — a React hook wrapping Laravel Echo's private-channel subscription to match Livewire's `getListeners()` -> `"echo-private:team.{id},EventClass"` pattern. This phase is the first to reuse that existing hook for a *newly*-converted page rather than build a new instance of the pattern: `useTeamChannel(['ProxyStatusChangedUI'], () => router.reload({ only: ['contents'] }))` replaces the original's `loadDynamicConfigurations` listener, re-fetching just the file list (not the whole page) via Inertia's partial reload when the proxy status changes elsewhere.
+
+### Reused, not rebuilt: `MonacoEditor.jsx` (Phase 23) and the `'proxy'` sidebar variant (Phase 23)
+
+`ServerChromeData::sidebar()`'s `'proxy'` variant already had a `dynamicConfs` URL wired up when it was built in Phase 23, anticipating this page before it existed. No sidebar changes needed — just pointing an already-correct link at a route that finally resolves to something real. Each file's content renders in a read-only `MonacoEditor.jsx` on the main page; editing happens in a modal with an editable one — same component, same dynamic-AMD-loader-script pattern, no new Monaco integration work.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/ServerProxyController.php` | modified | `dynamicConfigurations()`, `storeDynamicConfiguration()` (handles both add and edit via a `newFile` flag, matching the original), `destroyDynamicConfiguration()`, private `loadDynamicConfigurations()` helper |
+| `resources/js/Pages/Server/Proxy/DynamicConfigurations.jsx` | created | File list (read-only `MonacoEditor` per file, reserved filenames shown as plain disabled `<textarea>`), Add/Edit modal (shared between both flows, matching the original), `useTeamChannel` for live reload |
+| `routes/web.php` | modified | `server.proxy.dynamic-confs` repointed at the new controller; added `.store`/`.destroy`; removed the Livewire import |
+| `app/Livewire/Server/Proxy/DynamicConfigurations.php`, `NewDynamicConfiguration.php`, `DynamicConfigurationNavbar.php` (+ 3 matching Blade views) | **deleted** | Confirmed via grep: zero consumers beyond this page for all three |
+| `resources/views/components/server/sidebar-proxy.blade.php` | modified | Stripped `wireNavigate()` from the one link now pointing at the fully-Inertia dynamic-confs page; left untouched for `server.proxy.logs` (still Livewire) — this Blade sidebar itself stays, since `Server\Proxy\Logs` still renders it |
+| `phpstan-baseline.neon` | modified | Cleaned 17 stale entries for the 3 deleted files |
+| `tests/v4/Feature/ServerProxyDynamicConfigurationsTest.php` | created | 5 tests: renders the page without touching SSH on a non-functional server, 404s for a foreign-team server, rejects a path-traversal filename, rejects a reserved filename, 404s on store/destroy for a foreign-team server |
+
+### Phase 37 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed on first run |
+| PHPStan (`vendor/bin/phpstan analyse --memory-limit=1G`) | `[OK] No errors` after cleaning the 17 stale baseline entries |
+| 5 new Feature tests (`ServerProxyDynamicConfigurationsTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 340 passed (1151 assertions), no regressions |
+| `yarn build` | Succeeded — `Server/Proxy/DynamicConfigurations.jsx` confirmed present in `manifest.json` |
+
+## 80. Non-goals of Phase 37
+
+- `Server\Proxy\Logs` and `Server\Sentinel\Logs` (the remaining 2 of the original 5 flagged `Server\Navbar` pages, besides `Server\Show` and Terminal) both nest `Project\Shared\GetLogs` — a 292-line class / 564-line view shared by 12 consumers (8 database engine pages, `Project\Service\Index`, `Project\Shared\Logs`, plus these 2), with a real `wire:poll.2000ms` live-tailing UI. Investigated as a candidate for this phase and set aside — porting it properly is a phase of its own, not a quick follow-on to a 75-line page. Not attempted.
+- The store/destroy actions' actual SSH-touching happy path (writing/deleting real files on a server, reloading Caddy) remains untested — verified only via validation-rejection paths in Pest, per this migration's standing untested-happy-path convention. Added to `docs/smoketest.md`'s manual QA checklist.
+- No specific next Hard-bucket candidate has been research-ranked yet beyond `Server\Proxy\Logs`/`Server\Sentinel\Logs` needing their own `GetLogs`-porting phase.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

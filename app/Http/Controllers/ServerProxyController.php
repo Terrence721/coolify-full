@@ -9,6 +9,7 @@ use App\Actions\Proxy\SaveProxyConfiguration;
 use App\Enums\ProxyTypes;
 use App\Models\Server;
 use App\Rules\SafeExternalUrl;
+use App\Rules\ValidProxyConfigFilename;
 use App\Support\ServerChromeData;
 use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\Yaml\Yaml;
 
 class ServerProxyController extends Controller
 {
@@ -164,6 +166,136 @@ class ServerProxyController extends Controller
         }
 
         return back()->with('success', 'Proxy configuration reset to default.');
+    }
+
+    public function dynamicConfigurations(string $server_uuid): Response
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+
+        $contents = [];
+        if ($server->isFunctional()) {
+            $contents = $this->loadDynamicConfigurations($server);
+        }
+
+        return Inertia::render('Server/Proxy/DynamicConfigurations', [
+            'serverNavbar' => ServerChromeData::navbar($server),
+            'sidebar' => ServerChromeData::sidebar($server, 'proxy', 'dynamicConfs'),
+            'isFunctional' => $server->isFunctional(),
+            'canUpdate' => auth()->user()?->can('update', $server) ?? false,
+            'contents' => $contents,
+            'storeUrl' => route('server.proxy.dynamic-confs.store', ['server_uuid' => $server->uuid]),
+            'deleteUrl' => route('server.proxy.dynamic-confs.destroy', ['server_uuid' => $server->uuid]),
+        ]);
+    }
+
+    public function storeDynamicConfiguration(Request $request, string $server_uuid): RedirectResponse
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+        $this->authorize('update', $server);
+
+        $validated = Validator::make($request->all(), [
+            'fileName' => ['required', new ValidProxyConfigFilename],
+            'value' => 'required|string',
+            'newFile' => 'boolean',
+        ])->validate();
+
+        try {
+            $fileName = $validated['fileName'];
+            validateFilenameSafe($fileName, 'proxy configuration filename');
+
+            $proxy_type = $server->proxyType();
+            if ($proxy_type === ProxyTypes::TRAEFIK->value) {
+                if (! str($fileName)->endsWith('.yaml') && ! str($fileName)->endsWith('.yml')) {
+                    $fileName = "{$fileName}.yaml";
+                }
+                if ($fileName === 'coolify.yaml') {
+                    return back()->with('error', 'File name is reserved.');
+                }
+            } elseif ($proxy_type === 'CADDY') {
+                if (! str($fileName)->endsWith('.caddy')) {
+                    $fileName = "{$fileName}.caddy";
+                }
+            }
+
+            $proxy_path = $server->proxyPath();
+            $file = "{$proxy_path}/dynamic/{$fileName}";
+            $escapedFile = escapeshellarg($file);
+
+            if ($validated['newFile'] ?? false) {
+                $exists = instant_remote_process(["test -f {$escapedFile} && echo 1 || echo 0"], $server);
+                if ($exists == 1) {
+                    return back()->with('error', 'File already exists');
+                }
+            }
+
+            $value = $validated['value'];
+            if ($proxy_type === ProxyTypes::TRAEFIK->value) {
+                $yaml = Yaml::parse($value);
+                $value = Yaml::dump($yaml, 10, 2);
+            }
+
+            $base64_value = base64_encode($value);
+            instant_remote_process([
+                "echo '{$base64_value}' | base64 -d | tee {$escapedFile} > /dev/null",
+            ], $server);
+            if ($proxy_type === 'CADDY') {
+                $server->reloadCaddy();
+            }
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Dynamic configuration saved.');
+    }
+
+    public function destroyDynamicConfiguration(Request $request, string $server_uuid): RedirectResponse
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+        $this->authorize('update', $server);
+
+        $validated = Validator::make($request->all(), [
+            'fileName' => 'required|string',
+        ])->validate();
+
+        try {
+            $file = $validated['fileName'];
+            validateFilenameSafe($file, 'proxy configuration filename');
+
+            $proxy_type = $server->proxyType();
+            if ($proxy_type === 'CADDY' && $file === 'Caddyfile') {
+                return back()->with('error', 'Cannot delete Caddyfile.');
+            }
+
+            $proxy_path = $server->proxyPath();
+            $fullPath = "{$proxy_path}/dynamic/{$file}";
+            $escapedPath = escapeshellarg($fullPath);
+            instant_remote_process(["rm -f {$escapedPath}"], $server);
+            if ($proxy_type === 'CADDY') {
+                $server->reloadCaddy();
+            }
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'File deleted.');
+    }
+
+    /**
+     * @return array<int, array{fileName: string, value: string}>
+     */
+    private function loadDynamicConfigurations(Server $server): array
+    {
+        $proxy_path = $server->proxyPath();
+        $files = instant_remote_process(["mkdir -p $proxy_path/dynamic && ls -1 {$proxy_path}/dynamic"], $server);
+        $files = collect(explode("\n", $files))->filter(fn ($file) => ! empty($file))->map(fn ($file) => trim($file))->sort();
+
+        $contents = [];
+        foreach ($files as $file) {
+            $content = instant_remote_process(["cat {$proxy_path}/dynamic/{$file}"], $server);
+            $contents[] = ['fileName' => $file, 'value' => $content ?? ''];
+        }
+
+        return $contents;
     }
 
     /**
