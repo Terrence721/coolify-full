@@ -757,30 +757,6 @@ parameters:
 			path: app/Livewire/Boarding/Index.php
 
 		-
-			message: '#^Method App\\Livewire\\Dashboard\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Dashboard.php
-
-		-
-			message: '#^Property App\\Livewire\\Dashboard\:\:\$privateKeys with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Dashboard.php
-
-		-
-			message: '#^Property App\\Livewire\\Dashboard\:\:\$projects with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Dashboard.php
-
-		-
-			message: '#^Property App\\Livewire\\Dashboard\:\:\$servers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Dashboard.php
-
-		-
 			message: '#^Access to an undefined property App\\Livewire\\DeploymentsIndicator\:\:\$deployments\.$#'
 			identifier: property.notFound
 			count: 1

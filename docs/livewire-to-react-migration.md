@@ -1659,3 +1659,47 @@ The original Blade view's second-level "environment → its resources" flyout us
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 77. Phase 36 — `Dashboard`: closes the loop on all three "+ Add" modals with two more shared-component extractions
+
+Converts the app's landing page (`/`) — Projects and Servers sections, each with an empty state and an "+ Add" modal. The last page to need the create-project and create-server flows, so this phase is mostly about wiring up components already built in earlier phases rather than writing new backend logic.
+
+### Two more shared-component extractions: `AddProjectModal.jsx` and `AddServerModal.jsx`
+
+Dashboard is the **second** real consumer of both `Project\Index.jsx`'s inline "New Project" modal (Phase 29) and `Server\Index.jsx`'s inline "Add Server by IP" modal (Phase 33). Extracted both into `resources/js/Components/`, refactored their original pages to use the extracted versions, and used them here too — same "extract only once there's a genuine second consumer" discipline as `PrivateKeyCreateModal.jsx` (Phase 25), `DeleteProjectModal.jsx` (Phase 27), and `DeleteEnvironmentModal.jsx` (Phase 35). This is now the fourth and fifth shared component in `resources/js/Components/`, and the third page to reuse `PrivateKeyCreateModal.jsx` (Dashboard's "no private keys found" fallback state uses it directly, unmodified — no extraction needed since it was already shared).
+
+### A UX inconsistency in the original, resolved by following the already-converted sibling pages
+
+The original Livewire `dashboard.blade.php` gated its "+ Add" buttons only by count (`@if ($projects->count() > 0)`, `@if ($servers->count() > 0 && $privateKeys->count() > 0)`) — no `@can('createAnyResource')` check, unlike the standalone `Project\Index`/`Server\Index` pages it duplicates functionality with. This wasn't a security gap (`ProjectController::store()`/`ServerController::store()` both already enforce `$this->authorize('createAnyResource')`/`create` server-side regardless of whether the button is shown) — just a UI inconsistency where an unauthorized user could open the modal only to have the submit fail. `Dashboard.jsx` gates both buttons with `canCreateProject`/`canCreateServer`, matching the already-converted sibling pages rather than reproducing the original's gap.
+
+### Files
+
+| File | Change | Purpose |
+|---|---|---|
+| `app/Http/Controllers/DashboardController.php` | created | `index()` — projects (with `navigateTo()`/`addResourceUrl`), servers, private keys, and every URL the three modals need |
+| `resources/js/Pages/Dashboard.jsx` | created | Projects section, Servers section (with its "no private keys yet" fallback state), wires up all three shared modals |
+| `resources/js/Components/AddProjectModal.jsx`, `AddServerModal.jsx` | created | Extracted from `Project/Index.jsx` and `Server/Index.jsx` respectively; see above |
+| `resources/js/Pages/Project/Index.jsx`, `Server/Index.jsx` | modified | Refactored to use the extracted modal components instead of their own inline copies |
+| `routes/web.php` | modified | `dashboard` repointed at the new controller; removed the `Dashboard` Livewire import |
+| `app/Livewire/Dashboard.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by route name, never by class |
+| `resources/views/components/navbar.blade.php` | modified | Stripped `wireNavigate()` from all 3 links to `/` (logo, collapsed-sidebar logo, "Dashboard" nav item) |
+| `resources/views/errors/{400,401,402,403,404,429,500,503}.blade.php` | modified | Stripped `wireNavigate()` from each error page's "Dashboard" back-link (8 files, same one-line change) |
+| `phpstan-baseline.neon` | modified | Cleaned 4 stale entries for the deleted `Dashboard.php` |
+| `tests/v4/Feature/DashboardTest.php` | created | 3 tests: renders with no projects/servers, lists projects/servers owned by the current team with correct URLs, excludes another team's projects/servers |
+
+### Phase 36 verification log
+
+| Check | Result |
+|---|---|
+| Pint (`--dirty --format agent`) | passed every run |
+| PHPStan (`vendor/bin/phpstan analyse --memory-limit=1G`) | `[OK] No errors` after cleaning the 4 stale baseline entries |
+| 3 new Feature tests (`DashboardTest`) | all passed on first run |
+| Full suite (`php artisan test --compact`) | 337 passed (1133 assertions), no regressions |
+| `yarn build` | Succeeded — `Dashboard.jsx` confirmed present in `manifest.json` |
+
+## 78. Non-goals of Phase 36
+
+- `Project\Resource\Create` remains the next candidate flagged in Phase 35's non-goals, still not attempted.
+- No specific next Hard-bucket candidate has been research-ranked yet beyond that.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

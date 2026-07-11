@@ -6,6 +6,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationDeploymentController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\EnvironmentController;
 use App\Http\Controllers\ForcePasswordResetController;
@@ -51,7 +52,6 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
-use App\Livewire\Dashboard;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Application\Deployment\Show as DeploymentShow;
 use App\Livewire\Project\Database\Backup\Execution as DatabaseBackupExecution;
@@ -98,7 +98,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/force-password-reset', [ForcePasswordResetController::class, 'update'])->name('auth.force-password-reset.update');
     });
 
-    Route::get('/', Dashboard::class)->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/admin/back', [AdminController::class, 'back'])->name('admin.back');
     Route::post('/admin/switch-user', [AdminController::class, 'switchUser'])->name('admin.switch-user');
