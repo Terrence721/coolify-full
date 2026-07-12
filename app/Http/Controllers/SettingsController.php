@@ -17,6 +17,136 @@ use Inertia\Response;
 
 class SettingsController extends Controller
 {
+    public function index(): Response|RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        $settings = instanceSettings();
+        $server = isCloud() ? null : Server::findOrFail(0);
+
+        return Inertia::render('Settings/Index', [
+            'settings' => [
+                'fqdn' => $settings->fqdn,
+                'instance_name' => $settings->instance_name,
+                'public_ipv4' => $settings->public_ipv4,
+                'public_ipv6' => $settings->public_ipv6,
+                'instance_timezone' => $settings->instance_timezone,
+                'dev_helper_version' => $settings->dev_helper_version,
+            ],
+            'timezones' => collect(timezone_identifiers_list())->sort()->values()->all(),
+            'isDev' => isDev(),
+            'hasServer' => (bool) $server,
+            'defaultHelperVersion' => config('constants.coolify.helper_version'),
+            'updateUrl' => route('settings.update'),
+            'buildHelperImageUrl' => route('settings.build-helper-image'),
+        ]);
+    }
+
+    public function update(Request $request): RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        $settings = instanceSettings();
+        $server = isCloud() ? null : Server::findOrFail(0);
+
+        $validated = Validator::make($request->all(), [
+            'fqdn' => ['nullable', 'string', 'max:255', 'url'],
+            'instance_name' => ['nullable', 'string', 'max:255'],
+            'public_ipv4' => ['nullable', 'ipv4'],
+            'public_ipv6' => ['nullable', 'ipv6'],
+            'instance_timezone' => ['required', 'string', 'timezone'],
+            'dev_helper_version' => ['nullable', 'string', 'max:128', 'regex:/^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/'],
+            'force_save_domains' => ['boolean'],
+        ], [
+            'fqdn.url' => 'Invalid instance URL.',
+            'fqdn.max' => 'URL must not exceed 255 characters.',
+            'dev_helper_version.regex' => 'Dev helper version must match Docker tag format (alphanumeric, _, ., -; first char cannot be . or -).',
+        ])->validate();
+
+        if ($settings->public_port_min > $settings->public_port_max) {
+            return back()->with('error', 'The minimum port must be lower than the maximum port.');
+        }
+
+        $fqdn = $validated['fqdn'] ? trim($validated['fqdn']) : null;
+
+        if ($settings->is_dns_validation_enabled && $fqdn && $server) {
+            if (! validateDNSEntry($fqdn, $server)) {
+                return back()->with('error', "Validating DNS failed.<br><br>Make sure you have added the DNS records correctly.<br><br>{$fqdn}->{$server->ip}<br><br>Check this <a target='_blank' class='underline dark:text-white' href='https://coolify.io/docs/knowledge-base/dns-configuration'>documentation</a> for further help.");
+            }
+        }
+
+        if ($fqdn && ! $request->boolean('force_save_domains')) {
+            $result = checkDomainUsage(domain: $fqdn);
+            if ($result['hasConflicts']) {
+                return back()->with(['domainConflicts' => $result['conflicts'], 'showDomainConflictModal' => true]);
+            }
+        }
+
+        $settings->update([
+            'fqdn' => $fqdn,
+            'instance_name' => $validated['instance_name'] ?? null,
+            'public_ipv4' => $validated['public_ipv4'] ?? null,
+            'public_ipv6' => $validated['public_ipv6'] ?? null,
+            'instance_timezone' => $validated['instance_timezone'],
+            'dev_helper_version' => $validated['dev_helper_version'] ?? null,
+        ]);
+
+        if ($server) {
+            $server->setupDynamicProxyConfiguration();
+        }
+
+        return back()->with('success', 'Instance settings updated successfully!');
+    }
+
+    public function buildHelperImage(Request $request): RedirectResponse
+    {
+        if (! isInstanceAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        if (! isDev()) {
+            return back()->with('error', 'Building helper image is only available in development mode.');
+        }
+
+        if (isCloud()) {
+            return back()->with('error', 'Server not available.');
+        }
+
+        $server = Server::findOrFail(0);
+
+        $validated = Validator::make($request->all(), [
+            'dev_helper_version' => ['nullable', 'string', 'max:128', 'regex:/^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/'],
+        ], [
+            'dev_helper_version.regex' => 'Invalid helper version format.',
+        ])->validate();
+
+        $version = $validated['dev_helper_version'] ?: config('constants.coolify.helper_version');
+        if (empty($version)) {
+            return back()->with('error', 'Please specify a version to build.');
+        }
+
+        if (! preg_match('/^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/', (string) $version)) {
+            return back()->with('error', 'Invalid helper version format.');
+        }
+
+        $imageRef = escapeshellarg("ghcr.io/coollabsio/coolify-helper:{$version}");
+        $buildCommand = "docker build -t {$imageRef} -f docker/coolify-helper/Dockerfile .";
+
+        $activity = remote_process(
+            command: [$buildCommand],
+            server: $server,
+            type: 'build-helper-image'
+        );
+
+        return back()
+            ->with(['activityId' => $activity->id, 'activityContext' => 'settings-helper-image'])
+            ->with('success', "Building coolify-helper:{$version}...");
+    }
+
     public function updates(): Response|RedirectResponse
     {
         if (! isInstanceAdmin()) {

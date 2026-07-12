@@ -67,7 +67,6 @@ use App\Livewire\Project\Shared\Logs;
 use App\Livewire\Server\Proxy\Logs as ProxyLogs;
 use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
 use App\Livewire\Server\Show as ServerShow;
-use App\Livewire\Settings\Index as SettingsIndex;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
 use App\Providers\RouteServiceProvider;
@@ -98,7 +97,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/switch-user', [AdminController::class, 'switchUser'])->name('admin.switch-user');
     Route::get('/onboarding', BoardingIndex::class)->name('onboarding');
 
-    Route::get('/settings', SettingsIndex::class)->name('settings.index');
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/build-helper-image', [SettingsController::class, 'buildHelperImage'])->name('settings.build-helper-image');
     Route::get('/settings/advanced', [SettingsController::class, 'advanced'])->name('settings.advanced');
     Route::put('/settings/advanced', [SettingsController::class, 'advancedUpdate'])->name('settings.advanced.update');
     Route::post('/settings/advanced/enable-registration', [SettingsController::class, 'advancedEnableRegistration'])->name('settings.advanced.enable-registration');

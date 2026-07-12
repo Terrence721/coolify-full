@@ -1976,3 +1976,44 @@ PHPStan flagged `SettingsBackupController::index()` as dead code (`booleanAnd.al
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 91. Phase 43 — `Settings\Index`: the instance-wide "General" settings page, first reuse of `ActivityLog.jsx` outside its original consumer, and a genuinely dead redundant-validation check removed rather than ported
+
+Converts `settings.index` (the "General" tab of Settings — instance URL/name/timezone/public IPs, plus a dev-only "Build Helper Image" action), picked as the next Hard-bucket candidate via a dedicated research pass (see the ranking below) precisely because it was the cleanest of the 14 remaining full-page Livewire classes: exactly one nested child (`<livewire:activity-monitor>`), no broadcast/old-style listeners on the class itself, and not one of the pages already flagged as needing dedicated design work (`Server\Show`, Terminal) or its own phase (`*\Logs`, `Project\Resource\Create`, the three `*\Configuration` routers).
+
+The lone nested child, `ActivityMonitor`, is the exact Livewire component `ActivityLog.jsx` (built in Phase 16 for `ServerNavbar.jsx`'s proxy-startup log) was written to replace — this is the first time that component has been reused by a *different* page outside its original consumer, validating the "build components anticipating reuse" bet already paid off twice for `DatabaseHeading`/`ConfigurationChecker` (Phase 40/41). The same `activityId`/`activityContext` flash-payload pattern used by `ServerCloudflareTunnelController`, `ServerProxyActionsController`, and `ServerSecurityPatchesController` was reused here too (`activityContext: 'settings-helper-image'`), rather than inventing a new mechanism.
+
+### A genuinely redundant check, dropped rather than ported
+
+The original `submit()` calls a manual `validate_timezone($this->instance_timezone)` check *before* Livewire's own `#[Validate('required|string|timezone')]` attribute validation runs (Livewire only enforces attribute validation when `$this->validate()` is explicitly called, so the manual pre-check has a real job to do there — it also resets the timezone to `config('app.timezone')` on failure, a small recovery behavior). In the ported controller, the `Validator::make(...)->validate()` call runs first and already includes Laravel's built-in `timezone` rule, which is equivalent to `validate_timezone()`'s `in_array($tz, timezone_identifiers_list())` check — meaning a second manual check afterward would be unreachable dead code, not a faithful port of working logic. Removed rather than ported, per this repo's "don't add validation for scenarios that can't happen" convention; the reset-to-default recovery behavior isn't replicated (the field just shows a validation error instead), a minor, deliberate simplification rather than an oversight.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/SettingsController.php` | modified | Added `index()`, `update()`, `buildHelperImage()` |
+| `resources/js/Pages/Settings/Index.jsx` | created | Form (URL/Name/Timezone-autocomplete/IPv4/IPv6/dev-only helper-version), reuses `ActivityLog.jsx` unmodified for the helper-image build log, reuses the `activityContext` flash pattern |
+| `resources/js/Components/DomainConflictModal.jsx` | created | Ported from `x-domain-conflict-modal`; built anticipating reuse by the still-Livewire `Application\Configuration`/`Service\Configuration` phases (both also render this Blade component), matching the Phase 40 precedent of building shared pieces ahead of their second consumer |
+| `routes/web.php` | modified | Repointed `settings.index` at the controller; added `settings.update`/`settings.build-helper-image`; removed the `Settings\Index` Livewire import |
+| `app/Livewire/Settings/Index.php` (+ matching Blade view) | **deleted** | Confirmed via grep: only referenced by the route name |
+| `tests/v4/Feature/SettingsIndexTest.php` | created | 9 tests: non-admin redirects (index + build-helper-image), page render, settings update, invalid-timezone rejection, domain-conflict detection, force-save-domains bypass, dev-mode gate on Build Helper Image |
+| `phpstan-baseline.neon` | regenerated | Removed 10 stale entries for the deleted Livewire file (the regeneration itself required manually stripping those entries first — `--generate-baseline` refuses to run against a baseline whose own `ignoreErrors` paths no longer exist on disk, a chicken-and-egg case not hit in Phase 41/42) |
+
+### Phase 43 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | `--generate-baseline` initially failed outright ("Invalid entries in ignoreErrors... neither a directory, nor a file path") because the baseline's own stale entries for the deleted `Settings/Index.php` blocked it from even starting; fixed by manually deleting those 10 blocks first, then baseline regenerated cleanly; `[OK] No errors` |
+| 9 new Feature tests | 1 early failure during development, not from production code: the "updates instance settings" test tripped a real DNS lookup via `validateDNSEntry()`, since a fresh `InstanceSettings` row defaults `is_dns_validation_enabled` to `true` — fixed by disabling it in the test's `beforeEach`, consistent with this migration's standing convention of not exercising network/SSH-touching code paths in tests; also renamed the test file's `makeInstanceAdmin()` helper to `makeSettingsIndexAdmin()` after it collided (PHP fatal "cannot redeclare") with the identically-named helper already declared globally in `SettingsBackupControllerTest.php` — these Pest test files share one PHP process, so helper function names must be unique across the whole `tests/` tree, not just per-file |
+| Full suite (`php artisan test --compact`) | 603 passed (2583 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 8.54s — `resources/js/Pages/Settings/Index.jsx` confirmed in `manifest.json` as `Index-ge3bOzEk.js` |
+
+## 92. Non-goals of Phase 43
+
+- `buildHelperImage()`'s real SSH-touching happy path (`remote_process()` actually running a `docker build`) remains untested beyond the dev-mode gate — same standing untested-happy-path convention as every SSH-adjacent action in this migration.
+- `update()`'s DNS-validation-enabled happy path (`validateDNSEntry()` succeeding against a real server) is untested; only the disabled-DNS-validation path is exercised, for the same reason.
+- The other 13 remaining Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Application\Deployment\Show`, `Project\Shared\Logs`, `Project\Shared\ExecuteContainerCommand`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Project\Service\DatabaseBackups`, `Project\Service\Index`, `Server\Show`, `Server\Sentinel\Logs`, `Server\Proxy\Logs`.
+- No specific next Hard-bucket candidate has been research-ranked yet, though `DomainConflictModal.jsx` was deliberately built to make `Application\Configuration`/`Service\Configuration` (both of which also use the domain-conflict flow) marginally cheaper whenever they're tackled.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
