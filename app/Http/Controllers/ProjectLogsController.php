@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\BuildsConfigurationCheckerProps;
 use App\Http\Controllers\Concerns\ManagesServiceLifecycle;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Http\Controllers\Concerns\StreamsContainerLogs;
@@ -20,6 +21,7 @@ use Inertia\Response;
 class ProjectLogsController extends Controller
 {
     use AuthorizesRequests;
+    use BuildsConfigurationCheckerProps;
     use ManagesServiceLifecycle;
     use ResolvesProjectResources;
     use StreamsContainerLogs;
@@ -117,12 +119,7 @@ class ProjectLogsController extends Controller
                 'isFunctional' => (bool) $server?->isFunctional(),
                 'isExited' => str($database->status)->startsWith('exited'),
             ],
-            'configurationChecker' => [
-                'isConfigurationChanged' => $database->isConfigurationChanged(),
-                'isExited' => str($database->status)->startsWith('exited'),
-                'configHash' => $database->config_hash,
-                'diff' => [],
-            ],
+            'configurationChecker' => $this->databaseConfigurationCheckerProps($database),
             'containerGroups' => $containerGroups,
             'noServerMessage' => 'No functional server found for the database.',
             'parameters' => $parameters,
@@ -288,37 +285,5 @@ class ProjectLogsController extends Controller
                 ],
             ];
         })->all();
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function applicationConfigurationCheckerProps(Application $application): array
-    {
-        $diff = $application->pendingDeploymentConfigurationDiff();
-        $redactEnvironment = ! (bool) auth()->user()?->isAdmin();
-
-        $array = $diff->toArray();
-        if ($redactEnvironment) {
-            $array['changes'] = collect($array['changes'])->map(function (array $change) {
-                if (data_get($change, 'section') !== 'environment') {
-                    return $change;
-                }
-                $change['old_display_value'] = data_get($change, 'old_display_value') === '-' ? '-' : '••••••••';
-                $change['new_display_value'] = data_get($change, 'new_display_value') === '-' ? '-' : '••••••••';
-                $change['old_full_value'] = null;
-                $change['new_full_value'] = null;
-                $change['expandable'] = false;
-
-                return $change;
-            })->all();
-        }
-
-        return [
-            'isConfigurationChanged' => $diff->isChanged(),
-            'isExited' => $application->isExited(),
-            'configHash' => $application->config_hash,
-            'diff' => $array,
-        ];
     }
 }

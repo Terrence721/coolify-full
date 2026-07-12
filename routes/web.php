@@ -22,6 +22,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDatabaseBackupController;
 use App\Http\Controllers\ProjectLogsController;
+use App\Http\Controllers\ProjectMetricsController;
 use App\Http\Controllers\ProjectResourceController;
 use App\Http\Controllers\ProjectServiceDatabaseBackupController;
 use App\Http\Controllers\ProjectServiceResourceController;
@@ -293,7 +294,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/rollback', ApplicationConfiguration::class)->name('project.application.rollback');
         Route::get('/resource-limits', ApplicationConfiguration::class)->name('project.application.resource-limits');
         Route::get('/resource-operations', ApplicationConfiguration::class)->name('project.application.resource-operations');
-        Route::get('/metrics', ApplicationConfiguration::class)->name('project.application.metrics');
+        Route::get('/metrics', [ProjectMetricsController::class, 'application'])->name('project.application.metrics');
+        Route::get('/metrics/data', [ProjectMetricsController::class, 'applicationData'])->name('project.application.metrics.data');
         Route::get('/tags', ApplicationConfiguration::class)->name('project.application.tags');
         Route::get('/danger', ApplicationConfiguration::class)->name('project.application.danger');
 
@@ -322,7 +324,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/webhooks', DatabaseConfiguration::class)->name('project.database.webhooks');
         Route::get('/resource-limits', DatabaseConfiguration::class)->name('project.database.resource-limits');
         Route::get('/resource-operations', DatabaseConfiguration::class)->name('project.database.resource-operations');
-        Route::get('/metrics', DatabaseConfiguration::class)->name('project.database.metrics');
+        Route::get('/metrics', [ProjectMetricsController::class, 'database'])->name('project.database.metrics');
+        Route::get('/metrics/data', [ProjectMetricsController::class, 'databaseData'])->name('project.database.metrics.data');
         Route::get('/tags', DatabaseConfiguration::class)->name('project.database.tags');
         Route::get('/danger', DatabaseConfiguration::class)->name('project.database.danger');
 

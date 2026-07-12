@@ -373,6 +373,42 @@ parameters:
 			path: app/Http/Controllers/ProjectLogsController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>commit_message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
 			identifier: property.notFound
 			count: 1
@@ -5669,48 +5705,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Metrics\:\:loadData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Metrics\:\:pollData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Metrics\:\:setInterval\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Metrics\:\:\$categories has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Metrics\:\:\$chartId has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Metrics\:\:\$data has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Metrics\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Metrics.php
 
 		-
 			message: '#^Cannot access property \$server on class\-string\|object\.$#'

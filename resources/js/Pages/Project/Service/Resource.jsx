@@ -100,11 +100,11 @@ function ApplicationGeneral({ application, urls }) {
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input value={data.human_name} onChange={(e) => setData('human_name', e.target.value)} placeholder="Human readable name" />
+                        <input id="human_name" name="human_name" value={data.human_name} onChange={(e) => setData('human_name', e.target.value)} placeholder="Human readable name" />
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input id="description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                     </label>
                 </div>
                 <div className="flex gap-2">
@@ -112,6 +112,8 @@ function ApplicationGeneral({ application, urls }) {
                         <label className="flex flex-col gap-1">
                             Domains
                             <input
+                                id="fqdn"
+                                name="fqdn"
                                 required={application.requiredFqdn}
                                 value={data.fqdn}
                                 onChange={(e) => setData('fqdn', e.target.value)}
@@ -121,7 +123,7 @@ function ApplicationGeneral({ application, urls }) {
                     )}
                     <label className="flex flex-col gap-1">
                         Image
-                        <input value={data.image} onChange={(e) => setData('image', e.target.value)} />
+                        <input id="image" name="image" value={data.image} onChange={(e) => setData('image', e.target.value)} />
                     </label>
                 </div>
                 {errors.image && <div className="text-error">{errors.image}</div>}
@@ -203,6 +205,8 @@ function ApplicationAdvanced({ application, urls }) {
             <div className="w-full sm:w-96 flex flex-col gap-1 pt-4">
                 <label className="flex items-center gap-2">
                     <input
+                        id="is_gzip_enabled"
+                        name="is_gzip_enabled"
                         type="checkbox"
                         checked={data.is_gzip_enabled}
                         disabled={application.isGzipToggleDisabled || processing}
@@ -211,15 +215,15 @@ function ApplicationAdvanced({ application, urls }) {
                     Enable Gzip Compression
                 </label>
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={data.is_stripprefix_enabled} disabled={processing} onChange={() => toggle('is_stripprefix_enabled')} />
+                    <input id="is_stripprefix_enabled" name="is_stripprefix_enabled" type="checkbox" checked={data.is_stripprefix_enabled} disabled={processing} onChange={() => toggle('is_stripprefix_enabled')} />
                     Strip Prefixes
                 </label>
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={data.exclude_from_status} disabled={processing} onChange={() => toggle('exclude_from_status')} />
+                    <input id="exclude_from_status" name="exclude_from_status" type="checkbox" checked={data.exclude_from_status} disabled={processing} onChange={() => toggle('exclude_from_status')} />
                     Exclude from service status
                 </label>
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={data.is_log_drain_enabled} disabled={processing} onChange={() => toggle('is_log_drain_enabled')} />
+                    <input id="is_log_drain_enabled" name="is_log_drain_enabled" type="checkbox" checked={data.is_log_drain_enabled} disabled={processing} onChange={() => toggle('is_log_drain_enabled')} />
                     Drain Logs
                 </label>
             </div>
@@ -273,15 +277,15 @@ function DatabaseGeneral({ database, urls }) {
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input value={data.human_name} onChange={(e) => setData('human_name', e.target.value)} placeholder="Name" />
+                        <input id="database_human_name" name="human_name" value={data.human_name} onChange={(e) => setData('human_name', e.target.value)} placeholder="Name" />
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input id="database_description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                     </label>
                     <label className="flex flex-col gap-1">
                         Image
-                        <input value={data.image} onChange={(e) => setData('image', e.target.value)} />
+                        <input id="database_image" name="image" value={data.image} onChange={(e) => setData('image', e.target.value)} />
                     </label>
                 </div>
                 {errors.image && <div className="text-error">{errors.image}</div>}
@@ -296,12 +300,14 @@ function DatabaseGeneral({ database, urls }) {
                         )}
                     </div>
                     <label className="flex items-center gap-2">
-                        <input type="checkbox" checked={publicData.is_public} disabled={publicProcessing} onChange={togglePublic} />
+                        <input id="is_public" name="is_public" type="checkbox" checked={publicData.is_public} disabled={publicProcessing} onChange={togglePublic} />
                         Make it publicly available
                     </label>
                     <label className="flex flex-col gap-1 w-64">
                         Public Port
                         <input
+                            id="public_port"
+                            name="public_port"
                             type="number"
                             placeholder="5432"
                             disabled={publicData.is_public}
@@ -312,7 +318,7 @@ function DatabaseGeneral({ database, urls }) {
                     {database.dbUrlPublic && (
                         <label className="flex flex-col gap-1">
                             Database IP:PORT (public)
-                            <input type="password" readOnly value={database.dbUrlPublic} />
+                            <input id="db_url_public" name="db_url_public" type="password" readOnly value={database.dbUrlPublic} />
                         </label>
                     )}
                 </div>
@@ -413,11 +419,11 @@ function DatabaseAdvanced({ database, urls }) {
             <h2>Advanced</h2>
             <div className="w-full sm:w-96 flex flex-col gap-1 pt-4">
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={data.exclude_from_status} disabled={processing} onChange={() => toggle('exclude_from_status')} />
+                    <input id="database_exclude_from_status" name="exclude_from_status" type="checkbox" checked={data.exclude_from_status} disabled={processing} onChange={() => toggle('exclude_from_status')} />
                     Exclude from service status
                 </label>
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={data.is_log_drain_enabled} disabled={processing} onChange={() => toggle('is_log_drain_enabled')} />
+                    <input id="database_is_log_drain_enabled" name="is_log_drain_enabled" type="checkbox" checked={data.is_log_drain_enabled} disabled={processing} onChange={() => toggle('is_log_drain_enabled')} />
                     Drain Logs
                 </label>
             </div>

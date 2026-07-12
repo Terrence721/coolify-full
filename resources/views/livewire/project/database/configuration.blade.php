@@ -69,8 +69,6 @@
                 <livewire:project.shared.resource-limits :resource="$database" />
             @elseif ($currentRoute === 'project.database.resource-operations')
                 <livewire:project.shared.resource-operations :resource="$database" />
-            @elseif ($currentRoute === 'project.database.metrics')
-                <livewire:project.shared.metrics :resource="$database" />
             @elseif ($currentRoute === 'project.database.tags')
                 <livewire:project.shared.tags :resource="$database" />
             @elseif ($currentRoute === 'project.database.danger')

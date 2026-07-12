@@ -85,8 +85,6 @@
                 <livewire:project.shared.resource-limits :resource="$application" />
             @elseif ($currentRoute === 'project.application.resource-operations')
                 <livewire:project.shared.resource-operations :resource="$application" />
-            @elseif ($currentRoute === 'project.application.metrics')
-                <livewire:project.shared.metrics :resource="$application" />
             @elseif ($currentRoute === 'project.application.tags')
                 <livewire:project.shared.tags :resource="$application" />
             @elseif ($currentRoute === 'project.application.danger')

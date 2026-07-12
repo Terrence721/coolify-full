@@ -2330,3 +2330,65 @@ Building this page's domain-conflict flow required tracing exactly how `props.fl
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). Worth flagging explicitly here: this phase's UI (multi-step confirmation modals, two different flash-driven modal flows) is more interaction-heavy than most recent phases, and automated `assertInertia()`/redirect checks don't exercise the actual click-through UX.
+
+## 105. Phase 50 — `Project\Shared\Metrics`: a CPU/memory chart tab, a dev-environment migration, and a suite-wide test-isolation bug found along the way
+
+Converts `App\Livewire\Project\Shared\Metrics`'s `project.application.metrics` and `project.database.metrics` routes — the CPU/memory usage chart pair nested by both `Application\Configuration` and `Database\Configuration` (both still-Livewire routers; only these two routes were repointed, same "split a shared class's routes" pattern as Phase 49) — into `ProjectMetricsController` and one `Project/Shared/Metrics.jsx` page. Converting both consumers in one phase retires the shared Livewire component entirely.
+
+Picked as a well-scoped follow-on to Phase 49: `Server\Metrics.jsx` (an earlier, unrelated conversion) had already built and proven the exact CPU/memory dual-ApexCharts setup this page needed — same chart options, same custom tooltip formatting, same lazy-loaded-vendor-script approach — needing only extraction into a shared hook (`hooks/useApexChart.js`) and a genuine second consumer, the same "extract on second consumer" rule this migration has followed throughout. `ConfigurationChecker`, `Heading` (application), and `DatabaseHeading` were all already available too, needing a new `BuildsConfigurationCheckerProps` trait extraction (from `ProjectLogsController`, its second consumer) to reuse the application-side redaction logic cleanly.
+
+### A real, deliberately-preserved bug (Phase 48) actually fixed this session
+
+While verifying this phase's own test suite, the user asked to revisit the Swarm container-listing quirk Phase 48 had found and *deliberately left unfixed* (`ExecuteContainerCommandController::discoverForApplication()`'s synthetic Swarm container entry had no `State` key, so its own next line's `state === 'running'` check could never pass). Re-examined and confirmed only that one call site was actually affected (`ProjectLogsController::discoverApplicationContainers()` has the same Swarm branch but doesn't gate on `State`, so it was never broken). Fixed by adding `'State' => 'running'` to the synthetic entry, and proved it with a new test (`Server::factory()` forced into a functional, Swarm-manager state) that failed before the fix and passes after.
+
+### A real, suite-wide test-isolation bug found while writing that Swarm test
+
+The new Swarm test passed in isolation but made an *unrelated, later-running* test fail when run together — `Server::factory()->create()` in the later test returned a fresh row, but `$application->destination->server` (property access) resolved to the *earlier* test's cached `Server` instance instead, complete with its Swarm/functional settings. Root-caused via targeted `Log::info()` instrumentation (echo/`dump()` output doesn't reliably flush across Pest's shared PHP process) to `App\Models\Server::findCached()` (a static identity-map cache `StandaloneDocker`/`SwarmDocker`'s `getServerAttribute()` accessor uses to avoid N+1 queries) and `flushIdentityMap()`: the cache was never being flushed between tests at all — `grep`-confirmed zero calls to `flushIdentityMap()` across an entire two-test run.
+
+The actual cause: `tests/Pest.php` registered `Once::flush()`/`Server::flushIdentityMap()` inside a bare, global `beforeEach()`, intended to run before every test in `Feature`/`v4/Feature`/`v4/Browser`. But a test *file's own local* `beforeEach()` — and the overwhelming majority of files in `tests/v4/Feature/` declare one, if only for the near-universal `InstanceSettings::forceCreate(['id' => 0])` pattern — **silently shadows the global one instead of composing with it** in this Pest setup, rather than both running. This means the identity-map/`once()` cache flush has likely never actually run for most of this migration's test suite; it simply never mattered before because no earlier test both (a) mutated a `Server`'s settings via a query-builder `update()` that bypasses the model's own `updated` event, and (b) was immediately followed by another test reusing the same (post-rollback) auto-increment ID and reading that same cached, now-stale settings.
+
+Fixed at the root rather than patched per-file: moved the flush calls into `Tests\TestCase::setUp()` (which PHPUnit/Pest calls unconditionally for every test, regardless of what `beforeEach()` closures a given file declares, so it can't be shadowed the same way) and removed the now-dead global `beforeEach()` from `Pest.php` with a comment explaining why. Verified by running the *entire* suite after the fix (678 tests) — all passed, confirming this was a narrow, previously-inconsequential gap rather than one masking other failures.
+
+### The dev environment itself moved off Windows-path bind mounts to WSL2
+
+Separately from the code work, the user asked to act on `docs/command.md`'s previously-deferred "long-term fix" for the `yarn build` performance issue documented in Phase 46-adjacent work: the repo moved from `C:\Users\Terre\source\repos\coolify-full` into a real WSL2 Ubuntu distro's native filesystem (`/root/projects/coolify-full`), eliminating the Docker Desktop 9P bridge for every container operation, not just builds. Full details, including the exact migration steps and two mistakes made along the way (an unanchored `rsync --exclude=vendor` that also silently dropped `public/vendor/`, and a stale `NGINX_VERSION` pin that broke fresh image builds after the base image's Alpine version moved on independently), are in `docs/command.md`'s "RESOLVED" section rather than duplicated here. Headline results: `yarn build` dropped from 3+ hours (via `docker exec`) to ~2 seconds; the full Pest suite dropped from ~150-170s to ~31s. Also enabled PHP OPcache in the dev container (`opcache.validate_timestamps=1`, so code changes still take effect immediately) — previously explicitly disabled (`PHP_OPCACHE_ENABLE=0`, inherited from upstream Coolify's dev Dockerfile) — for a real per-request speed win now that the filesystem bottleneck is gone.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectMetricsController.php` | created | `application()`/`database()` render methods; `applicationData()`/`databaseData()` JSON endpoints (interval-scoped CPU/memory series, matching `ServerMetricsController::data()`'s established contract) |
+| `app/Http/Controllers/Concerns/BuildsConfigurationCheckerProps.php` | created | `applicationConfigurationCheckerProps()`/`databaseConfigurationCheckerProps()` — extracted from `ProjectLogsController`, now shared with `ProjectMetricsController` |
+| `resources/js/hooks/useApexChart.js` | created | `useApexChart()`/`loadApexCharts()` — extracted from `Server/Metrics.jsx`, now shared with the new page |
+| `resources/js/Pages/Server/Metrics.jsx` | modified | Uses the extracted hook instead of a page-local copy; zero behavior change |
+| `resources/js/Pages/Project/Shared/Metrics.jsx` | created | Application/database chart page with matching page-local sidebars for each still-Livewire Configuration router's tab list |
+| `routes/web.php` | modified | Repointed `project.application.metrics`/`project.database.metrics` at the new controller; added `.metrics.data` endpoints for both |
+| `app/Livewire/Project/Shared/Metrics.php` (+ view) | **deleted** | Confirmed via grep: both consumers converted, zero remaining references |
+| `resources/views/livewire/project/application/configuration.blade.php`, `.../database/configuration.blade.php` | modified | Removed the now-dead `@elseif ($currentRoute === '...metrics') <livewire:project.shared.metrics ...>` content branches (the sidebar links themselves stay — they still correctly route to the new controller) |
+| `app/Http/Controllers/ExecuteContainerCommandController.php` | modified | Fixed the Phase 48 Swarm container-listing bug (see above) |
+| `app/Models/Server.php` | modified (docblock only) | No logic change — `findCached()`/`flushIdentityMap()` untouched; see `tests/TestCase.php` for the actual fix |
+| `tests/TestCase.php` | modified | `setUp()` now flushes `Once`/`Server`'s identity map unconditionally (see above) |
+| `tests/Pest.php` | modified | Removed the now-dead, silently-shadowed global `beforeEach()`, replaced with a comment pointing to `TestCase::setUp()` |
+| `docker/development/Dockerfile` | modified | `ENV PHP_OPCACHE_ENABLE=0` → `1`; `NGINX_VERSION` bumped `1.31.0-r1` → `1.31.2-r1` (see WSL2 migration above) |
+| `docker/development/etc/php/conf.d/zzz-custom-php.ini` | modified | Added `opcache.*` directives (enabled, `validate_timestamps=1`, `revalidate_freq=0`) |
+| `tests/v4/Feature/ExecuteContainerCommandControllerTest.php` | modified | Added the Swarm-container test proving the Phase 48 bug fix |
+| `tests/v4/Feature/ProjectMetricsControllerTest.php` | created | 8 tests: application/database render with metrics disabled (no SSH touched), docker-compose-app unavailable flag, redirect-to-dashboard for nonexistent resources, null-metrics data-endpoint response, 404 for a nonexistent application on the data endpoint, team-ownership 404 |
+
+### Phase 50 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | Same baseline chicken-and-egg case as every prior phase (stale entry for the deleted Livewire file), fixed the same way; `[OK] No errors` after. **New environment note**: CLI PHPStan runs need an explicit `--memory-limit=1G` in this WSL2 environment — the base image's `${PHP_MEMORY_LIMIT:-512M}` substitution in `zzz-custom-php.ini` doesn't apply to CLI invocations (a pre-existing base-image quirk, unrelated to this phase's changes; the web/FPM path is unaffected) |
+| 8 new Feature tests (Metrics) + 1 new test (Swarm fix) | All passed on the run after the identity-map fix |
+| Full suite (`php artisan test --compact`, run via `docker exec coolify`) | 678 passed (3005 assertions), no regressions — including the previously-failing Swarm/no-functional-server pair, now passing together in any order |
+| `yarn build` (via `docker exec coolify-vite`, no longer needing the native-Windows workaround) | Succeeded in ~2s — `Project/Shared/Metrics.jsx` confirmed in `manifest.json` |
+
+## 106. Non-goals of Phase 50
+
+- The real SSH-touching metrics fetch (`HasMetrics::getMetrics()`'s `instant_remote_process()` call) remains untested beyond the "metrics disabled, returns null before attempting SSH" branch — same standing convention as every SSH-adjacent action in this migration.
+- `Project\Shared\Metrics`'s page-local sidebars (`ApplicationSidebar`/`DatabaseSidebar` in `Project/Shared/Metrics.jsx`) are not extracted into shared components yet — they're specific to each Configuration router's current tab list and would need re-deriving once those routers themselves convert.
+- The remaining Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Server\Show`. `Project\Shared\Metrics` being retired doesn't reduce the "full-page Livewire components" count on its own — it was never a standalone full-page route, always nested inside these still-Livewire routers.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase for the Metrics conversion itself — same lighter, user-directed bar as every phase since Phase 2 (Section 9). The dev-environment migration *was* manually verified end-to-end (containers healthy, app reachable, migrations intact, full test suite green) since there was no automated way to check it.

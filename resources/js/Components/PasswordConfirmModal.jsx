@@ -52,19 +52,19 @@ export default function PasswordConfirmModal({ title, action, actions, checkboxe
                     </ul>
                     {checkboxes.map((cb) => (
                         <label key={cb.id} className="flex items-center gap-2">
-                            <input type="checkbox" checked={selectedActions.includes(cb.id)} onChange={() => toggleAction(cb.id)} />
+                            <input id={cb.id} name={cb.id} type="checkbox" checked={selectedActions.includes(cb.id)} onChange={() => toggleAction(cb.id)} />
                             {cb.label}
                         </label>
                     ))}
                     {confirmationText && (
                         <label className="flex flex-col gap-1">
                             {confirmationLabel}
-                            <input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={confirmationText} />
+                            <input id="confirmation" name="confirmation" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={confirmationText} />
                         </label>
                     )}
                     <label className="flex flex-col gap-1">
                         Password
-                        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        <input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                     </label>
                     {error && <span className="text-error">{error}</span>}
                     <div className="flex justify-end gap-2">

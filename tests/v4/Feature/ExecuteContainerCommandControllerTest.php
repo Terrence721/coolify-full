@@ -35,6 +35,39 @@ function createCommandTestChain(Team $team): array
     return [$project, $environment, $server, $destination];
 }
 
+it('lists the synthetic container for a functional swarm server, without touching SSH', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    [$project, $environment, $server, $destination] = createCommandTestChain($team);
+    $server->settings()->update([
+        'is_reachable' => true,
+        'is_usable' => true,
+        'force_disabled' => false,
+        'is_swarm_manager' => true,
+    ]);
+    $application = Application::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+        'destination_type' => StandaloneDocker::class,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('project.application.command', [
+            'project_uuid' => $project->uuid,
+            'environment_uuid' => $environment->uuid,
+            'application_uuid' => $application->uuid,
+        ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Shared/Command')
+        ->has('containers', 1)
+        ->where('containers.0.name', "{$application->uuid}_{$application->uuid}")
+    );
+});
+
 it('renders the application command page with no functional server, without touching SSH', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

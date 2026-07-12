@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 
 /**
@@ -8,9 +8,11 @@ import { useEffect } from 'react';
  *
  * Known v1 gaps, intentionally out of scope for this pass (mixing live Livewire components inside
  * a React tree is unsolved): team switching (read-only team name shown instead of
- * <livewire:switch-team/>), the settings dropdown, the upgrade banner, delete-team modal trigger,
- * and the help modal (<livewire:settings-dropdown/>, <livewire:upgrade/>,
- * <livewire:navbar-delete-team/>, <livewire:help/>). Also no mobile hamburger drawer or
+ * <livewire:switch-team/>), the rest of the settings dropdown beyond Logout, the upgrade banner,
+ * delete-team modal trigger, and the help modal (<livewire:settings-dropdown/>, <livewire:upgrade/>,
+ * <livewire:navbar-delete-team/>, <livewire:help/>). Logout itself (POST /logout, matching the
+ * plain <form action="/logout" method="POST"> in navbar.blade.php) is ported below since its
+ * absence otherwise leaves no way to log out from any converted page. Also no mobile hamburger drawer or
  * collapse/expand toggle yet — the sidebar is always expanded. Global search
  * (<livewire:global-search/>) and deployment status indicator (<livewire:deployments-indicator/>)
  * are omitted for the same reason.
@@ -52,6 +54,11 @@ export default function AppLayout({ children }) {
 
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
+    function logout(e) {
+        e.preventDefault();
+        router.post('/logout');
+    }
+
     return (
         <div className="flex min-h-screen">
             <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 border-r border-neutral-300 dark:border-coolgray-200 bg-white dark:bg-base">
@@ -79,8 +86,16 @@ export default function AppLayout({ children }) {
                     })}
                 </nav>
                 {auth?.user && (
-                    <div className="px-4 py-4 text-sm text-neutral-500 dark:text-coolgray-400 border-t border-neutral-300 dark:border-coolgray-200">
-                        {auth.user.name}
+                    // pb-12 (not py-4's default) so this clears Laravel Debugbar's fixed-position
+                    // bottom toolbar in local dev - that bar sits at viewport bottom with a high
+                    // z-index, and this sidebar is itself position:fixed spanning the full
+                    // viewport height, so without the extra clearance the toolbar covers the
+                    // Logout button (still clickable-if-you-knew-it-was-there, but invisible).
+                    <div className="flex flex-col gap-2 px-4 pt-4 pb-12 border-t border-neutral-300 dark:border-coolgray-200">
+                        <div className="text-sm text-neutral-500 dark:text-coolgray-400">{auth.user.name}</div>
+                        <button type="button" onClick={logout} className="menu-item text-left">
+                            Logout
+                        </button>
                     </div>
                 )}
             </aside>

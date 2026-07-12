@@ -9,7 +9,10 @@ ARG CLOUDFLARED_VERSION=2025.7.0
 # Note: We are using version 18 of the postgres client (while still using postgres 15 for the postgres server) as version 15 has been removed from Alpine 3.23+ https://pkgs.alpinelinux.org/packages?name=postgresql*-client&branch=v3.23&repo=&arch=x86_64&origin=&flagged=&maintainer=
 ARG POSTGRES_VERSION=18
 # https://nginx.org/en/linux_packages.html
-ARG NGINX_VERSION=1.31.0-r1
+# Note: this base image's Alpine version moves independently of this repo (bumped
+# to v3.24 upstream); the exact nginx.org package pinned here has to track whatever
+# that Alpine version's mainline repo currently ships, not a version chosen up front.
+ARG NGINX_VERSION=1.31.2-r1
 
 # =================================================================
 # Get MinIO client
@@ -83,7 +86,7 @@ RUN mkdir -p /usr/local/bin && \
 
 # Configure PHP
 COPY docker/development/etc/php/conf.d/zzz-custom-php.ini /usr/local/etc/php/conf.d/zzz-custom-php.ini
-ENV PHP_OPCACHE_ENABLE=0
+ENV PHP_OPCACHE_ENABLE=1
 
 # Configure Nginx and S6 overlay
 COPY docker/development/etc/nginx/conf.d/custom.conf /etc/nginx/conf.d/custom.conf

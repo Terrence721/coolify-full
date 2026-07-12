@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\Server;
-use Illuminate\Support\Once;
 use Tests\TestCase;
 
 /*
@@ -26,13 +24,13 @@ uses(TestCase::class)->in('Feature', 'v4/Feature', 'v4/Browser');
 | Global hooks that run before/after each test.
 |
 */
-beforeEach(function () {
-    // Flush the Once memoization cache to ensure tests get fresh data
-    Once::flush();
-
-    // Flush the Server identity map cache to ensure tests get fresh data
-    Server::flushIdentityMap();
-});
+// NOTE: this used to live here as a plain beforeEach(), but a test file's own local
+// beforeEach() silently shadows a global one instead of composing with it in Pest, so
+// this was never actually running for the majority of the suite (every file with its
+// own `beforeEach(fn () => InstanceSettings::forceCreate(...))`, which is most of
+// tests/v4/Feature/). Moved to Tests\TestCase::setUp(), which runs unconditionally for
+// every test regardless of what beforeEach() closures a file declares — see its
+// docblock for the full story of how this was found.
 
 /*
 |--------------------------------------------------------------------------

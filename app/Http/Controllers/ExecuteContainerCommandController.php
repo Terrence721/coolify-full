@@ -212,7 +212,7 @@ class ExecuteContainerCommandController extends Controller
         $containers = collect();
         foreach ($servers as $server) {
             if ($server->isSwarm()) {
-                $containerList = collect([['Names' => "{$application->uuid}_{$application->uuid}"]]);
+                $containerList = collect([['Names' => "{$application->uuid}_{$application->uuid}", 'State' => 'running']]);
             } else {
                 $containerList = getCurrentApplicationContainerStatus($server, $application->id, includePullrequests: true);
             }
