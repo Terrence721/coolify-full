@@ -2017,3 +2017,57 @@ The original `submit()` calls a manual `validate_timezone($this->instance_timezo
 - No specific next Hard-bucket candidate has been research-ranked yet, though `DomainConflictModal.jsx` was deliberately built to make `Application\Configuration`/`Service\Configuration` (both of which also use the domain-conflict flow) marginally cheaper whenever they're tackled.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 93. Phase 44 — `Project\Application\Deployment\Show`: the live deployment-log viewer, picked via a dedicated tractability ranking, and two more pre-existing boolean-cast bugs found via a real job dispatch
+
+Converts the single-deployment detail page (`project.application.deployment.show`) — the live-tailing log viewer with search/highlight/copy/download/fullscreen, reached by clicking a deployment on the already-converted `Deployment/Index` page. Picked via a dedicated research pass across the 4 remaining candidates that weren't already ruled out as needing design work or their own phase (`Boarding\Index`, `Deployment\Show`, `Project\Service\DatabaseBackups`, `Project\Service\Index`) — `Deployment\Show` won on the same criterion that favored `Settings\Index` in Phase 43: fewest *real* unresolved dependencies. Two of its three nested Livewire children — `project.shared.configuration-checker` and `project.application.heading` — were already fully ported in Phase 7/40/41 as `ConfigurationChecker.jsx`/`Heading.jsx`, and are already proven in production on the sibling `Deployment/Index.jsx` page. The third child, `DeploymentNavbar` (Force Start/Cancel buttons), is small and broadcast-free. The class's own `getListeners() => ['refreshQueue']` turned out to be an internal same-request event fired only by `DeploymentNavbar`, not a websocket dependency — the real-time log tailing is plain `wire:poll.2000ms`, ported as an Inertia partial-reload poll (`router.reload({ only: [...] })`), the same pattern used throughout this migration.
+
+`ApplicationDeploymentController` (already home to `index()`/`deploy()`/`restart()`/`stop()`/`checkStatus()` from Phase 7) gained `show()`, `toggleDebug()`, `forceStart()`, `cancel()`, and `downloadAllLogs()` — extended rather than a new controller, matching the established "one controller per page family" convention. `downloadAllLogs()` is a deliberate simplification over the original: rather than a Livewire method returning a raw string that the client then wraps in a Blob for download, the new route returns a real `Content-Disposition: attachment` file response directly, so the frontend just needs a plain `<a href>` instead of a fetch-then-blob dance.
+
+### A real Laravel routing gotcha, avoided proactively this time
+
+Adding `/deployment/{deployment_uuid}/toggle-debug` alongside the other 3 new deployment-scoped routes would have repeated the exact positional-parameter-binding bug found and fixed in Phase 39 (Section 83) — `toggleDebug()` doesn't need `$deployment_uuid` (it toggles a setting on the `Application`, not the deployment), so a 4-segment route bound to a 3-parameter method risked the same silent-wrong-value class of bug. Caught during implementation, before any test ran, by moving `toggle-debug` to sit alongside `deploy`/`restart`/`stop`/`check-status` (the other application-level, non-deployment-scoped actions) instead of nesting it under `{deployment_uuid}`.
+
+### Two more real pre-existing boolean-cast bugs, found via the first test to actually dispatch `ApplicationDeploymentJob`
+
+Testing `forceStart()`'s happy path (safe to test — `force_start_deployment()` is a DB update plus a queued job dispatch, no direct SSH) was the first place in this whole migration to actually construct `ApplicationDeploymentJob` in a test. Its constructor assigns `$this->application_deployment_queue->rollback` directly into a strictly-typed `private bool $rollback` property — under SQLite (used for testing) with `strict_types=1`, assigning a raw un-cast `0`/`1` integer to a strict `bool` property throws a `TypeError`, not a silent coercion. `ApplicationDeploymentQueue::$rollback` was documented `@property bool` but missing from `$casts`, the exact same gap class found in Phase "Project\CloneMe" (Section 73). Tracing the same constructor further turned up 2 more columns with the identical gap and the identical strict-property-assignment crash risk: `force_rebuild` and `restart_only` (a 3rd, `only_this_server`, was also missing its cast though not on a crash path found so far — added anyway since it's the same undocumented gap on the same model). Checked for `=== 0`/`=== 1` strict-comparison call sites before casting (same safety check as the CloneMe precedent) — found none, so all 4 were safe to fix by adding `'boolean'` casts.
+
+### A second, narrower fixture gap (not a code bug)
+
+After fixing the cast bug, the same test still failed — this time because the test's own `ApplicationDeploymentQueue` fixture didn't set `server_id`/`destination_id`. `ApplicationDeploymentJob`'s constructor unconditionally dereferences `Server::find($this->application_deployment_queue->server_id)->settings->dynamic_timeout`, which crashes on a null server. This is a real constructor behavior (no `?->` guard), but not a bug worth fixing here — every real deployment always has these fields set by the code that creates it; it's a test-fixture completeness gap, fixed by adding both fields to the fixture with an inline comment explaining why they're required.
+
+### A genuinely dead method, not ported
+
+`DeploymentNavbar::copyLogsToClipboard()` (returns deployment logs as Markdown) is never called from the Blade view or anywhere else in the codebase — confirmed via grep before writing any code. Not ported; the log viewer's own "Copy Logs" button already does a plain client-side `navigator.clipboard.writeText()` independently and unrelatedly.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ApplicationDeploymentController.php` | modified | Added `show()`, `toggleDebug()`, `forceStart()`, `cancel()`, `downloadAllLogs()` |
+| `app/Models/ApplicationDeploymentQueue.php` | modified | Added `'rollback'`, `'force_rebuild'`, `'restart_only'`, `'only_this_server'` to `$casts` (see bug writeup above) |
+| `resources/js/Pages/Project/Application/Deployment/Show.jsx` | created | Log viewer with client-side search/highlight/copy/download-displayed, `<a href>` download-all via the new attachment route, reuses `Heading.jsx`/`ConfigurationChecker.jsx` unmodified |
+| `routes/web.php` | modified | Repointed `project.application.deployment.show` at the controller; added `.toggle-debug` (application-scoped, avoiding the Phase 39 routing gotcha), `.force-start`/`.cancel`/`.download-all-logs` (deployment-scoped); removed the `Deployment\Show` Livewire import |
+| `app/Livewire/Project/Application/Deployment/Show.php` (+ view), `app/Livewire/Project/Application/DeploymentNavbar.php` (+ view) | **deleted** | Confirmed via grep: neither referenced anywhere except the route name and each other |
+| `tests/v4/Feature/ApplicationDeploymentShowTest.php` | created | 10 tests: render with log lines, `isKeepAliveOn` false for a finished deployment, redirect for a nonexistent deployment uuid, toggle debug, force-start (dispatches `ApplicationDeploymentJob`), cancel rejects a nonexistent deployment without touching SSH, download-all-logs returns a `text/plain` attachment |
+| `phpstan-baseline.neon` | regenerated | Removed 15 stale entries for the 2 deleted Livewire files. Regeneration hit the same chicken-and-egg case as Phase 43 (`--generate-baseline` refuses to start against a baseline whose own `ignoreErrors` paths no longer exist); this time a naive multiline regex to strip the stale blocks hung (catastrophic backtracking against the ~13k-line file) and had to be killed — a small PHP script (block-splitting on blank lines, filtering by `path:`) removed the 15 entries reliably instead |
+
+### Phase 44 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | Baseline regeneration required manually removing 15 stale entries first (see above); `[OK] No errors` after |
+| 10 new Feature tests | 2 real findings before any test passed: the `rollback`/`force_rebuild`/`restart_only` cast bug (fixed in the model) and the fixture's missing `server_id`/`destination_id` (fixed in the test); all 10 passed after both fixes |
+| Full suite (`php artisan test --compact`) | 610 passed (2622 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 7.24s — `resources/js/Pages/Project/Application/Deployment/Show.jsx` confirmed in `manifest.json` as `Show-BZGUcrR-.js` |
+
+## 94. Non-goals of Phase 44
+
+- `cancel()`'s real SSH-touching happy path (`instant_remote_process()` actually killing a container) remains untested — this migration has no SSH-mocking infrastructure reachable from `App\Http\Controllers` (the existing `RemoteProcessFake` override mechanism is namespace-scoped to `App\Actions\Application`/`App\Actions\Database` only); only the "deployment not found" branch is exercised.
+- `forceStart()`'s test only exercises the DB-update-plus-dispatch path; the queued `ApplicationDeploymentJob` itself is never actually run (`Queue::fake()` prevents that), so nothing about the job's real build logic is exercised by this phase.
+- SVG action-bar icons (search/copy/download/timestamps/debug/follow/fullscreen) were ported as plain text buttons rather than recreated pixel-for-pixel, matching this migration's established action-bar convention (e.g. `ExecutionCard.jsx`).
+- The remaining 12 Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Shared\Logs`, `Project\Shared\ExecuteContainerCommand`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Project\Service\DatabaseBackups`, `Project\Service\Index`, `Server\Show`, `Server\Sentinel\Logs`, `Server\Proxy\Logs`.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

@@ -6,12 +6,15 @@ namespace App\Http\Controllers;
 
 use App\Actions\Application\StopApplication;
 use App\Actions\Docker\GetContainersStatus;
+use App\Enums\ApplicationDeploymentStatus;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
+use App\Models\Server;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Visus\Cuid2\Cuid2;
@@ -58,6 +61,199 @@ class ApplicationDeploymentController extends Controller
                 'stop' => route('project.application.deployment.stop', compact('project_uuid', 'environment_uuid', 'application_uuid')),
                 'checkStatus' => route('project.application.deployment.check-status', compact('project_uuid', 'environment_uuid', 'application_uuid')),
             ],
+        ]);
+    }
+
+    public function show(string $project_uuid, string $environment_uuid, string $application_uuid, string $deployment_uuid): Response|RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        if (! $deployment) {
+            return redirect()->route('project.application.deployment.index', compact('project_uuid', 'environment_uuid', 'application_uuid'));
+        }
+
+        $parameters = compact('project_uuid', 'environment_uuid', 'application_uuid');
+        $deploymentParameters = [...$parameters, 'deployment_uuid' => $deployment_uuid];
+
+        $logLines = decode_remote_command_output($deployment)->map(fn (array $line) => [
+            'timestamp' => $line['timestamp'],
+            'line' => trim($line['line']),
+            'hidden' => (bool) ($line['hidden'] ?? false),
+            'stderr' => (bool) ($line['stderr'] ?? false),
+            'command' => (bool) ($line['command'] ?? false),
+        ])->values();
+
+        return Inertia::render('Project/Application/Deployment/Show', [
+            'application' => $this->applicationProps($application),
+            'heading' => $this->headingProps($application),
+            'configurationChecker' => $this->configurationCheckerProps($application),
+            'deployment' => [
+                'deployment_uuid' => $deployment->deployment_uuid,
+                'status' => $deployment->status,
+            ],
+            'isDebugEnabled' => (bool) $application->settings->is_debug_enabled,
+            'isKeepAliveOn' => ! in_array($deployment->status, [
+                ApplicationDeploymentStatus::FINISHED->value,
+                ApplicationDeploymentStatus::FAILED->value,
+            ]),
+            'logLines' => $logLines,
+            'parameters' => $parameters,
+            'urls' => [
+                'deploy' => route('project.application.deployment.deploy', $parameters),
+                'restart' => route('project.application.deployment.restart', $parameters),
+                'stop' => route('project.application.deployment.stop', $parameters),
+                'checkStatus' => route('project.application.deployment.check-status', $parameters),
+                'toggleDebug' => route('project.application.deployment.toggle-debug', $parameters),
+                'forceStart' => route('project.application.deployment.force-start', $deploymentParameters),
+                'cancel' => route('project.application.deployment.cancel', $deploymentParameters),
+                'downloadAllLogs' => route('project.application.deployment.download-all-logs', $deploymentParameters),
+            ],
+        ]);
+    }
+
+    public function toggleDebug(string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid, redirectOnMissing: true);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        $this->authorize('update', $application);
+
+        $application->settings->is_debug_enabled = ! $application->settings->is_debug_enabled;
+        $application->settings->save();
+
+        return back();
+    }
+
+    public function forceStart(string $project_uuid, string $environment_uuid, string $application_uuid, string $deployment_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid, redirectOnMissing: true);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        $this->authorize('deploy', $application);
+
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        if (! $deployment) {
+            return back()->with('error', 'Deployment not found.');
+        }
+
+        try {
+            force_start_deployment($deployment);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back();
+    }
+
+    public function cancel(string $project_uuid, string $environment_uuid, string $application_uuid, string $deployment_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid, redirectOnMissing: true);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        $this->authorize('deploy', $application);
+
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        if (! $deployment) {
+            return back()->with('error', 'Deployment not found.');
+        }
+
+        $kill_command = "docker rm -f {$deployment_uuid}";
+        $build_server_id = $deployment->build_server_id ?? $application->destination->server_id;
+        $server_id = $deployment->server_id ?? $application->destination->server_id;
+
+        $deployment->update(['status' => ApplicationDeploymentStatus::CANCELLED_BY_USER->value]);
+
+        $server = null;
+
+        try {
+            if ($application->settings->is_build_server_enabled) {
+                $server = Server::ownedByCurrentTeam()->find($build_server_id);
+            } else {
+                $server = Server::ownedByCurrentTeam()->find($server_id);
+            }
+
+            if ($deployment->logs) {
+                $previous_logs = json_decode($deployment->logs, associative: true, flags: JSON_THROW_ON_ERROR);
+                $previous_logs[] = [
+                    'command' => $kill_command,
+                    'output' => 'Deployment cancelled by user.',
+                    'type' => 'stderr',
+                    'order' => count($previous_logs) + 1,
+                    'timestamp' => Carbon::now('UTC'),
+                    'hidden' => false,
+                ];
+                $deployment->update(['logs' => json_encode($previous_logs, flags: JSON_THROW_ON_ERROR)]);
+            }
+
+            $checkCommand = "docker ps -a --filter name={$deployment_uuid} --format '{{.Names}}'";
+            $containerExists = instant_remote_process([$checkCommand], $server);
+
+            if ($containerExists && str($containerExists)->trim()->isNotEmpty()) {
+                instant_remote_process([$kill_command], $server);
+            } else {
+                $deployment->addLogEntry('Helper container not yet started. Deployment will be cancelled when job checks status.');
+            }
+
+            if ($deployment->current_process_id) {
+                try {
+                    $processKillCommand = "kill -9 {$deployment->current_process_id}";
+                    instant_remote_process([$processKillCommand], $server);
+                } catch (\Throwable $e) {
+                    // Process might already be gone, that's ok
+                }
+            }
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        } finally {
+            $deployment->update(['current_process_id' => null]);
+            next_after_cancel($server);
+        }
+
+        return back();
+    }
+
+    public function downloadAllLogs(string $project_uuid, string $environment_uuid, string $application_uuid, string $deployment_uuid): HttpResponse|RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid, redirectOnMissing: true);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        if (! $deployment) {
+            abort(404);
+        }
+
+        $logs = decode_remote_command_output($deployment, includeAll: true)
+            ->map(function (array $line) {
+                $prefix = '';
+                if ($line['hidden']) {
+                    $prefix = '[DEBUG] ';
+                }
+                if (isset($line['command']) && $line['command']) {
+                    $prefix .= '[CMD]: ';
+                }
+
+                return $line['timestamp'].' '.$prefix.trim($line['line']);
+            })
+            ->join("\n");
+
+        $content = sanitizeLogsForExport($logs);
+        $filename = "deployment-{$deployment_uuid}-all-logs-".now()->format('Y-m-d-H-i-s').'.txt';
+
+        return response($content, 200, [
+            'Content-Type' => 'text/plain',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
 

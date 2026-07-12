@@ -168,6 +168,10 @@ class ApplicationDeploymentQueue extends Model
         'finished_at' => 'datetime',
         'configuration_snapshot' => EncryptedArrayCast::class,
         'configuration_diff' => EncryptedArrayCast::class,
+        'rollback' => 'boolean',
+        'force_rebuild' => 'boolean',
+        'restart_only' => 'boolean',
+        'only_this_server' => 'boolean',
     ];
 
     /**
