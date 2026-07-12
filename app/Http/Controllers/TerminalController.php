@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Helpers\SshMultiplexingHelper;
+use App\Http\Controllers\Concerns\BuildsTerminalCommand;
 use App\Models\Server;
-use App\Support\ValidationPatterns;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -15,6 +14,8 @@ use Inertia\Response;
 
 class TerminalController extends Controller
 {
+    use BuildsTerminalCommand;
+
     public function index(): Response
     {
         $servers = Server::isReachable()->get()->filter(fn (Server $server) => $server->isTerminalEnabled())->values();
@@ -52,51 +53,13 @@ class TerminalController extends Controller
         if (! $server) {
             return response()->json(['error' => 'Server not found.'], 404);
         }
-        if (! $server->isTerminalEnabled() || $server->isForceDisabled()) {
-            return response()->json(['error' => 'Terminal access is disabled on this server.'], 403);
+
+        $result = $this->resolveTerminalCommand($server, $isContainer ? $identifier : null);
+        if (isset($result['error'])) {
+            return response()->json(array_diff_key($result, ['status' => true]), $result['status']);
         }
 
-        if ($isContainer) {
-            if (! ValidationPatterns::isValidContainerName($identifier)) {
-                return response()->json(['error' => 'Invalid container identifier format.'], 422);
-            }
-
-            $status = getContainerStatus($server, $identifier);
-            if ($status !== 'running') {
-                return response()->json(['error' => 'Container is not running.'], 422);
-            }
-
-            if (! $this->checkShellAvailability($server, $identifier)) {
-                return response()->json(['error' => 'No shell (bash/sh) is available in this container.', 'reason' => 'no-shell'], 422);
-            }
-
-            $escapedIdentifier = escapeshellarg($identifier);
-            $shellCommand = 'PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin && '.
-                            'if [ -f ~/.profile ]; then . ~/.profile; fi && '.
-                            'if [ -n "$SHELL" ] && [ -x "$SHELL" ]; then exec $SHELL; else sh; fi';
-
-            $dockerCommand = "docker exec -it {$escapedIdentifier} sh -c '{$shellCommand}'";
-            if ($server->isNonRoot()) {
-                $dockerCommand = "sudo {$dockerCommand}";
-            }
-
-            $command = SshMultiplexingHelper::generateSshCommand(
-                $server,
-                $dockerCommand,
-                commandTimeout: (int) config('constants.terminal.command_timeout')
-            );
-        } else {
-            $shellCommand = 'PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin && '.
-                            'if [ -f ~/.profile ]; then . ~/.profile; fi && '.
-                            'if [ -n "$SHELL" ] && [ -x "$SHELL" ]; then exec $SHELL; else sh; fi';
-            $command = SshMultiplexingHelper::generateSshCommand(
-                $server,
-                $shellCommand,
-                commandTimeout: (int) config('constants.terminal.command_timeout')
-            );
-        }
-
-        return response()->json(['command' => $command]);
+        return response()->json(['command' => $result['command']]);
     }
 
     /**
@@ -126,20 +89,5 @@ class TerminalController extends Controller
                 return null;
             })->filter();
         })->sortBy('name')->values();
-    }
-
-    private function checkShellAvailability(Server $server, string $container): bool
-    {
-        $escapedContainer = escapeshellarg($container);
-        try {
-            instant_remote_process([
-                "docker exec {$escapedContainer} bash -c 'exit 0' 2>/dev/null || ".
-                "docker exec {$escapedContainer} sh -c 'exit 0' 2>/dev/null",
-            ], $server);
-
-            return true;
-        } catch (\Throwable) {
-            return false;
-        }
     }
 }

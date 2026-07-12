@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { TerminalSession } from '../../terminalSession';
+import { TerminalSession } from '../terminalSession';
 import {
     TERMINAL_SESSION_DANGER_SECONDS,
     TERMINAL_SESSION_WARNING_SECONDS,
     formatTerminalSessionRemainingTime,
-} from '../../terminal-session-timer';
+} from '../terminal-session-timer';
 
 function terminalSessionRemainingLabel(remainingSeconds) {
     if (remainingSeconds === null) {
@@ -31,9 +31,8 @@ function terminalSessionTimerClass(remainingSeconds) {
 /**
  * React port of resources/views/livewire/project/shared/terminal.blade.php, driven by
  * terminalSession.js (the framework-agnostic port of terminal.js's Alpine component) instead
- * of Livewire's $wire event bus. Project\Shared\Terminal.php itself is untouched — it still
- * renders this same Blade view (via terminal.js/Alpine) for the still-Livewire
- * ExecuteContainerCommand pages.
+ * of Livewire's $wire event bus. Shared by Terminal/Index.jsx (the standalone /terminal page),
+ * Project/Shared/Command.jsx, and Server/Command.jsx (the resource-scoped terminal pages).
  *
  * Known simplification: the original's `wire:poll.keep-alive.30s="keepTerminalPageAlive"` kept
  * the Livewire component's server-side connection alive during a long SSH session. Inertia pages

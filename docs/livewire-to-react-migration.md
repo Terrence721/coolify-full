@@ -2223,3 +2223,61 @@ The first `service()` render test crashed with `Call to a member function isFunc
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 101. Phase 48 — `Project\Shared\ExecuteContainerCommand`: the resource-scoped terminal, closing out the last `Server\Navbar`-dependent page
+
+Converts `App\Livewire\Project\Shared\ExecuteContainerCommand` (241 PHP + 66 Blade lines) — a resource-scoped terminal picker for application/database/service/server — into `ExecuteContainerCommandController` plus two pages: `Project/Shared/Command.jsx` (application/database/service, reached at `.../terminal`) and `Server/Command.jsx` (the server variant, reached at `server.command`, `ServerNavbar`'s last unconverted top-level tab). This closes out the final `Server\Navbar`-dependent Livewire page (20 of 21 now converted — only `Server\Show` remains) and retires a second, otherwise-orphaned Livewire class in the same pass: `App\Livewire\Project\Shared\Terminal` (`sendTerminalCommand()`, the SSH-command builder) had zero consumers besides `execute-container-command.blade.php`, so it and its Blade view were deleted alongside it — along with the now-fully-dead `terminal.js` (843-line Alpine component) and its registration in `app.js`, since the only Blade template that ever rendered a `#terminal-container` div for it is now gone.
+
+Picked via a tractability research pass over the remaining Hard-bucket candidates (`Boarding\Index` 513 lines, `Project\Service\Index` 572 lines, `Project\Resource\Create` — small file but nests 6 creation flows per prior research, `Database`/`Application`/`Service\Configuration` — the largest remaining units per Phase 46's correction). `ExecuteContainerCommand` stood out because Phase 8's `Terminal\Index` conversion had already built and proven every piece of infrastructure it needs: `terminalSession.js` (the WebSocket/xterm.js orchestration layer) and `TerminalWindow.jsx` (the terminal UI itself) needed zero changes, and `TerminalController::connect()`'s SSH-command-building logic turned out to be near byte-identical to `Project\Shared\Terminal::sendTerminalCommand()` — the two had clearly been copy-pasted from one another during the original Livewire-era split (forced by a documented architectural constraint: the WebSocket connection isn't available server-side, so the SSH command has to be built and dispatched back to the browser). This phase was mostly "wire up a resource-scoped container list in front of already-working infrastructure," not new architecture.
+
+### Two real second-consumer trait extractions, closing pre-existing duplication
+
+`ResolvesProjectResources` (`resolveApplication()`/`resolveDatabase()`/`resolveService()`, team-scoped lookup by UUID chain, redirect-to-dashboard on any miss) was extracted from `ProjectLogsController` — this controller needed the identical lookups. `BuildsTerminalCommand` (`resolveTerminalCommand()`/`checkShellAvailability()`) was extracted from `TerminalController::connect()` — the exact SSH-command-building logic `Project\Shared\Terminal::sendTerminalCommand()` used to duplicate. Both extractions collapsed genuine, pre-existing (not newly introduced) copy-paste duplication once a second real consumer existed for each, matching this migration's established "extract only once there's a genuine second consumer" rule.
+
+### `TerminalWindow.jsx` promoted to `Components/`, a real third consumer
+
+Moved from `Pages/Terminal/TerminalWindow.jsx` to `Components/TerminalWindow.jsx` — it now backs three pages (`Terminal/Index`, `Project/Shared/Command`, `Server/Command`), not one.
+
+### A pre-existing quirk found via re-reading the original, deliberately preserved rather than fixed
+
+`ExecuteContainerCommand::loadContainers()`'s Swarm branch builds a synthetic container entry with only a `Names` key, no `State` key — but the very next line's running-check is `data_get($container, 'State') === 'running'`, which is always false for that entry (`null !== 'running'`). Swarm-deployed applications can therefore never actually get a container listed on this page in the original code. Ported faithfully rather than fixed: changing this would mean testing new (never-before-shipped) terminal-over-Swarm behavior this phase has no way to validate, for a low-traffic edge case in a self-hosted fork. Noted here rather than silently carried over.
+
+### A minor asymmetry fixed for consistency (zero behavior change downstream)
+
+The original's `loadContainers()` for services checks `$this->resource->server->isTerminalEnabled()` when listing application containers but not when listing database containers — an inconsistency, not a deliberate distinction. Fixed to check both the same way. This has no actual effect on what a user can do: `resolveTerminalCommand()` re-checks `$server->isTerminalEnabled()` centrally before building any SSH command regardless of which list the container came from, so the original asymmetry only ever affected which containers appeared in the dropdown, never what could actually be connected to.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ExecuteContainerCommandController.php` | created | `application()`/`database()`/`service()`/`server()` render methods, `connectApplication()`/`connectDatabase()`/`connectService()`/`connectServer()`, private `discoverForApplication()`/`discoverForDatabase()`/`discoverForService()` (server/container discovery, ported from `mount()`/`loadContainers()`) |
+| `app/Http/Controllers/Concerns/BuildsTerminalCommand.php` | created | `resolveTerminalCommand()`, `checkShellAvailability()` — extracted from `TerminalController`, now shared with `ExecuteContainerCommandController` |
+| `app/Http/Controllers/Concerns/ResolvesProjectResources.php` | created | `resolveApplication()`/`resolveDatabase()`/`resolveService()` — extracted from `ProjectLogsController`, now shared with `ExecuteContainerCommandController` |
+| `app/Http/Controllers/TerminalController.php`, `app/Http/Controllers/ProjectLogsController.php` | modified | Use the two new traits; removed their now-duplicate private copies |
+| `resources/js/Components/TerminalWindow.jsx` | moved (from `Pages/Terminal/`) | Third consumer promoted it out of a page-local location |
+| `resources/js/Pages/Project/Shared/Command.jsx` | created | application/database/service container picker + `TerminalWindow`. Deliberate v1 simplification: omits `ConfigurationChecker`/`Heading` variants (present in the original) to keep this page as lean as the standalone `Terminal/Index` page, which has never shown per-resource config/heading info either |
+| `resources/js/Pages/Server/Command.jsx` | created | Server-direct variant: `ServerNavbar` + Connect + `TerminalWindow`, no container picker |
+| `routes/web.php` | modified | Repointed `project.{application,database,service}.command` and `server.command` at the controller; added 4 `.command.connect` POST routes; removed the `ExecuteContainerCommand` Livewire import |
+| `app/Livewire/Project/Shared/ExecuteContainerCommand.php`, `app/Livewire/Project/Shared/Terminal.php` (+ both views) | **deleted** | Confirmed via grep: zero other consumers of either |
+| `resources/js/terminal.js` (843 lines), its registration in `resources/js/app.js` | **deleted** | Confirmed via grep: the only Blade template ever rendering a `#terminal-container` div for this Alpine component was `terminal.blade.php`, deleted above. `@xterm/xterm`/`@xterm/addon-fit` stay — `terminalSession.js` (Phase 8) still uses them |
+| `tests/v4/Feature/ExecuteContainerCommandControllerTest.php` | created | 11 tests: application/database/service/server render with no functional server (no SSH touched), redirect-to-dashboard for each nonexistent resource, a non-admin-member 403, connect validation (no selection, unknown container, unowned server) |
+
+### Phase 48 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | Hit the same baseline chicken-and-egg case as every prior phase (stale entries for the 2 deleted Livewire files), fixed with the same PHP-script block-removal approach; `[OK] No errors` after. 4 new baselined errors on `ExecuteContainerCommandController.php` are the same already-accepted `StandaloneDatabaseInstance` plain-interface gap used elsewhere (e.g. `ProjectLogsController::database()`) — not a new bug |
+| 11 new Feature tests | All 11 passed on the first run |
+| Full suite (`php artisan test --compact`) | 652 passed (2858 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 8.36s — `Project/Shared/Command.jsx` and `Server/Command.jsx` both confirmed in `manifest.json`; `TerminalWindow` is now a shared chunk pulled in by 3 pages instead of 1 |
+
+## 102. Non-goals of Phase 48
+
+- The real SSH-touching happy path (an actual terminal session connecting and running commands) remains untested — same standing convention as every SSH-adjacent action in this migration, and the same gap Phase 8 called out explicitly for the standalone Terminal page: a live xterm.js/WebSocket session is not something `assertInertia()` can meaningfully exercise.
+- The Swarm container-listing quirk documented above is preserved, not fixed — flagged as a known pre-existing limitation, not addressed this phase.
+- `Project/Shared/Command.jsx` deliberately omits `ConfigurationChecker`/`Heading`/`DatabaseHeading`/`ServiceHeading` — see the simplification note above.
+- The remaining 8 Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Project\Service\Index`, `Server\Show`, plus `Server\Navbar`'s one remaining dependent (`Server\Show` itself).
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9). Worth calling out explicitly here, as it was for Phase 8: this is exactly the kind of interactive, stateful feature (a live terminal session) that automated checks can't fully vouch for.

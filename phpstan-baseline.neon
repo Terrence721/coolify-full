@@ -171,6 +171,30 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ExecuteContainerCommandController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ExecuteContainerCommandController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ExecuteContainerCommandController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isRunning\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ExecuteContainerCommandController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
 			count: 4
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
@@ -5521,72 +5545,6 @@ parameters:
 			path: app/Livewire/Project/Shared/EnvironmentVariable/ShowHardcoded.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:connectToContainer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:connectToServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:loadContainers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:updatedSelectedContainer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:\$containers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:\$selected_container has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ExecuteContainerCommand\:\:\$servers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/ExecuteContainerCommand.php
-
-		-
 			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\Service\:\:\$is_include_timestamps\.$#'
 			identifier: property.notFound
 			count: 1
@@ -6329,30 +6287,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Terminal\:\:sendTerminalCommand\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Terminal.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Terminal\:\:sendTerminalCommand\(\) has parameter \$identifier with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Terminal.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Terminal\:\:sendTerminalCommand\(\) has parameter \$isContainer with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Terminal.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Terminal\:\:sendTerminalCommand\(\) has parameter \$serverUuid with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Terminal.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\UploadConfig\:\:mount\(\) has no return type specified\.$#'

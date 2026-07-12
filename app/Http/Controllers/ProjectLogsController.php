@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Contracts\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesServiceLifecycle;
+use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Http\Controllers\Concerns\StreamsContainerLogs;
 use App\Models\Application;
 use App\Models\Server;
-use App\Models\Service;
 use App\Support\ValidationPatterns;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,6 +21,7 @@ class ProjectLogsController extends Controller
 {
     use AuthorizesRequests;
     use ManagesServiceLifecycle;
+    use ResolvesProjectResources;
     use StreamsContainerLogs;
 
     public function application(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): Response|RedirectResponse
@@ -289,63 +288,6 @@ class ProjectLogsController extends Controller
                 ],
             ];
         })->all();
-    }
-
-    private function resolveApplication(string $project_uuid, string $environment_uuid, string $application_uuid): Application|RedirectResponse
-    {
-        $project = currentTeam()->load(['projects'])->projects->where('uuid', $project_uuid)->first();
-        if (! $project) {
-            return redirect()->route('dashboard');
-        }
-        $environment = $project->load(['environments'])->environments->where('uuid', $environment_uuid)->first();
-        if (! $environment) {
-            return redirect()->route('dashboard');
-        }
-        $application = $environment->applications()->where('uuid', $application_uuid)->first();
-        if (! $application) {
-            return redirect()->route('dashboard');
-        }
-
-        return $application;
-    }
-
-    /**
-     * @return (Model&StandaloneDatabaseInstance)|RedirectResponse
-     */
-    private function resolveDatabase(string $project_uuid, string $environment_uuid, string $database_uuid): Model|RedirectResponse
-    {
-        $project = currentTeam()->load(['projects'])->projects->where('uuid', $project_uuid)->first();
-        if (! $project) {
-            return redirect()->route('dashboard');
-        }
-        $environment = $project->load(['environments'])->environments->where('uuid', $environment_uuid)->first();
-        if (! $environment) {
-            return redirect()->route('dashboard');
-        }
-        $database = $environment->databases()->where('uuid', $database_uuid)->first();
-        if (! $database) {
-            return redirect()->route('dashboard');
-        }
-
-        return $database;
-    }
-
-    private function resolveService(string $project_uuid, string $environment_uuid, string $service_uuid): Service|RedirectResponse
-    {
-        $project = currentTeam()->load(['projects'])->projects->where('uuid', $project_uuid)->first();
-        if (! $project) {
-            return redirect()->route('dashboard');
-        }
-        $environment = $project->load(['environments'])->environments->where('uuid', $environment_uuid)->first();
-        if (! $environment) {
-            return redirect()->route('dashboard');
-        }
-        $service = $environment->services()->whereUuid($service_uuid)->first();
-        if (! $service) {
-            return redirect()->route('dashboard');
-        }
-
-        return $service;
     }
 
     /**

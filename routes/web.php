@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\EnvironmentController;
+use App\Http\Controllers\ExecuteContainerCommandController;
 use App\Http\Controllers\ForcePasswordResetController;
 use App\Http\Controllers\NotificationsDiscordController;
 use App\Http\Controllers\NotificationsEmailController;
@@ -62,7 +63,6 @@ use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
 use App\Livewire\Project\Resource\Create as ResourceCreate;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
 use App\Livewire\Project\Service\Index as ServiceIndex;
-use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Server\Show as ServerShow;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -307,7 +307,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/deployment/{deployment_uuid}/cancel', [ApplicationDeploymentController::class, 'cancel'])->name('project.application.deployment.cancel');
         Route::get('/deployment/{deployment_uuid}/download-all-logs', [ApplicationDeploymentController::class, 'downloadAllLogs'])->name('project.application.deployment.download-all-logs');
         Route::get('/logs', [ProjectLogsController::class, 'application'])->name('project.application.logs');
-        Route::get('/terminal', ExecuteContainerCommand::class)->name('project.application.command')->middleware('can.access.terminal');
+        Route::get('/terminal', [ExecuteContainerCommandController::class, 'application'])->name('project.application.command')->middleware('can.access.terminal');
+        Route::post('/terminal/connect', [ExecuteContainerCommandController::class, 'connectApplication'])->name('project.application.command.connect')->middleware('can.access.terminal');
         Route::get('/tasks/{task_uuid}', ApplicationConfiguration::class)->name('project.application.scheduled-tasks');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}')->group(function () {
@@ -325,7 +326,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/danger', DatabaseConfiguration::class)->name('project.database.danger');
 
         Route::get('/logs', [ProjectLogsController::class, 'database'])->name('project.database.logs');
-        Route::get('/terminal', ExecuteContainerCommand::class)->name('project.database.command')->middleware('can.access.terminal');
+        Route::get('/terminal', [ExecuteContainerCommandController::class, 'database'])->name('project.database.command')->middleware('can.access.terminal');
+        Route::post('/terminal/connect', [ExecuteContainerCommandController::class, 'connectDatabase'])->name('project.database.command.connect')->middleware('can.access.terminal');
 
         Route::post('/start', [ProjectDatabaseBackupController::class, 'start'])->name('project.database.start');
         Route::post('/stop', [ProjectDatabaseBackupController::class, 'stop'])->name('project.database.stop');
@@ -357,7 +359,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/resource-operations', ServiceConfiguration::class)->name('project.service.resource-operations');
         Route::get('/tags', ServiceConfiguration::class)->name('project.service.tags');
         Route::get('/danger', ServiceConfiguration::class)->name('project.service.danger');
-        Route::get('/terminal', ExecuteContainerCommand::class)->name('project.service.command')->middleware('can.access.terminal');
+        Route::get('/terminal', [ExecuteContainerCommandController::class, 'service'])->name('project.service.command')->middleware('can.access.terminal');
+        Route::post('/terminal/connect', [ExecuteContainerCommandController::class, 'connectService'])->name('project.service.command.connect')->middleware('can.access.terminal');
         Route::get('/{stack_service_uuid}/backups', [ProjectServiceDatabaseBackupController::class, 'index'])->name('project.service.database.backups');
         Route::post('/{stack_service_uuid}/backups/set-type', [ProjectServiceDatabaseBackupController::class, 'setType'])->name('project.service.database.backups.set-type');
         Route::post('/{stack_service_uuid}/backups/store', [ProjectServiceDatabaseBackupController::class, 'store'])->name('project.service.database.backups.store');
@@ -439,7 +442,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/proxy-actions/stop', [ServerProxyActionsController::class, 'stop'])->name('server.proxy-actions.stop');
         Route::post('/proxy-actions/start', [ServerProxyActionsController::class, 'start'])->name('server.proxy-actions.start');
         Route::post('/proxy-actions/check-status', [ServerProxyActionsController::class, 'checkStatus'])->name('server.proxy-actions.check-status');
-        Route::get('/terminal', ExecuteContainerCommand::class)->name('server.command')->middleware('can.access.terminal');
+        Route::get('/terminal', [ExecuteContainerCommandController::class, 'server'])->name('server.command')->middleware('can.access.terminal');
+        Route::post('/terminal/connect', [ExecuteContainerCommandController::class, 'connectServer'])->name('server.command.connect')->middleware('can.access.terminal');
         Route::get('/docker-cleanup', [ServerDockerCleanupController::class, 'index'])->name('server.docker-cleanup');
         Route::put('/docker-cleanup', [ServerDockerCleanupController::class, 'update'])->name('server.docker-cleanup.update');
         Route::post('/docker-cleanup/manual-cleanup', [ServerDockerCleanupController::class, 'manualCleanup'])->name('server.docker-cleanup.manual-cleanup');

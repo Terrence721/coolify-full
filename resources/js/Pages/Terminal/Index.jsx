@@ -1,6 +1,6 @@
 import { Deferred, Head } from '@inertiajs/react';
 import { useState } from 'react';
-import TerminalWindow from './TerminalWindow';
+import TerminalWindow from '../../Components/TerminalWindow';
 
 function csrfToken() {
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
