@@ -2176,3 +2176,50 @@ The original silently shows "No logs yet." when the server isn't functional (`Ge
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 99. Phase 47 — `Project\Shared\Logs`: the third `GetLogs` consumer, a 3-way resource-type router, plus a `ManagesServiceLifecycle` extraction
+
+Converts `App\Livewire\Project\Shared\Logs` — the third and final `GetLogs` consumer flagged as a follow-on in Phase 46's non-goals — into a single `ProjectLogsController` and one shared `Project/Shared/Logs.jsx` page, reused across three route names (`project.application.logs`, `project.database.logs`, `project.service.logs`) that branch on a `type` prop rather than becoming three separate pages, matching how the original Livewire component branched on `$this->resourceType`. As anticipated in Phase 46, this was a much cheaper port than it would have been earlier: `ConfigurationChecker`, `Heading` (Application/Deployment), `DatabaseHeading`, and `ServiceHeading` were all already-ported components from prior phases, and `ContainerLogs.jsx` + `StreamsContainerLogs` already existed from Phase 46 — the only genuinely new work was the multi-server/multi-container orchestration logic and giving `ContainerLogs.jsx` multi-instance support, since this page (unlike Proxy/Sentinel Logs) can render an arbitrary number of `ContainerLogs` instances on one page at once.
+
+Also extracted `ManagesServiceLifecycle` (a controller trait) from `ProjectServiceDatabaseBackupController`'s `start()`/`forceDeploy()`/`restart()`/`stop()`/`checkStatus()` methods, since the service variant of this page needs the identical lifecycle actions but reached from a different route prefix (service-scoped, not backup-scoped) — a genuine second consumer, not a speculative extraction.
+
+### `ContainerLogs.jsx` gained multi-instance support
+
+Phase 46's version hardcoded `only: ['logLines']` for its polling/reload logic and unprefixed `lines`/`timestamps` query params, which was correct for Proxy/Sentinel Logs (always exactly one container on the page) but would silently collide across containers on this page (multiple containers per server, multiple servers). Added `reloadKeys` (defaults to `['logLines']`, preserving Phase 46 behavior unchanged) and `queryPrefix` (defaults to `''`) props, plus a `currentQueryParams()` helper so changing one container's lines/timestamps setting doesn't clobber the query params of any other container on the page. `Project/Shared/Logs.jsx` passes `reloadKeys={['containerGroups']}` and a per-container `queryPrefix` (`c0_`, `c1_`, ...); Proxy/Sentinel Logs pass neither, so they keep their original single-container query shape.
+
+### A test-fixture gap, not a controller bug: `Service::server_id` is a separate denormalized column
+
+The first `service()` render test crashed with `Call to a member function isFunctional() on null` on `$service->server->isFunctional()`. `Service` has both a `destination()` morph relation and a separate `server_id` column/`belongsTo(Server::class)` — production service-creation code (`Project\Resource\Create`, `Project\New\DockerCompose`) always sets `server_id` explicitly alongside `destination_id`/`destination_type` at creation time, but the new test's fixture set only the destination fields. The controller code is a faithful port of the original `GetLogs::mount()`'s `$this->resource->server->isFunctional()` branch for services, which relies on the same column — confirmed by checking `git show` of the original Livewire component. Fixed the test fixtures to set `server_id`, not the controller.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectLogsController.php` | created | `application()`/`database()`/`service()` render methods, `serviceStart()`/`serviceForceDeploy()`/`serviceRestart()`/`serviceStop()`/`serviceCheckStatus()` lifecycle wrappers, `downloadLogs()`, plus private `resolveApplication()`/`resolveDatabase()`/`resolveService()`/`discoverApplicationContainers()`/`buildContainerEntries()`/`applicationConfigurationCheckerProps()` |
+| `app/Http/Controllers/Concerns/ManagesServiceLifecycle.php` | created | `startService()`/`forceDeployService()`/`restartService()`/`stopService()`/`checkServiceStatus()`/`isServiceDeploymentInProgress()`/`serviceConfigurationCheckerProps()`, extracted from `ProjectServiceDatabaseBackupController` |
+| `app/Http/Controllers/ProjectServiceDatabaseBackupController.php` | modified | Its `start()`/`forceDeploy()`/`restart()`/`stop()`/`checkStatus()` are now thin wrappers delegating to the trait; removed its now-duplicate private `configurationCheckerProps()` |
+| `resources/js/Pages/Project/Shared/Logs.jsx` | created | 3-way branch by `type`, composing already-ported `Heading`/`DatabaseHeading`/`ServiceHeading`/`ConfigurationChecker`/`ContainerLogs` |
+| `resources/js/Components/ContainerLogs.jsx` | modified | Added `reloadKeys`/`queryPrefix` props for multi-instance-per-page support; Proxy/Sentinel Logs unaffected (defaults preserve prior behavior) |
+| `routes/web.php` | modified | Repointed `project.application.logs`/`project.database.logs`/`project.service.logs` at the controller; added `project.logs.service.{start,force-deploy,restart,stop,check-status}` and `project.logs.download`; removed the `Project\Shared\Logs` Livewire import |
+| `app/Livewire/Project/Shared/Logs.php` (+ view) | deleted | Confirmed via grep: zero other consumers. `App\Livewire\Project\Shared\GetLogs` (+ view) stays — still nested by 8 still-Livewire database-engine pages |
+| `tests/v4/Feature/ProjectLogsControllerTest.php` | created | 9 tests: application/database/service render with no functional server (no SSH touched), redirect-to-dashboard for each nonexistent resource type, service lifecycle action redirects, deployment-in-progress restart guard, download-logs 404 for non-functional server |
+
+### Phase 47 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | Hit the same baseline chicken-and-egg case as every prior phase (stale entries for the deleted Livewire file), fixed with the same PHP-script block-removal approach; `[OK] No errors` after. The 3 new `collect()`-type-mismatch messages attributed to `ProjectLogsController.php` are the same pre-existing pattern already baselined identically for `ServerProxyController.php`/`ServerSentinelController.php` (both also use `StreamsContainerLogs`) — confirmed not a new bug |
+| 9 new Feature tests | 1 failed on first run (`$service->server` null — a test-fixture gap, see above); all 9 passed after fixing the fixture |
+| Full suite (`php artisan test --compact`) | 641 passed (2795 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 7.45s — `Project/Shared/Logs.jsx` confirmed in `manifest.json` |
+
+## 100. Non-goals of Phase 47
+
+- The real SSH-touching happy path remains untested — same standing convention as every SSH-adjacent action in this migration; only the "no functional server, no SSH attempted" branches are exercised.
+- Deliberate v1 scope simplification: all containers' logs are always fetched eagerly on page load, matching how the multi-container groups are always rendered expanded. The original Blade's collapsible/lazy-expand-on-click behavior per container was not ported — documented as a known gap rather than adding the complexity of per-container lazy Inertia partial reloads.
+- The `GetLogs` prerequisite investment from Phase 46 is now fully paid off: all three of its original consumers (`Server\Proxy\Logs`, `Server\Sentinel\Logs`, `Project\Shared\Logs`) are converted. The Livewire `GetLogs` component itself stays, still nested by the 8 still-Livewire database-engine "general settings" pages.
+- The remaining 9 Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Shared\ExecuteContainerCommand`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Project\Service\Index`, `Server\Show`.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

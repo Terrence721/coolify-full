@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\Docker\GetContainersStatus;
-use App\Actions\Service\StartService;
-use App\Actions\Service\StopService;
-use App\Enums\ProcessStatus;
 use App\Http\Controllers\Concerns\ManagesScheduledDatabaseBackups;
+use App\Http\Controllers\Concerns\ManagesServiceLifecycle;
 use App\Jobs\DatabaseBackupJob;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
@@ -21,12 +18,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\Activitylog\Models\Activity;
 
 class ProjectServiceDatabaseBackupController extends Controller
 {
     use AuthorizesRequests;
     use ManagesScheduledDatabaseBackups;
+    use ManagesServiceLifecycle;
 
     private const DEFAULT_TAKE = 10;
 
@@ -44,7 +41,7 @@ class ProjectServiceDatabaseBackupController extends Controller
             return Inertia::render('Project/Service/DatabaseBackups', [
                 'service' => $this->serviceProps($service),
                 'serviceDatabase' => $this->serviceDatabaseProps($serviceDatabase),
-                'configurationChecker' => $this->configurationCheckerProps($service),
+                'configurationChecker' => $this->serviceConfigurationCheckerProps($service),
                 'needsCustomType' => true,
                 'parameters' => $parameters,
                 'urls' => $this->headingUrls($parameters),
@@ -69,7 +66,7 @@ class ProjectServiceDatabaseBackupController extends Controller
         return Inertia::render('Project/Service/DatabaseBackups', [
             'service' => $this->serviceProps($service),
             'serviceDatabase' => $this->serviceDatabaseProps($serviceDatabase),
-            'configurationChecker' => $this->configurationCheckerProps($service),
+            'configurationChecker' => $this->serviceConfigurationCheckerProps($service),
             'needsCustomType' => false,
             'scheduledBackups' => $backups->map(fn (ScheduledDatabaseBackup $backup) => $this->backupCardProps($backup, $selectedBackupId))->values(),
             'selectedBackupId' => $selectedBackupId,
@@ -282,11 +279,7 @@ class ProjectServiceDatabaseBackupController extends Controller
         }
         [$service] = $result;
 
-        $this->authorize('deploy', $service);
-
-        $activity = StartService::run($service, pullLatestImages: true);
-
-        return back()->with(['activityId' => $activity->id, 'activityContext' => 'service']);
+        return $this->startService($service);
     }
 
     public function forceDeploy(string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
@@ -297,20 +290,7 @@ class ProjectServiceDatabaseBackupController extends Controller
         }
         [$service] = $result;
 
-        $this->authorize('deploy', $service);
-
-        $inProgressStatuses = [ProcessStatus::IN_PROGRESS->value, ProcessStatus::QUEUED->value];
-        Activity::where('properties->type_uuid', $service->uuid)
-            ->whereIn('properties->status', $inProgressStatuses)
-            ->get()
-            ->each(function (Activity $activity) {
-                $activity->properties->status = ProcessStatus::ERROR->value;
-                $activity->save();
-            });
-
-        $activity = StartService::run($service, pullLatestImages: true, stopBeforeStart: true);
-
-        return back()->with(['activityId' => $activity->id, 'activityContext' => 'service']);
+        return $this->forceDeployService($service);
     }
 
     public function restart(string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
@@ -321,15 +301,7 @@ class ProjectServiceDatabaseBackupController extends Controller
         }
         [$service] = $result;
 
-        $this->authorize('deploy', $service);
-
-        if ($this->isDeploymentInProgress($service)) {
-            return back()->with('error', 'There is a deployment in progress.');
-        }
-
-        $activity = StartService::run($service, stopBeforeStart: true);
-
-        return back()->with(['activityId' => $activity->id, 'activityContext' => 'service']);
+        return $this->restartService($service);
     }
 
     public function stop(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
@@ -340,19 +312,7 @@ class ProjectServiceDatabaseBackupController extends Controller
         }
         [$service] = $result;
 
-        $this->authorize('stop', $service);
-
-        StopService::dispatch($service, false, $request->boolean('docker_cleanup', true));
-
-        return back()->with('info', 'Gracefully stopping service. It could take a while depending on the service.');
-    }
-
-    private function isDeploymentInProgress(Service $service): bool
-    {
-        $activity = Activity::where('properties->type_uuid', $service->uuid)->latest()->first();
-        $status = data_get($activity, 'properties.status');
-
-        return $status === ProcessStatus::QUEUED->value || $status === ProcessStatus::IN_PROGRESS->value;
+        return $this->stopService($request, $service);
     }
 
     public function checkStatus(string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
@@ -363,13 +323,7 @@ class ProjectServiceDatabaseBackupController extends Controller
         }
         [$service] = $result;
 
-        if (! $service->server->isFunctional()) {
-            return back()->with('error', 'Server is not functional.');
-        }
-
-        GetContainersStatus::dispatch($service->server);
-
-        return back();
+        return $this->checkServiceStatus($service);
     }
 
     /**
@@ -450,19 +404,6 @@ class ProjectServiceDatabaseBackupController extends Controller
         return [
             'uuid' => $serviceDatabase->uuid,
             'name' => $serviceDatabase->name,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function configurationCheckerProps(Service $service): array
-    {
-        return [
-            'isConfigurationChanged' => $service->isConfigurationChanged(),
-            'isExited' => str($service->status)->contains('exited'),
-            'configHash' => $service->config_hash,
-            'diff' => [],
         ];
     }
 

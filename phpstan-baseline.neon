@@ -277,6 +277,78 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Support\\Collection\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>commit_message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Controllers/ProjectLogsController.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
 			identifier: property.notFound
 			count: 1
@@ -5615,96 +5687,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Logs\:\:getContainersForServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Logs\:\:getContainersForServer\(\) has parameter \$server with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Logs\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Logs\:\:loadAllContainers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Logs\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$container has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$containers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$cpu has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$query has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$serverContainers type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$servers with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$serviceSubType has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Logs\:\:\$status has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Logs.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\Metrics\:\:loadData\(\) has no return type specified\.$#'

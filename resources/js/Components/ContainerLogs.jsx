@@ -18,13 +18,23 @@ function getLogLevel(content) {
 }
 
 /**
- * Simplified port of livewire/project/shared/get-logs.blade.php, scoped to what
- * Server\Proxy\Logs and Server\Sentinel\Logs need (a single fixed container, not
- * expand-on-demand / collapsible). Known v1 gap: the collapsible/expand-on-click
- * variant (used when GetLogs is nested per-container on Project\Shared\Logs) isn't
- * ported yet — that page stays Livewire for now.
+ * Simplified port of livewire/project/shared/get-logs.blade.php. `reloadKeys`/`queryPrefix`
+ * let a page render several independent instances (Project/Shared/Logs, one per
+ * container) without their partial reloads/query params colliding — Server\Proxy\Logs
+ * and Server\Sentinel\Logs (a single fixed container each) just use the defaults.
+ * Known v1 gap: the collapsible/expand-on-click variant (used when GetLogs is nested
+ * per-container in the original) isn't ported — every container's logs are always
+ * fetched eagerly instead of lazily on expand.
  */
-export default function ContainerLogs({ displayName, logLines, numberOfLines, showTimestamps, urls }) {
+export default function ContainerLogs({
+    displayName,
+    logLines,
+    numberOfLines,
+    showTimestamps,
+    urls,
+    reloadKeys = ['logLines'],
+    queryPrefix = '',
+}) {
     const [fullscreen, setFullscreen] = useState(false);
     const [alwaysScroll, setAlwaysScroll] = useState(false);
     const [streaming, setStreaming] = useState(false);
@@ -46,10 +56,11 @@ export default function ContainerLogs({ displayName, logLines, numberOfLines, sh
     useEffect(() => {
         if (!streaming) return;
         pollRef.current = setInterval(() => {
-            router.reload({ only: ['logLines'], preserveScroll: true, preserveState: true });
+            router.reload({ only: reloadKeys, preserveScroll: true, preserveState: true });
         }, 2000);
 
         return () => clearInterval(pollRef.current);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [streaming]);
 
     const query = searchQuery.trim().toLowerCase();
@@ -138,15 +149,19 @@ export default function ContainerLogs({ displayName, logLines, numberOfLines, sh
     }
 
     function refresh() {
-        router.reload({ only: ['logLines'], preserveScroll: true, preserveState: true });
+        router.reload({ only: reloadKeys, preserveScroll: true, preserveState: true });
     }
 
     function applySettings(newLines, newTimestamps) {
         router.get(
             window.location.pathname,
-            { lines: newLines, timestamps: newTimestamps ? 1 : 0 },
-            { preserveState: true, preserveScroll: true, only: ['logLines', 'numberOfLines', 'showTimestamps'] }
+            { ...currentQueryParams(), [`${queryPrefix}lines`]: newLines, [`${queryPrefix}timestamps`]: newTimestamps ? 1 : 0 },
+            { preserveState: true, preserveScroll: true, only: reloadKeys }
         );
+    }
+
+    function currentQueryParams() {
+        return Object.fromEntries(new URLSearchParams(window.location.search));
     }
 
     function submitLines(e) {

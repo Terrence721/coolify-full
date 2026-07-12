@@ -20,6 +20,7 @@ use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDatabaseBackupController;
+use App\Http\Controllers\ProjectLogsController;
 use App\Http\Controllers\ProjectResourceController;
 use App\Http\Controllers\ProjectServiceDatabaseBackupController;
 use App\Http\Controllers\SecurityApiTokensController;
@@ -62,7 +63,6 @@ use App\Livewire\Project\Resource\Create as ResourceCreate;
 use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
 use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
-use App\Livewire\Project\Shared\Logs;
 use App\Livewire\Server\Show as ServerShow;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -306,7 +306,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/deployment/{deployment_uuid}/force-start', [ApplicationDeploymentController::class, 'forceStart'])->name('project.application.deployment.force-start');
         Route::post('/deployment/{deployment_uuid}/cancel', [ApplicationDeploymentController::class, 'cancel'])->name('project.application.deployment.cancel');
         Route::get('/deployment/{deployment_uuid}/download-all-logs', [ApplicationDeploymentController::class, 'downloadAllLogs'])->name('project.application.deployment.download-all-logs');
-        Route::get('/logs', Logs::class)->name('project.application.logs');
+        Route::get('/logs', [ProjectLogsController::class, 'application'])->name('project.application.logs');
         Route::get('/terminal', ExecuteContainerCommand::class)->name('project.application.command')->middleware('can.access.terminal');
         Route::get('/tasks/{task_uuid}', ApplicationConfiguration::class)->name('project.application.scheduled-tasks');
     });
@@ -324,7 +324,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/tags', DatabaseConfiguration::class)->name('project.database.tags');
         Route::get('/danger', DatabaseConfiguration::class)->name('project.database.danger');
 
-        Route::get('/logs', Logs::class)->name('project.database.logs');
+        Route::get('/logs', [ProjectLogsController::class, 'database'])->name('project.database.logs');
         Route::get('/terminal', ExecuteContainerCommand::class)->name('project.database.command')->middleware('can.access.terminal');
 
         Route::post('/start', [ProjectDatabaseBackupController::class, 'start'])->name('project.database.start');
@@ -344,7 +344,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}')->group(function () {
         Route::get('/', ServiceConfiguration::class)->name('project.service.configuration');
-        Route::get('/logs', Logs::class)->name('project.service.logs');
+        Route::get('/logs', [ProjectLogsController::class, 'service'])->name('project.service.logs');
+        Route::post('/logs/start', [ProjectLogsController::class, 'serviceStart'])->name('project.logs.service.start');
+        Route::post('/logs/force-deploy', [ProjectLogsController::class, 'serviceForceDeploy'])->name('project.logs.service.force-deploy');
+        Route::post('/logs/restart', [ProjectLogsController::class, 'serviceRestart'])->name('project.logs.service.restart');
+        Route::post('/logs/stop', [ProjectLogsController::class, 'serviceStop'])->name('project.logs.service.stop');
+        Route::post('/logs/check-status', [ProjectLogsController::class, 'serviceCheckStatus'])->name('project.logs.service.check-status');
         Route::get('/environment-variables', ServiceConfiguration::class)->name('project.service.environment-variables');
         Route::get('/storages', ServiceConfiguration::class)->name('project.service.storages');
         Route::get('/scheduled-tasks', ServiceConfiguration::class)->name('project.service.scheduled-tasks.show');
@@ -571,6 +576,8 @@ Route::middleware(['auth'])->group(function () {
             return response()->json(['message' => 'Failed to download backup.'], 500);
         }
     })->name('download.backup');
+
+    Route::get('/logs/download/{server_uuid}', [ProjectLogsController::class, 'downloadLogs'])->name('project.logs.download');
 
 });
 
