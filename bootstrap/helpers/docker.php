@@ -797,13 +797,13 @@ function generateLabelsApplication(Application $application, ?ApplicationPreview
     return $labels->all();
 }
 
-function isDatabaseImage(?string $image = null, ?array $serviceConfig = null)
+function isDatabaseImage(Stringable|string|null $image = null, ?array $serviceConfig = null)
 {
     if (is_null($image)) {
         return false;
     }
 
-    $image = str($image);
+    $image = str((string) $image);
     if ($image->contains(':')) {
         $image = str($image);
     } else {
@@ -843,7 +843,7 @@ function isDatabaseImage(?string $image = null, ?array $serviceConfig = null)
 
     // If we have service configuration, use additional context to make better decisions
     if (! is_null($serviceConfig)) {
-        return isDatabaseImageWithContext($imageName, $serviceConfig);
+        return isDatabaseImageWithContext((string) $imageName, $serviceConfig);
     }
 
     // Fallback to original behavior for backward compatibility

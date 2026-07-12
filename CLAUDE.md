@@ -14,9 +14,13 @@ For UI/UX design specifications, principles, and visual standards, consult `DESI
 
 Docker Compose-based dev setup with services: coolify (app), postgres, redis, soketi (WebSockets), vite, testing-host, mailpit, minio.
 
+**On Windows: the repo lives inside a WSL2 distro's native filesystem (e.g. `/root/projects/coolify-full`), not under `C:\Users\...`.** A Windows-path bind mount works but is dramatically slower for every container operation (a `yarn build` that takes ~2s from WSL2-native storage can take 3+ hours from an NTFS bind mount) — see `docs/command.md`'s "WSL2 migration" section and `DEVELOPING_IN_CONTAINERS_WINDOWS.md`. Run all commands below from a WSL2 terminal; edit via VS Code's Remote - WSL extension connected to the same distro, not a window opened on the Windows path.
+
+`docker-compose.dev.yml` is a Compose **override**, not standalone — it only adds dev-specific bits on top of the base `docker-compose.yml` (which defines the actual `redis`/`postgres`/`soketi` images). Always pass both files explicitly, or use `spin`, which does this for you.
+
 ```bash
-# Start dev environment (uses docker-compose.dev.yml)
-spin up                          # or: docker compose -f docker-compose.dev.yml up -d
+# Start dev environment
+spin up                          # or: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 spin down                        # stop services
 ```
 

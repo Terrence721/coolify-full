@@ -9,7 +9,7 @@ Check items off as `[x]` as you go, or just read top to bottom and confirm each 
 
 ## 0. Setup
 
-- [ ] `spin up` (or `docker compose -f docker-compose.dev.yml up -d`), wait for all containers healthy (`docker compose -f docker-compose.dev.yml ps`).
+- [ ] `spin up` (or `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`), wait for all containers healthy (`docker compose -f docker-compose.yml -f docker-compose.dev.yml ps`). Run from a WSL2 terminal in the repo's WSL2 path — see `docs/command.md`'s "WSL2 migration" section if you're on Windows.
 - [ ] Visit `http://localhost:8000`. Confirm no blank page / no console errors on first load.
 - [ ] Log in. Root user credentials come from `.env`'s `ROOT_USER_EMAIL`/`ROOT_USER_PASSWORD` (seeded by `RootUserSeeder`); alternatively register a normal account at `/register` if instance registration is enabled.
 - [ ] Toggle dark/light mode (if a toggle exists on the page you land on) — confirm no flash-of-unstyled-content and the choice persists across a reload.

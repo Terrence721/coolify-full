@@ -1,89 +1,92 @@
 # Developing Coolify In Containers (Windows)
 
-This guide is for contributors who are new to container-based development.
+<!-- markdownlint-disable-next-line MD036 -->
+**Last Updated: July 12, 2026**
+
+This guide is for contributors who are new to container-based development on a Windows machine.
+
+**The repo lives inside a WSL2 Linux distro's native filesystem, not under `C:\Users\...`.** Docker Desktop's WSL2 backend bridges Windows and Linux file access over a 9P protocol layer that is extremely slow for anything bind-mounted from an NTFS path (a `yarn build` that takes ~2 seconds from WSL2-native storage took over 3 hours from a Windows path — see `docs/command.md`'s "RESOLVED" section for the full root-cause writeup). Keeping the working tree on WSL2-native storage (e.g. `/root/projects/coolify-full`) avoids that bridge entirely for every container operation, not just builds.
 
 ## 0. 5-Command Quick Start
 
-Run these from the project root in PowerShell:
+Run these from a WSL2 terminal (`wsl` from PowerShell, or the integrated terminal in a VS Code window connected via the Remote - WSL extension), inside the repo's WSL2 path:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
-Invoke-WebRequest -Uri http://localhost:8000/api/health -UseBasicParsing
+curl -s http://localhost:8000/api/health
 docker exec coolify sh -lc "cd /var/www/html && php artisan about"
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Feature"
 ```
 
-Open after startup:
+Open after startup (these ports are exposed to the Windows host, so plain `localhost` URLs work from a Windows browser):
 
 - App: `http://localhost:8000`
 - Vite: `http://localhost:5173`
 
 ## 1. What Runs Where
 
-- Your code stays on Windows in `C:\Users\Terre\source\repos\coolify-full`
-- Docker runs Linux containers for the app and services
+- Your code lives inside a WSL2 distro (e.g. `/root/projects/coolify-full`), not on the Windows `C:` drive
+- Docker Desktop's WSL2 backend runs the Linux containers directly against that same WSL2 filesystem — no cross-boundary bridge for bind mounts
 - The main app container is `coolify`
-- VS Code edits the files on Windows and the containers see the same files through mounted volumes
+- Edit the files with VS Code's **Remote - WSL** extension connected to the same distro (`code .` from inside a WSL2 terminal, or "WSL: Connect to WSL" from the Command Palette) so the editor and the containers see identical files. A VS Code window opened directly on the Windows path is a different, stale copy — don't edit there.
 
 ## 2. One-Time Setup
 
-1. Install Docker Desktop.
-2. Start Docker Desktop and wait until ready.
-3. Open PowerShell in the project root.
-4. Create `.env` from the development template if needed:
+1. Install a real WSL2 distro if you don't already have one: `wsl --install -d Ubuntu` (avoid storing the project in Docker Desktop's own internal `docker-desktop` distro — it can be wiped/reset on Docker Desktop updates).
+2. Install Docker Desktop, then enable WSL2 integration for that distro: **Settings → Resources → WSL Integration**, toggle the distro on, Apply & Restart.
+3. Get the repo onto the WSL2 filesystem (clone directly there, or `rsync` an existing Windows-path checkout across — see `docs/command.md` for the exact `rsync` flags and a mistake to avoid with unanchored `--exclude` patterns).
+4. From a WSL2 terminal, in the repo root, create `.env` from the development template if needed:
 
-```powershell
-Copy-Item .env.development.example .env
+```bash
+cp .env.development.example .env
 ```
 
 ## 3. Start The Stack
 
-Run from the project root:
+Run from a WSL2 terminal, in the repo root:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 Check status:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ```
 
-Expected services:
+Expected services: `coolify` (app), `coolify-db` (Postgres), `coolify-redis` (Redis), `coolify-realtime`, `coolify-vite`, plus `coolify-mail`, `coolify-minio`, `coolify-testing-host`.
 
-- `coolify` (app)
-- `coolify-db` (Postgres)
-- `coolify-redis` (Redis)
-- `coolify-realtime`
-- `coolify-vite`
+If you also have an old stack running from a Windows-path checkout, bring that one down first (`docker compose -f docker-compose.yml -f docker-compose.dev.yml down` from the old location) — both would otherwise fight over the same container/network names.
 
 ## 4. Daily Workflow
 
 1. Start Docker Desktop.
-2. Start the stack.
-3. Edit code in VS Code.
+2. Start the stack from a WSL2 terminal.
+3. Edit code in a VS Code window connected via Remote - WSL to the same distro.
 4. Run commands inside the app container.
 5. Run tests.
 6. Format changed PHP files.
 
 ## 5. Run Commands Inside The Container
 
-Use this pattern:
+Use this pattern, from a WSL2 terminal:
 
-```powershell
+```bash
 docker exec coolify sh -lc "cd /var/www/html && <command>"
 ```
 
 Examples:
 
-```powershell
+```bash
 docker exec coolify sh -lc "cd /var/www/html && php artisan about"
 docker exec coolify sh -lc "cd /var/www/html && php artisan migrate"
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact"
 docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pint --dirty --format agent"
 ```
+
+See `docs/command.md` for the full command reference (Artisan, Pint, PHPStan, Pest, Yarn/Vite, Horizon, logs).
 
 ## 6. Dependencies
 
@@ -91,38 +94,37 @@ docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pint --dirty --format
 
 Run Composer in the container:
 
-```powershell
+```bash
 docker exec coolify sh -lc "cd /var/www/html && composer install"
 docker exec coolify sh -lc "cd /var/www/html && composer dump-autoload"
 ```
 
 ### JavaScript dependencies
 
-Install in the project root:
+`coolify-vite`'s container command already runs `yarn install` automatically on `spin up` / `docker compose up -d` — you generally don't need to install manually. If you do:
 
-```powershell
-npm install
+```bash
+docker exec coolify-vite yarn install
 ```
 
-For browser tests, also install Playwright:
+For browser tests, also install Playwright inside the container:
 
-```powershell
-npm install playwright
-npx playwright install
+```bash
+docker exec coolify sh -lc "cd /var/www/html && npm install playwright && npx playwright install"
 ```
 
 ## 7. Running Tests
 
 Use folder scoping when you want to avoid browser tests:
 
-```powershell
+```bash
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Feature"
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Unit"
 ```
 
 Run a specific filter:
 
-```powershell
+```bash
 docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests/Feature --filter=SomeTestName"
 ```
 
@@ -130,26 +132,33 @@ docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact tests
 
 Tail app logs:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify
 ```
 
 Tail Vite logs:
 
-```powershell
-docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f vite
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify-vite
 ```
 
 ## 9. Common Issues
 
+### A window connected to the Windows-path copy shows no changes
+
+You have a VS Code window open on `C:\Users\...` instead of the WSL2 path. Close it and reopen via Remote - WSL (see Section 1) — the two are different, unrelated directories even if one started as a copy of the other.
+
+### `docker exec coolify vendor/bin/pint` (or similar) fails with a permissions/"not writable" error
+
+New files created via some editors/tools land with restrictive permissions (`rw-r--r--`) that the container's runtime user can't write to, unlike the rest of the tree (`rwxrwxrwx`, carried over from the original `rsync` migration). Fix with `chmod 777 <file>` on the WSL2 side before retrying.
+
+### `docker exec coolify git status` returns nothing / `vendor/bin/pint --dirty` finds nothing despite real changes
+
+The container's git checkout of the bind-mounted tree can hit a `safe.directory`/ownership mismatch that makes `git` silently no-op inside the container, even though `git status` on the WSL2 host side works fine. Work around it by passing explicit file paths to Pint/PHPStan instead of relying on `--dirty` / uncommitted-file autodetection.
+
 ### Playwright is missing
 
-Install browser test dependencies:
-
-```powershell
-npm install playwright
-npx playwright install
-```
+Install browser test dependencies inside the container (see Section 6).
 
 ### `Undefined type 'Log'` in the editor
 
@@ -167,47 +176,48 @@ These are optional environment values and do not always block local development.
 
 Wait 20 to 60 seconds, then check status again:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ```
+
+### `service "redis" has neither an image nor a build context specified`
+
+You ran `docker compose -f docker-compose.dev.yml` without the base `docker-compose.yml`. `docker-compose.dev.yml` is an override, not a standalone file — always pass both (see `docs/command.md`).
 
 ## 10. Stop, Restart, Reset
 
 Stop containers:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down
 ```
 
 Reset data and restart:
 
-```powershell
+```bash
 docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
 docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 Then run migrations and seeders:
 
-```powershell
+```bash
 docker exec coolify sh -lc "cd /var/www/html && php artisan migrate:fresh --seed"
 ```
 
 ## 11. Scan Other Folders
 
-Use these when you want to inspect a specific part of the repository.
+Use these when you want to inspect a specific part of the repository. Run from a WSL2 terminal, either on the host (if you have PHP available there) or inside the container (prefix with `docker exec coolify sh -lc "cd /var/www/html && ..."`).
 
 ### Syntax checks
 
-```powershell
-Get-ChildItem app -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
-Get-ChildItem routes -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
-Get-ChildItem database -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
-Get-ChildItem tests -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
+```bash
+find app routes database tests -name '*.php' -exec php -l {} \;
 ```
 
 ### Static analysis
 
-```powershell
+```bash
 vendor/bin/phpstan analyse app --memory-limit=1G
 vendor/bin/phpstan analyse routes --memory-limit=1G
 vendor/bin/phpstan analyse database --memory-limit=1G

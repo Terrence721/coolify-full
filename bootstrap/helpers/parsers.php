@@ -465,7 +465,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                 $port = $parsed['port'];
                 $fqdn = $resource->fqdn;
                 if (blank($resource->fqdn)) {
-                    $fqdn = generateFqdn(server: $server, random: "$uuid", parserVersion: $resource->compose_parsing_version);
+                    $fqdn = generateFqdn(server: $server, random: "$uuid", parserVersion: (int) $resource->compose_parsing_version);
                 }
 
                 if ($value && get_class($value) === Illuminate\Support\Stringable::class && $value->startsWith('/')) {
@@ -544,7 +544,7 @@ function applicationParser(Application $resource, int $pull_request_id = 0, ?int
                     $serviceName = str($serviceName)->replace('-', '_')->replace('.', '_')->value();
 
                     // Generate BOTH FQDN & URL
-                    $fqdn = generateFqdn(server: $server, random: "$originalServiceName-$uuid", parserVersion: $resource->compose_parsing_version);
+                    $fqdn = generateFqdn(server: $server, random: "$originalServiceName-$uuid", parserVersion: (int) $resource->compose_parsing_version);
                     $url = generateUrl(server: $server, random: "$originalServiceName-$uuid");
 
                     // IMPORTANT: SERVICE_FQDN env vars should NOT contain scheme (host only)
@@ -1769,14 +1769,14 @@ function serviceParser(Service $resource): Collection
                 $isServiceApplication = $savedService instanceof ServiceApplication;
 
                 if ($isServiceApplication && blank($savedService->fqdn)) {
-                    $fqdn = generateFqdn(server: $server, random: "$fqdnFor-$uuid", parserVersion: $resource->compose_parsing_version);
+                    $fqdn = generateFqdn(server: $server, random: "$fqdnFor-$uuid", parserVersion: (int) $resource->compose_parsing_version);
                     $url = generateUrl($server, "$fqdnFor-$uuid");
                 } elseif ($isServiceApplication) {
                     $fqdn = str($savedService->fqdn)->after('://')->before(':')->prepend(str($savedService->fqdn)->before('://')->append('://'))->value();
                     $url = str($savedService->fqdn)->after('://')->before(':')->prepend(str($savedService->fqdn)->before('://')->append('://'))->value();
                 } else {
                     // For ServiceDatabase, generate fqdn/url without saving to the model
-                    $fqdn = generateFqdn(server: $server, random: "$fqdnFor-$uuid", parserVersion: $resource->compose_parsing_version);
+                    $fqdn = generateFqdn(server: $server, random: "$fqdnFor-$uuid", parserVersion: (int) $resource->compose_parsing_version);
                     $url = generateUrl($server, "$fqdnFor-$uuid");
                 }
 
@@ -1880,7 +1880,7 @@ function serviceParser(Service $resource): Collection
                 $command = parseCommandFromMagicEnvVariable($key);
                 if ($command->value() === 'FQDN') {
                     $fqdnFor = $key->after('SERVICE_FQDN_')->lower()->value();
-                    $fqdn = generateFqdn(server: $server, random: str($fqdnFor)->replace('_', '-')->value()."-$uuid", parserVersion: $resource->compose_parsing_version);
+                    $fqdn = generateFqdn(server: $server, random: str($fqdnFor)->replace('_', '-')->value()."-$uuid", parserVersion: (int) $resource->compose_parsing_version);
                     $url = generateUrl(server: $server, random: str($fqdnFor)->replace('_', '-')->value()."-$uuid");
 
                     $envExists = $resource->environment_variables()->where('key', $key->value())->first();
@@ -1926,7 +1926,7 @@ function serviceParser(Service $resource): Collection
                 } elseif ($command->value() === 'URL') {
                     $urlFor = $key->after('SERVICE_URL_')->lower()->value();
                     $url = generateUrl(server: $server, random: str($urlFor)->replace('_', '-')->value()."-$uuid");
-                    $fqdn = generateFqdn(server: $server, random: str($urlFor)->replace('_', '-')->value()."-$uuid", parserVersion: $resource->compose_parsing_version);
+                    $fqdn = generateFqdn(server: $server, random: str($urlFor)->replace('_', '-')->value()."-$uuid", parserVersion: (int) $resource->compose_parsing_version);
 
                     $envExists = $resource->environment_variables()->where('key', $key->value())->first();
                     // Also check if a port-suffixed version exists (e.g., SERVICE_URL_DASHBOARD_6791)

@@ -66,13 +66,14 @@ Vite's dev server (default port `5173`) exists only to compile and hot-reload JS
 
 - Docker
 - Docker Compose
+- On Windows: a WSL2 distro with the repo checked out on its native filesystem (not a `C:\...` bind mount) — see `DEVELOPING_IN_CONTAINERS_WINDOWS.md` and `docs/command.md`'s "WSL2 migration" section for why and how.
 
 ### Start the dev stack
 
 ```bash
 spin up
 # or, equivalently:
-docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 ### Access the application

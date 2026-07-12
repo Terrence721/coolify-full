@@ -8,13 +8,5 @@
         <livewire:project.new.github-private-repository :type="$type" />
     @elseif ($type === 'private-deploy-key')
         <livewire:project.new.github-private-repository-deploy-key :type="$type" />
-    @elseif ($type === 'dockerfile')
-        <livewire:project.new.simple-dockerfile :type="$type" />
-    @elseif ($type === 'docker-compose-empty')
-        <livewire:project.new.docker-compose :type="$type" />
-    @elseif ($type === 'docker-image')
-        <livewire:project.new.docker-image :type="$type" />
-    @else
-        <livewire:project.new.select />
     @endif
 </div>

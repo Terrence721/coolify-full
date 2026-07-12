@@ -98,13 +98,13 @@ function metrics_dir(): string
     return base_configuration_dir().'/metrics';
 }
 
-function sanitize_string(?string $input = null): ?string
+function sanitize_string(\Stringable|string|null $input = null): ?string
 {
     if (is_null($input)) {
         return null;
     }
     // Remove any HTML/PHP tags
-    $sanitized = strip_tags($input);
+    $sanitized = strip_tags((string) $input);
 
     // Convert special characters to HTML entities
     $sanitized = htmlspecialchars($sanitized, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -1367,7 +1367,7 @@ function convertToArray(mixed $collection): mixed
     return $collection;
 }
 
-function parseCommandFromMagicEnvVariable(Str|string $key): Stringable
+function parseCommandFromMagicEnvVariable(Stringable|Str|string $key): Stringable
 {
     $value = str($key);
     $count = substr_count($value->value(), '_');
@@ -1435,8 +1435,9 @@ function parseEnvVariable(Str|string $value)
         'port' => $port,
     ];
 }
-function generateEnvValue(string $command, Service|Application|null $service = null)
+function generateEnvValue(Stringable|string $command, Service|Application|null $service = null)
 {
+    $command = (string) $command;
     switch ($command) {
         case 'PASSWORD':
             $generatedValue = Str::password(symbols: false);
