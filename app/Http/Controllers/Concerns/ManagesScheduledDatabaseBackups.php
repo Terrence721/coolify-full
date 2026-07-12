@@ -9,11 +9,63 @@ use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\Server;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 trait ManagesScheduledDatabaseBackups
 {
+    /**
+     * Validates and creates a new backup schedule for the given database (standalone
+     * or service). Returns an error message on failure, or null on success.
+     */
+    private function createBackupSchedule(Request $request, Model $database, int $teamId): ?string
+    {
+        $validated = Validator::make($request->all(), [
+            'frequency' => 'required|string',
+            'save_to_s3' => 'required|boolean',
+            's3_storage_id' => 'nullable|integer',
+        ])->validate();
+
+        if ($validated['save_to_s3']) {
+            $s3StorageExists = ! is_null($validated['s3_storage_id'] ?? null)
+                && S3Storage::where('team_id', $teamId)
+                    ->where('is_usable', true)
+                    ->whereKey($validated['s3_storage_id'])
+                    ->exists();
+
+            if (! $s3StorageExists) {
+                return 'Please select a valid S3 storage to enable S3 backups.';
+            }
+        }
+
+        if (! validate_cron_expression($validated['frequency'])) {
+            return 'Invalid Cron / Human expression.';
+        }
+
+        $payload = [
+            'enabled' => true,
+            'frequency' => $validated['frequency'],
+            'save_s3' => $validated['save_to_s3'],
+            's3_storage_id' => $validated['s3_storage_id'] ?? null,
+            'database_id' => $database->id,
+            'database_type' => $database->getMorphClass(),
+            'team_id' => $teamId,
+        ];
+
+        if ($database->type() === 'standalone-postgresql') {
+            $payload['databases_to_backup'] = $database->postgres_db;
+        } elseif ($database->type() === 'standalone-mysql') {
+            $payload['databases_to_backup'] = $database->mysql_database;
+        } elseif ($database->type() === 'standalone-mariadb') {
+            $payload['databases_to_backup'] = $database->mariadb_database;
+        }
+
+        ScheduledDatabaseBackup::create($payload);
+
+        return null;
+    }
+
     /**
      * @return array<string, mixed>
      */

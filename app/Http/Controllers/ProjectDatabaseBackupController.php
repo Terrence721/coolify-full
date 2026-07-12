@@ -11,7 +11,6 @@ use App\Actions\Docker\GetContainersStatus;
 use App\Contracts\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesScheduledDatabaseBackups;
 use App\Jobs\DatabaseBackupJob;
-use App\Models\S3Storage;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Support\DatabaseEngineRegistry;
@@ -20,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Activitylog\Models\Activity;
@@ -75,47 +73,10 @@ class ProjectDatabaseBackupController extends Controller
 
         $this->authorize('manageBackups', $database);
 
-        $validated = Validator::make($request->all(), [
-            'frequency' => 'required|string',
-            'save_to_s3' => 'required|boolean',
-            's3_storage_id' => 'nullable|integer',
-        ])->validate();
-
-        if ($validated['save_to_s3']) {
-            $s3StorageExists = ! is_null($validated['s3_storage_id'] ?? null)
-                && S3Storage::where('team_id', currentTeam()->id)
-                    ->where('is_usable', true)
-                    ->whereKey($validated['s3_storage_id'])
-                    ->exists();
-
-            if (! $s3StorageExists) {
-                return back()->with('error', 'Please select a valid S3 storage to enable S3 backups.');
-            }
+        $error = $this->createBackupSchedule($request, $database, currentTeam()->id);
+        if ($error) {
+            return back()->with('error', $error);
         }
-
-        if (! validate_cron_expression($validated['frequency'])) {
-            return back()->with('error', 'Invalid Cron / Human expression.');
-        }
-
-        $payload = [
-            'enabled' => true,
-            'frequency' => $validated['frequency'],
-            'save_s3' => $validated['save_to_s3'],
-            's3_storage_id' => $validated['s3_storage_id'] ?? null,
-            'database_id' => $database->id,
-            'database_type' => $database->getMorphClass(),
-            'team_id' => currentTeam()->id,
-        ];
-
-        if ($database->type() === 'standalone-postgresql') {
-            $payload['databases_to_backup'] = $database->postgres_db;
-        } elseif ($database->type() === 'standalone-mysql') {
-            $payload['databases_to_backup'] = $database->mysql_database;
-        } elseif ($database->type() === 'standalone-mariadb') {
-            $payload['databases_to_backup'] = $database->mariadb_database;
-        }
-
-        ScheduledDatabaseBackup::create($payload);
 
         return back()->with('success', 'Scheduled backup created.');
     }

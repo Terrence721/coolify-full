@@ -2071,3 +2071,60 @@ After fixing the cast bug, the same test still failed — this time because the 
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 95. Phase 45 — `Project\Service\DatabaseBackups`: a two-page-family merge (Index-style card list + Execution-style inline edit), a new `Service\Heading` port, and a `createBackupSchedule()` extraction that closes the loop on backup-creation duplication
+
+Converts the service-database backups page (`project.service.database.backups`), picked via a second dedicated tractability research pass over the 3 remaining real candidates (`Boarding\Index`, `Project\Service\DatabaseBackups`, `Project\Service\Index`) after Phase 44 closed out `Deployment\Show`. `Project\Service\Index` was ruled out again — it nests the shared `Project\Shared\GetLogs` component directly, the exact dependency already deferred to its own phase. `Boarding\Index` was ruled out again — it nests two large, un-ported children (a ~547-line Hetzner Cloud API integration form and a live-log-streaming server-validation component). `Project\Service\DatabaseBackups` won because its one real gap — a never-before-ported `Project\Service\Heading` — turned out to be the same shape and scope as the already-proven `DatabaseHeading.jsx`/Application `Heading.jsx` (same `ServiceStatusChanged`/`ServiceChecked` team-channel events `useTeamChannel` already handles), and research confirmed `ServiceDatabase::scheduledBackups()` and `StandalonePostgresql::scheduledBackups()` are the *same* `morphMany(ScheduledDatabaseBackup::class, 'database')` relation — meaning `BackupEditForm.jsx`/`BackupExecutionsList.jsx`/`ExecutionCard.jsx` (built in Phase 42) needed zero adaptation to work against a service database instead of a standalone one.
+
+Structurally this page is a merge of two patterns already built separately: like `Project\Database\Backup\Index` (Phase 40), it shows a list of scheduled-backup cards with a "+ Add" modal; like `Project\Database\Backup\Execution` (Phase 41), clicking a card shows the full edit form and executions list — but *inline on the same page* (via a `selectedBackupId` query-string parameter, matching the original Livewire's own `$queryString = ['selectedBackupId']`) rather than navigating to a separate route, since that's what the original Blade view does (`scheduled-backups.blade.php`'s `type === 'service-database'` branch renders `BackupEdit`/`BackupExecutions` beneath the list itself, not on a new page).
+
+### A real second-consumer extraction: `createBackupSchedule()`
+
+`CreateScheduledBackup::submit()` (the still-Livewire form nested by both the standalone and service database backup pages) and `ProjectDatabaseBackupController::store()` (Phase 40) contained near-identical backup-creation logic — S3-storage validation, cron validation, per-engine `databases_to_backup` defaulting. Extracted into `ManagesScheduledDatabaseBackups::createBackupSchedule()`, then `ProjectDatabaseBackupController::store()` was refactored to call it (behavior-preserving, verified by the existing `ProjectDatabaseBackupIndexTest` suite still passing) before the new `ProjectServiceDatabaseBackupController::store()` became its second real consumer.
+
+### A real frontend bug found via reuse: `BackupExecutionsList.jsx`'s pagination silently dropped other query params
+
+`BackupExecutionsList`'s page-forward/back buttons call `router.get(window.location.pathname, { skip: newSkip }, ...)` — replacing the *entire* query string with just `{ skip }`. On `Project\Database\Backup\Execution` (its only consumer until now), there was never another query param to lose. On this page, paginating a selected backup's executions would have silently dropped `selectedBackupId`, snapping the page back to the "no backup selected" state. Fixed by merging into the existing `URLSearchParams` instead of replacing them — a one-line fix in a shared component, caught by design review before it ever became a real bug in either consumer.
+
+### `Service\Heading.php`, ported with two of the same documented gaps as `Database`/`Application` `Heading`
+
+`ServiceHeading.jsx` mirrors `DatabaseHeading.jsx`'s structure closely: Configuration/Logs/Terminal nav stays plain `<a>` (all three remain Livewire for Service), the mobile Actions dropdown is not ported (desktop action row only, matching the established gap), and the original's `pullAndRestartEvent()` action — reachable *only* from that same mobile dropdown, with no desktop equivalent — is dropped for the same reason. The `restart()` action's `checkDeployments()` guard (block a restart if a deployment is already `queued`/`in_progress`) *was* ported, since it's reachable from the desktop button too — this is a real, safe-to-test check (no SSH), unlike `forceDeploy()`'s guard-bypass-by-design (it force-fails in-progress activities specifically to override this check).
+
+### A copy-paste enum mistake, caught before any test ran
+
+First draft of `forceDeploy()` used `ApplicationDeploymentStatus::IN_PROGRESS`/`QUEUED`/`FAILED` to mark stuck activities as failed before force-restarting — copied from a neighboring deployment-status pattern without checking the original Livewire method, which actually uses a *different* enum, `ProcessStatus` (activity-log-specific status values: `queued`/`in_progress`/`error`, not `ApplicationDeploymentStatus`'s `cancelled-by-user`/`finished` etc.). Caught by re-reading `Heading::forceDeploy()`'s exact source before finalizing, not by a test — `ApplicationDeploymentStatus::FAILED` doesn't even exist as an enum case, so this would have been a hard `Error` on first real use.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/Concerns/ManagesScheduledDatabaseBackups.php` | modified | Added `createBackupSchedule()`, extracted from `CreateScheduledBackup`/`ProjectDatabaseBackupController::store()` |
+| `app/Http/Controllers/ProjectDatabaseBackupController.php` | modified | `store()` now calls the trait method instead of duplicating the logic |
+| `app/Http/Controllers/ProjectServiceDatabaseBackupController.php` | created | `index()`, `setType()` (the migrated-database custom-type-selection flow), `store()`, `update()`, `destroy()`, `backupNow()`, `cleanupFailedExecutions()`, `cleanupDeletedExecutions()`, `destroyExecution()`, plus the `Heading` actions (`start()`, `forceDeploy()`, `restart()`, `stop()`, `checkStatus()`) — one controller per page family, matching the Phase 40 precedent for where Heading actions live |
+| `resources/js/Components/ServiceHeading.jsx` | created | Port of `livewire/project/service/heading.blade.php`, scoped to what this page needs |
+| `resources/js/Components/CreateBackupModal.jsx` | created (extracted from `Project/Database/Backup/Index.jsx`) | Its second consumer — same "extract only once there's a genuine second consumer" rule as every prior extraction |
+| `resources/js/Components/BackupExecutionsList.jsx` | modified | Fixed the query-param-dropping pagination bug (see above) |
+| `resources/js/Pages/Project/Service/DatabaseBackups.jsx` | created | Card list + inline edit/executions (via `selectedBackupId`) + custom-type-selection form + "+ Add" modal |
+| `routes/web.php` | modified | Repointed `project.service.database.backups` at the controller; added `.set-type`/`.store`/`.start`/`.force-deploy`/`.restart`/`.stop`/`.check-status`/`.update`/`.destroy`/`.backup-now`/`.cleanup-failed`/`.cleanup-deleted`/`.execution.destroy`; removed the `Service\DatabaseBackups` Livewire import |
+| `app/Livewire/Project/Service/DatabaseBackups.php` (+ view) | **deleted** | Confirmed via grep: only referenced by the route name. `Service\Heading`, `Database\CreateScheduledBackup`, `Database\ScheduledBackups` all stay Livewire — still nested by the still-Livewire `Service\Configuration`/`Service\Index` and the standalone-database backup pages respectively |
+| `tests/v4/Feature/ProjectServiceDatabaseBackupControllerTest.php` | created | 14 tests: page render, custom-type-selection state + set-type action, create (+ invalid-cron rejection), select-and-show a backup with executions, update, delete (correct/incorrect password), backup-now dispatch, cleanup failed, delete an execution, the `restart()` in-progress-deployment guard (safe, no SSH), 404-redirect for a nonexistent service |
+
+### Phase 45 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | fixed minor spacing/import-order issues in 2 files; passed after |
+| PHPStan (`vendor/bin/phpstan analyse`) | Hit the same baseline chicken-and-egg case as Phase 43/44 (stale entries for the deleted Livewire file), fixed with the same PHP-script block-removal approach; `[OK] No errors` after |
+| 14 new Feature tests | All 14 passed on the first run — the `createBackupSchedule()`/`BackupEditForm`/`BackupExecutionsList` reuse being genuinely drop-in (as research predicted) meant no new bug-driven fixture iteration this phase, unlike most prior phases |
+| Full suite (`php artisan test --compact`) | 624 passed (2688 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 7.36s — `Project/Service/DatabaseBackups.jsx` confirmed in `manifest.json` as `DatabaseBackups-OimbWdnK.js` |
+
+## 96. Non-goals of Phase 45
+
+- `start()`/`forceDeploy()`/`restart()`'s (past the in-progress guard)/`stop()`'s real SSH-touching happy paths remain untested — same standing convention as every SSH-adjacent action in this migration.
+- `Project\Service\Index` and `Project\Service\Configuration` (which still nest the real, un-retired `Service\Heading` Livewire component) are untouched by this phase — `ServiceHeading.jsx` is a parallel React port for this one page, not a replacement.
+- `Database\CreateScheduledBackup`, `Database\ScheduledBackups` Livewire components stay in place — still needed by the standalone-database backup pages' still-Livewire nested-child usages and (for `ScheduledBackups`) genuinely nowhere else now that both its consumers (`Project\Database\Backup\Index` since Phase 40, and this phase) are React — but it wasn't confirmed fully unreachable, so left alone rather than risk a wrong deletion.
+- The remaining 11 Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Shared\Logs`, `Project\Shared\ExecuteContainerCommand`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Project\Service\Index`, `Server\Show`, `Server\Sentinel\Logs`, `Server\Proxy\Logs`.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

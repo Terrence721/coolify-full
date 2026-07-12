@@ -33,7 +33,9 @@ export default function BackupExecutionsList({
     }, [skip]);
 
     function reload(newSkip) {
-        router.get(window.location.pathname, { skip: newSkip }, { preserveState: true, preserveScroll: true });
+        const params = new URLSearchParams(window.location.search);
+        params.set('skip', newSkip);
+        router.get(`${window.location.pathname}?${params.toString()}`, {}, { preserveState: true, preserveScroll: true });
     }
 
     function cleanupFailed() {
