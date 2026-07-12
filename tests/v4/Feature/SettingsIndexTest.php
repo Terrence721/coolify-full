@@ -137,6 +137,14 @@ it('flags a domain conflict instead of saving', function () {
     $response->assertSessionHas('showDomainConflictModal', true);
     $response->assertSessionHas('domainConflicts');
     expect(InstanceSettings::get()->fqdn)->not->toBe('https://taken.example.com');
+
+    $followUp = $this->actingAs($user)
+        ->withSession(['currentTeam' => Team::find(0)])
+        ->get(route('settings.index'));
+    $followUp->assertInertia(fn (Assert $page) => $page
+        ->where('flash.showDomainConflictModal', true)
+        ->has('flash.domainConflicts', 1)
+    );
 });
 
 it('saves a conflicting domain when force_save_domains is set', function () {

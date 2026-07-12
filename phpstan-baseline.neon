@@ -433,6 +433,30 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
 			message: '#^Using nullsafe property access "\?\-\>ssl_certificate" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1

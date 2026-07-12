@@ -24,6 +24,7 @@ use App\Http\Controllers\ProjectDatabaseBackupController;
 use App\Http\Controllers\ProjectLogsController;
 use App\Http\Controllers\ProjectResourceController;
 use App\Http\Controllers\ProjectServiceDatabaseBackupController;
+use App\Http\Controllers\ProjectServiceResourceController;
 use App\Http\Controllers\SecurityApiTokensController;
 use App\Http\Controllers\SecurityCloudInitScriptsController;
 use App\Http\Controllers\SecurityCloudTokensController;
@@ -376,8 +377,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{stack_service_uuid}/backups/{backup_id}/cleanup-deleted', [ProjectServiceDatabaseBackupController::class, 'cleanupDeletedExecutions'])->name('project.service.database.backups.cleanup-deleted');
         Route::delete('/{stack_service_uuid}/backups/{backup_id}/executions/{execution_id}', [ProjectServiceDatabaseBackupController::class, 'destroyExecution'])->name('project.service.database.backups.execution.destroy');
         Route::get('/{stack_service_uuid}/import', ServiceIndex::class)->name('project.service.database.import')->middleware('can.update.resource');
-        Route::get('/{stack_service_uuid}/advanced', ServiceIndex::class)->name('project.service.index.advanced');
-        Route::get('/{stack_service_uuid}', ServiceIndex::class)->name('project.service.index');
+        Route::post('/{stack_service_uuid}/application', [ProjectServiceResourceController::class, 'updateApplication'])->name('project.service.application.update');
+        Route::post('/{stack_service_uuid}/application/advanced', [ProjectServiceResourceController::class, 'updateApplicationAdvanced'])->name('project.service.application.update-advanced');
+        Route::post('/{stack_service_uuid}/application/convert', [ProjectServiceResourceController::class, 'convertApplicationToDatabase'])->name('project.service.application.convert');
+        Route::delete('/{stack_service_uuid}/application', [ProjectServiceResourceController::class, 'deleteApplication'])->name('project.service.application.delete');
+        Route::post('/{stack_service_uuid}/database', [ProjectServiceResourceController::class, 'updateDatabase'])->name('project.service.database.update');
+        Route::post('/{stack_service_uuid}/database/advanced', [ProjectServiceResourceController::class, 'updateDatabaseAdvanced'])->name('project.service.database.update-advanced');
+        Route::post('/{stack_service_uuid}/database/public', [ProjectServiceResourceController::class, 'updateDatabasePublic'])->name('project.service.database.update-public');
+        Route::post('/{stack_service_uuid}/database/convert', [ProjectServiceResourceController::class, 'convertDatabaseToApplication'])->name('project.service.database.convert');
+        Route::delete('/{stack_service_uuid}/database', [ProjectServiceResourceController::class, 'deleteDatabase'])->name('project.service.database.delete');
+        Route::get('/{stack_service_uuid}/database/proxy-logs', [ProjectServiceResourceController::class, 'proxyLogs'])->name('project.service.database.proxy-logs');
+        Route::get('/{stack_service_uuid}/advanced', [ProjectServiceResourceController::class, 'advanced'])->name('project.service.index.advanced');
+        Route::get('/{stack_service_uuid}', [ProjectServiceResourceController::class, 'show'])->name('project.service.index');
         Route::get('/tasks/{task_uuid}', ServiceConfiguration::class)->name('project.service.scheduled-tasks');
     });
 

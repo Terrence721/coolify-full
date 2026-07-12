@@ -1,4 +1,11 @@
-export default function DomainConflictModal({ conflicts, onCancel, onConfirm, confirming = false }) {
+const DEFAULT_CONSEQUENCES = [
+    'The Coolify instance domain will conflict with existing resources',
+    'SSL certificates might not work correctly',
+    'Routing behavior will be unpredictable',
+    'You may not be able to access the Coolify dashboard properly',
+];
+
+export default function DomainConflictModal({ conflicts, onCancel, onConfirm, confirming = false, consequences = DEFAULT_CONSEQUENCES }) {
     if (!conflicts || conflicts.length === 0) return null;
 
     return (
@@ -37,10 +44,9 @@ export default function DomainConflictModal({ conflicts, onCancel, onConfirm, co
                     <div className="p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20 text-sm">
                         <strong>What will happen if you continue?</strong>
                         <ul className="mt-2 ml-4 list-disc">
-                            <li>The Coolify instance domain will conflict with existing resources</li>
-                            <li>SSL certificates might not work correctly</li>
-                            <li>Routing behavior will be unpredictable</li>
-                            <li>You may not be able to access the Coolify dashboard properly</li>
+                            {consequences.map((consequence) => (
+                                <li key={consequence}>{consequence}</li>
+                            ))}
                         </ul>
                     </div>
 

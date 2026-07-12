@@ -46,6 +46,9 @@ function checkDomainUsage(ServiceApplication|Application|null $resource = null, 
     }
     $apps = $appsQuery->get();
     foreach ($apps as $app) {
+        if (str($app->fqdn)->isEmpty()) {
+            continue;
+        }
         $list_of_domains = collect(explode(',', $app->fqdn))->filter(fn ($fqdn) => $fqdn !== '');
         foreach ($list_of_domains as $domain) {
             if (str($domain)->endsWith('/')) {
@@ -85,6 +88,9 @@ function checkDomainUsage(ServiceApplication|Application|null $resource = null, 
     }
     $apps = $serviceAppsQuery->get();
     foreach ($apps as $app) {
+        if (str($app->fqdn)->isEmpty()) {
+            continue;
+        }
         $list_of_domains = collect(explode(',', $app->fqdn))->filter(fn ($fqdn) => $fqdn !== '');
         foreach ($list_of_domains as $domain) {
             if (str($domain)->endsWith('/')) {

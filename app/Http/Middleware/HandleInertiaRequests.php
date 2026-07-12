@@ -65,6 +65,10 @@ class HandleInertiaRequests extends Middleware
                 'info' => $request->session()->get('info'),
                 'activityId' => $request->session()->get('activityId'),
                 'activityContext' => $request->session()->get('activityContext'),
+                'domainConflicts' => $request->session()->get('domainConflicts'),
+                'showDomainConflictModal' => $request->session()->get('showDomainConflictModal'),
+                'requiredPort' => $request->session()->get('requiredPort'),
+                'showPortWarningModal' => $request->session()->get('showPortWarningModal'),
             ],
             'echo' => $user ? [
                 'key' => config('constants.pusher.app_key') ?: 'coolify',
