@@ -6,11 +6,13 @@ namespace App\Http\Controllers;
 
 use App\Actions\Server\StartSentinel;
 use App\Actions\Server\StopSentinel;
+use App\Http\Controllers\Concerns\StreamsContainerLogs;
 use App\Models\Server;
 use App\Support\ServerChromeData;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,6 +20,9 @@ use Inertia\Response;
 class ServerSentinelController extends Controller
 {
     use AuthorizesRequests;
+    use StreamsContainerLogs;
+
+    private const SENTINEL_CONTAINER = 'coolify-sentinel';
 
     public function index(string $server_uuid): Response
     {
@@ -42,6 +47,44 @@ class ServerSentinelController extends Controller
             'restartUrl' => route('server.sentinel.restart', ['server_uuid' => $server->uuid]),
             'regenerateTokenUrl' => route('server.sentinel.regenerate-token', ['server_uuid' => $server->uuid]),
         ]);
+    }
+
+    public function logs(Request $request, string $server_uuid): Response
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+
+        $numberOfLines = max(1, min(50000, (int) $request->query('lines', 100)));
+        $showTimestamps = $request->query('timestamps', '1') !== '0';
+
+        $logLines = [];
+        if ($server->isFunctional()) {
+            $rawOutput = $this->fetchContainerLogs($server, self::SENTINEL_CONTAINER, $numberOfLines, $showTimestamps);
+            $logLines = $this->parseContainerLogLines($rawOutput, $server);
+        }
+
+        return Inertia::render('Server/Sentinel/Logs', [
+            'serverNavbar' => ServerChromeData::navbar($server),
+            'sidebar' => ServerChromeData::sidebar($server, 'sentinel', 'logs'),
+            'isFunctional' => $server->isFunctional(),
+            'displayName' => 'Sentinel',
+            'logLines' => $logLines,
+            'numberOfLines' => $numberOfLines,
+            'showTimestamps' => $showTimestamps,
+            'urls' => [
+                'downloadAll' => route('server.sentinel.logs.download', ['server_uuid' => $server->uuid, 'timestamps' => $showTimestamps ? 1 : 0]),
+            ],
+        ]);
+    }
+
+    public function downloadLogs(Request $request, string $server_uuid): HttpResponse
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+        if (! $server->isFunctional()) {
+            abort(404);
+        }
+        $showTimestamps = $request->query('timestamps', '1') !== '0';
+
+        return $this->downloadContainerLogsResponse($server, self::SENTINEL_CONTAINER, $showTimestamps, 'sentinel');
     }
 
     public function submit(Request $request, string $server_uuid): RedirectResponse

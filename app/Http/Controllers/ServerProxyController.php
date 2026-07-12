@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Proxy\GetProxyConfiguration;
 use App\Actions\Proxy\SaveProxyConfiguration;
 use App\Enums\ProxyTypes;
+use App\Http\Controllers\Concerns\StreamsContainerLogs;
 use App\Models\Server;
 use App\Rules\SafeExternalUrl;
 use App\Rules\ValidProxyConfigFilename;
@@ -15,6 +16,7 @@ use Exception;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,6 +25,9 @@ use Symfony\Component\Yaml\Yaml;
 class ServerProxyController extends Controller
 {
     use AuthorizesRequests;
+    use StreamsContainerLogs;
+
+    private const PROXY_CONTAINER = 'coolify-proxy';
 
     public function index(string $server_uuid): Response
     {
@@ -64,6 +69,44 @@ class ServerProxyController extends Controller
             'submitUrl' => route('server.proxy.submit', ['server_uuid' => $server->uuid]),
             'resetConfigurationUrl' => route('server.proxy.reset-configuration', ['server_uuid' => $server->uuid]),
         ]);
+    }
+
+    public function logs(Request $request, string $server_uuid): Response
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+
+        $numberOfLines = max(1, min(50000, (int) $request->query('lines', 100)));
+        $showTimestamps = $request->query('timestamps', '1') !== '0';
+
+        $logLines = [];
+        if ($server->isFunctional()) {
+            $rawOutput = $this->fetchContainerLogs($server, self::PROXY_CONTAINER, $numberOfLines, $showTimestamps);
+            $logLines = $this->parseContainerLogLines($rawOutput, $server);
+        }
+
+        return Inertia::render('Server/Proxy/Logs', [
+            'serverNavbar' => ServerChromeData::navbar($server),
+            'sidebar' => ServerChromeData::sidebar($server, 'proxy', 'logs'),
+            'isFunctional' => $server->isFunctional(),
+            'displayName' => 'Coolify Proxy',
+            'logLines' => $logLines,
+            'numberOfLines' => $numberOfLines,
+            'showTimestamps' => $showTimestamps,
+            'urls' => [
+                'downloadAll' => route('server.proxy.logs.download', ['server_uuid' => $server->uuid, 'timestamps' => $showTimestamps ? 1 : 0]),
+            ],
+        ]);
+    }
+
+    public function downloadLogs(Request $request, string $server_uuid): HttpResponse
+    {
+        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
+        if (! $server->isFunctional()) {
+            abort(404);
+        }
+        $showTimestamps = $request->query('timestamps', '1') !== '0';
+
+        return $this->downloadContainerLogsResponse($server, self::PROXY_CONTAINER, $showTimestamps, 'proxy');
     }
 
     public function selectProxy(Request $request, string $server_uuid): RedirectResponse

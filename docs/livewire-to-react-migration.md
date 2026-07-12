@@ -2128,3 +2128,51 @@ First draft of `forceDeploy()` used `ApplicationDeploymentStatus::IN_PROGRESS`/`
 - No specific next Hard-bucket candidate has been research-ranked yet.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
+
+## 97. Phase 46 — `Server\Proxy\Logs` + `Server\Sentinel\Logs`: a `GetLogs` prerequisite port (the migration's most feature-rich log viewer) plus its two cheapest immediate payoffs
+
+Converts the shared live container-log-tailing infrastructure (`App\Livewire\Project\Shared\GetLogs`, 292 PHP + 564 Blade lines — search, per-level color filtering, timestamp toggle, fullscreen, follow-scroll, copy, two download modes, and `wire:poll.2000ms` streaming) as a reusable `ContainerLogs.jsx` component plus a `StreamsContainerLogs` controller trait, then immediately spends that investment on its two simplest consumers. Picked via a third dedicated research pass: with the "cleanest single page" candidates exhausted after Phase 43/44/45, every remaining Hard-bucket page was confirmed non-trivial — but `GetLogs` itself was a better investment than any of them precisely because Phase 44 had already solved and shipped the hard part (polling-via-partial-reload, search/highlight/copy/download-as-real-attachment) on `Deployment\Show`. Porting `GetLogs` was mostly "generalize an already-proven pattern to an arbitrary SSH `docker logs` command" plus the extra color-filter/fullscreen/stream-toggle chrome, not new architecture.
+
+`Server\Proxy\Logs` and `Server\Sentinel\Logs` were confirmed in research to be near-zero-effort once `GetLogs` existed — both are thin wrappers (`server.navbar` + a sidebar + one fixed-container `GetLogs` instance, `collapsible: false`), and their chrome (`ServerNavbar.jsx`/`ServerSidebar.jsx`, plus `ServerChromeData::sidebar()`'s `proxy`/`sentinel` variants) was *already built* — `ServerChromeData::sidebar()` had even already wired an `logs` URL into both variants, anticipating this exact conversion. `Project\Shared\Logs` (the third, more complex `GetLogs` consumer — a real 3-way resource-type router with multi-server/multi-container orchestration and its own broadcast listener) was deliberately left for a later phase; it's genuinely a page in its own right, not just page-glue, and cramming it into the same phase as the prerequisite component itself would have made this phase far riskier to verify.
+
+### A real bug caught by re-reading the original before finalizing: the download route silently dropped a guard
+
+The original `GetLogs::downloadAllLogs()` checks `! $this->server->isFunctional()` before running the SSH command and returns an empty string otherwise. Extracting the SSH-fetching logic into the shared `StreamsContainerLogs` trait's `downloadContainerLogsResponse()` dropped that check — the trait method has no way to know it should apply it, since it's generic over any caller. Caught before writing tests, by re-checking the original method's behavior against the new controller methods: added an explicit `isFunctional()` guard back in each of `ServerProxyController::downloadLogs()`/`ServerSentinelController::downloadLogs()`, returning `404` rather than the original's silent empty-string-download — a deliberate, minor improvement (an empty `.txt` file download is a confusing result; a 404 for a route that shouldn't be reachable in that state is clearer), consistent with this phase's other empty-state improvement (see below).
+
+### A deliberate UX deviation, applied consistently
+
+The original silently shows "No logs yet." when the server isn't functional (`GetLogs::getLogs()` just returns early, leaving `$outputs` empty, with no distinct error state). Both new React pages instead show an explicit "Server is not functional." message when `isFunctional` is false — matching how `DatabaseHeading.jsx` and other already-converted pages in this migration handle the same situation, rather than reproducing the original's silent-empty-state behavior page-by-page.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/Concerns/StreamsContainerLogs.php` | created | `fetchContainerLogs()`, `downloadContainerLogsResponse()`, `parseContainerLogLines()` (timestamp-regex parsing + server-timezone conversion, matching the original Blade's own inline parsing) — SSH command construction (root/non-root sudo wrapping, swarm vs non-swarm) ported from `GetLogs::getLogs()`/`downloadAllLogs()` |
+| `app/Http/Controllers/ServerProxyController.php` | modified | Added `logs()`, `downloadLogs()` |
+| `app/Http/Controllers/ServerSentinelController.php` | modified | Added `logs()`, `downloadLogs()` |
+| `resources/js/Components/ContainerLogs.jsx` | created | Search/highlight, per-level color filtering (with `localStorage` persistence, matching the original), timestamp/lines-count controls (server round-trip via `router.get` with query params, since changing them re-runs the SSH command), fullscreen, follow-scroll, copy, download-displayed (client-side blob) + download-all (`<a href>` to the new attachment route, Phase 44's established simplification), stream toggle (client-interval `router.reload`) |
+| `resources/js/Pages/Server/Proxy/Logs.jsx`, `resources/js/Pages/Server/Sentinel/Logs.jsx` | created | Thin pages composing `ServerNavbar`/`ServerSidebar`/`ContainerLogs` |
+| `routes/web.php` | modified | Repointed `server.proxy.logs`/`server.sentinel.logs` at the controllers; added `.logs.download` for each; removed the `Server\Proxy\Logs`/`Server\Sentinel\Logs` Livewire imports |
+| `app/Livewire/Server/Proxy/Logs.php`, `app/Livewire/Server/Sentinel/Logs.php` (+ views) | **deleted** | Confirmed via grep: only referenced by their route names. `App\Livewire\Project\Shared\GetLogs` itself (+ view) stays — still nested by the still-Livewire `Project\Shared\Logs` and 8 still-Livewire database-engine pages |
+| `tests/v4/Feature/ServerProxyLogsTest.php`, `tests/v4/Feature/ServerSentinelLogsTest.php` | created | 8 tests total: page render + `logLines` empty for a non-functional server (no SSH touched), lines-count clamping, timestamp query-param handling, download-route 404 for a non-functional server, 404 for a server owned by another team |
+
+### Phase 46 verification log
+
+| Check | Result |
+| --- | --- |
+| Pint (`--dirty --format agent`) | passed clean |
+| PHPStan (`vendor/bin/phpstan analyse`) | Hit the same baseline chicken-and-egg case as Phase 43/44/45 (stale entries for 2 deleted Livewire files), fixed with the same PHP-script block-removal approach; `[OK] No errors` after |
+| 8 new Feature tests | All 8 passed on the first run |
+| Full suite (`php artisan test --compact`) | 632 passed (2746 assertions), no regressions |
+| `yarn build` (native Windows) | Succeeded in 7.07s — `Server/Proxy/Logs.jsx` and `Server/Sentinel/Logs.jsx` both confirmed in `manifest.json` |
+
+## 98. Non-goals of Phase 46
+
+- The real SSH-touching happy path (`fetchContainerLogs()`/`downloadContainerLogsResponse()` actually running `docker logs` over SSH and returning real output) remains untested — same standing convention as every SSH-adjacent action in this migration; only the "server not functional, no SSH attempted" branch is exercised.
+- `Project\Shared\Logs` (the third `GetLogs` consumer — application/database/service multi-container orchestration) is untouched. It's now a much cheaper follow-on than before this phase (its own `configuration-checker`/`application.heading`/`database.heading`/`service.heading` dependencies are all already ported too), but it's still a real page with its own logic, not just glue, and was deliberately left for its own phase.
+- The 8 still-Livewire database-engine "general settings" pages that also nest `GetLogs` (part of the still-huge `Project\Database\Configuration` router) are unaffected — they stay on the original Livewire `GetLogs` component, which is untouched and still fully functional.
+- `ContainerLogs.jsx`'s collapsible/expand-on-click variant (needed when `GetLogs` is nested per-container, as `Project\Shared\Logs` does) isn't ported — only the always-expanded, single-fixed-container variant `Server\Proxy\Logs`/`Server\Sentinel\Logs` need.
+- The remaining 10 Hard-bucket Livewire classes are unaffected: `Boarding\Index`, `Project\Resource\Create`, `Project\Application\Configuration`, `Project\Shared\Logs`, `Project\Shared\ExecuteContainerCommand`, `Project\Database\Configuration`, `Project\Service\Configuration`, `Project\Service\Index`, `Server\Show`.
+- No specific next Hard-bucket candidate has been research-ranked yet.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+- No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).

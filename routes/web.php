@@ -63,8 +63,6 @@ use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
 use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Project\Shared\ExecuteContainerCommand;
 use App\Livewire\Project\Shared\Logs;
-use App\Livewire\Server\Proxy\Logs as ProxyLogs;
-use App\Livewire\Server\Sentinel\Logs as SentinelLogs;
 use App\Livewire\Server\Show as ServerShow;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -390,7 +388,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/sentinel/toggle', [ServerSentinelController::class, 'toggle'])->name('server.sentinel.toggle');
         Route::post('/sentinel/restart', [ServerSentinelController::class, 'restart'])->name('server.sentinel.restart');
         Route::post('/sentinel/regenerate-token', [ServerSentinelController::class, 'regenerateToken'])->name('server.sentinel.regenerate-token');
-        Route::get('/sentinel/logs', SentinelLogs::class)->name('server.sentinel.logs');
+        Route::get('/sentinel/logs', [ServerSentinelController::class, 'logs'])->name('server.sentinel.logs');
+        Route::get('/sentinel/logs/download', [ServerSentinelController::class, 'downloadLogs'])->name('server.sentinel.logs.download');
         Route::get('/private-key', [ServerPrivateKeyController::class, 'index'])->name('server.private-key');
         Route::post('/private-key/set', [ServerPrivateKeyController::class, 'setKey'])->name('server.private-key.set');
         Route::post('/private-key/check-connection', [ServerPrivateKeyController::class, 'checkConnection'])->name('server.private-key.check-connection');
@@ -429,7 +428,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/proxy/dynamic', [ServerProxyController::class, 'dynamicConfigurations'])->name('server.proxy.dynamic-confs');
         Route::post('/proxy/dynamic', [ServerProxyController::class, 'storeDynamicConfiguration'])->name('server.proxy.dynamic-confs.store');
         Route::delete('/proxy/dynamic', [ServerProxyController::class, 'destroyDynamicConfiguration'])->name('server.proxy.dynamic-confs.destroy');
-        Route::get('/proxy/logs', ProxyLogs::class)->name('server.proxy.logs');
+        Route::get('/proxy/logs', [ServerProxyController::class, 'logs'])->name('server.proxy.logs');
+        Route::get('/proxy/logs/download', [ServerProxyController::class, 'downloadLogs'])->name('server.proxy.logs.download');
         Route::post('/proxy-actions/restart', [ServerProxyActionsController::class, 'restart'])->name('server.proxy-actions.restart');
         Route::post('/proxy-actions/stop', [ServerProxyActionsController::class, 'stop'])->name('server.proxy-actions.stop');
         Route::post('/proxy-actions/start', [ServerProxyActionsController::class, 'start'])->name('server.proxy-actions.start');
