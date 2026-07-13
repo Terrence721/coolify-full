@@ -1,7 +1,7 @@
 # Developing Coolify In Containers (Windows)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 This guide is for contributors who are new to container-based development on a Windows machine.
 
@@ -41,6 +41,16 @@ Open after startup (these ports are exposed to the Windows host, so plain `local
 ```bash
 cp .env.development.example .env
 ```
+
+That's the whole one-time setup — no manual `composer install`, `key:generate`, or seeding. On the **first** `docker compose up -d` (Section 3):
+
+- The 3 repo-built images (`coolify:dev`, `coolify-realtime:dev`, `coolify-testing-host:dev`) build automatically from the Dockerfiles under `docker/`; everything else is pulled.
+- The `coolify-vite` container runs `yarn install` on startup.
+- The `coolify` container's init service runs `composer install`, `php artisan migrate`, and `php artisan dev --init` — which generates `APP_KEY` (the `.env` template ships it empty), creates the `storage` symlink, and seeds the database on first boot (later boots detect the initialized instance and skip seeding).
+
+Once healthy, log in at `http://localhost:8000` with the dev seed account: **`test@example.com` / `password`**.
+
+Note: an extra `coolify-proxy` (Traefik) container appears later at runtime — the app itself creates it when the localhost server's proxy starts. It is not part of the Compose stack and won't exist right after `up -d`; that's normal.
 
 ## 3. Start The Stack
 
