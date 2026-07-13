@@ -828,7 +828,9 @@ class GlobalSearch extends Component
                 'quickcommand' => '(type: new github)',
                 'type' => 'source',
                 'category' => 'Quick Actions',
-                'component' => 'source.github.create',
+                // The create modal is React now (Sources/Index.jsx, Phase 53) — navigate to the
+                // Sources page with the modal auto-opened instead of embedding a Livewire modal.
+                'link' => route('source.all', ['create' => 1]),
             ]);
         }
 
@@ -924,6 +926,13 @@ class GlobalSearch extends Component
 
         if (! $item) {
             return;
+        }
+
+        // Link-based quick actions navigate to a full page (e.g. the React Sources page)
+        if (isset($item['link'])) {
+            $this->dispatch('closeSearchModal');
+
+            return $this->redirect($item['link']);
         }
 
         // If it has a component, it's a modal-based resource

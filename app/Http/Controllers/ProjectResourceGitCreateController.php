@@ -51,8 +51,8 @@ use Spatie\Url\Url;
  * Deliberately not ported (dead code in the original): the `new_compose_services` isDev-only
  * branch of PublicGitRepository::submit() (no UI control ever set it) and the dead
  * `wire:target="loadRepositories"` spinner in the deploy-key blade (references a method that
- * doesn't exist on that component). The nested `<livewire:source.github.create />` modal is
- * replaced by a link to the Sources page, which hosts the same modal.
+ * doesn't exist on that component). The "+ Add GitHub App" modal is the shared React
+ * GithubAppCreateModal (Phase 53), embedded in the private-gh-app page.
  *
  * GitHub-API branch checking is stateless here, unlike the Livewire original whose
  * `rate_limit_remaining` persisted between requests and made the main->master fallback
@@ -113,7 +113,9 @@ class ProjectResourceGitCreateController extends Controller
                     ->get()
                     ->map(fn (GithubApp $app) => ['id' => $app->id, 'name' => $app->name, 'htmlUrl' => $app->html_url])
                     ->values(),
-                'sourcesUrl' => route('source.all'),
+                'githubAppStoreUrl' => route('source.github.store'),
+                'githubAppDefaultName' => substr(generate_random_name(), 0, 30),
+                'isCloud' => isCloud(),
                 'repositoriesUrl' => route('project.resource.create.git.repositories', $routeParams),
                 'branchesUrl' => route('project.resource.create.git.branches', $routeParams),
                 'submitUrl' => route('project.resource.create.git.private-gh-app', [...$routeParams, 'destination' => $destinationUuid]),

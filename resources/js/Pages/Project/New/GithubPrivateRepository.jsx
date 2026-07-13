@@ -1,16 +1,17 @@
 import { useForm } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import GitApplicationFields from '../../../Components/GitApplicationFields';
+import GithubAppCreateModal from '../../../Components/GithubAppCreateModal';
 
 /**
  * React port of App\Livewire\Project\New\GithubPrivateRepository — the "Private Repository
  * (with GitHub App)" creation flow (see App\Http\Controllers\ProjectResourceGitCreateController).
  * Repositories and branches load through fetch JSON endpoints; the server does the GitHub API
- * pagination. The original's nested `<livewire:source.github.create />` modal is replaced by a
- * link to the Sources page, which hosts the same modal; the original's id-valued datalist is
- * replaced by a filter input + select showing repository names.
+ * pagination. The "+ Add GitHub App" modal is the shared GithubAppCreateModal (ported to React
+ * in Phase 53, restoring the in-page modal this page briefly linked away for); the original's
+ * id-valued datalist is replaced by a filter input + select showing repository names.
  */
-export default function GithubPrivateRepository({ githubApps, sourcesUrl, repositoriesUrl, branchesUrl, submitUrl }) {
+export default function GithubPrivateRepository({ githubApps, githubAppStoreUrl, githubAppDefaultName, isCloud, repositoriesUrl, branchesUrl, submitUrl }) {
     const { data, setData, post, processing, errors } = useForm({
         github_app_id: null,
         repository_id: null,
@@ -33,6 +34,7 @@ export default function GithubPrivateRepository({ githubApps, sourcesUrl, reposi
     const [branches, setBranches] = useState([]);
     const [loadingBranches, setLoadingBranches] = useState(false);
     const [loadError, setLoadError] = useState('');
+    const [createAppOpen, setCreateAppOpen] = useState(false);
 
     const filteredRepositories = useMemo(() => {
         const term = repositoryFilter.toLowerCase();
@@ -108,9 +110,9 @@ export default function GithubPrivateRepository({ githubApps, sourcesUrl, reposi
         <div>
             <div className="flex items-end gap-2">
                 <h1>Create a new Application</h1>
-                <a href={sourcesUrl}>
-                    <button type="button">+ Add GitHub App</button>
-                </a>
+                <button type="button" onClick={() => setCreateAppOpen(true)}>
+                    + Add GitHub App
+                </button>
                 {repositories.length > 0 && data.github_app_id && (
                     <>
                         <button type="button" onClick={() => loadRepositories(data.github_app_id)} disabled={loadingApp !== null}>
@@ -208,6 +210,14 @@ export default function GithubPrivateRepository({ githubApps, sourcesUrl, reposi
                     )}
                 </div>
             )}
+
+            <GithubAppCreateModal
+                open={createAppOpen}
+                onClose={() => setCreateAppOpen(false)}
+                storeUrl={githubAppStoreUrl}
+                defaultName={githubAppDefaultName}
+                isCloud={isCloud}
+            />
         </div>
     );
 }

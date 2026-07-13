@@ -2505,3 +2505,46 @@ Test-infrastructure note: the private-flow tests run the real `generateGithubIns
 - The private-gh-app repository picker is a filter input + select instead of the original's id-valued `x-forms.datalist` (which displayed the numeric repository id in the input after selection) — a small deliberate UX substitution, not a fidelity gap.
 - No manual browser QA this phase — automated `assertInertia()`/JSON/redirect coverage only; the GitHub-API-backed steps can't be meaningfully click-tested without a real GitHub App installation anyway.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+
+## 111. Phase 53 — the Sources page and the "New GitHub App" modal
+
+Converts the `/sources` listing (previously a bare route closure rendering the `source.all` Blade view — not even a Livewire component) and `App\Livewire\Source\Github\Create` (the "New GitHub App" modal nested inside it) into `SourceGithubController::index()`/`store()` plus `Sources/Index.jsx` and a shared `Components/GithubAppCreateModal.jsx`. Picked as the natural follow-on to Phase 52, which had explicitly deferred this modal ("belongs to whichever phase converts the Sources pages").
+
+Three consumers of the old Livewire modal, three different treatments:
+
+1. **The Sources page** hosts the React modal directly; arriving with `?create=1` auto-opens it.
+2. **`Project/New/GithubPrivateRepository.jsx`** now embeds the same React modal — closing Phase 52's non-goal that had temporarily downgraded the original in-page modal to a link to the Sources page. The in-flow UX is restored.
+3. **GlobalSearch** (still Livewire) had its own embedded copy of the modal behind its "GitHub App" quick action. Rather than keep a parallel Livewire modal alive, the quick action item switched from `'component' => 'source.github.create'` to `'link' => route('source.all', ['create' => 1])`, with a new link branch in `navigateToResource()` (quick-action items previously only supported modal dispatch); its dedicated modal template block was removed from the blade. Net UX change: that quick action now navigates to Sources with the modal open instead of opening a modal in place — accepted as the cost of not maintaining two implementations.
+
+`store()` follows the sibling `update()`'s camelCase-request-field convention and keeps the original's `session('from')` source-id merge for parity — noting in-code that nothing currently *writes* the initial `'from'` entry anymore (its only writer, the `SaveFromRedirect` trait, lost its last consumer in earlier phases; flagged in `todo.md` as dead code needing a decision). The `createAnyResource` gate check is kept on both endpoints even though this fork's `ResourceCreatePolicy::createAny()` returns true unconditionally — discovered when two permission-denial tests failed against the real policy and were dropped as untestable-by-design.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/SourceGithubController.php` | modified | Added `index()` (sources list; GitlabApps filtered out — the Blade only ever rendered GithubApp entries) and `store()` (port of `Create::createGitHubApp()`) |
+| `resources/js/Pages/Sources/Index.jsx` | created | Tile list (name, "Configuration is not finished" for unregistered apps, organization) + create modal with `?create=1` auto-open |
+| `resources/js/Components/GithubAppCreateModal.jsx` | created | The shared modal: name/organization, system-wide checkbox with warning callout (hidden on cloud), self-hosted/enterprise accordion (HTML/API URL, custom git user/port) |
+| `resources/js/Pages/Project/New/GithubPrivateRepository.jsx` | modified | Embeds the modal in place of Phase 52's link-away button |
+| `app/Http/Controllers/ProjectResourceGitCreateController.php` | modified | `sourcesUrl` prop replaced by `githubAppStoreUrl`/`githubAppDefaultName`/`isCloud`; docblock updated |
+| `app/Livewire/GlobalSearch.php` + `global-search.blade.php` | modified | Quick action switched to a link item (new `link` branch in `navigateToResource()`); embedded source modal template removed |
+| `routes/web.php` | modified | `/sources` closure replaced by `SourceGithubController::index`; added `source.github.store` POST |
+| `app/Livewire/Source/Github/Create.php` (+ view), `resources/views/source/all.blade.php` | **deleted** | All consumers rewired above |
+| `tests/v4/Feature/SourcesIndexTest.php` | created | 6 tests: list render (props incl. `configured` flag), system-wide app visibility across teams, configured-flag truth, store + redirect to `source.github.show`, `session('from')` merge, SSRF-guarded `apiUrl` rejection (`SafeExternalUrl`) |
+
+### Phase 53 verification log
+
+| Check | Result |
+| --- | --- |
+| 6 new Feature tests | 2 initial permission-denial tests dropped after failing against the fork's always-true `createAnyResource` policy (see above); remaining 6 pass |
+| Full suite | 732 passed (3,266 assertions), no regressions — including Phase 52's GitCreate tests against the changed props |
+| Pint / PHPStan | Clean; 2 stale baseline blocks for the deleted Livewire class pruned (same procedure as Phase 52) |
+| `yarn build` | Succeeded in 3.4s; `Sources/Index` + `GithubAppCreateModal` confirmed in `manifest.json` |
+
+## 112. Non-goals of Phase 53
+
+- GitlabApp entries from `Team::sources()` are not rendered — faithful to the original Blade, which iterated all sources but only emitted markup for GithubApps. GitLab sources are effectively unsupported UI-wide in this fork.
+- GlobalSearch itself stays Livewire; only its GitHub App quick action was rewired. Its other modal-based quick actions (project, server, team, storage, private key) still open embedded Livewire modals.
+- The `SaveFromRedirect` trait and the `session('from')` return-to-wizard flow it fed are consumer-less dead code — kept working in `store()`/`show()` for parity, flagged in `todo.md` rather than removed here.
+- No manual browser QA this phase — automated `assertInertia()`/redirect coverage only.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.

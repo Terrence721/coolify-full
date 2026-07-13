@@ -515,13 +515,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/sources', function () {
-        $sources = currentTeam()->sources();
-
-        return view('source.all', [
-            'sources' => $sources,
-        ]);
-    })->name('source.all');
+    Route::get('/sources', [SourceGithubController::class, 'index'])->name('source.all');
+    Route::post('/source/github', [SourceGithubController::class, 'store'])->name('source.github.store');
     Route::get('/source/github/{github_app_uuid}', [SourceGithubController::class, 'show'])->name('source.github.show');
     Route::get('/source/github/{github_app_uuid}/permissions', [SourceGithubController::class, 'show'])->name('source.github.permissions');
     Route::get('/source/github/{github_app_uuid}/resources', [SourceGithubController::class, 'show'])->name('source.github.resources');

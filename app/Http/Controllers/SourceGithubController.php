@@ -25,6 +25,69 @@ class SourceGithubController extends Controller
 {
     use AuthorizesRequests;
 
+    /**
+     * React port of the `/sources` listing (previously a route closure rendering
+     * `source.all` Blade). Team::sources() also returns GitlabApps, but the original view
+     * only ever rendered GithubApp entries, so only those are mapped.
+     */
+    public function index(): Response
+    {
+        $sources = currentTeam()->sources()
+            ->filter(fn ($source) => $source instanceof GithubApp)
+            ->map(fn (GithubApp $githubApp) => [
+                'uuid' => $githubApp->uuid,
+                'name' => $githubApp->name,
+                'organization' => $githubApp->organization,
+                'configured' => ! is_null($githubApp->app_id),
+                'url' => route('source.github.show', ['github_app_uuid' => $githubApp->uuid]),
+            ])->values();
+
+        return Inertia::render('Sources/Index', [
+            'sources' => $sources,
+            'canCreate' => auth()->user()->can('createAnyResource'),
+            'storeUrl' => route('source.github.store'),
+            'defaultName' => substr(generate_random_name(), 0, 30),
+            'isCloud' => isCloud(),
+        ]);
+    }
+
+    /**
+     * React port of App\Livewire\Source\Github\Create::createGitHubApp(). The session('from')
+     * merge is kept for parity with the original, though nothing currently writes the initial
+     * 'from' entry (its Livewire writers were converted in earlier phases).
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $this->authorize('createAnyResource');
+
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'organization' => 'nullable|string',
+            'apiUrl' => ['required', 'string', 'url', new SafeExternalUrl],
+            'htmlUrl' => ['required', 'string', 'url', new SafeExternalUrl],
+            'customUser' => 'required|string',
+            'customPort' => 'required|int',
+            'isSystemWide' => 'required|bool',
+        ]);
+
+        $githubApp = GithubApp::create([
+            'name' => $validated['name'],
+            'organization' => $validated['organization'] ?? null,
+            'api_url' => $validated['apiUrl'],
+            'html_url' => $validated['htmlUrl'],
+            'custom_user' => $validated['customUser'],
+            'custom_port' => $validated['customPort'],
+            'is_system_wide' => $validated['isSystemWide'],
+            'team_id' => currentTeam()->id,
+        ]);
+
+        if (session('from')) {
+            session(['from' => session('from') + ['source_id' => $githubApp->id]]);
+        }
+
+        return redirect()->route('source.github.show', ['github_app_uuid' => $githubApp->uuid]);
+    }
+
     public function show(string $github_app_uuid): Response|RedirectResponse
     {
         $githubApp = GithubApp::ownedByCurrentTeam()->whereUuid($github_app_uuid)->firstOrFail();

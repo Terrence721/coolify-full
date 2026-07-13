@@ -6643,18 +6643,6 @@ parameters:
 			path: app/Livewire/SettingsDropdown.php
 
 		-
-			message: '#^Method App\\Livewire\\Source\\Github\\Create\:\:createGitHubApp\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Source/Github/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Source\\Github\\Create\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Source/Github/Create.php
-
-		-
 			message: '#^Method App\\Livewire\\Storage\\Create\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
