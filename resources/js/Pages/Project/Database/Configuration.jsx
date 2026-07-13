@@ -1,5 +1,6 @@
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
+import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import {
     DangerTab,
     ResourceLimitsTab,
@@ -33,6 +34,18 @@ export default function Configuration(props) {
                     ))}
                 </div>
                 <div className="w-full">
+                    {tab === 'environment-variables' && (
+                        <EnvironmentVariablesTab
+                            envs={props.envs}
+                            hardcodedEnvs={props.hardcodedEnvs}
+                            devEnvs={props.devEnvs}
+                            canManageEnvironment={props.canManageEnvironment}
+                            problematicVariables={props.problematicVariables}
+                            availableSharedVariables={props.availableSharedVariables}
+                            envUrls={props.envUrls}
+                            resourceType="database"
+                        />
+                    )}
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}
                     {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} />}

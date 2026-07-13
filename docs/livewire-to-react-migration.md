@@ -2633,3 +2633,47 @@ To make the reuse real rather than copy-paste, Phase 54's six tab panels moved o
 - The `project.service.scheduled-tasks` (single-task, `/tasks/{task_uuid}`) route stays on the Livewire shell alongside the list route.
 - No manual browser QA this phase — see `docs/smoketest.md`.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+
+## 117. Phase 56 — Environment Variables for databases and services
+
+Converts the shared `Project\Shared\EnvironmentVariable\{All,Add,Show,ShowHardcoded}` Livewire family — the largest shared tab body (~1,120 lines of PHP + ~560 of Blade across the four) — for the two already-React Configuration routers. The `.environment-variables` routes on both cut over; the Application router's usage (and its extra modes: preview-deployment variables, build secrets, the sort-alphabetically toggle — all gated to the Application class in the original blade anyway) stays Livewire for that router's own phase, so the four Livewire components remain in place.
+
+The port is a `ManagesResourceEnvironmentVariables` controller concern (tab props + 5 endpoints: store, update, lock, destroy, bulk-update) shared by both Configuration controllers, plus one `Components/EnvironmentVariablesTab.jsx` used by both pages. Behavior notes:
+
+- **Locked (shown-once) values never reach the client** — the props omit them, matching the blade that never rendered a value input for locked vars.
+- Locked and magic (`SERVICE_FQDN`/`SERVICE_URL`/`SERVICE_NAME`-prefixed) variables accept only comment updates server-side, mirroring the original's disabled inputs.
+- Redis credentials (`REDIS_PASSWORD`/`REDIS_USERNAME` on standalone-redis) keep their key and require a non-empty value; required variables can't be emptied.
+- Docker-compose-referenced variables can't be deleted (single or bulk) — same `EnvironmentVariableProtection` check.
+- The developer-view bulk save ports `handleBulkSubmit` + `updateOrder` (create/update/delete + textarea-order persistence); shown-once/multiline entries are skipped on update exactly as before.
+- Hardcoded compose variables (services) render as read-only cards, magic-prefixed and DB-managed keys filtered out.
+- Search filters client-side (the original's server-side search existed for Livewire round-trips). Known v1 gap: the `{{` shared-variable autocomplete dropdown isn't ported — the syntax still works typed by hand, and available shared keys are listed as plain text under the Add form.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/Concerns/ManagesResourceEnvironmentVariables.php` | created | Tab props + store/update/lock/destroy/bulk-update, shared-variable key listing, hardcoded-compose extraction |
+| `app/Http/Controllers/ProjectDatabaseConfigurationController.php`, `ProjectServiceConfigurationController.php` | modified | Wire the concern: `environment-variables` tab branch + 5 endpoint wrappers each |
+| `resources/js/Components/EnvironmentVariablesTab.jsx` | created | Normal view (search, per-variable cards with flag-dependent checkbox sets, lock/delete-with-name-confirmation, hardcoded cards) + developer view (bulk textarea) + Add modal |
+| `resources/js/Pages/Project/{Database,Service}/Configuration.jsx` | modified | Render the tab |
+| `routes/web.php` | modified | Both `.environment-variables` GETs repointed; `envs.store/bulk-update/update/lock/destroy` added per router |
+| `tests/v4/Feature/ProjectEnvironmentVariablesTabTest.php` | created | 12 tests: tab renders (value present; locked value withheld), store + duplicate rejection, update, locked-only-comment, required-can't-be-emptied, lock, delete, bulk create/update/delete with order persistence, service hardcoded-compose extraction, compose-usage delete block |
+
+Also fixed in passing: a `block`+`flex` conflicting-class nit the IDE flagged on the still-Livewire `resource-operations.blade.php` label, and a docblock in the new concern that originally contained `SERVICE_FQDN_*/SERVICE_URL_*` — the embedded `*/` terminated the comment and fatally broke the class until reworded.
+
+### Phase 56 verification log
+
+| Check | Result |
+| --- | --- |
+| 12 new Feature tests | 1 initial failure — the compose-usage guard test used list-format `environment:` YAML, which `EnvironmentVariableProtection` doesn't inspect (it checks map-format keys and `$VAR` references in values); fixture switched to map format. 12/12 after |
+| Full suite | 770 passed (3,492 assertions), no regressions |
+| PHPStan | New findings are all the documented plain-`Model` resource-typing gap (the same class as `StandaloneDatabaseInstance`); baseline regenerated (+192 lines, additive); `[OK] No errors` |
+| Pint / `yarn build` | Clean; the shared tab component inlines into both Configuration page chunks |
+
+## 118. Non-goals of Phase 56
+
+- The Application router's environment-variables tab (previews, build secrets, sorting toggle, `is_env_sorting_enabled` settings endpoint) stays Livewire — those modes were Application-gated in the original blade and convert with that router.
+- The `{{` shared-variable autocomplete (`x-forms.env-var-input`'s dropdown) is a known v1 UX gap — see above.
+- The four Livewire `EnvironmentVariable\*` components are not deleted (still consumed by `Application\Configuration`).
+- No manual browser QA this phase — see `docs/smoketest.md`.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.

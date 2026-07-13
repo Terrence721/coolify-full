@@ -329,7 +329,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}')->group(function () {
         Route::get('/', DatabaseConfiguration::class)->name('project.database.configuration');
-        Route::get('/environment-variables', DatabaseConfiguration::class)->name('project.database.environment-variables');
+        Route::get('/environment-variables', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.environment-variables');
+        Route::post('/environment-variables', [ProjectDatabaseConfigurationController::class, 'storeEnv'])->name('project.database.envs.store');
+        Route::patch('/environment-variables/bulk', [ProjectDatabaseConfigurationController::class, 'bulkUpdateEnvs'])->name('project.database.envs.bulk-update');
+        Route::patch('/environment-variables/{env_id}', [ProjectDatabaseConfigurationController::class, 'updateEnv'])->name('project.database.envs.update');
+        Route::post('/environment-variables/{env_id}/lock', [ProjectDatabaseConfigurationController::class, 'lockEnv'])->name('project.database.envs.lock');
+        Route::delete('/environment-variables/{env_id}', [ProjectDatabaseConfigurationController::class, 'destroyEnv'])->name('project.database.envs.destroy');
         Route::get('/servers', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.servers');
         Route::get('/import-backup', DatabaseConfiguration::class)->name('project.database.import-backup')->middleware('can.update.resource');
         Route::get('/persistent-storage', DatabaseConfiguration::class)->name('project.database.persistent-storage');
@@ -375,7 +380,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/logs/restart', [ProjectLogsController::class, 'serviceRestart'])->name('project.logs.service.restart');
         Route::post('/logs/stop', [ProjectLogsController::class, 'serviceStop'])->name('project.logs.service.stop');
         Route::post('/logs/check-status', [ProjectLogsController::class, 'serviceCheckStatus'])->name('project.logs.service.check-status');
-        Route::get('/environment-variables', ServiceConfiguration::class)->name('project.service.environment-variables');
+        Route::get('/environment-variables', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.environment-variables');
+        Route::post('/environment-variables', [ProjectServiceConfigurationController::class, 'storeEnv'])->name('project.service.envs.store');
+        Route::patch('/environment-variables/bulk', [ProjectServiceConfigurationController::class, 'bulkUpdateEnvs'])->name('project.service.envs.bulk-update');
+        Route::patch('/environment-variables/{env_id}', [ProjectServiceConfigurationController::class, 'updateEnv'])->name('project.service.envs.update');
+        Route::post('/environment-variables/{env_id}/lock', [ProjectServiceConfigurationController::class, 'lockEnv'])->name('project.service.envs.lock');
+        Route::delete('/environment-variables/{env_id}', [ProjectServiceConfigurationController::class, 'destroyEnv'])->name('project.service.envs.destroy');
         Route::get('/storages', ServiceConfiguration::class)->name('project.service.storages');
         Route::get('/scheduled-tasks', ServiceConfiguration::class)->name('project.service.scheduled-tasks.show');
         Route::get('/webhooks', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.webhooks');

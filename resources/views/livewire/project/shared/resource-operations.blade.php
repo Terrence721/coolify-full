@@ -127,7 +127,7 @@
                         </div>
 
                         <div class="flex-1">
-                            <label class="block text-sm font-medium mb-2 flex gap-2 items-center">Select Target
+                            <label class="text-sm font-medium mb-2 flex gap-2 items-center">Select Target
                                 Environment
                                 <x-helper helper="Current environment is excluded." />
                             </label>

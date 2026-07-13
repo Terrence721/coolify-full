@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
+use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\DeleteResourceJob;
 use App\Jobs\VolumeCloneJob;
@@ -47,6 +48,7 @@ use Visus\Cuid2\Cuid2;
 class ProjectDatabaseConfigurationController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesResourceEnvironmentVariables;
     use ResolvesProjectResources;
 
     private const LIMIT_RULES = [
@@ -370,6 +372,56 @@ class ProjectDatabaseConfigurationController extends Controller
         ]);
     }
 
+    public function storeEnv(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->envStore($request, $database);
+    }
+
+    public function updateEnv(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $env_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->envUpdate($request, $database, $env_id);
+    }
+
+    public function lockEnv(string $project_uuid, string $environment_uuid, string $database_uuid, string $env_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->envLock($database, $env_id);
+    }
+
+    public function destroyEnv(string $project_uuid, string $environment_uuid, string $database_uuid, string $env_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->envDestroy($database, $env_id);
+    }
+
+    public function bulkUpdateEnvs(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->envBulkUpdate($request, $database);
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -377,6 +429,7 @@ class ProjectDatabaseConfigurationController extends Controller
     private function tabProps(string $tab, Model $database, array $parameters): array
     {
         return match ($tab) {
+            'environment-variables' => $this->environmentVariablesTabProps($database, $parameters, 'project.database'),
             'tags' => [
                 'tags' => $database->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,

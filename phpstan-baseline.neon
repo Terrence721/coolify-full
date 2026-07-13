@@ -349,6 +349,12 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_cpu_shares\.$#'
 			identifier: property.notFound
 			count: 1
@@ -433,8 +439,98 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:realStatus\(\)\.$#'
 			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
@@ -539,6 +635,102 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'

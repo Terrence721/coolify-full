@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Environment;
@@ -38,6 +39,7 @@ use Visus\Cuid2\Cuid2;
  */
 class ProjectServiceConfigurationController extends Controller
 {
+    use ManagesResourceEnvironmentVariables;
     use ResolvesProjectResources;
 
     public function show(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): Response|RedirectResponse
@@ -254,6 +256,56 @@ class ProjectServiceConfigurationController extends Controller
         ]);
     }
 
+    public function storeEnv(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->envStore($request, $service);
+    }
+
+    public function updateEnv(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $env_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->envUpdate($request, $service, $env_id);
+    }
+
+    public function lockEnv(string $project_uuid, string $environment_uuid, string $service_uuid, string $env_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->envLock($service, $env_id);
+    }
+
+    public function destroyEnv(string $project_uuid, string $environment_uuid, string $service_uuid, string $env_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->envDestroy($service, $env_id);
+    }
+
+    public function bulkUpdateEnvs(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->envBulkUpdate($request, $service);
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -261,6 +313,7 @@ class ProjectServiceConfigurationController extends Controller
     private function tabProps(string $tab, Service $service, array $parameters): array
     {
         return match ($tab) {
+            'environment-variables' => $this->environmentVariablesTabProps($service, $parameters, 'project.service'),
             'tags' => [
                 'tags' => $service->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,
