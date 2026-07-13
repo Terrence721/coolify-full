@@ -1,9 +1,11 @@
 # Architecture Overview
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
+
+Everything described here runs on **Linux end-to-end**: the development environment is Ubuntu (via WSL2 on a Windows host), every service is a Linux container on a Linux filesystem, and the whole stack behaves identically on a native Linux machine.
 
 For the frontend migration specifically (Livewire → Inertia.js/React), see [livewire-to-react-migration.md](livewire-to-react-migration.md) — that document is the detailed, phase-by-phase source of truth for anything frontend-related and is not repeated here.
 

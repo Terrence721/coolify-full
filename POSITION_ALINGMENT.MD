@@ -1,7 +1,7 @@
 Position Alignment — Senior Full‑Stack Developer
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 This document explains how the enhancements in my Coolify‑Full fork directly align with the competencies, responsibilities, and expectations outlined in the Senior Full‑Stack Developer role.
 
@@ -39,7 +39,11 @@ Experience with containerized development environments and CI/CD pipelines.
 
 My Alignment:
 
-Built a multi-service Docker Compose development environment (Laravel app, Postgres, Redis, Soketi for WebSockets, a Vite dev server, Mailpit, MinIO)
+Work daily in a genuine Linux environment (Ubuntu via WSL2): bash, Docker, SSH, systemd-adjacent process supervision (s6), Linux filesystems and permissions — the Windows machine is only the host, and every process in this project runs in Linux
+
+Built a multi-service Docker Compose development environment (Laravel app, Postgres, Redis, Soketi for WebSockets, a Vite dev server, Mailpit, MinIO), all Linux containers
+
+Diagnosed and fixed a real Linux-vs-Windows infrastructure problem at the root: migrated the working tree off a slow NTFS bind mount into the WSL2 ext4 filesystem, taking yarn build from 3+ hours to ~2 seconds and the full test suite from ~150s to ~31s (documented in docs/command.md)
 
 Diagnosed and fixed real CI configuration issues (e.g. GitHub Actions runner Node.js version deprecation) rather than ignoring warnings
 

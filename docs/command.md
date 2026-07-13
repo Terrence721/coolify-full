@@ -5,6 +5,8 @@
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
+Every command here is **Linux-native bash** — the dev environment is Ubuntu (via WSL2 on a Windows host), and each command runs unchanged on any native Linux machine.
+
 **Windows dev machines: the repo now lives inside the WSL2 filesystem, not under `C:\Users\...`.** See "WSL2 migration" below before assuming a Windows-path command from an older session still applies.
 
 Compose files: `docker-compose.dev.yml` is a Compose **override** — it only adds dev-specific bits (build context, ports, volumes) on top of the base `docker-compose.yml` (which defines the actual images for `redis`/`postgres`/`soketi`). Always pass both: `docker compose -f docker-compose.yml -f docker-compose.dev.yml <command>` (or use `spin`, which does this for you). Running `-f docker-compose.dev.yml` alone fails with `service "redis" has neither an image nor a build context specified` — confirmed 2026-07-12. `docker-compose.windows.yml` is unrelated: a separate, standalone production-style config using prebuilt `ghcr.io/coollabsio/coolify` images (doesn't build from local source), not part of the dev workflow.

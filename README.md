@@ -10,6 +10,7 @@ It showcases real-world engineering work including:
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page, with every phase documented and verified
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
+- Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
@@ -52,6 +53,8 @@ All PHP, Node, Composer, Docker, and Laravel processes run inside the Linux subs
 - Prevents Windows-specific PHP extension and path inconsistencies
 
 The repository **must** be cloned into the WSL filesystem (e.g. `~/projects/coolify-full`), not under `C:\...`, to avoid 5–10× slower I/O and degraded Docker/Vite performance. See `DEVELOPING_IN_CONTAINERS_WINDOWS.md` and `docs/command.md`’s “WSL2 migration” section for details.
+
+**Reviewing from native Linux (or macOS)?** Nothing in this repo is Windows-specific. The entire toolchain — bash, Docker Compose, Composer, Artisan, Vite — is Linux-native and runs identically on any Linux machine: clone, `cp .env.development.example .env`, `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`, done. The WSL2 notes exist only because the host hardware happens to run Windows; the development experience is Ubuntu all the way down.
 
 ---
 

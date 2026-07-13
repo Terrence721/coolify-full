@@ -3,7 +3,7 @@
 <!-- markdownlint-disable-next-line MD036 -->
 **Last Updated: July 13, 2026**
 
-This guide is for contributors who are new to container-based development on a Windows machine.
+**The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in `docs/command.md` runs identically.
 
 **The repo lives inside a WSL2 Linux distro's native filesystem, not under `C:\Users\...`.** Docker Desktop's WSL2 backend bridges Windows and Linux file access over a 9P protocol layer that is extremely slow for anything bind-mounted from an NTFS path (a `yarn build` that takes ~2 seconds from WSL2-native storage took over 3 hours from a Windows path — see `docs/command.md`'s "RESOLVED" section for the full root-cause writeup). Keeping the working tree on WSL2-native storage (e.g. `/root/projects/coolify-full`) avoids that bridge entirely for every container operation, not just builds.
 
