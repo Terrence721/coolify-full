@@ -1,7 +1,7 @@
 # TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 A living list of what's done and what's left on this fork. This is a self-hosted-only fork of Coolify — the goal is a clean, no-frills, enterprise-friendly self-hosted deployment platform with no billing/marketing surface area.
 
@@ -53,9 +53,30 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 
 ### Migration
 
-- 8 Hard-bucket pages remain on Livewire, including 1 of 21 `Server\Navbar`-dependent pages (`Server\Show`, which needs real design work before conversion — an embedded Livewire island/WebSocket bridge — see Section 68 of the migration doc). **Update (2026-07-12):** `Server\Proxy\Logs`, `Server\Sentinel\Logs` (Phase 46), and `Project\Shared\Logs` (Phase 47) are all done — every consumer of the shared `Project\Shared\GetLogs` component is now converted (`ContainerLogs.jsx` + `StreamsContainerLogs` trait); the Livewire `GetLogs` component itself stays, still nested by 8 still-Livewire database-engine "general settings" pages. `Project\Shared\ExecuteContainerCommand` (Phase 48) is also done — the terminal picker reuses Phase 8's `terminalSession.js`/`TerminalWindow.jsx` unchanged, and closes out the last `Server\Navbar`-dependent page besides `Server\Show`. `Project\Service\Index` (Phase 49) is also done for its `.index`/`.index.advanced` routes; its `.database.import` route stays on the original Livewire class, still needed by `Project\Database\Configuration`. **Update (2026-07-12, Phase 51):** `Project\Resource\Create`'s wizard shell and 3 of its 6 nested creation flows are now converted (see above) — only the 3 GitHub-dependent flows remain Livewire-backed, now reached via a new dedicated route (`project.resource.create.git`) rather than the old combined one. **Correction (2026-07-12):** `Database\Configuration`/`Application\Configuration`/`Service\Configuration` were previously flagged here as a "smaller lift now that Heading/ConfigurationChecker exist" — that undersold them. Each is a 12+-tab router fanning out to 9-20 nested Livewire children (per-engine "general settings" forms, shared env-var/webhook/metrics/tags/danger-zone panels); the shell being cheap doesn't make the ~20 tab bodies cheap. These are genuinely some of the largest remaining conversion units, not small ones.
+- 8 Hard-bucket pages remain on Livewire, including 1 of 21 `Server\Navbar`-dependent pages (`Server\Show`, which needs real design work before conversion — an embedded Livewire island/WebSocket bridge — see Section 68 of the migration doc). **Update (2026-07-12):** `Server\Proxy\Logs`, `Server\Sentinel\Logs` (Phase 46), and `Project\Shared\Logs` (Phase 47) are all done — every consumer of the shared `Project\Shared\GetLogs` component is now converted (`ContainerLogs.jsx` + `StreamsContainerLogs` trait); the Livewire `GetLogs` component itself stays, still nested by 8 still-Livewire database-engine "general settings" pages. `Project\Shared\ExecuteContainerCommand` (Phase 48) is also done — the terminal picker reuses Phase 8's `terminalSession.js`/`TerminalWindow.jsx` unchanged, and closes out the last `Server\Navbar`-dependent page besides `Server\Show`. `Project\Service\Index` (Phase 49) is also done for its `.index`/`.index.advanced` routes; its `.database.import` route stays on the original Livewire class, still needed by `Project\Database\Configuration`. **Update (2026-07-12, Phase 51):** `Project\Resource\Create`'s wizard shell and 3 of its 6 nested creation flows are now converted (see above). **Update (2026-07-13, Phase 52):** the remaining 3 GitHub-dependent flows (`PublicGitRepository`, `GithubPrivateRepository`, `GithubPrivateRepositoryDeployKey`) are now converted too, including fixes for the 5 pre-existing bugs catalogued in Phase 51 and two cross-team authorization holes — the entire "+ New" resource wizard is off Livewire (see Section 109 of the migration doc). **Correction (2026-07-12):** `Database\Configuration`/`Application\Configuration`/`Service\Configuration` were previously flagged here as a "smaller lift now that Heading/ConfigurationChecker exist" — that undersold them. Each is a 12+-tab router fanning out to 9-20 nested Livewire children (per-engine "general settings" forms, shared env-var/webhook/metrics/tags/danger-zone panels); the shell being cheap doesn't make the ~20 tab bodies cheap. These are genuinely some of the largest remaining conversion units, not small ones.
 - Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) — see `docs/smoketest.md` for the manual QA checklist that closes this gap.
 - `/terminal` (still Livewire): observed an endless WebSocket reconnect loop during manual QA on 2026-07-10 (handshake authenticates successfully server-side, then the connection closes abnormally, code 1006). Likely just this dev environment lacking a genuinely reachable SSH target, not a code bug — needs real validation once Terminal is converted. See the note in `docs/smoketest.md`'s Terminal checklist.
+
+### Fresh-clone end-to-end boot test (deferred 2026-07-13 — destructive, run when losing dev data is acceptable)
+
+The first-boot automation (`php artisan dev --init`, restored 2026-07-13 after being lost in the history-clearing commit — it generates `APP_KEY`, creates the storage symlink, and seeds the database) is covered by feature tests and an idempotent live run, but has **not** been proven with a true from-scratch boot the way a real cloner would experience it. Doing so wipes every named volume — all dev projects/servers/applications, the dev database, backups, MinIO data. Steps, when ready:
+
+```bash
+# 0. Commit/push everything first. This destroys all local dev data.
+docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v
+
+# 1. Simulate a fresh cloner's .env (APP_KEY intentionally empty in the template)
+cp .env.development.example .env
+
+# 2. First boot — init runs composer install, migrate, dev --init automatically
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+# 3. Wait for the app to report healthy, then verify
+docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
+curl -s http://localhost:8000/api/health
+```
+
+Expected: `APP_KEY` now populated in `.env` (written by `key:generate` through the bind mount), login works at `http://localhost:8000` with `test@example.com` / `password`, and no `coolify-proxy` container yet (the app creates it at runtime — see `DEVELOPING_IN_CONTAINERS_WINDOWS.md` §2). Caveats: cached `coolify:dev`/`coolify-realtime:dev`/`coolify-testing-host:dev` images make this test skip the image-build path — to also prove a from-scratch **build**, remove those images first and expect the possible `NGINX_VERSION` pin issue documented in `docs/command.md`'s WSL2-migration section, step 6.
 
 ### Repository configuration
 
