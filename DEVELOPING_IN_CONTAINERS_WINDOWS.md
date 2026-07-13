@@ -194,6 +194,14 @@ These extensions (e.g. DEVSense's Composer/PHP Debugger extensions, `ryannaddy.l
    ```
 Reload the window (`Developer: Reload Window`) after either change for it to take effect.
 
+### `git push`/`git pull` fails with `could not read Username for 'https://github.com'`
+
+WSL-side git has no credential helper by default — GitHub credentials live in Windows' Git Credential Manager. Wire WSL git to it (already configured in this repo's local git config):
+
+```bash
+git config credential.helper '/mnt/c/Program\ Files/Git/mingw64/bin/git-credential-manager.exe'
+```
+
 ### `docker exec coolify git status` returns nothing / `vendor/bin/pint --dirty` finds nothing despite real changes
 
 The container's git checkout of the bind-mounted tree can hit a `safe.directory`/ownership mismatch that makes `git` silently no-op inside the container, even though `git status` on the WSL2 host side works fine. Work around it by passing explicit file paths to Pint/PHPStan instead of relying on `--dirty` / uncommitted-file autodetection.
