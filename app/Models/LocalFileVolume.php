@@ -132,6 +132,7 @@ class LocalFileVolume extends BaseModel
             $path = $path->after('.');
             $path = $workdir.$path;
         }
+        $path = (string) $path;
 
         // Validate and escape path to prevent command injection
         validateShellSafePath($path, 'storage path');
@@ -186,6 +187,7 @@ class LocalFileVolume extends BaseModel
             $path = $path->after('.');
             $path = $workdir.$path;
         }
+        $path = (string) $path;
 
         // Validate and escape path to prevent command injection
         validateShellSafePath($path, 'storage path');
@@ -230,8 +232,8 @@ class LocalFileVolume extends BaseModel
             $commands->push("cd {$escapedWorkdir}");
         }
         if (str($this->fs_path)->startsWith('.') || str($this->fs_path)->startsWith('/') || str($this->fs_path)->startsWith('~')) {
-            $parent_dir = str($this->fs_path)->beforeLast('/');
-            if ($parent_dir != '') {
+            $parent_dir = str($this->fs_path)->beforeLast('/')->value();
+            if ($parent_dir !== '') {
                 $escapedParentDir = escapeshellarg($parent_dir);
                 $commands->push("mkdir -p {$escapedParentDir} > /dev/null 2>&1 || true");
             }
@@ -242,6 +244,7 @@ class LocalFileVolume extends BaseModel
             $path = $path->after('.');
             $path = $workdir.$path;
         }
+        $path = (string) $path;
 
         // Validate and escape resolved path (may differ from fs_path if relative)
         validateShellSafePath($path, 'storage path');

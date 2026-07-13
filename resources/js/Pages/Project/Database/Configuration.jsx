@@ -1,6 +1,7 @@
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
+import StoragesTab from '../../../Components/StoragesTab';
 import {
     DangerTab,
     ResourceLimitsTab,
@@ -44,6 +45,16 @@ export default function Configuration(props) {
                             availableSharedVariables={props.availableSharedVariables}
                             envUrls={props.envUrls}
                             resourceType="database"
+                        />
+                    )}
+                    {tab === 'persistent-storage' && (
+                        <StoragesTab
+                            sections={props.sections}
+                            isService={props.isService}
+                            canAddMounts={props.canAddMounts}
+                            canUpdate={props.canUpdate}
+                            storageUrls={props.storageUrls}
+                            sourceDirPlaceholder={props.sourceDirPlaceholder}
                         />
                     )}
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}

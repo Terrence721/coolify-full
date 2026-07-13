@@ -1,4 +1,5 @@
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
+import StoragesTab from '../../../Components/StoragesTab';
 import ServiceHeading from '../../../Components/ServiceHeading';
 import { DangerTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
@@ -41,6 +42,16 @@ export default function Configuration(props) {
                             availableSharedVariables={props.availableSharedVariables}
                             envUrls={props.envUrls}
                             resourceType="service"
+                        />
+                    )}
+                    {tab === 'storages' && (
+                        <StoragesTab
+                            sections={props.sections}
+                            isService={props.isService}
+                            canAddMounts={props.canAddMounts}
+                            canUpdate={props.canUpdate}
+                            storageUrls={props.storageUrls}
+                            sourceDirPlaceholder={props.sourceDirPlaceholder}
                         />
                     )}
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}

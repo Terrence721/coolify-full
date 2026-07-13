@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
+use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Environment;
@@ -40,6 +41,7 @@ use Visus\Cuid2\Cuid2;
 class ProjectServiceConfigurationController extends Controller
 {
     use ManagesResourceEnvironmentVariables;
+    use ManagesResourceStorages;
     use ResolvesProjectResources;
 
     public function show(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): Response|RedirectResponse
@@ -306,6 +308,66 @@ class ProjectServiceConfigurationController extends Controller
         return $this->envBulkUpdate($request, $service);
     }
 
+    public function storagesVolumeUpdate(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $volume_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->updateStorageVolume($request, $service, $this->resolveOwnedVolume($service, $volume_id));
+    }
+
+    public function storagesVolumeDestroy(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $volume_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->destroyStorageVolume($request, $service, $this->resolveOwnedVolume($service, $volume_id));
+    }
+
+    public function storagesFileUpdate(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $file_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->updateStorageFile($request, $service, $this->resolveOwnedFileVolume($service, $file_id));
+    }
+
+    public function storagesFileLoad(string $project_uuid, string $environment_uuid, string $service_uuid, string $file_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->loadStorageFile($service, $this->resolveOwnedFileVolume($service, $file_id));
+    }
+
+    public function storagesFileConvert(string $project_uuid, string $environment_uuid, string $service_uuid, string $file_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->convertStorageFile($service, $this->resolveOwnedFileVolume($service, $file_id));
+    }
+
+    public function storagesFileDestroy(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $file_id): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->destroyStorageFile($request, $service, $this->resolveOwnedFileVolume($service, $file_id));
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -314,6 +376,7 @@ class ProjectServiceConfigurationController extends Controller
     {
         return match ($tab) {
             'environment-variables' => $this->environmentVariablesTabProps($service, $parameters, 'project.service'),
+            'storages' => $this->storagesTabProps($service, $parameters, 'project.service'),
             'tags' => [
                 'tags' => $service->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,

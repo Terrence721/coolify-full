@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
+use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\DeleteResourceJob;
 use App\Jobs\VolumeCloneJob;
@@ -49,6 +50,7 @@ class ProjectDatabaseConfigurationController extends Controller
 {
     use AuthorizesRequests;
     use ManagesResourceEnvironmentVariables;
+    use ManagesResourceStorages;
     use ResolvesProjectResources;
 
     private const LIMIT_RULES = [
@@ -422,6 +424,96 @@ class ProjectDatabaseConfigurationController extends Controller
         return $this->envBulkUpdate($request, $database);
     }
 
+    public function storagesVolumeStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->storeStorageVolume($request, $database);
+    }
+
+    public function storagesFileStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->storeStorageFile($request, $database);
+    }
+
+    public function storagesDirectoryStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->storeStorageDirectory($request, $database);
+    }
+
+    public function storagesVolumeUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $volume_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->updateStorageVolume($request, $database, $this->resolveOwnedVolume($database, $volume_id));
+    }
+
+    public function storagesVolumeDestroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $volume_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->destroyStorageVolume($request, $database, $this->resolveOwnedVolume($database, $volume_id));
+    }
+
+    public function storagesFileUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->updateStorageFile($request, $database, $this->resolveOwnedFileVolume($database, $file_id));
+    }
+
+    public function storagesFileLoad(string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->loadStorageFile($database, $this->resolveOwnedFileVolume($database, $file_id));
+    }
+
+    public function storagesFileConvert(string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->convertStorageFile($database, $this->resolveOwnedFileVolume($database, $file_id));
+    }
+
+    public function storagesFileDestroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->destroyStorageFile($request, $database, $this->resolveOwnedFileVolume($database, $file_id));
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -430,6 +522,7 @@ class ProjectDatabaseConfigurationController extends Controller
     {
         return match ($tab) {
             'environment-variables' => $this->environmentVariablesTabProps($database, $parameters, 'project.database'),
+            'persistent-storage' => $this->storagesTabProps($database, $parameters, 'project.database'),
             'tags' => [
                 'tags' => $database->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,
