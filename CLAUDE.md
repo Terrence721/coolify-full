@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Vercel). It manages servers, applications, databases, and services via SSH. Built with Laravel 12 (using Laravel 10 file structure), Livewire 3, and Tailwind CSS v4.
+Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Vercel). It manages servers, applications, databases, and services via SSH. Built with Laravel 12 (using Laravel 10 file structure) and Tailwind CSS v4. The UI is mid-migration from Livewire 3 to Inertia.js + React — React/Inertia pages are now the majority; see `docs/livewire-to-react-migration.md` for the phase-by-phase ledger and conversion recipe.
 
 ## Design Reference
 
@@ -46,7 +46,7 @@ yarn build                      # production build
 
 ### Backend Structure (app/)
 - **Actions/** — Domain actions organized by area (Application, Database, Docker, Proxy, Server, Service, Shared, Stripe, User, CoolifyTask, Fortify). Uses `lorisleiva/laravel-actions` with `AsAction` trait — actions can be called as objects, dispatched as jobs, or used as controllers.
-- **Livewire/** — All UI components (Livewire 3). Pages organized by domain: Server, Project, Settings, Security, Notifications, Terminal, Subscription, SharedVariables. This is the primary UI layer — no traditional Blade controllers. Components listen to private team channels for real-time status updates via Soketi.
+- **Livewire/** — The not-yet-converted remainder of the UI (Livewire 3), shrinking as the React migration progresses — mainly Boarding, the three big Configuration tab routers (Application/Database/Service) and their nested children, `Server\Show`, and chrome (GlobalSearch, SettingsDropdown). Components listen to private team channels for real-time status updates via Soketi. Converted pages live as Inertia controllers in `Http/Controllers/` + React pages in `resources/js/Pages/`.
 - **Jobs/** — Queue jobs for deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, server management, proxy configuration. Uses Redis queue with Horizon for monitoring.
 - **Models/** — Eloquent models extending `BaseModel` which provides auto-CUID2 UUID generation. Key models: `Server`, `Application`, `Service`, `Project`, `Environment`, `Team`, plus standalone database models (`StandalonePostgresql`, `StandaloneMysql`, etc.). Common traits: `HasConfiguration`, `HasMetrics`, `HasSafeStringAttribute`, `ClearsGlobalSearchCache`.
 - **Services/** — Business logic services (ConfigurationGenerator, DockerImageParser, ContainerStatusAggregator, HetznerService, etc.). Use Services for complex orchestration; use Actions for single-purpose domain operations.
@@ -82,10 +82,11 @@ yarn build                      # production build
 - **Proxy** — Traefik reverse proxy managed per server.
 
 ### Frontend
-- Livewire 3 components with Alpine.js for client-side interactivity
-- Blade templates in `resources/views/livewire/`
+- **Inertia.js + React 19** (the majority): page components in `resources/js/Pages/` (path mirrors the old Livewire namespace), shared components in `resources/js/Components/`, persistent layouts in `resources/js/Layouts/`; served by plain Laravel controllers via `Inertia::render()`
+- **Livewire 3 + Alpine.js** (the shrinking remainder): Blade templates in `resources/views/livewire/`
+- Real-time updates on converted pages use Laravel Echo (`useTeamChannel`) against the same Soketi broadcasts Livewire pages listen to
 - Tailwind CSS v4 with `@tailwindcss/forms` and `@tailwindcss/typography`
-- Vite for asset bundling
+- Vite for asset bundling (two entrypoints: `app.js` for Livewire/Alpine, `inertia-app.jsx` for React)
 
 ### Laravel 10 Structure (NOT Laravel 11+ slim structure)
 - Middleware in `app/Http/Middleware/` — custom middleware includes `CheckForcePasswordReset`, `DecideWhatToDoWithUser`, `ApiAbility`, `ApiSensitiveData`

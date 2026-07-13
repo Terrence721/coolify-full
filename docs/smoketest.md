@@ -1,7 +1,7 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). Run this after any batch of migration work, and definitely before considering the whole migration complete. See `docs/command.md` for the commands to start the dev stack.
 
@@ -11,7 +11,7 @@ Check items off as `[x]` as you go, or just read top to bottom and confirm each 
 
 - [ ] `spin up` (or `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`), wait for all containers healthy (`docker compose -f docker-compose.yml -f docker-compose.dev.yml ps`). Run from a WSL2 terminal in the repo's WSL2 path — see `docs/command.md`'s "WSL2 migration" section if you're on Windows.
 - [ ] Visit `http://localhost:8000`. Confirm no blank page / no console errors on first load.
-- [ ] Log in. Root user credentials come from `.env`'s `ROOT_USER_EMAIL`/`ROOT_USER_PASSWORD` (seeded by `RootUserSeeder`); alternatively register a normal account at `/register` if instance registration is enabled.
+- [ ] Log in. Dev-seeded credentials are `test@example.com` / `password` (`UserSeeder`, run by first-boot `dev --init`); `ROOT_USER_EMAIL`/`ROOT_USER_PASSWORD` only apply if the production `RootUserSeeder` path was used. Alternatively register at `/register` if instance registration is enabled.
 - [ ] Toggle dark/light mode (if a toggle exists on the page you land on) — confirm no flash-of-unstyled-content and the choice persists across a reload.
 
 ## 1. Cross-cutting checks (do these first — they affect every page below)
@@ -30,7 +30,7 @@ These verify the Livewire↔Inertia coexistence boundary itself, not any one pag
 - [ ] `/shared-variables/environment`, `/shared-variables/project`, `/shared-variables/server` — each lists its scoped variables.
 - [ ] `/profile/appearance` — theme/width/zoom controls change the UI live.
 
-## 3. Medium bucket (20 pages) — forms, no real-time dependency
+## 3. Medium bucket (22 pages) — forms, no real-time dependency
 
 Notifications (`/notifications/{channel}` for discord, email, slack, telegram, pushover, webhook):
 
@@ -68,7 +68,22 @@ Auth:
 
 - [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
 
-## 4. Hard bucket (42 pages so far) — real-time and non-trivial
+"+ New" resource wizard (`/project/{uuid}/environment/{uuid}/new`, Phase 51):
+
+- [ ] Type step renders all tiles (git/docker/databases/one-click services); search + category filter narrow the service grid; switching environment via the dropdown reloads the page for that environment.
+- [ ] Multi-server and multi-destination steps appear only when there's actually a choice; with one server + one destination they're skipped entirely.
+- [ ] PostgreSQL shows the version-picker step before creating; picking a version creates the database and lands on its configuration page.
+- [ ] Redis (or any other database) creates directly and redirects to its configuration page.
+- [ ] A one-click service (e.g. cloudflare-ddns) creates and redirects to the service configuration page.
+- [ ] Dockerfile / Docker Image / Docker Compose forms each create an application/service and redirect (Monaco editor renders on a cold load for Dockerfile/Compose).
+
+Sources (`/sources`, Phase 53):
+
+- [ ] List renders team GitHub Apps; unregistered ones show "Configuration is not finished."
+- [ ] "+ Add" opens the create modal; `/sources?create=1` opens it automatically (this is how GlobalSearch's "GitHub App" quick action arrives).
+- [ ] Creating an app (default name pre-filled, optional organization, self-hosted accordion, system-wide warning callout) redirects to the new app's configuration page.
+
+## 4. Hard bucket (45 pages so far) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -141,6 +156,12 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/server/{uuid}/proxy` — **cold page load** (hard-refresh so the dynamically-loaded Monaco editor script isn't already cached) confirm the YAML editor actually renders, not a blank div, and its theme matches the current dark/light mode (toggle dark mode with the editor open and confirm it flips live); select a proxy type on a server with none set; "Switch Proxy" while the proxy container is running (confirm the blocked toast) and while stopped (confirm it resets to the selection screen); save a configuration change; "Reset Configuration" (typed server-name confirmation); dismiss a Traefik outdated-version warning and confirm it stays dismissed on reload (`localStorage`).
 - [ ] `/server/{uuid}/sentinel` — Enable Sentinel on a build server (confirm the "cannot be enabled on build servers" error, no restart triggered) and on a normal server (confirm it actually starts); Save the Coolify URL/token/metrics fields against a real server and confirm Sentinel actually restarts afterward (the settings-save cascade described in Section 53 of the migration doc); Regenerate token and confirm the token field updates and Sentinel restarts; Restart/Sync button against a live server; dev-only debug checkbox and custom Docker image override (only if `APP_ENV=local`).
 - [ ] `/server/{uuid}/proxy/dynamic` — "Reload" against a real server, confirm the file list refreshes; "+ Add" modal creates a new dynamic configuration file (Monaco editor for the content) and it appears in the list; "Edit" on an existing file opens the same modal pre-filled, saves correctly; "Delete" removes a file (confirm `Caddyfile` itself can't be deleted when using Caddy); confirm the fixed/reserved filenames (`coolify.yaml`, `Caddyfile`, etc.) render as plain read-only textareas without Edit/Delete controls; open the page in two tabs, change the proxy elsewhere, confirm both tabs' file list auto-refreshes via the Echo `ProxyStatusChangedUI` listener without a manual reload.
+
+Git-based creation flows (`/project/.../new/git?type=...`, Phase 52 — need real GitHub connectivity):
+
+- [ ] `?type=public` — "Check repository" against a real public GitHub repo: rate-limit info renders, branch auto-detected (try a `/tree/<branch>` URL too), branch input stays disabled for github.com; a non-GitHub https URL gets `.git` appended and leaves the branch editable; submit creates the application and redirects to its configuration page.
+- [ ] `?type=private-gh-app` — select a real GitHub App: repository list loads (check an account with >100 repos to exercise pagination), "Load Repository" fetches branches sorted main-first, submit creates the application; "Refresh Repository List" and the "Change Repositories on GitHub" installation link both work; "+ Add GitHub App" opens the in-page modal (Phase 53) and redirects to the new app's config on create.
+- [ ] `?type=private-deploy-key` — key picker (empty state links to private-key creation), form submit converts a non-GitHub https URL to `git@host:owner/repo.git` and attaches the selected key.
 
 ## 5. Regression spot-check: still-Livewire areas
 

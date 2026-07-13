@@ -1,7 +1,7 @@
 # Livewire → React Migration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 ## 1. Why
 
