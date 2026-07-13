@@ -29,6 +29,7 @@ use Visus\Cuid2\Cuid2;
  * @property int $id
  * @property string $uuid
  * @property string $name
+ * @property-read bool $isDeployable
  * @property int $environment_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

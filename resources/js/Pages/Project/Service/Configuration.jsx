@@ -1,33 +1,30 @@
-import ConfigurationChecker from '../../../Components/ConfigurationChecker';
-import DatabaseHeading from '../../../Components/DatabaseHeading';
-import {
-    DangerTab,
-    ResourceLimitsTab,
-    ResourceOperationsTab,
-    ServersTab,
-    TagsTab,
-    WebhooksTab,
-} from '../../../Components/ResourceTabs';
+import ServiceHeading from '../../../Components/ServiceHeading';
+import { DangerTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Database\Configuration's shell plus 6 of its 12 tabs
- * (Tags, Danger Zone, Webhooks, Resource Limits, Resource Operations, Servers) — see
- * ProjectDatabaseConfigurationController. The sidebar links all 12 tabs; the unconverted
- * ones are plain full-page links to the still-Livewire routes, exactly as the original's
- * per-tab full navigations behaved.
+ * React port of App\Livewire\Project\Service\Configuration's shell plus 4 of its 8 tabs
+ * (Tags, Danger Zone, Webhooks, Resource Operations) — see
+ * ProjectServiceConfigurationController. General (StackForm + resource cards),
+ * Environment Variables, Persistent Storages, and Scheduled Tasks stay on the Livewire
+ * shell; the sidebar links everything, unconverted tabs as plain full-page links.
  */
 export default function Configuration(props) {
-    const { tab, tabs, heading, configurationChecker, urls } = props;
+    const { tab, tabs, documentationUrl, service, parameters, urls } = props;
 
     return (
         <div>
-            <h1>Configuration</h1>
-            <ConfigurationChecker configurationChecker={configurationChecker} />
-            <DatabaseHeading heading={heading} urls={urls} />
+            <ServiceHeading service={service} parameters={parameters} urls={urls} />
             <div className="flex flex-col h-full gap-8 sm:flex-row">
                 <div className="sub-menu-wrapper">
+                    <a className="sub-menu-item" target="_blank" rel="noreferrer" href={documentationUrl}>
+                        <span className="menu-item-label">Documentation ↗</span>
+                    </a>
                     {tabs.map((link) => (
-                        <a key={link.href} className={`sub-menu-item${window.location.href.split('#')[0] === link.href ? ' menu-item-active' : ''}`} href={link.href}>
+                        <a
+                            key={link.href}
+                            className={`sub-menu-item${window.location.href.split('#')[0] === link.href ? ' menu-item-active' : ''}`}
+                            href={link.href}
+                        >
                             <span className="menu-item-label">{link.label}</span>
                         </a>
                     ))}
@@ -36,7 +33,6 @@ export default function Configuration(props) {
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}
                     {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} />}
-                    {tab === 'resource-limits' && <ResourceLimitsTab limits={props.limits} limitsUpdateUrl={props.limitsUpdateUrl} canUpdate={props.canUpdate} />}
                     {tab === 'resource-operations' && (
                         <ResourceOperationsTab
                             servers={props.servers}
@@ -47,7 +43,6 @@ export default function Configuration(props) {
                             canUpdate={props.canUpdate}
                         />
                     )}
-                    {tab === 'servers' && <ServersTab primaryServer={props.primaryServer} />}
                 </div>
             </div>
         </div>

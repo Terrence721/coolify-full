@@ -2594,3 +2594,42 @@ Reuses `ResolvesProjectResources::resolveDatabase()`, `DatabaseHeading.jsx`, `Co
 - Tab-to-tab navigation is full page loads (plain `<a>`), matching the original's per-route navigations; no client-side tab switching.
 - No manual browser QA this phase — see `docs/smoketest.md`.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+
+## 115. Phase 55 — Service Configuration: the router shell + 4 shared tabs
+
+Second cut into the Configuration routers, built almost entirely from Phase 54's parts. Converts `App\Livewire\Project\Service\Configuration`'s shell plus 4 of its 8 tabs (Tags, Danger Zone, Webhooks, Resource Operations) into `ProjectServiceConfigurationController` + `Project/Service/Configuration.jsx`. General (StackForm + resource cards), Environment Variables, Persistent Storages, and Scheduled Tasks stay on the Livewire shell via the same route-name split.
+
+To make the reuse real rather than copy-paste, Phase 54's six tab panels moved out of the database page into a shared `Components/ResourceTabs.jsx` (named exports); the database page now imports them and shrank to a ~55-line shell. The service page imports the 4 it needs. `ServiceHeading.jsx` (Phase 45) and the existing `project.logs.service.*` action routes (Phase 46/47's generic service start/stop/restart/check-status endpoints) are reused for the heading — no new action endpoints.
+
+**Another confirmed-dead-code finding**: the service branch of the original `ResourceOperations::cloneTo()` contained large per-child volume-renaming/`VolumeCloneJob` loops iterating `$new_resource->applications()` / `->databases()` — but those are `HasMany` *relation objects*, which `foreach` silently iterates zero times (PHP iterates public properties of non-Traversable objects), and a fresh replica has no child rows yet anyway; the `parse()` call at the end is what actually creates the clone's children from `docker_compose_raw`. The loops (and with them the service-side meaning of the `cloneVolumeData` flag, which no blade control ever set either) are not ported: clone is replicate + tags + scheduled tasks + env vars + `parse()`.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectServiceConfigurationController.php` | created | `show()` + `storeTag`/`destroyTag`/`move`/`clone`/`destroy` — service-scoped mirrors of Phase 54's endpoints |
+| `resources/js/Components/ResourceTabs.jsx` | created | The 6 shared tab panels, extracted verbatim from the database page |
+| `resources/js/Pages/Project/Service/Configuration.jsx` | created | Shell (ServiceHeading, Documentation link, 8-tab sidebar) + the 4 panels |
+| `resources/js/Pages/Project/Database/Configuration.jsx` | modified | Now imports the shared panels (~55 lines) |
+| `app/Models/Service.php` | modified | `@property-read bool $isDeployable` docblock — the accessor existed but wasn't annotated, so 3 sibling controllers carried baseline entries for it (now pruned) instead of a one-line fix |
+| `routes/web.php` | modified | 4 GET tab routes repointed; added `.tags.store`/`.tags.destroy`/`.clone`/`.move`/`.destroy` |
+| `tests/v4/Feature/ProjectServiceConfigurationTabsTest.php` | created | 10 tests: 4 tab renders + cross-team redirect, tag attach/detach, move, clone (row + env-var replication + redirect), delete wrong-password + happy path |
+
+**Nothing deleted** — the Livewire shell still serves its 4 remaining tabs, and the shared components still back the Application router.
+
+### Phase 55 verification log
+
+| Check | Result |
+| --- | --- |
+| 10 new Feature tests | Passed first run |
+| Full suite | 758 passed (3,443 assertions), no regressions |
+| PHPStan | 1 new finding (`Service::$isDeployable`) fixed at the root with a model `@property-read` annotation instead of baselining — which then orphaned 3 pre-existing baseline entries for the same gap in sibling controllers, pruned; `[OK] No errors` |
+| Pint / `yarn build` | Clean; `Project/Service/Configuration` + `ResourceTabs` in `manifest.json` |
+
+## 116. Non-goals of Phase 55
+
+- The remaining 4 Service Configuration tabs (General/StackForm + resource cards, Environment Variables, Persistent Storages, Scheduled Tasks) stay Livewire — General nests StackForm + per-resource cards and is its own phase.
+- The Application Configuration router is untouched (its webhooks tab has the full git-secrets section, its servers tab the full multi-server Destination behavior — both deliberately not generalized ahead of need).
+- The `project.service.scheduled-tasks` (single-task, `/tasks/{task_uuid}`) route stays on the Livewire shell alongside the list route.
+- No manual browser QA this phase — see `docs/smoketest.md`.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.

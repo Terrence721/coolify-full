@@ -469,12 +469,6 @@ parameters:
 			path: app/Http/Controllers/ProjectLogsController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Support\\Collection\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
@@ -547,12 +541,6 @@ parameters:
 			path: app/Http/Controllers/ProjectMetricsController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
@@ -605,12 +593,6 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 2
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Service\:\:\$isDeployable\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceResourceController.php
 
 		-
 			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
