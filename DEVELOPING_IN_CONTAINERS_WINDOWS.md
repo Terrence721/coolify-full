@@ -152,6 +152,38 @@ You have a VS Code window open on `C:\Users\...` instead of the WSL2 path. Close
 
 New files created via some editors/tools land with restrictive permissions (`rw-r--r--`) that the container's runtime user can't write to, unlike the rest of the tree (`rwxrwxrwx`, carried over from the original `rsync` migration). Fix with `chmod 777 <file>` on the WSL2 side before retrying.
 
+### Connecting VS Code to the Ubuntu WSL2 repo (after a reboot, or a fresh VS Code install)
+
+Recommended: do this entirely from VS Code's UI, not the terminal — it's more reliable and avoids a WSL first-run quirk described below.
+
+1. Open VS Code normally (Start Menu, taskbar, desktop icon — a plain Windows-side window is fine as a starting point).
+2. `Ctrl+Shift+P` → run **`WSL: Connect to WSL using Distro...`**.
+3. Pick **`Ubuntu`** from the list (shown as the default distro).
+4. A new window opens; confirm the bottom-left corner shows a blue `>< WSL: Ubuntu` badge.
+5. `File → Open Folder` → `/root/projects/coolify-full`.
+6. Once open, verify the Explorer sidebar shows the full repo tree, not just a couple of top-level folders (see the Explorer-stuck note below).
+
+After this, the window shows up in `File → Open Recent`, so future reconnects can skip straight to step 2/6 without repeating the distro picker.
+
+Alternative (terminal-based): from a WSL2 shell, `cd /root/projects/coolify-full && code .` also opens a pre-connected window. Only use this if you already have a working WSL2 terminal — running `wsl -d Ubuntu` (or opening the Store "Ubuntu" app) to get one can trigger a **"Provisioning the new WSL instance" / "Create a default Unix user account" prompt** even on an existing, populated distro, if that distro was never launched through that particular first-run wizard before (e.g. it was originally set up via import and only ever used as `root`). This does **not** wipe existing data — the wizard only adds a login user — but it's a confusing detour. Prefer the Command Palette method above to sidestep it entirely. If you do hit that prompt, it's safe to complete it (pick any username/password); verify with `sudo ls /root/projects/coolify-full` afterward.
+
+If the Explorer sidebar looks stuck showing only a couple of top-level folders (e.g. only `.agents` and `.circleci`) right after connecting, the tree usually just hasn't finished loading — wait a few seconds, then try `Developer: Reload Window` from the Command Palette if it's still incomplete.
+
+### PHP/Laravel-aware extensions report "PHP executable not found" or can't detect the Laravel framework
+
+These extensions (e.g. DEVSense's Composer/PHP Debugger extensions, `ryannaddy.laravel-artisan`) look for a PHP binary and a runnable `php artisan` directly on the WSL host — but per this project's setup, PHP only runs correctly *inside* the `coolify` container (the host has no `pdo_pgsql` etc.). Two-part fix:
+
+1. Install a host-level PHP CLI purely so extensions have something to detect (this does not change how the project itself runs — that's still always via `docker exec coolify ...`):
+   ```bash
+   sudo apt install -y php-cli
+   ```
+2. For extensions that actually try to execute `php artisan` (like `ryannaddy.laravel-artisan`), point them at the container instead of the host binary via `.vscode/settings.json`:
+   ```json
+   "artisan.docker.enabled": true,
+   "artisan.docker.command": "docker exec coolify"
+   ```
+Reload the window (`Developer: Reload Window`) after either change for it to take effect.
+
 ### `docker exec coolify git status` returns nothing / `vendor/bin/pint --dirty` finds nothing despite real changes
 
 The container's git checkout of the bind-mounted tree can hit a `safe.directory`/ownership mismatch that makes `git` silently no-op inside the container, even though `git status` on the WSL2 host side works fine. Work around it by passing explicit file paths to Pint/PHPStan instead of relying on `--dirty` / uncommitted-file autodetection.
