@@ -2548,3 +2548,49 @@ Three consumers of the old Livewire modal, three different treatments:
 - The `SaveFromRedirect` trait and the `session('from')` return-to-wizard flow it fed are consumer-less dead code — kept working in `store()`/`show()` for parity, flagged in `todo.md` rather than removed here.
 - No manual browser QA this phase — automated `assertInertia()`/redirect coverage only.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+
+## 113. Phase 54 — Database Configuration: the router shell + 6 shared tabs
+
+First cut into the three big Configuration tab routers (identified since Phase 52's research as the largest remaining conversion units). Converts `App\Livewire\Project\Database\Configuration`'s shell plus 6 of its 12 tabs — the shared `Project\Shared\*` panels as they apply to standalone databases — into `ProjectDatabaseConfigurationController` and one `Project/Database/Configuration.jsx` page switching on a `tab` prop (Phase 51's `step`-prop pattern). The other 6 tabs (General's 8 per-engine forms, Environment Variables, Persistent Storage, Healthcheck, Import Backup — plus the already-React Metrics) stay routed to the Livewire shell: the router's per-tab route names made this the same split-by-route-name move as Phases 49/51/52.
+
+Converted tabs, with their database-scoped shape (the original components are shared across all 3 routers; only their database-applicable behavior is ported here — the Livewire components stay in place for the Application/Service routers):
+
+- **Tags** — space-separated create+attach, quick-add by id, detach with the original's orphan-pruning quirk kept as-is (prunes when no applications/services use the tag, ignoring other databases).
+- **Danger Zone** — password-confirmed delete via `PasswordConfirmModal`, which gained backward-compatible `default: true` checkbox support so the four delete options start checked like the original modal; the controller reads them as boolean fields and dispatches `DeleteResourceJob`.
+- **Webhooks** — the read-only deploy webhook URL only; the manual git-webhook secrets section (and its save endpoint) is application-only.
+- **Resource Limits** — same rules/messages/defaulting as the original, camelCase fields, PATCH endpoint.
+- **Resource Operations** — clone (the standalone-database branch of the original's 3-way switch: replicate + tags/volumes with engine-prefix-aware renaming/file storages/scheduled backups/env vars, `VolumeCloneJob` behind the clone-volume-data flag) and move-to-environment; server/destination and project/environment cascading selects moved from Alpine to React state.
+- **Servers** — the read-only primary-destination card (additional servers/redeploy/promote are application-only branches).
+
+Reuses `ResolvesProjectResources::resolveDatabase()`, `DatabaseHeading.jsx`, `ConfigurationChecker.jsx`, and the existing `project.database.start/stop/restart/check-status` action routes unchanged.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectDatabaseConfigurationController.php` | created | `show()` (tab from route name; per-tab props) + `storeTag`/`destroyTag`/`updateResourceLimits`/`move`/`clone`/`destroy` |
+| `resources/js/Pages/Project/Database/Configuration.jsx` | created | Shell (heading, config-checker, 12-link sidebar — unconverted tabs are plain full-page links) + the 6 tab panels |
+| `resources/js/Components/PasswordConfirmModal.jsx` | modified | Optional `default: true` on checkbox definitions (pre-checked), backward-compatible |
+| `routes/web.php` | modified | 6 GET tab routes repointed to the controller; added `.tags.store`/`.tags.destroy`/`.resource-limits.update`/`.clone`/`.move`/`.destroy` |
+| `tests/v4/Feature/ProjectDatabaseConfigurationTabsTest.php` | created | 16 tests: all 6 tab renders + cross-team dashboard redirect; tag create-from-list/quick-add/detach-and-prune; limits save + invalid-format rejection; move (env change + `#resource-operations` redirect); clone (new row, `-clone-` name, exited status, env-var replication); delete wrong-password rejection + happy path (soft delete + `DeleteResourceJob` + redirect) |
+
+**Nothing deleted this phase** — the Livewire `Database\Configuration` shell still serves its 5 remaining tabs, and every converted `Project\Shared\*` component is still consumed by the Application/Service Configuration routers.
+
+### Phase 54 verification log
+
+| Check | Result |
+| --- | --- |
+| 16 new Feature tests | Passed first run |
+| Full suite | 748 passed (3,374 assertions), no regressions |
+| PHPStan | The new controller surfaced 46 findings, all the documented `StandaloneDatabaseInstance` plain-interface `@property` gap (see `todo.md`) — baseline regenerated (+138 lines, purely additive); `[OK] No errors` after |
+| Pint | Initially failed **silently** in a `tail`-piped chain: files created via the editor-side tooling had `rw-r--r--` permissions the container user can't write (the exact gotcha already documented in `DEVELOPING_IN_CONTAINERS_WINDOWS.md` §9) — `chmod 777` on the new files, then Pint applied real fixes (import ordering, FQN shortening) and tests/PHPStan were re-run clean afterwards |
+| `yarn build` | Succeeded in 2.7s; `Project/Database/Configuration` in `manifest.json` |
+
+## 114. Non-goals of Phase 54
+
+- The remaining 6 Database Configuration tabs (General × 8 engines, Environment Variables, Persistent Storage, Healthcheck, Import Backup) stay Livewire — General and Environment Variables are the two largest single pieces of the router and deserve their own phases.
+- The Application and Service Configuration routers are untouched; the shared `Project\Shared\*` Livewire components ported here for databases remain in place for them.
+- The Servers tab does not gain database-side additional-server support — that's an application-only feature in the original and stays that way.
+- Tab-to-tab navigation is full page loads (plain `<a>`), matching the original's per-route navigations; no client-side tab switching.
+- No manual browser QA this phase — see `docs/smoketest.md`.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.

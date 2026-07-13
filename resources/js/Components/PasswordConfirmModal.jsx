@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function PasswordConfirmModal({ title, action, actions, checkboxes = [], confirmationText, confirmationLabel, onClose, onDone }) {
-    const [selectedActions, setSelectedActions] = useState([]);
+    const [selectedActions, setSelectedActions] = useState(() => checkboxes.filter((cb) => cb.default).map((cb) => cb.id));
     const [confirmation, setConfirmation] = useState('');
     const [password, setPassword] = useState('');
     const [processing, setProcessing] = useState(false);

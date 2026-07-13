@@ -21,6 +21,7 @@ use App\Http\Controllers\OauthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectDatabaseBackupController;
+use App\Http\Controllers\ProjectDatabaseConfigurationController;
 use App\Http\Controllers\ProjectLogsController;
 use App\Http\Controllers\ProjectMetricsController;
 use App\Http\Controllers\ProjectResourceController;
@@ -328,17 +329,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}')->group(function () {
         Route::get('/', DatabaseConfiguration::class)->name('project.database.configuration');
         Route::get('/environment-variables', DatabaseConfiguration::class)->name('project.database.environment-variables');
-        Route::get('/servers', DatabaseConfiguration::class)->name('project.database.servers');
+        Route::get('/servers', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.servers');
         Route::get('/import-backup', DatabaseConfiguration::class)->name('project.database.import-backup')->middleware('can.update.resource');
         Route::get('/persistent-storage', DatabaseConfiguration::class)->name('project.database.persistent-storage');
         Route::get('/healthcheck', DatabaseConfiguration::class)->name('project.database.healthcheck');
-        Route::get('/webhooks', DatabaseConfiguration::class)->name('project.database.webhooks');
-        Route::get('/resource-limits', DatabaseConfiguration::class)->name('project.database.resource-limits');
-        Route::get('/resource-operations', DatabaseConfiguration::class)->name('project.database.resource-operations');
+        Route::get('/webhooks', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.webhooks');
+        Route::get('/resource-limits', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.resource-limits');
+        Route::patch('/resource-limits', [ProjectDatabaseConfigurationController::class, 'updateResourceLimits'])->name('project.database.resource-limits.update');
+        Route::get('/resource-operations', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.resource-operations');
+        Route::post('/resource-operations/clone', [ProjectDatabaseConfigurationController::class, 'clone'])->name('project.database.clone');
+        Route::post('/resource-operations/move', [ProjectDatabaseConfigurationController::class, 'move'])->name('project.database.move');
         Route::get('/metrics', [ProjectMetricsController::class, 'database'])->name('project.database.metrics');
         Route::get('/metrics/data', [ProjectMetricsController::class, 'databaseData'])->name('project.database.metrics.data');
-        Route::get('/tags', DatabaseConfiguration::class)->name('project.database.tags');
-        Route::get('/danger', DatabaseConfiguration::class)->name('project.database.danger');
+        Route::get('/tags', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.tags');
+        Route::post('/tags', [ProjectDatabaseConfigurationController::class, 'storeTag'])->name('project.database.tags.store');
+        Route::delete('/tags/{tag_id}', [ProjectDatabaseConfigurationController::class, 'destroyTag'])->name('project.database.tags.destroy');
+        Route::get('/danger', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.danger');
+        Route::delete('/', [ProjectDatabaseConfigurationController::class, 'destroy'])->name('project.database.destroy');
 
         Route::get('/logs', [ProjectLogsController::class, 'database'])->name('project.database.logs');
         Route::get('/terminal', [ExecuteContainerCommandController::class, 'database'])->name('project.database.command')->middleware('can.access.terminal');
