@@ -142,6 +142,9 @@ function getPermissionsPath(GithubApp $source)
     return "$github->html_url/settings/apps/$name/permissions";
 }
 
+/**
+ * @return array{total_count: int, repositories: array<int, mixed>}
+ */
 function loadRepositoryByPage(GithubApp $source, string $token, int $page)
 {
     $response = Http::GitHub($source->api_url, $token)

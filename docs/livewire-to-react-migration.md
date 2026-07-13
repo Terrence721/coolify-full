@@ -2452,3 +2452,56 @@ Both the one-click-service and Docker Compose creation tests initially crashed w
 - `App\Livewire\Project\New\EmptyProject` and `Select`'s `'existing-postgresql'` step are confirmed dead code, left in place (not deleted, not revived) — see above.
 - No manual browser QA this phase — same lighter, user-directed bar as most phases since Phase 2 (Section 9); this phase's UI (a 4-step wizard with client-driven search/category filtering) is more interaction-heavy than most recent phases and automated `assertInertia()`/redirect checks don't exercise the actual click-through UX.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
+
+## 109. Phase 52 — the 3 GitHub-dependent creation flows: `PublicGitRepository`, `GithubPrivateRepository`, `GithubPrivateRepositoryDeployKey`
+
+Converts the 3 flows Phase 51 deferred — `App\Livewire\Project\New\{PublicGitRepository,GithubPrivateRepository,GithubPrivateRepositoryDeployKey}` — plus the intentionally-temporary `App\Livewire\Project\Resource\GitCreate` shell that hosted them, into one `ProjectResourceGitCreateController` and 3 new `Project/New/*.jsx` pages. The `project.resource.create.git` route name is unchanged, so Phase 51's wizard controller needed only a docblock update, not a code change.
+
+The interactive GitHub-API steps (public flow's "Check repository", private flow's repository/branch listing) are fetch-to-JSON endpoints (`.check`, `.repositories`, `.branches`) following Terminal's Phase 8 `connect()` precedent — the responses configure the form rather than navigate. The 3 submits (`.public`, `.private-gh-app`, `.private-deploy-key`) are normal Inertia POSTs redirecting to `project.application.configuration`. The server does all GitHub pagination; nothing about the GitHub App token dance moved client-side. The build-pack/port/static-site/compose-location field cluster that all 3 original blades duplicated verbatim is now one shared `Components/GitApplicationFields.jsx` (including the on-blur path normalization and computed compose-location preview previously done in per-view Alpine).
+
+### The 5 catalogued pre-existing bugs, fixed under test (TDD — tests written first against the new endpoints)
+
+1. **De Morgan error in `.git`-suffix normalization** (`PublicGitRepository::loadBranch()`): `(!contains(github.com) || !contains(git.sr.ht))` is always true — a URL can't contain both hosts — so `.git` was appended to the very hosts the condition meant to exclude (github.com got it appended then immediately stripped again; git.sr.ht kept the wrong suffix). Now appended only when the URL matches none of github.com / git.sr.ht / tangled.
+2. **Unbounded branch-pagination loop** (`GithubPrivateRepository::loadBranches()`): `while ($this->total_branches_count === 100)` spun forever when a later page kept failing, because the failure path (`dispatch('error')` + return) never updated the count. The port breaks out on a failed page (returning what it has, or a 422 if the first page fails) and adds a hard page cap.
+3. **Unbounded repository-pagination loop** (same class, `loadRepositories()`): `while (count < total_count)` never terminated when GitHub returned an empty page while still reporting a larger `total_count`. Now breaks on an empty page, same hard cap.
+4. **No null guard on the name-matched public source lookup**: `GithubApp::where('name', 'Public GitHub')->first()` feeding straight into `->id`/`->getMorphClass()` in both the public and deploy-key flows. A missing row now falls back to the sourceless "other" path (full-URL clone for public; SSH-format conversion for deploy-key).
+5. **`base_directory`/`docker_compose_location` validation gaps**: `base_directory` reached `Application::create()` with no rule at all in both private flows; all three store endpoints now validate both via `ValidationPatterns::directoryPathRules()`/`filePathRules()`, plus `build_pack` is now `Rule::in()`-constrained.
+
+Additionally (not in the Phase 51 catalogue, found during the port): the deploy-key flow accepted **any client-supplied `private_key_id`** — `setPrivateKey()` stored whatever id was passed, letting a crafted request attach another team's private key to the new application. The store endpoint now resolves the key through `currentTeam()` and 404s otherwise (with the same dev-only inclusion of key id 0 the picker used). Same class of check added for `github_app_id` on the private-gh-app submit (the original relied on a `#[Locked]` Livewire property; a plain POST has no such protection).
+
+**One deliberate behavior consolidation**: the public flow's GitHub branch check is stateless here, unlike the Livewire original whose `rate_limit_remaining` field persisted across requests within the component — which made its main→master fallback unreachable on a fresh component (any first failure hit the `rate_limit_remaining == 0` assume-found path first). The port always tries the master fallback when the guessed branch was `main`, then assumes the branch exists — strictly more useful than both original code paths, and a wrong guess still surfaces at deploy time exactly as before.
+
+### Files
+
+| File | Change | Purpose |
+| --- | --- | --- |
+| `app/Http/Controllers/ProjectResourceGitCreateController.php` | created | `index()` (renders one of 3 pages by `type`, invalid → wizard redirect); `checkPublicRepository()`/`loadRepositories()`/`loadBranches()` (JSON endpoints); `storePublic()`/`storePrivateGithubApp()`/`storePrivateDeployKey()`; private URL-normalization/git-source helpers shared between check and submit so the server never trusts client-derived source state |
+| `resources/js/Components/GitApplicationFields.jsx` | created | The shared build-pack/port/static/compose field cluster all 3 blades previously duplicated |
+| `resources/js/Pages/Project/New/PublicGitRepository.jsx` | created | URL input + "Check repository" fetch → config form (branch input disabled for github.com-sourced repos, rate-limit display) |
+| `resources/js/Pages/Project/New/GithubPrivateRepository.jsx` | created | App tiles → repository filter+select → branch select → config form; "Refresh Repository List" + "Change Repositories on GitHub" (installation URL comes back with the repositories JSON) |
+| `resources/js/Pages/Project/New/GithubPrivateRepositoryDeployKey.jsx` | created | Private-key tiles (empty state links to `security.private-key.index`) → repository form |
+| `routes/web.php` | modified | `project.resource.create.git` repointed at the controller; added `.check`/`.repositories`/`.branches`/`.public`/`.private-gh-app`/`.private-deploy-key`; removed the `GitCreate` Livewire import |
+| `app/Livewire/Project/New/PublicGitRepository.php` (+ view), `GithubPrivateRepository.php` (+ view), `GithubPrivateRepositoryDeployKey.php` (+ view), `app/Livewire/Project/Resource/GitCreate.php` (+ view) | **deleted** | All 4 only reachable through the now-repointed route (confirmed via grep) |
+| `app/Http/Controllers/ProjectResourceCreateController.php` | modified | Docblock only — the "still a Livewire shell" paragraph no longer true |
+| `tests/v4/Feature/ProjectResourceGitCreateControllerTest.php` | created | 25 tests: 3 page renders + invalid-type redirect; the check endpoint (github.com happy path with rate-limit headers, sr.ht De-Morgan regression, `.git`-appending for generic hosts, missing-Public-GitHub null-guard, API-failure fallback, shell-metacharacter rejection); repository/branch loading (sorting, both pagination-termination regressions, cross-team 404); all 3 store endpoints (happy paths incl. sourceless/gitea-SSH-conversion/github-owner-repo variants, owner-regex rejection, `base_directory`/`docker_compose_location` validation, cross-team github-app and private-key 404s) |
+
+Test-infrastructure note: the private-flow tests run the real `generateGithubInstallationToken()` dance against `Http::fake` — a real throwaway 2048-bit RSA key is generated per test (`openssl_pkey_new`; `PrivateKey::booted()` validates key material, so canned strings don't work), the `/zen` time-sync endpoint is faked with a current `date` header, and the JWT is actually built and exchanged for a faked installation token. The two infinite-loop regression tests are safe even against unfixed code: `Http::sequence` throws when exhausted, so the old unbounded loops fail fast instead of hanging the suite.
+
+### Phase 52 verification log
+
+| Check | Result |
+| --- | --- |
+| 25 new Feature tests | 5 initial failures, all one cause: `PrivateKey::booted()` rejects non-key fixture strings — swapped for per-test openssl-generated throwaway keys; 25/25 after |
+| Full suite (`php artisan test --compact tests/Unit tests/v4 tests/Feature`) | 724 passed (3,216 assertions), no regressions |
+| Pint (`--format agent`, explicit paths per the known container `--dirty` gap) | Clean on first run |
+| `yarn build` (via `docker exec coolify-vite`) | Succeeded in 2.4s; all 3 new pages + `GitApplicationFields` confirmed in `manifest.json` |
+| `php artisan route:list --name=project.resource.create.git` | All 7 routes registered against the new controller |
+
+## 110. Non-goals of Phase 52
+
+- The nested `<livewire:source.github.create />` "+ Add GitHub App" modal is not ported — the button now links to the Sources page (`source.all`), which hosts the same still-Livewire modal. Porting `Source\Github\Create` belongs to whichever phase converts the Sources pages.
+- The public flow's `new_compose_services` isDev-only branch (creating a `Service` instead of an `Application` for compose build packs) is not ported — no form control ever bound it in the original blade, so it was unreachable dead code.
+- The deploy-key blade's `wire:target="loadRepositories"` spinner (bug catalogue item: references a method that doesn't exist on that component) is simply gone with the blade — nothing to port.
+- The private-gh-app repository picker is a filter input + select instead of the original's id-valued `x-forms.datalist` (which displayed the numeric repository id in the input after selection) — a small deliberate UX substitution, not a fidelity gap.
+- No manual browser QA this phase — automated `assertInertia()`/JSON/redirect coverage only; the GitHub-API-backed steps can't be meaningfully click-tested without a real GitHub App installation anyway.
+- Everything else from Phase 11's non-goals (Section 28) still applies unchanged.

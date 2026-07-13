@@ -32,10 +32,8 @@ use Visus\Cuid2\Cuid2;
  * round trip / a `whatToDoNext()` redirect carrying the same params forward).
  *
  * Only the 3 GitHub-dependent flows (public/private-gh-app/private-deploy-key) are NOT handled
- * here — those redirect to `project.resource.create.git`, a thin Livewire shell that still renders
- * the original, unmodified `App\Livewire\Project\New\{PublicGitRepository,GithubPrivateRepository,
- * GithubPrivateRepositoryDeployKey}` components. Porting those is its own scope (GitHub API
- * pagination/rate-limiting, several pre-existing bugs worth fixing carefully rather than rushing).
+ * here — those redirect to `project.resource.create.git`, handled by
+ * ProjectResourceGitCreateController (their own React/Inertia port).
  *
  * Two dead code paths found in the original were deliberately not ported: the `'existing-postgresql'`
  * step (its blade posts to `addExistingPostgresql()`, which doesn't exist anywhere in `Select.php`,
