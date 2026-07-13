@@ -1,7 +1,7 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 12, 2026**
+**Last Updated: July 13, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -44,19 +44,23 @@ Coolify is an open-source, self-hostable PaaS — an alternative to Heroku/Netli
 This is a **single Laravel application**, not a decoupled frontend/backend split. There is no standalone React app and no separate API server — React pages render through the same Laravel routes as everything else, via Inertia.js.
 
 ```text
-┌─────────────────────────────────────────┐
-│              Laravel app                 │  (nginx + PHP-FPM, one container)
-│  Livewire/Blade pages  +  Inertia/React  │  ← coexist, page-by-page migration
-│  pages, same routes, same auth/session   │
-└──────────────┬────────────────────────────┘
-               │
-       ┌───────┼────────┬─────────────┐
-       ▼       ▼        ▼             ▼
-   Postgres  Redis   Soketi      Vite dev server
-  (database) (cache/  (WebSockets  (asset bundling +
-             queues)  / real-time) HMR only — not
-                                   browsed directly)
+┌───────────────────────────────────────────────┐
+│                 Laravel app                    │  (nginx + PHP-FPM, one container)
+│   Inertia/React pages (majority) + remaining   │  ← page-by-page migration,
+│   Livewire/Blade pages — same routes/auth      │     nearly complete
+│   Horizon queue workers (deploys, backups)     │
+└──────┬──────────┬─────────────┬───────────────┘
+       ▼          ▼             ▼
+   Postgres    Redis      coolify-realtime
+  (database) (cache +    (Soketi WebSockets for live
+              queues)     status + Node terminal-server
+                          for SSH terminals)
+
+  Dev-only:  Vite (HMR, never browsed directly) · Mailpit (mail capture)
+             MinIO (S3 for backup tests) · testing-host (fake managed server)
 ```
+
+The `coolify-realtime` container does double duty: Soketi serves Laravel Echo broadcast events (live deployment/status updates on private team channels), and a separate Node `terminal-server.js` bridges raw WebSockets to SSH PTYs for the in-browser server terminal.
 
 Vite's dev server (default port `5173`) exists only to compile and hot-reload JS/CSS assets — you never open it in a browser. The app itself, Livewire pages and Inertia/React pages alike, is served entirely through the Laravel container.
 
