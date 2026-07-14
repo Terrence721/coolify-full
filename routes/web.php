@@ -402,7 +402,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/storages/file/{file_id}/load', [ProjectServiceConfigurationController::class, 'storagesFileLoad'])->name('project.service.storages.file.load');
         Route::post('/storages/file/{file_id}/convert', [ProjectServiceConfigurationController::class, 'storagesFileConvert'])->name('project.service.storages.file.convert');
         Route::delete('/storages/file/{file_id}', [ProjectServiceConfigurationController::class, 'storagesFileDestroy'])->name('project.service.storages.file.destroy');
-        Route::get('/scheduled-tasks', ServiceConfiguration::class)->name('project.service.scheduled-tasks.show');
+        Route::get('/scheduled-tasks', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.scheduled-tasks.show');
+        Route::post('/scheduled-tasks', [ProjectServiceConfigurationController::class, 'scheduledTaskStore'])->name('project.service.scheduled-tasks.store');
+        Route::patch('/tasks/{task_uuid}', [ProjectServiceConfigurationController::class, 'scheduledTaskUpdate'])->name('project.service.scheduled-tasks.update');
+        Route::post('/tasks/{task_uuid}/toggle', [ProjectServiceConfigurationController::class, 'scheduledTaskToggle'])->name('project.service.scheduled-tasks.toggle');
+        Route::post('/tasks/{task_uuid}/execute', [ProjectServiceConfigurationController::class, 'scheduledTaskExecute'])->name('project.service.scheduled-tasks.execute');
+        Route::delete('/tasks/{task_uuid}', [ProjectServiceConfigurationController::class, 'scheduledTaskDestroy'])->name('project.service.scheduled-tasks.destroy');
+        Route::get('/tasks/{task_uuid}/executions/{execution_id}/download', [ProjectServiceConfigurationController::class, 'scheduledTaskDownload'])->name('project.service.scheduled-tasks.download');
         Route::get('/webhooks', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.webhooks');
         Route::get('/resource-operations', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.resource-operations');
         Route::post('/resource-operations/clone', [ProjectServiceConfigurationController::class, 'clone'])->name('project.service.clone');
@@ -441,7 +447,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{stack_service_uuid}/database/proxy-logs', [ProjectServiceResourceController::class, 'proxyLogs'])->name('project.service.database.proxy-logs');
         Route::get('/{stack_service_uuid}/advanced', [ProjectServiceResourceController::class, 'advanced'])->name('project.service.index.advanced');
         Route::get('/{stack_service_uuid}', [ProjectServiceResourceController::class, 'show'])->name('project.service.index');
-        Route::get('/tasks/{task_uuid}', ServiceConfiguration::class)->name('project.service.scheduled-tasks');
+        Route::get('/tasks/{task_uuid}', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.scheduled-tasks');
     });
 
     Route::get('/servers', [ServerController::class, 'index'])->name('server.index');

@@ -1,14 +1,17 @@
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
+import ScheduledTasksTab from '../../../Components/ScheduledTasksTab';
 import StoragesTab from '../../../Components/StoragesTab';
 import ServiceHeading from '../../../Components/ServiceHeading';
 import { DangerTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Service\Configuration's shell plus 4 of its 8 tabs
- * (Tags, Danger Zone, Webhooks, Resource Operations) — see
- * ProjectServiceConfigurationController. General (StackForm + resource cards),
- * Environment Variables, Persistent Storages, and Scheduled Tasks stay on the Livewire
- * shell; the sidebar links everything, unconverted tabs as plain full-page links.
+ * React port of App\Livewire\Project\Service\Configuration's shell plus 7 of its 8 tabs
+ * (Tags, Danger Zone, Webhooks, Resource Operations, Environment Variables, Persistent
+ * Storages, Scheduled Tasks) — see ProjectServiceConfigurationController. Only General
+ * (StackForm + resource cards) stays on the Livewire shell; the sidebar links everything,
+ * unconverted tabs as plain full-page links. Sidebar links carry a `key` so the task
+ * detail page (/tasks/{task_uuid}) still highlights Scheduled Tasks despite its
+ * different URL (the Livewire sidebar's startsWith() behavior).
  */
 export default function Configuration(props) {
     const { tab, tabs, documentationUrl, service, parameters, urls } = props;
@@ -24,7 +27,7 @@ export default function Configuration(props) {
                     {tabs.map((link) => (
                         <a
                             key={link.href}
-                            className={`sub-menu-item${window.location.href.split('#')[0] === link.href ? ' menu-item-active' : ''}`}
+                            className={`sub-menu-item${link.key === tab || window.location.href.split('#')[0] === link.href ? ' menu-item-active' : ''}`}
                             href={link.href}
                         >
                             <span className="menu-item-label">{link.label}</span>
@@ -52,6 +55,17 @@ export default function Configuration(props) {
                             canUpdate={props.canUpdate}
                             storageUrls={props.storageUrls}
                             sourceDirPlaceholder={props.sourceDirPlaceholder}
+                        />
+                    )}
+                    {tab === 'scheduled-tasks' && (
+                        <ScheduledTasksTab
+                            task={props.task}
+                            tasks={props.tasks}
+                            executions={props.executions}
+                            containerNames={props.containerNames}
+                            isResourceRunning={props.isResourceRunning}
+                            taskUrls={props.taskUrls}
+                            canUpdate={props.canUpdate}
                         />
                     )}
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}

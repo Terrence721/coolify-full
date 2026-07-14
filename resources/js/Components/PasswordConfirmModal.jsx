@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function PasswordConfirmModal({ title, action, actions, checkboxes = [], confirmationText, confirmationLabel, onClose, onDone }) {
+export default function PasswordConfirmModal({ title, action, actions, checkboxes = [], confirmationText, confirmationLabel, withPassword = true, onClose, onDone }) {
     const [selectedActions, setSelectedActions] = useState(() => checkboxes.filter((cb) => cb.default).map((cb) => cb.id));
     const [confirmation, setConfirmation] = useState('');
     const [password, setPassword] = useState('');
@@ -17,7 +17,7 @@ export default function PasswordConfirmModal({ title, action, actions, checkboxe
         if (confirmationText && confirmation !== confirmationText) return;
         setProcessing(true);
         setError(null);
-        const data = { password };
+        const data = withPassword ? { password } : {};
         selectedActions.forEach((id) => {
             data[id] = true;
         });
@@ -62,10 +62,12 @@ export default function PasswordConfirmModal({ title, action, actions, checkboxe
                             <input id="confirmation" name="confirmation" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={confirmationText} />
                         </label>
                     )}
-                    <label className="flex flex-col gap-1">
-                        Password
-                        <input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    </label>
+                    {withPassword && (
+                        <label className="flex flex-col gap-1">
+                            Password
+                            <input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        </label>
+                    )}
                     {error && <span className="text-error">{error}</span>}
                     <div className="flex justify-end gap-2">
                         <button type="button" onClick={onClose}>
@@ -74,7 +76,7 @@ export default function PasswordConfirmModal({ title, action, actions, checkboxe
                         <button
                             type="submit"
                             className="text-error"
-                            disabled={processing || !password || (confirmationText && confirmation !== confirmationText)}
+                            disabled={processing || (withPassword && !password) || (confirmationText && confirmation !== confirmationText)}
                         >
                             Confirm
                         </button>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
+use App\Http\Controllers\Concerns\ManagesResourceScheduledTasks;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\DeleteResourceJob;
@@ -19,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Visus\Cuid2\Cuid2;
 
 /**
@@ -41,6 +43,7 @@ use Visus\Cuid2\Cuid2;
 class ProjectServiceConfigurationController extends Controller
 {
     use ManagesResourceEnvironmentVariables;
+    use ManagesResourceScheduledTasks;
     use ManagesResourceStorages;
     use ResolvesProjectResources;
 
@@ -52,7 +55,9 @@ class ProjectServiceConfigurationController extends Controller
         }
         $this->authorize('view', $service);
 
-        $tab = str((string) $request->route()->getName())->after('project.service.')->value();
+        // Both scheduled-tasks route names (the `.show` list and the bare /tasks/{task_uuid}
+        // detail) render the same tab; the detail view is selected by the task_uuid param.
+        $tab = str((string) $request->route()->getName())->after('project.service.')->before('.show')->value();
         $parameters = compact('project_uuid', 'environment_uuid', 'service_uuid');
 
         $props = [
@@ -368,6 +373,72 @@ class ProjectServiceConfigurationController extends Controller
         return $this->destroyStorageFile($request, $service, $this->resolveOwnedFileVolume($service, $file_id));
     }
 
+    public function scheduledTaskStore(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->storeScheduledTask($request, $service);
+    }
+
+    public function scheduledTaskUpdate(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->updateScheduledTask($request, $service, $this->resolveOwnedScheduledTask($service, (string) $request->route('task_uuid')));
+    }
+
+    public function scheduledTaskToggle(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->toggleScheduledTask($service, $this->resolveOwnedScheduledTask($service, (string) $request->route('task_uuid')));
+    }
+
+    public function scheduledTaskExecute(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        return $this->executeScheduledTaskNow($service, $this->resolveOwnedScheduledTask($service, (string) $request->route('task_uuid')));
+    }
+
+    public function scheduledTaskDestroy(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+
+        $parameters = compact('project_uuid', 'environment_uuid', 'service_uuid');
+
+        return $this->destroyScheduledTask($service, $this->resolveOwnedScheduledTask($service, (string) $request->route('task_uuid')), 'project.service', $parameters);
+    }
+
+    public function scheduledTaskDownload(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): StreamedResponse|RedirectResponse
+    {
+        $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
+        if (! $service instanceof Service) {
+            return $service;
+        }
+        $this->authorize('view', $service);
+
+        return $this->downloadScheduledTaskLogs(
+            $this->resolveOwnedScheduledTask($service, (string) $request->route('task_uuid')),
+            (int) $request->route('execution_id'),
+        );
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -377,6 +448,7 @@ class ProjectServiceConfigurationController extends Controller
         return match ($tab) {
             'environment-variables' => $this->environmentVariablesTabProps($service, $parameters, 'project.service'),
             'storages' => $this->storagesTabProps($service, $parameters, 'project.service'),
+            'scheduled-tasks' => $this->scheduledTasksTabProps($service, $parameters, 'project.service', request()->route('task_uuid')),
             'tags' => [
                 'tags' => $service->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,
@@ -429,20 +501,24 @@ class ProjectServiceConfigurationController extends Controller
     }
 
     /**
+     * The `key` lets the page mark a link active by the current tab prop rather than by
+     * exact URL, so the task detail page (/tasks/{task_uuid}) still highlights Scheduled
+     * Tasks — the Livewire sidebar's startsWith() behavior.
+     *
      * @param  array<string, string>  $parameters
-     * @return array<int, array{label: string, href: string}>
+     * @return array<int, array{key: string, label: string, href: string}>
      */
     private function tabLinks(array $parameters): array
     {
         return [
-            ['label' => 'General', 'href' => route('project.service.configuration', $parameters)],
-            ['label' => 'Environment Variables', 'href' => route('project.service.environment-variables', $parameters)],
-            ['label' => 'Persistent Storages', 'href' => route('project.service.storages', $parameters)],
-            ['label' => 'Scheduled Tasks', 'href' => route('project.service.scheduled-tasks.show', $parameters)],
-            ['label' => 'Webhooks', 'href' => route('project.service.webhooks', $parameters)],
-            ['label' => 'Resource Operations', 'href' => route('project.service.resource-operations', $parameters)],
-            ['label' => 'Tags', 'href' => route('project.service.tags', $parameters)],
-            ['label' => 'Danger Zone', 'href' => route('project.service.danger', $parameters)],
+            ['key' => 'configuration', 'label' => 'General', 'href' => route('project.service.configuration', $parameters)],
+            ['key' => 'environment-variables', 'label' => 'Environment Variables', 'href' => route('project.service.environment-variables', $parameters)],
+            ['key' => 'storages', 'label' => 'Persistent Storages', 'href' => route('project.service.storages', $parameters)],
+            ['key' => 'scheduled-tasks', 'label' => 'Scheduled Tasks', 'href' => route('project.service.scheduled-tasks.show', $parameters)],
+            ['key' => 'webhooks', 'label' => 'Webhooks', 'href' => route('project.service.webhooks', $parameters)],
+            ['key' => 'resource-operations', 'label' => 'Resource Operations', 'href' => route('project.service.resource-operations', $parameters)],
+            ['key' => 'tags', 'label' => 'Tags', 'href' => route('project.service.tags', $parameters)],
+            ['key' => 'danger', 'label' => 'Danger Zone', 'href' => route('project.service.danger', $parameters)],
         ];
     }
 }
