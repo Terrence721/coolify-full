@@ -24,12 +24,11 @@ use Inertia\Response;
 use Spatie\Url\Url;
 
 /**
- * React port of App\Livewire\Project\Service\Index's `project.service.index` and
- * `project.service.index.advanced` routes — a service's per-application-or-database
- * general/advanced settings. `project.service.database.import` deliberately stays on the
- * original Livewire class (it nests App\Livewire\Project\Database\Import, itself still
- * needed by the still-Livewire Project\Database\Configuration — porting Import is its own
- * scope, left for whenever that page converts).
+ * React port of the former App\Livewire\Project\Service\Index's `project.service.index`
+ * and `project.service.index.advanced` routes — a service's per-application-or-database
+ * general/advanced settings (that Livewire class is now fully deleted; its last route,
+ * `project.service.database.import`, was ported in Phase 61 — see `import()` below and
+ * `ManagesDatabaseImport`).
  */
 class ProjectServiceResourceController extends Controller
 {

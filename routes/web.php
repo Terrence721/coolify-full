@@ -65,7 +65,6 @@ use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
-use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
 use App\Livewire\Server\Show as ServerShow;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -326,7 +325,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/tasks/{task_uuid}', ApplicationConfiguration::class)->name('project.application.scheduled-tasks');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/database/{database_uuid}')->group(function () {
-        Route::get('/', DatabaseConfiguration::class)->name('project.database.configuration');
+        Route::get('/', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.configuration');
+        Route::patch('/general', [ProjectDatabaseConfigurationController::class, 'generalUpdate'])->name('project.database.general.update');
+        Route::patch('/general/proxy', [ProjectDatabaseConfigurationController::class, 'generalProxyUpdate'])->name('project.database.general.proxy');
+        Route::patch('/general/advanced', [ProjectDatabaseConfigurationController::class, 'generalAdvancedUpdate'])->name('project.database.general.advanced');
+        Route::patch('/general/ssl', [ProjectDatabaseConfigurationController::class, 'generalSslUpdate'])->name('project.database.general.ssl');
+        Route::post('/general/ssl/regenerate', [ProjectDatabaseConfigurationController::class, 'generalSslRegenerate'])->name('project.database.general.ssl.regenerate');
+        Route::post('/general/init-scripts', [ProjectDatabaseConfigurationController::class, 'generalInitScriptStore'])->name('project.database.general.init-scripts.store');
+        Route::delete('/general/init-scripts', [ProjectDatabaseConfigurationController::class, 'generalInitScriptDestroy'])->name('project.database.general.init-scripts.destroy');
         Route::get('/environment-variables', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.environment-variables');
         Route::post('/environment-variables', [ProjectDatabaseConfigurationController::class, 'storeEnv'])->name('project.database.envs.store');
         Route::patch('/environment-variables/bulk', [ProjectDatabaseConfigurationController::class, 'bulkUpdateEnvs'])->name('project.database.envs.bulk-update');

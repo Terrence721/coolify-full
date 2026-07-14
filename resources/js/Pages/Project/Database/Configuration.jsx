@@ -1,4 +1,5 @@
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
+import DatabaseGeneralTab from '../../../Components/DatabaseGeneralTab';
 import DatabaseHealthcheckTab from '../../../Components/DatabaseHealthcheckTab';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
 import DatabaseImportTab from '../../../Components/DatabaseImportTab';
@@ -14,12 +15,13 @@ import {
 } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Database\Configuration's shell plus 10 of its 12 tabs
- * (Tags, Danger Zone, Webhooks, Resource Limits, Resource Operations, Servers, Environment
- * Variables, Persistent Storage, Healthcheck, Import Backup) — see
- * ProjectDatabaseConfigurationController. Only the per-engine General forms remain on the
- * Livewire shell; the sidebar links all 12 tabs, unconverted ones as plain full-page links,
- * exactly as the original's per-tab full navigations behaved.
+ * React port of App\Livewire\Project\Database\Configuration — all 12 tabs (General, Tags,
+ * Danger Zone, Webhooks, Resource Limits, Resource Operations, Servers, Environment
+ * Variables, Persistent Storage, Healthcheck, Import Backup, Metrics) — see
+ * ProjectDatabaseConfigurationController and ProjectMetricsController. The Livewire shell
+ * (`Database\Configuration`) is fully retired as of Phase 62 — the last per-engine General
+ * form converted, driven by DatabaseGeneralTab.jsx's engine-agnostic field list rather than
+ * 8 separate components.
  */
 export default function Configuration(props) {
     const { tab, tabs, heading, configurationChecker, urls } = props;
@@ -38,6 +40,9 @@ export default function Configuration(props) {
                     ))}
                 </div>
                 <div className="w-full">
+                    {tab === 'configuration' && (
+                        <DatabaseGeneralTab generalForm={props.generalForm} generalUrls={props.generalUrls} resourceDetails={props.resourceDetails} />
+                    )}
                     {tab === 'environment-variables' && (
                         <EnvironmentVariablesTab
                             envs={props.envs}

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
+use App\Http\Controllers\Concerns\ManagesDatabaseGeneralForm;
 use App\Http\Controllers\Concerns\ManagesDatabaseImport;
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
@@ -15,6 +16,7 @@ use App\Jobs\VolumeCloneJob;
 use App\Models\Environment;
 use App\Models\Project;
 use App\Models\StandaloneDocker;
+use App\Models\StandalonePostgresql;
 use App\Models\SwarmDocker;
 use App\Models\Tag;
 use App\Support\DatabaseEngineRegistry;
@@ -50,6 +52,7 @@ use Visus\Cuid2\Cuid2;
 class ProjectDatabaseConfigurationController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesDatabaseGeneralForm;
     use ManagesDatabaseImport;
     use ManagesResourceEnvironmentVariables;
     use ManagesResourceStorages;
@@ -612,6 +615,82 @@ class ProjectDatabaseConfigurationController extends Controller
         }
     }
 
+    public function generalUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->updateDatabaseGeneral($request, $database);
+    }
+
+    public function generalProxyUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->updateDatabaseProxy($request, $database);
+    }
+
+    public function generalAdvancedUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->updateDatabaseAdvanced($request, $database);
+    }
+
+    public function generalSslUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->updateDatabaseSsl($request, $database);
+    }
+
+    public function generalSslRegenerate(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->regenerateDatabaseSslCertificate($database);
+    }
+
+    public function generalInitScriptStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+        if (! $database instanceof StandalonePostgresql) {
+            abort(404);
+        }
+
+        return $this->storeDatabaseInitScript($request, $database);
+    }
+
+    public function generalInitScriptDestroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+        if (! $database instanceof StandalonePostgresql) {
+            abort(404);
+        }
+
+        return $this->destroyDatabaseInitScript($request, $database);
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -619,6 +698,7 @@ class ProjectDatabaseConfigurationController extends Controller
     private function tabProps(string $tab, Model $database, array $parameters): array
     {
         return match ($tab) {
+            'configuration' => $this->generalFormTabProps($database, $parameters, 'project.database'),
             'environment-variables' => $this->environmentVariablesTabProps($database, $parameters, 'project.database'),
             'persistent-storage' => $this->storagesTabProps($database, $parameters, 'project.database'),
             'import-backup' => $this->importTabProps($database, 'project.database', $parameters),

@@ -18,10 +18,11 @@ use Inertia\Response;
 
 /**
  * React port of App\Livewire\Project\Shared\Metrics's `project.application.metrics` and
- * `project.database.metrics` routes — a CPU/memory usage chart pair, shared by
- * Application\Configuration and Database\Configuration (both still Livewire routers;
- * only these two routes were repointed here, matching the established
- * "split a shared class's routes, keep what's still needed" pattern).
+ * `project.database.metrics` routes — a CPU/memory usage chart pair, originally shared by
+ * the Application and Database Configuration routers (only these two routes were repointed
+ * here, matching the established "split a shared class's routes, keep what's still needed"
+ * pattern). `Database\Configuration` is now fully React (Phase 62); `Application\Configuration`
+ * is still Livewire.
  */
 class ProjectMetricsController extends Controller
 {

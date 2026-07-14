@@ -375,19 +375,43 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$custom_docker_run_options\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$enable_ssl\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 6
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$external_db_url\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -423,7 +447,31 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
+			count: 7
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$internal_db_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_log_drain_enabled\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -471,13 +519,55 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$ports_mappings\.$#'
+			identifier: property.notFound
 			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$public_port\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$public_port_timeout\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$redis_password\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$redis_username\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
 			identifier: property.notFound
 			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$ssl_mode\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 3
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -489,7 +579,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 6
+			count: 7
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -549,7 +639,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
 			identifier: method.notFound
-			count: 1
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -562,6 +652,18 @@ parameters:
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:realStatus\(\)\.$#'
 			identifier: method.notFound
 			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:runtime_environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
+			identifier: method.notFound
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -619,6 +721,12 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:generalFormTabProps\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -637,15 +745,27 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:statusInfoProps\(\) has parameter \$spec with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$database of method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:redisFormExtras\(\) expects App\\Models\\StandaloneRedis, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 1
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 1
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -3205,102 +3325,6 @@ parameters:
 			path: app/Livewire/Project/Database/BackupNow.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/General.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\StandaloneClickhouse\:\:\$enable_ssl\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Livewire/Project/Database/Clickhouse/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Clickhouse\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Clickhouse/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Configuration\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Configuration.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Configuration\:\:\$currentRoute has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Configuration.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Configuration\:\:\$database has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Configuration.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Configuration\:\:\$environment has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Configuration.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Configuration\:\:\$project has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Configuration.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Database\\CreateScheduledBackup\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3329,576 +3353,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Database/CreateScheduledBackup.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Dragonfly\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Dragonfly/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:activityFinished\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:checkStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:manualCheckStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:restart\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:start\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Heading\:\:stop\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Heading\:\:\$database has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Heading\:\:\$docker_cleanup has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Heading\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\InitScript\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/InitScript.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\InitScript\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/InitScript.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\InitScript\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/InitScript.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\InitScript\:\:\$script type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/InitScript.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Keydb\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Keydb/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Mariadb\\General\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mariadb\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mariadb/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Mongodb\\General\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mongodb\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mongodb/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Mysql\\General\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Mysql\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Mysql/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:delete_init_script\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:delete_init_script\(\) has parameter \$script with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:save_init_script\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:save_init_script\(\) has parameter \$script with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:save_new_init_script\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Postgresql\\General\:\:\$initScripts type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Postgresql\\General\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Postgresql\\General\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Postgresql\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Postgresql/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:instantSaveAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:isSharedVariable\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:isSharedVariable\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\General\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Redis\\General\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Redis\\General\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Redis/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\StatusInfo\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Redis/StatusInfo.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Redis\\StatusInfo\:\:sslModeOptions\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Redis/StatusInfo.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Database\\ScheduledBackups\:\:delete\(\) has parameter \$scheduled_backup_id with no type specified\.$#'

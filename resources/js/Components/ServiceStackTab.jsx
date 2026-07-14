@@ -1,6 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import DomainConflictModal from './DomainConflictModal';
+import ResourceDetailsModal from './ResourceDetailsModal';
 import { useTeamChannel } from '../hooks/useTeamChannel';
 
 /**
@@ -37,76 +38,6 @@ function Field({ label, helper, ...props }) {
             {label && <span title={helper}>{label}</span>}
             <input {...props} />
         </label>
-    );
-}
-
-function CopyRow({ label, text }) {
-    const [copied, setCopied] = useState(false);
-
-    function copy() {
-        navigator.clipboard?.writeText(text ?? '');
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1500);
-    }
-
-    return (
-        <button
-            type="button"
-            onClick={copy}
-            className="flex items-center justify-between gap-2 px-3 py-2 text-left text-sm bg-white border dark:bg-coolgray-100 dark:border-coolgray-300 border-neutral-200 rounded-sm"
-            title="Click to copy"
-        >
-            <span>
-                <span className="font-bold">{label}:</span> {text}
-            </span>
-            <span className="text-xs opacity-70">{copied ? 'Copied!' : 'Copy'}</span>
-        </button>
-    );
-}
-
-function ResourceDetailsModal({ details, onClose }) {
-    const sections = [
-        ['Resource', details.resource],
-        ['Environment', details.environment],
-        ['Project', details.project],
-        ['Server', details.server],
-    ].filter(([, data]) => data && data.uuid);
-
-    return (
-        <Modal title="Resource Details" onClose={onClose}>
-            <div className="pb-4 text-sm dark:text-neutral-400">Identifiers for this resource. Read-only</div>
-            <div className="flex flex-col gap-6">
-                {sections.map(([title, data]) => (
-                    <div key={title}>
-                        <h3>{title}</h3>
-                        <div className="pt-2 grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <CopyRow label="Name" text={data.name} />
-                            <CopyRow label="UUID" text={data.uuid} />
-                        </div>
-                    </div>
-                ))}
-                {details.stackApplications.length > 0 && (
-                    <div>
-                        <h3>Stack Applications</h3>
-                        <div className="pt-2 grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {details.stackApplications.map((app) => (
-                                <CopyRow key={app.uuid} label={app.name} text={app.uuid} />
-                            ))}
-                        </div>
-                    </div>
-                )}
-                {details.stackDatabases.length > 0 && (
-                    <div>
-                        <h3>Stack Databases</h3>
-                        <div className="pt-2 grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {details.stackDatabases.map((db) => (
-                                <CopyRow key={db.uuid} label={db.name} text={db.uuid} />
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
-        </Modal>
     );
 }
 

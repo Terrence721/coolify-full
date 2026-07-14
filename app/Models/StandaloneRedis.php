@@ -219,7 +219,10 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
             get: function () {
                 $redis_version = $this->getRedisVersion();
                 $username_part = version_compare($redis_version, '6.0', '>=') ? rawurlencode($this->redis_username).':' : '';
-                $encodedPass = rawurlencode($this->redis_password);
+                // redis_password reads from a runtime_environment_variables row that only
+                // exists after the first StartRedis deploy — a freshly created, never-started
+                // database has none yet, so this must tolerate null rather than fatal.
+                $encodedPass = rawurlencode((string) $this->redis_password);
                 $scheme = $this->enable_ssl ? 'rediss' : 'redis';
                 $port = $this->enable_ssl ? 6380 : 6379;
                 $url = "{$scheme}://{$username_part}{$encodedPass}@{$this->uuid}:{$port}/0";
@@ -244,7 +247,7 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
                     }
                     $redis_version = $this->getRedisVersion();
                     $username_part = version_compare($redis_version, '6.0', '>=') ? rawurlencode($this->redis_username).':' : '';
-                    $encodedPass = rawurlencode($this->redis_password);
+                    $encodedPass = rawurlencode((string) $this->redis_password);
                     $scheme = $this->enable_ssl ? 'rediss' : 'redis';
                     $url = "{$scheme}://{$username_part}{$encodedPass}@{$serverIp}:{$this->public_port}/0";
 

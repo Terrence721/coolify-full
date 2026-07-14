@@ -22,6 +22,6 @@ trait HasSafeStringAttribute
 
     public function setDescriptionAttribute($value)
     {
-        $this->attributes['description'] = strip_tags($value);
+        $this->attributes['description'] = is_null($value) ? null : strip_tags($value);
     }
 }
