@@ -1887,8 +1887,8 @@ function serviceParser(Service $resource): Collection
                     // Also check if a port-suffixed version exists (e.g., SERVICE_FQDN_UMAMI_3000)
                     $portSuffixedExists = $resource->environment_variables()
                         ->where('key', 'LIKE', $key->value().'_%')
-                        ->whereRaw('key ~ ?', ['^'.$key->value().'_[0-9]+$'])
-                        ->exists();
+                        ->get()
+                        ->contains(fn ($environmentVariable) => preg_match('/^'.preg_quote($key->value(), '/').'_[0-9]+$/', $environmentVariable->key) === 1);
                     $serviceExists = ServiceApplication::where('name', str($fqdnFor)->replace('_', '-')->value())->where('service_id', $resource->id)->first();
                     // Check if FQDN already has a port set (contains ':' after the domain)
                     $fqdnHasPort = $serviceExists && str($serviceExists->fqdn)->contains(':') && str($serviceExists->fqdn)->afterLast(':')->isMatch('/^\d+$/');
@@ -1932,8 +1932,8 @@ function serviceParser(Service $resource): Collection
                     // Also check if a port-suffixed version exists (e.g., SERVICE_URL_DASHBOARD_6791)
                     $portSuffixedExists = $resource->environment_variables()
                         ->where('key', 'LIKE', $key->value().'_%')
-                        ->whereRaw('key ~ ?', ['^'.$key->value().'_[0-9]+$'])
-                        ->exists();
+                        ->get()
+                        ->contains(fn ($environmentVariable) => preg_match('/^'.preg_quote($key->value(), '/').'_[0-9]+$/', $environmentVariable->key) === 1);
                     $serviceExists = ServiceApplication::where('name', str($urlFor)->replace('_', '-')->value())->where('service_id', $resource->id)->first();
                     // Check if FQDN already has a port set (contains ':' after the domain)
                     $fqdnHasPort = $serviceExists && str($serviceExists->fqdn)->contains(':') && str($serviceExists->fqdn)->afterLast(':')->isMatch('/^\d+$/');

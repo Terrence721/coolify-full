@@ -481,6 +481,8 @@ class Application extends BaseModel
             'max_restart_count' => 'integer',
             'last_restart_at' => 'datetime',
             'is_http_basic_auth_enabled' => 'boolean',
+            'health_check_enabled' => 'boolean',
+            'custom_healthcheck_found' => 'boolean',
         ];
     }
 
@@ -2388,13 +2390,14 @@ class Application extends BaseModel
         if (! $customLabels) {
             return;
         }
-        if (base64_encode(base64_decode($customLabels, true)) !== $customLabels) {
-            $this->custom_labels = str($customLabels)->replace(',', "\n");
+        $decoded = base64_decode($customLabels, true);
+        if ($decoded === false || base64_encode($decoded) !== $customLabels) {
+            $customLabels = str($customLabels)->replace(',', "\n")->toString();
             $this->custom_labels = base64_encode($customLabels);
         }
         $customLabels = base64_decode($this->custom_labels);
         if (mb_detect_encoding($customLabels, 'UTF-8', true) === false) {
-            $customLabels = str(implode('|coolify|', generateLabelsApplication($this, $preview)))->replace('|coolify|', "\n");
+            $customLabels = str(implode('|coolify|', generateLabelsApplication($this, $preview)))->replace('|coolify|', "\n")->toString();
         }
         $this->custom_labels = base64_encode($customLabels);
         $this->save();

@@ -104,24 +104,6 @@ it('creates a github app and redirects to its configuration page', function () {
     $response->assertRedirect(route('source.github.show', ['github_app_uuid' => $githubApp->uuid]));
 });
 
-it('merges the created source id into an in-progress session flow', function () {
-    $team = Team::factory()->create();
-    sourcesActingAs($team);
-
-    $this->withSession(['currentTeam' => $team, 'from' => ['route' => 'somewhere']])
-        ->post(route('source.github.store'), [
-            'name' => 'new-app',
-            'apiUrl' => 'https://api.github.com',
-            'htmlUrl' => 'https://github.com',
-            'customUser' => 'git',
-            'customPort' => 22,
-            'isSystemWide' => false,
-        ]);
-
-    $githubApp = GithubApp::where('name', 'new-app')->firstOrFail();
-    expect(session('from'))->toBe(['route' => 'somewhere', 'source_id' => $githubApp->id]);
-});
-
 it('rejects an unsafe api url', function () {
     $team = Team::factory()->create();
     sourcesActingAs($team);

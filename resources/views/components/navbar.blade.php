@@ -15,20 +15,11 @@
     @mouseleave="tooltip.show = false"
     x-data="{
         tooltip: { text: '', x: 0, y: 0, show: false },
-        switchWidth() {
-                if (this.full === 'full') {
-                    localStorage.setItem('pageWidth', 'center');
-                } else {
-                    localStorage.setItem('pageWidth', 'full');
-                }
-                window.location.reload();
-            },
-            setZoom(zoom) {
+        setZoom(zoom) {
                 localStorage.setItem('zoom', zoom);
                 window.location.reload();
             },
             init() {
-                this.full = localStorage.getItem('pageWidth');
                 this.zoom = localStorage.getItem('zoom');
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
                     const userSettings = localStorage.getItem('theme');

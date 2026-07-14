@@ -14,6 +14,7 @@ use App\Models\StandaloneRedis;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
@@ -220,6 +221,40 @@ it('creates a one-click service from a real template', function () {
         'environment_uuid' => $environment->uuid,
         'service_uuid' => $service->uuid,
     ]));
+});
+
+it('creates a one-click service whose template declares SERVICE_FQDN_/SERVICE_URL_ magic env vars, including a port-suffixed variant, without crashing under the test database', function () {
+    // grafana's compose declares both SERVICE_URL_GRAFANA_3000 (port-suffixed) and
+    // SERVICE_FQDN_GRAFANA/SERVICE_URL_GRAFANA (bare) — this exercises serviceParser()'s
+    // port-suffix-detection query, previously PostgreSQL-only (`whereRaw('key ~ ?', ...)`)
+    // and unrunnable against the SQLite test connection. See todo.md/migration doc.
+    // Queue::fake() sidesteps a second, unrelated, already-accepted gap: grafana's compose
+    // also declares a persistent volume, which makes serviceParser() dispatch
+    // ServerFilesFromServerJob — a real SSH call this test environment can't satisfy.
+    Queue::fake();
+
+    $team = Team::factory()->create();
+    actingAsTeamMember($team);
+    [$project, $environment, $server, $destination] = createResourceTestChain($team);
+
+    $response = $this->get(route('project.resource.create', [
+        'project_uuid' => $project->uuid,
+        'environment_uuid' => $environment->uuid,
+        'type' => 'one-click-service-grafana',
+        'server_id' => $server->id,
+        'destination' => $destination->uuid,
+    ]));
+
+    $service = Service::where('environment_id', $environment->id)->firstOrFail();
+    expect($service->service_type)->toBe('grafana');
+    $response->assertRedirect(route('project.service.configuration', [
+        'project_uuid' => $project->uuid,
+        'environment_uuid' => $environment->uuid,
+        'service_uuid' => $service->uuid,
+    ]));
+
+    $keys = $service->environment_variables()->pluck('key')->all();
+    expect($keys)->toContain('SERVICE_FQDN_GRAFANA', 'SERVICE_URL_GRAFANA', 'SERVICE_URL_GRAFANA_3000');
 });
 
 it('redirects back to the wizard for an unknown one-click service template', function () {

@@ -52,9 +52,7 @@ class SourceGithubController extends Controller
     }
 
     /**
-     * React port of App\Livewire\Source\Github\Create::createGitHubApp(). The session('from')
-     * merge is kept for parity with the original, though nothing currently writes the initial
-     * 'from' entry (its Livewire writers were converted in earlier phases).
+     * React port of App\Livewire\Source\Github\Create::createGitHubApp().
      */
     public function store(Request $request): RedirectResponse
     {
@@ -81,10 +79,6 @@ class SourceGithubController extends Controller
             'team_id' => currentTeam()->id,
         ]);
 
-        if (session('from')) {
-            session(['from' => session('from') + ['source_id' => $githubApp->id]]);
-        }
-
         return redirect()->route('source.github.show', ['github_app_uuid' => $githubApp->uuid]);
     }
 
@@ -92,24 +86,6 @@ class SourceGithubController extends Controller
     {
         $githubApp = GithubApp::ownedByCurrentTeam()->whereUuid($github_app_uuid)->firstOrFail();
         $githubApp->makeVisible(['client_secret', 'webhook_secret']);
-
-        if ($githubApp->installation_id && session('from')) {
-            $sourceId = data_get(session('from'), 'source_id');
-            if (! $sourceId || $githubApp->id !== $sourceId) {
-                session()->forget('from');
-            } else {
-                $parameters = data_get(session('from'), 'parameters');
-                $back = data_get(session('from'), 'back');
-                session()->forget('from');
-
-                return redirect()->route($back, [
-                    'environment_uuid' => data_get($parameters, 'environment_uuid'),
-                    'project_uuid' => data_get($parameters, 'project_uuid'),
-                    'type' => data_get($parameters, 'type'),
-                    'destination' => data_get($parameters, 'destination'),
-                ]);
-            }
-        }
 
         $settings = instanceSettings();
 
