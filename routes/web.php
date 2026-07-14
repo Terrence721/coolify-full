@@ -319,7 +319,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/tasks/{task_uuid}/execute', [ProjectApplicationConfigurationController::class, 'scheduledTaskExecute'])->name('project.application.scheduled-tasks.execute');
         Route::delete('/tasks/{task_uuid}', [ProjectApplicationConfigurationController::class, 'scheduledTaskDestroy'])->name('project.application.scheduled-tasks.destroy');
         Route::get('/tasks/{task_uuid}/executions/{execution_id}/download', [ProjectApplicationConfigurationController::class, 'scheduledTaskDownload'])->name('project.application.scheduled-tasks.download');
-        Route::get('/webhooks', ApplicationConfiguration::class)->name('project.application.webhooks');
+        Route::get('/webhooks', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.webhooks');
+        Route::post('/webhooks', [ProjectApplicationConfigurationController::class, 'updateWebhookSecrets'])->name('project.application.webhooks.update');
         Route::get('/preview-deployments', ApplicationConfiguration::class)->name('project.application.preview-deployments');
         Route::get('/healthcheck', ApplicationConfiguration::class)->name('project.application.healthcheck');
         Route::get('/rollback', ApplicationConfiguration::class)->name('project.application.rollback');

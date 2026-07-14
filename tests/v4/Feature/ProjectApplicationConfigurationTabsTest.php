@@ -373,3 +373,57 @@ it('requires a host path for a volume on a swarm destination', function () {
         'host_path' => '/srv/data',
     ])->assertSessionHas('success', 'Volume added successfully');
 });
+
+it('renders the manual git webhooks form for a non-git-app application', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['source_id' => null]);
+
+    $response = $this->get(route('project.application.webhooks', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'webhooks')
+        ->has('deployWebhook')
+        ->where('manualWebhooks.usesOfficialGitApp', false)
+        ->has('manualWebhooks.providers.github.url')
+        ->has('manualWebhooks.providers.gitlab.url')
+        ->has('manualWebhooks.providers.bitbucket.url')
+        ->has('manualWebhooks.providers.gitea.url')
+    );
+});
+
+it('shows the official-git-app callout instead of manual webhooks when a source is connected', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['source_id' => 999]);
+
+    $response = $this->get(route('project.application.webhooks', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('manualWebhooks.usesOfficialGitApp', true)
+        ->where('manualWebhooks.providers', [])
+    );
+});
+
+it('updates the manual git webhook secrets', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['source_id' => null]);
+
+    $response = $this->post(route('project.application.webhooks.update', appTabsParams($application)), [
+        'githubManualWebhookSecret' => 'gh-secret',
+        'gitlabManualWebhookSecret' => 'gl-secret',
+        'bitbucketManualWebhookSecret' => 'bb-secret',
+        'giteaManualWebhookSecret' => 'ge-secret',
+    ]);
+
+    $response->assertSessionHas('success', 'Secret Saved.');
+    $application->refresh();
+    expect($application->manual_webhook_secret_github)->toBe('gh-secret');
+    expect($application->manual_webhook_secret_gitlab)->toBe('gl-secret');
+    expect($application->manual_webhook_secret_bitbucket)->toBe('bb-secret');
+    expect($application->manual_webhook_secret_gitea)->toBe('ge-secret');
+});

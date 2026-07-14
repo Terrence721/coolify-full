@@ -8,6 +8,10 @@ import PasswordConfirmModal from './PasswordConfirmModal';
  * extracted from Project/Database/Configuration.jsx (Phase 54) once the Service router
  * (Phase 55) needed the same panels. Each consumer's controller supplies resource-scoped
  * props/endpoints; panels are presentation + Inertia calls only.
+ *
+ * WebhooksTab's `manualWebhooks` prop is Application-only (Phase 66, its third consumer) —
+ * see ManagesResourceWebhooks' docblock for why the manual Git secrets section never applies
+ * to databases or services.
  */
 export function TagsTab({ tags, availableTags, tagsStoreUrl, canUpdate }) {
     const { data, setData, post, processing, reset } = useForm({ tags: '' });
@@ -116,7 +120,30 @@ export function DangerTab({ resourceName, canDelete, destroyUrl }) {
     );
 }
 
-export function WebhooksTab({ deployWebhook }) {
+const WEBHOOK_PROVIDER_LABELS = { github: 'GitHub', gitlab: 'GitLab', bitbucket: 'Bitbucket', gitea: 'Gitea' };
+
+/**
+ * `manualWebhooks` is only present for Application (Phase 66) — Database/Service never send
+ * it, so the section below the read-only deploy webhook simply doesn't render for them.
+ */
+export function WebhooksTab({ deployWebhook, manualWebhooks }) {
+    const canSubmitManual = manualWebhooks && !manualWebhooks.usesOfficialGitApp;
+    const { data, setData, post, processing } = useForm(
+        canSubmitManual
+            ? {
+                  githubManualWebhookSecret: manualWebhooks.providers.github.secret ?? '',
+                  gitlabManualWebhookSecret: manualWebhooks.providers.gitlab.secret ?? '',
+                  bitbucketManualWebhookSecret: manualWebhooks.providers.bitbucket.secret ?? '',
+                  giteaManualWebhookSecret: manualWebhooks.providers.gitea.secret ?? '',
+              }
+            : {}
+    );
+
+    function submit(e) {
+        e.preventDefault();
+        post(manualWebhooks.updateUrl, { preserveScroll: true });
+    }
+
     return (
         <div className="flex flex-col gap-2">
             <h2>Webhooks</h2>
@@ -124,6 +151,44 @@ export function WebhooksTab({ deployWebhook }) {
                 Deploy Webhook (auth required)
                 <input readOnly value={deployWebhook} />
             </label>
+            {manualWebhooks && (
+                <div>
+                    <h3>Manual Git Webhooks</h3>
+                    {manualWebhooks.usesOfficialGitApp ? (
+                        <div>You are using an official Git App. You do not need manual webhooks.</div>
+                    ) : (
+                        <form className="flex flex-col gap-2" onSubmit={submit}>
+                            {Object.entries(WEBHOOK_PROVIDER_LABELS).map(([provider, label]) => (
+                                <div key={provider} className="flex items-end gap-2">
+                                    <label className="flex flex-1 flex-col gap-1">
+                                        {label}
+                                        <input readOnly value={manualWebhooks.providers[provider].url ?? ''} />
+                                    </label>
+                                    <label className="flex flex-1 flex-col gap-1">
+                                        {label} Webhook Secret
+                                        <input
+                                            type="password"
+                                            disabled={!manualWebhooks.canUpdate}
+                                            value={data[`${provider}ManualWebhookSecret`] ?? ''}
+                                            onChange={(e) => setData(`${provider}ManualWebhookSecret`, e.target.value)}
+                                        />
+                                    </label>
+                                </div>
+                            ))}
+                            {manualWebhooks.configUrl && (
+                                <a target="_blank" rel="noreferrer" href={manualWebhooks.configUrl}>
+                                    Webhook Configuration on GitHub
+                                </a>
+                            )}
+                            {manualWebhooks.canUpdate && (
+                                <button type="submit" disabled={processing}>
+                                    Save
+                                </button>
+                            )}
+                        </form>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

@@ -14,6 +14,7 @@ use App\Http\Controllers\Concerns\ManagesResourceLimits;
 use App\Http\Controllers\Concerns\ManagesResourceOperations;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
+use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\VolumeCloneJob;
 use App\Models\StandaloneDocker;
@@ -60,6 +61,7 @@ class ProjectDatabaseConfigurationController extends Controller
     use ManagesResourceOperations;
     use ManagesResourceStorages;
     use ManagesResourceTags;
+    use ManagesResourceWebhooks;
     use ResolvesProjectResources;
 
     public function show(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): Response|RedirectResponse
@@ -592,9 +594,7 @@ class ProjectDatabaseConfigurationController extends Controller
             ],
             'tags' => $this->tagsTabProps($database, $parameters, 'project.database'),
             'danger' => $this->dangerTabProps($database, $parameters, 'project.database'),
-            'webhooks' => [
-                'deployWebhook' => generateDeployWebhook($database),
-            ],
+            'webhooks' => $this->webhooksTabProps($database, $parameters, 'project.database'),
             'resource-limits' => $this->resourceLimitsTabProps($database, $parameters, 'project.database'),
             'resource-operations' => $this->resourceOperationsTabProps($database, $parameters, 'project.database'),
             'servers' => [

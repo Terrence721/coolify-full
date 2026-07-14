@@ -31,7 +31,7 @@
             </a>
             <a @class(['sub-menu-item', 'menu-item-active' => str($currentRoute)->startsWith('project.application.scheduled-tasks')])
                 href="{{ route('project.application.scheduled-tasks.show', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Scheduled Tasks</span></a>
-            <a class="sub-menu-item" {{ wireNavigate() }} wire:current.exact="menu-item-active"
+            <a class="sub-menu-item" wire:current.exact="menu-item-active"
                 href="{{ route('project.application.webhooks', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Webhooks</span></a>
             @if ($application->git_based() || $application->build_pack === 'dockerimage')
                 <a class="sub-menu-item" {{ wireNavigate() }} wire:current.exact="menu-item-active"
@@ -65,8 +65,6 @@
                 <livewire:project.application.source :application="$application" />
             @elseif ($currentRoute === 'project.application.servers')
                 <livewire:project.shared.destination :resource="$application" />
-            @elseif ($currentRoute === 'project.application.webhooks')
-                <livewire:project.shared.webhooks :resource="$application" />
             @elseif ($currentRoute === 'project.application.preview-deployments')
                 <livewire:project.application.previews :application="$application" />
             @elseif ($currentRoute === 'project.application.healthcheck' && $application->build_pack !== 'dockercompose')

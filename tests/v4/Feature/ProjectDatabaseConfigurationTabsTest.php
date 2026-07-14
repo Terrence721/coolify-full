@@ -110,6 +110,7 @@ it('renders the webhooks tab with the deploy webhook url', function () {
         ->component('Project/Database/Configuration')
         ->where('tab', 'webhooks')
         ->has('deployWebhook')
+        ->where('manualWebhooks', null)
     );
 });
 

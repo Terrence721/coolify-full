@@ -187,6 +187,12 @@ parameters:
 			path: app/Http/Controllers/ExecuteContainerCommandController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitWebhook\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 2
@@ -550,6 +556,12 @@ parameters:
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
 			count: 7
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitWebhook\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -1049,6 +1061,12 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectMetricsController.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitWebhook\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
@@ -3995,18 +4013,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/UploadConfig.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Webhooks\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Webhooks.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Webhooks\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Webhooks.php
 
 		-
 			message: '#^Method App\\Livewire\\Security\\CloudProviderTokenForm\:\:addToken\(\) has no return type specified\.$#'

@@ -2,16 +2,16 @@ import ApplicationHeading from '../../../Components/ApplicationHeading';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import ScheduledTasksTab from '../../../Components/ScheduledTasksTab';
 import StoragesTab from '../../../Components/StoragesTab';
-import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab } from '../../../Components/ResourceTabs';
+import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Application\Configuration's shell plus 7 of its 16 tabs
+ * React port of App\Livewire\Project\Application\Configuration's shell plus 8 of its 16 tabs
  * (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled Tasks — Phase 63;
- * Environment Variables and Persistent Storage — Phase 65), all backed by shared concerns on
- * their third consumer. See ProjectApplicationConfigurationController. The remaining 9 tabs
- * (General, Advanced, Swarm, Git Source, Servers, Webhooks, Preview Deployments, Healthcheck,
- * Rollback) stay on the Livewire shell for now — plain full-page links here, matching the
- * established split-by-route-name pattern.
+ * Environment Variables and Persistent Storage — Phase 65; Webhooks — Phase 66), all backed by
+ * shared concerns on their third consumer. See ProjectApplicationConfigurationController. The
+ * remaining 8 tabs (General, Advanced, Swarm, Git Source, Servers, Preview Deployments,
+ * Healthcheck, Rollback) stay on the Livewire shell for now — plain full-page links here,
+ * matching the established split-by-route-name pattern.
  *
  * Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still highlights
  * Scheduled Tasks despite its different URL.
@@ -82,6 +82,7 @@ export default function Configuration(props) {
                             sourceDirPlaceholder={props.sourceDirPlaceholder}
                         />
                     )}
+                    {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} manualWebhooks={props.manualWebhooks} />}
                 </div>
             </div>
         </div>

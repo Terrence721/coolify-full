@@ -12,6 +12,7 @@ use App\Http\Controllers\Concerns\ManagesResourceOperations;
 use App\Http\Controllers\Concerns\ManagesResourceScheduledTasks;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
+use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
 use App\Models\StandaloneDocker;
@@ -33,10 +34,12 @@ use Visus\Cuid2\Cuid2;
  * Persistent Storage (Phase 65, on their third consumer — both concerns needed real widening,
  * not just wiring, since neither had ever seen a non-service-non-database resource before: see
  * ManagesResourceEnvironmentVariables' usesDockerCompose()/dockerComposeContent() and
- * ManagesResourceStorages' configurationDir()/requiresHostPath()). "Clone" is Application's
- * own — it delegates to clone_application(), the comprehensive helper already proven by
- * Project\CloneMe, rather than duplicating per-child-type cloning logic inline the way
- * Database's and Service's clone() methods each had to.
+ * ManagesResourceStorages' configurationDir()/requiresHostPath()); Webhooks (Phase 66, its
+ * third consumer for the shared read-only deploy webhook, plus the manual Git secrets form
+ * that's genuinely Application-only — see ManagesResourceWebhooks' docblock). "Clone" is
+ * Application's own — it delegates to clone_application(), the comprehensive helper already
+ * proven by Project\CloneMe, rather than duplicating per-child-type cloning logic inline the
+ * way Database's and Service's clone() methods each had to.
  *
  * The shell's heading (deploy/restart/stop/force-deploy/status-polling — Phase 64) is
  * ApplicationHeading.jsx, built from ManagesApplicationHeading's props on its second
@@ -44,12 +47,12 @@ use Visus\Cuid2\Cuid2;
  * alongside deploy/restart/stop/check-status themselves). No new deployment routes were
  * needed here — only the props pointing at the existing ones.
  *
- * Still routed to Livewire: General, Advanced, Swarm, Git Source, Servers, Webhooks, Preview
- * Deployments, Healthcheck, Rollback — each either application-only business logic (webhooks'
- * manual git-secrets section, servers' full multi-server Destination behavior) or a large
- * enough unit to deserve its own phase. Environment Variables' preview-deployment set, build
- * secrets, and sort-alphabetically toggle stay with Preview Deployments' own future conversion
- * — see ManagesResourceEnvironmentVariables' docblock.
+ * Still routed to Livewire: General, Advanced, Swarm, Git Source, Servers, Preview
+ * Deployments, Healthcheck, Rollback — each either application-only business logic (servers'
+ * full multi-server Destination behavior) or a large enough unit to deserve its own phase.
+ * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
+ * stay with Preview Deployments' own future conversion — see
+ * ManagesResourceEnvironmentVariables' docblock.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
@@ -62,6 +65,7 @@ class ProjectApplicationConfigurationController extends Controller
     use ManagesResourceScheduledTasks;
     use ManagesResourceStorages;
     use ManagesResourceTags;
+    use ManagesResourceWebhooks;
     use ResolvesProjectResources;
 
     public function show(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): Response|RedirectResponse
@@ -372,6 +376,16 @@ class ProjectApplicationConfigurationController extends Controller
         return $this->destroyStorageFile($request, $application, $this->resolveOwnedFileVolume($application, $file_id));
     }
 
+    public function updateWebhookSecrets(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->updateManualWebhookSecrets($request, $application);
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -386,6 +400,7 @@ class ProjectApplicationConfigurationController extends Controller
             'scheduled-tasks' => $this->scheduledTasksTabProps($application, $parameters, 'project.application', request()->route('task_uuid')),
             'environment-variables' => $this->environmentVariablesTabProps($application, $parameters, 'project.application'),
             'persistent-storage' => $this->storagesTabProps($application, $parameters, 'project.application'),
+            'webhooks' => $this->webhooksTabProps($application, $parameters, 'project.application'),
             default => [],
         };
     }

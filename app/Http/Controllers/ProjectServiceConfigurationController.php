@@ -10,6 +10,7 @@ use App\Http\Controllers\Concerns\ManagesResourceOperations;
 use App\Http\Controllers\Concerns\ManagesResourceScheduledTasks;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
+use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\NormalizesServiceFqdns;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Service;
@@ -50,6 +51,7 @@ class ProjectServiceConfigurationController extends Controller
     use ManagesResourceScheduledTasks;
     use ManagesResourceStorages;
     use ManagesResourceTags;
+    use ManagesResourceWebhooks;
     use NormalizesServiceFqdns;
     use ResolvesProjectResources;
 
@@ -574,9 +576,7 @@ class ProjectServiceConfigurationController extends Controller
             'scheduled-tasks' => $this->scheduledTasksTabProps($service, $parameters, 'project.service', request()->route('task_uuid')),
             'tags' => $this->tagsTabProps($service, $parameters, 'project.service'),
             'danger' => $this->dangerTabProps($service, $parameters, 'project.service'),
-            'webhooks' => [
-                'deployWebhook' => generateDeployWebhook($service),
-            ],
+            'webhooks' => $this->webhooksTabProps($service, $parameters, 'project.service'),
             'resource-operations' => $this->resourceOperationsTabProps($service, $parameters, 'project.service'),
             default => [],
         };
