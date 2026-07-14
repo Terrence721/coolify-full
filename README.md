@@ -1,7 +1,7 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 13, 2026**
+**Last Updated: July 14, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -71,8 +71,8 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 ```text
 ┌───────────────────────────────────────────────┐
 │                 Laravel app                   │  (nginx + PHP-FPM, one container)
-│   Inertia/React pages (majority) + remaining  │  ← page-by-page migration,
-│   Livewire/Blade pages — same routes/auth     │     nearly complete
+│   Inertia/React pages (81 of 84) + remaining  │  ← page-by-page migration,
+│   Livewire/Blade pages — same routes/auth     │     one big router left
 │   Horizon queue workers (deploys, backups)    │
 └──────┬──────────┬─────────────┬───────────────┘
        ▼          ▼             ▼

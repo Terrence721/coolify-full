@@ -67,6 +67,7 @@ export class TerminalSession {
         this.terminalEl = null;
         this._onWindowResize = null;
         this._visibilityHandler = null;
+        this.destroyed = false;
     }
 
     emitState() {
@@ -108,6 +109,7 @@ export class TerminalSession {
     }
 
     unmount() {
+        this.destroyed = true;
         this.cleanup();
         if (this._onWindowResize) {
             window.removeEventListener('resize', this._onWindowResize);
@@ -133,6 +135,16 @@ export class TerminalSession {
         this.pendingCommand = null;
         this.resetTerminalSessionCountdown();
         if (this.socket) {
+            // Detach handlers before closing: if the socket is still CONNECTING, the browser
+            // can't complete a clean handshake and fires onclose asynchronously with code 1006
+            // instead of 1000 — after this method (and unmount()) has already returned. Without
+            // detaching first, that stale onclose would hit handleSocketClose(), see a non-1000
+            // code, and call scheduleReconnect(), spawning a reconnect loop that outlives the
+            // component and keeps running (and logging) on whatever page the user navigates to.
+            this.socket.onopen = null;
+            this.socket.onmessage = null;
+            this.socket.onerror = null;
+            this.socket.onclose = null;
             this.socket.close(1000, 'Client cleanup');
         }
         if (this.resizeObserver) {
@@ -236,6 +248,9 @@ export class TerminalSession {
     }
 
     initializeWebSocket() {
+        if (this.destroyed) {
+            return;
+        }
         if (this.socket && this.socket.readyState !== WebSocket.CLOSED) {
             logTerminal('log', '[Terminal] WebSocket already connecting/connected, skipping');
             return;
@@ -360,6 +375,9 @@ export class TerminalSession {
     }
 
     scheduleReconnect() {
+        if (this.destroyed) {
+            return;
+        }
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
             logTerminal('error', '[Terminal] Max reconnection attempts reached');
             this.message = '(connection failed - max retries exceeded)';
