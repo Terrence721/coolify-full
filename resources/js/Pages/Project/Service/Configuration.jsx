@@ -1,16 +1,16 @@
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import ScheduledTasksTab from '../../../Components/ScheduledTasksTab';
+import ServiceStackTab from '../../../Components/ServiceStackTab';
 import StoragesTab from '../../../Components/StoragesTab';
 import ServiceHeading from '../../../Components/ServiceHeading';
 import { DangerTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Service\Configuration's shell plus 7 of its 8 tabs
- * (Tags, Danger Zone, Webhooks, Resource Operations, Environment Variables, Persistent
- * Storages, Scheduled Tasks) — see ProjectServiceConfigurationController. Only General
- * (StackForm + resource cards) stays on the Livewire shell; the sidebar links everything,
- * unconverted tabs as plain full-page links. Sidebar links carry a `key` so the task
- * detail page (/tasks/{task_uuid}) still highlights Scheduled Tasks despite its
+ * React port of App\Livewire\Project\Service\Configuration — all 8 tabs (General/Service
+ * Stack, Tags, Danger Zone, Webhooks, Resource Operations, Environment Variables,
+ * Persistent Storages, Scheduled Tasks) — see ProjectServiceConfigurationController.
+ * The Livewire shell is fully retired as of Phase 59. Sidebar links carry a `key` so the
+ * task detail page (/tasks/{task_uuid}) still highlights Scheduled Tasks despite its
  * different URL (the Livewire sidebar's startsWith() behavior).
  */
 export default function Configuration(props) {
@@ -35,6 +35,15 @@ export default function Configuration(props) {
                     ))}
                 </div>
                 <div className="w-full">
+                    {tab === 'configuration' && (
+                        <ServiceStackTab
+                            stackForm={props.stackForm}
+                            resources={props.resources}
+                            resourceDetails={props.resourceDetails}
+                            generalUrls={props.generalUrls}
+                            canUpdate={props.canUpdate}
+                        />
+                    )}
                     {tab === 'environment-variables' && (
                         <EnvironmentVariablesTab
                             envs={props.envs}

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabaseProxy;
 use App\Actions\Database\StopDatabaseProxy;
+use App\Http\Controllers\Concerns\NormalizesServiceFqdns;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Http\Controllers\Concerns\StreamsContainerLogs;
 use App\Models\Service;
@@ -32,6 +33,7 @@ use Spatie\Url\Url;
 class ProjectServiceResourceController extends Controller
 {
     use AuthorizesRequests;
+    use NormalizesServiceFqdns;
     use ResolvesProjectResources;
     use StreamsContainerLogs;
 
@@ -438,38 +440,4 @@ class ProjectServiceResourceController extends Controller
         return [$service, $serviceDatabase];
     }
 
-    private function normalizeFqdn(string $fqdn): ?string
-    {
-        $fqdn = str($fqdn)->replaceEnd(',', '')->trim()->toString();
-        $fqdn = str($fqdn)->replaceStart(',', '')->trim()->toString();
-        if ($fqdn === '') {
-            return null;
-        }
-        $domains = str($fqdn)->trim()->explode(',')->map(function (string $domain) {
-            $domain = trim($domain);
-            Url::fromString($domain, ['http', 'https']);
-
-            return str($domain)->lower();
-        });
-
-        return $domains->unique()->implode(',');
-    }
-
-    private function fqdnsMissingPort(?string $fqdn): bool
-    {
-        if (! $fqdn) {
-            return false;
-        }
-        foreach (str($fqdn)->trim()->explode(',') as $singleFqdn) {
-            $singleFqdn = trim($singleFqdn);
-            if ($singleFqdn === '') {
-                continue;
-            }
-            if (ServiceApplication::extractPortFromUrl($singleFqdn) === null) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

@@ -82,6 +82,21 @@ class ServiceApplication extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * Both flags feed fqdnLabelsForTraefik()'s ?bool parameters via serviceParser() —
+     * without the casts, SQLite (the test database) returns raw ints that fatal under
+     * declare(strict_types=1); PostgreSQL happened to return real booleans, masking it.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_gzip_enabled' => 'boolean',
+            'is_stripprefix_enabled' => 'boolean',
+        ];
+    }
+
     protected $fillable = [
         'service_id',
         'name',

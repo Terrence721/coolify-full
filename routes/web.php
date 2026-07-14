@@ -66,7 +66,6 @@ use App\Http\Controllers\UploadController;
 use App\Livewire\Boarding\Index as BoardingIndex;
 use App\Livewire\Project\Application\Configuration as ApplicationConfiguration;
 use App\Livewire\Project\Database\Configuration as DatabaseConfiguration;
-use App\Livewire\Project\Service\Configuration as ServiceConfiguration;
 use App\Livewire\Project\Service\Index as ServiceIndex;
 use App\Livewire\Server\Show as ServerShow;
 use App\Models\ScheduledDatabaseBackupExecution;
@@ -382,7 +381,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/backups/{backup_uuid}/executions/{execution_id}', [ProjectDatabaseBackupController::class, 'destroyExecution'])->name('project.database.backup.execution.destroy');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/service/{service_uuid}')->group(function () {
-        Route::get('/', ServiceConfiguration::class)->name('project.service.configuration');
+        Route::get('/', [ProjectServiceConfigurationController::class, 'show'])->name('project.service.configuration');
+        Route::patch('/general', [ProjectServiceConfigurationController::class, 'updateGeneral'])->name('project.service.general.update');
+        Route::patch('/general/settings', [ProjectServiceConfigurationController::class, 'updateGeneralSettings'])->name('project.service.general.settings');
+        Route::post('/general/validate-compose', [ProjectServiceConfigurationController::class, 'validateCompose'])->name('project.service.general.validate-compose');
+        Route::patch('/general/domains/{application_id}', [ProjectServiceConfigurationController::class, 'updateChildDomain'])->name('project.service.child.domain');
+        Route::post('/general/children/{child_uuid}/restart', [ProjectServiceConfigurationController::class, 'restartChild'])->name('project.service.child.restart');
         Route::get('/logs', [ProjectLogsController::class, 'service'])->name('project.service.logs');
         Route::post('/logs/start', [ProjectLogsController::class, 'serviceStart'])->name('project.logs.service.start');
         Route::post('/logs/force-deploy', [ProjectLogsController::class, 'serviceForceDeploy'])->name('project.logs.service.force-deploy');

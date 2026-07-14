@@ -120,6 +120,20 @@ class Service extends BaseModel
 {
     use ClearsGlobalSearchCache, HasFactory, HasSafeStringAttribute, SoftDeletes;
 
+    /**
+     * ApplicationSetting already casts these same column names as boolean; no strict
+     * comparisons exist on either, so the casts only normalize SQLite's raw ints.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'connect_to_docker_network' => 'boolean',
+            'is_container_label_escape_enabled' => 'boolean',
+        ];
+    }
+
     private static string $parserVersion = '5';
 
     protected $fillable = [
