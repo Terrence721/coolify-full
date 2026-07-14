@@ -1,26 +1,40 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
+import LayoutPopups from '../Components/LayoutPopups';
+import ThemeSwitcher from '../Components/ThemeSwitcher';
+import WhatsNewButton from '../Components/WhatsNewButton';
 
 /**
  * React port of the persistent navbar/sidebar shell (resources/views/components/navbar.blade.php
  * + resources/views/layouts/app.blade.php), used as an Inertia persistent layout so it survives
  * client-side page transitions instead of remounting per page (see inertia-app.jsx).
  *
- * Known v1 gaps, intentionally out of scope for this pass (mixing live Livewire components inside
- * a React tree is unsolved): team switching (read-only team name shown instead of
- * <livewire:switch-team/>), the rest of the settings dropdown beyond Logout, the upgrade banner,
- * delete-team modal trigger, and the help modal (<livewire:settings-dropdown/>, <livewire:upgrade/>,
- * <livewire:navbar-delete-team/>, <livewire:help/>). Logout itself (POST /logout, matching the
- * plain <form action="/logout" method="POST"> in navbar.blade.php) is ported below since its
- * absence otherwise leaves no way to log out from any converted page — deliberately a real
- * browser form submission, not router.post(): logout redirects through a plain (non-Inertia)
- * Blade login page, and Inertia's XHR-based navigation has no reliable way to hand off to a
- * full page it doesn't control the rendering of. A native form POST lets the browser's own
- * navigation follow the redirect chain (POST 302 -> GET 302 -> GET /login) with no SPA
- * involved at all, exactly like the original Livewire navbar did. Also no mobile hamburger drawer or
- * collapse/expand toggle yet — the sidebar is always expanded. Global search
- * (<livewire:global-search/>) and deployment status indicator (<livewire:deployments-indicator/>)
- * are omitted for the same reason.
+ * The topbar's theme switcher and What's New button close two real gaps this docblock used to
+ * list: investigating `<livewire:settings-dropdown/>` (previously listed here as deferred)
+ * found it was already fully orphaned on the Livewire side too — its zoom/width-toggle half was
+ * dead code calling nothing, and theme-switching had already moved into navbar.blade.php's own
+ * inline Alpine data. The only genuinely-missing piece was the What's New changelog, which is
+ * what's actually ported here (ChangelogController + WhatsNewButton.jsx), alongside a
+ * ThemeSwitcher.jsx that mirrors navbar.blade.php's live theme logic exactly (same `theme`
+ * localStorage key) so switching themes stays consistent across React and Livewire pages.
+ * LayoutPopups.jsx is a parallel React port of `<livewire:layout-popups/>` for the same reason
+ * — the Livewire version stays alive unchanged for pages still rendered through
+ * layouts/app.blade.php (Boarding\Index, Server\Show).
+ *
+ * Known v1 gaps, still intentionally out of scope for this pass (mixing live Livewire components
+ * inside a React tree remains unsolved for these): team switching (read-only team name shown
+ * instead of <livewire:switch-team/>), the upgrade banner, delete-team modal trigger, and the
+ * help modal (<livewire:upgrade/>, <livewire:navbar-delete-team/>, <livewire:help/>). Logout
+ * itself (POST /logout, matching the plain <form action="/logout" method="POST"> in
+ * navbar.blade.php) is ported below since its absence otherwise leaves no way to log out from
+ * any converted page — deliberately a real browser form submission, not router.post(): logout
+ * redirects through a plain (non-Inertia) Blade login page, and Inertia's XHR-based navigation
+ * has no reliable way to hand off to a full page it doesn't control the rendering of. A native
+ * form POST lets the browser's own navigation follow the redirect chain (POST 302 -> GET 302 ->
+ * GET /login) with no SPA involved at all, exactly like the original Livewire navbar did. Also
+ * no mobile hamburger drawer or collapse/expand toggle yet — the sidebar is always expanded.
+ * Global search (<livewire:global-search/>) and deployment status indicator
+ * (<livewire:deployments-indicator/>) are omitted for the same reason.
  */
 const NAV_ITEMS = [
     { label: 'Dashboard', href: '/', match: '/' },
@@ -42,7 +56,7 @@ const NAV_ITEMS = [
 
 export default function AppLayout({ children }) {
     const { props } = usePage();
-    const { auth, currentTeam, permissions, flash } = props;
+    const { auth, currentTeam, permissions, flash, changelog } = props;
 
     useEffect(() => {
         if (!flash) return;
@@ -103,7 +117,16 @@ export default function AppLayout({ children }) {
                     </div>
                 )}
             </aside>
-            <main className="flex-1 lg:pl-64 p-6">{children}</main>
+            <div className="flex-1 lg:pl-64 flex flex-col">
+                <header className="sticky top-0 z-40 flex items-center justify-end gap-2 px-6 py-3 border-b border-neutral-300/50 dark:border-coolgray-200/50 bg-white/95 dark:bg-base/95 backdrop-blur-sm">
+                    <ThemeSwitcher />
+                    {auth?.user && changelog && (
+                        <WhatsNewButton unreadCount={changelog.unreadCount} currentVersion={changelog.currentVersion} canFetchLatest={permissions?.isDev} />
+                    )}
+                </header>
+                <main className="flex-1 p-6">{children}</main>
+            </div>
+            {auth?.user && <LayoutPopups />}
         </div>
     );
 }

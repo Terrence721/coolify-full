@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\ChangelogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Middleware;
@@ -52,10 +53,16 @@ class HandleInertiaRequests extends Middleware
             'currentTeam' => $team ? [
                 'id' => $team->id,
                 'name' => $team->name,
+                'isAnyNotificationEnabled' => (bool) $team->isAnyNotificationEnabled(),
+            ] : null,
+            'changelog' => $user ? [
+                'unreadCount' => app(ChangelogService::class)->getUnreadCountForUser($user),
+                'currentVersion' => 'v'.config('constants.coolify.version'),
             ] : null,
             'permissions' => [
                 'isCloud' => isCloud(),
                 'isInstanceAdmin' => isInstanceAdmin(),
+                'isDev' => isDev(),
                 'canAccessTerminal' => $user ? Gate::forUser($user)->allows('canAccessTerminal') : false,
             ],
             'flash' => [

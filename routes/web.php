@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationDeploymentController;
+use App\Http\Controllers\ChangelogController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectApplicationConfigurationController;
 use App\Http\Controllers\DashboardController;
@@ -91,6 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::prefix('changelog')->group(function () {
+        Route::get('/entries', [ChangelogController::class, 'entries'])->name('changelog.entries');
+        Route::post('/mark-read', [ChangelogController::class, 'markAsRead'])->name('changelog.mark-read');
+        Route::post('/mark-all-read', [ChangelogController::class, 'markAllAsRead'])->name('changelog.mark-all-read');
+        Route::post('/fetch', [ChangelogController::class, 'manualFetch'])->name('changelog.fetch');
+    });
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/admin/back', [AdminController::class, 'back'])->name('admin.back');
     Route::post('/admin/switch-user', [AdminController::class, 'switchUser'])->name('admin.switch-user');
