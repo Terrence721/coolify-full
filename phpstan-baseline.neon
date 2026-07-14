@@ -369,13 +369,25 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 1
+			count: 2
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 1
+			count: 2
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type App\\Models\\Environment\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Using nullsafe property access on non\-nullable type App\\Models\\Project\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
@@ -2569,240 +2581,6 @@ parameters:
 			path: app/Livewire/Project/Application/Configuration.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:checkFqdns\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:checkFqdns\(\) has parameter \$showToaster with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:confirmDomainUsage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:downloadConfig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:generateDomain\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:generateNginxConfiguration\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:generateNginxConfiguration\(\) has parameter \$type with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:getDetectedPortInfoProperty\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:getWildcardDomain\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:loadComposeFile\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:loadComposeFile\(\) has parameter \$isInit with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:loadComposeFile\(\) has parameter \$showToast with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:resetDefaultLabels\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:resetDefaultLabels\(\) has parameter \$manualReset with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:setRedirect\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:submit\(\) has parameter \$showToaster with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:updatedBuildPack\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:updatedIsStatic\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\General\:\:updatedIsStatic\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Parameter \#1 \$string of function base64_encode expects string, Illuminate\\Support\\Stringable given\.$#'
-			identifier: argument.type
-			count: 3
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Parameter \#2 \$name of method Illuminate\\Contracts\\Routing\\ResponseFactory\:\:streamDownload\(\) expects string\|null, Illuminate\\Support\\Stringable given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$customLabels has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$domainConflicts has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$forceSaveDomains has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$parsedServiceDomains has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$parsedServices with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$portsExposes \(string\|null\) does not accept int\<min, \-1\>\|int\<1, max\>\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$services with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$showDomainConflictModal has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\General\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Property App\\Models\\Application\:\:\$ports_exposes \(string\|null\) does not accept int\<min, \-1\>\|int\<1, max\>\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Livewire/Project/Application/General.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Application\\Heading\:\:checkStatus\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3881,42 +3659,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Cannot access property \$server on class\-string\|object\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Livewire/Project/Shared/ResourceDetails.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceDetails\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceDetails.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceDetails\:\:resolveServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceDetails.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceDetails\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceDetails.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceDetails\:\:\$stack_applications type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceDetails.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceDetails\:\:\$stack_databases type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceDetails.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\UploadConfig\:\:mount\(\) has no return type specified\.$#'
@@ -10925,4 +10667,3 @@ parameters:
 			identifier: trait.unused
 			count: 1
 			path: app/Traits/SaveFromRedirect.php
-

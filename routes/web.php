@@ -291,7 +291,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/', [EnvironmentController::class, 'destroy'])->name('project.environment.destroy');
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}')->group(function () {
-        Route::get('/', ApplicationConfiguration::class)->name('project.application.configuration');
+        Route::get('/', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.configuration');
+        Route::patch('/general', [ProjectApplicationConfigurationController::class, 'updateGeneral'])->name('project.application.general.update');
+        Route::patch('/general/instant-save', [ProjectApplicationConfigurationController::class, 'instantSaveGeneral'])->name('project.application.general.instant-save');
+        Route::post('/general/load-compose', [ProjectApplicationConfigurationController::class, 'loadComposeFileEndpoint'])->name('project.application.general.load-compose');
+        Route::post('/general/generate-domain', [ProjectApplicationConfigurationController::class, 'generateServiceDomain'])->name('project.application.general.generate-domain');
+        Route::post('/general/wildcard-domain', [ProjectApplicationConfigurationController::class, 'getWildcardDomainEndpoint'])->name('project.application.general.wildcard-domain');
+        Route::post('/general/generate-nginx', [ProjectApplicationConfigurationController::class, 'generateNginxConfig'])->name('project.application.general.generate-nginx');
+        Route::post('/general/reset-labels', [ProjectApplicationConfigurationController::class, 'resetDefaultLabelsEndpoint'])->name('project.application.general.reset-labels');
+        Route::patch('/general/redirect', [ProjectApplicationConfigurationController::class, 'setRedirectDirection'])->name('project.application.general.redirect');
         Route::get('/swarm', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.swarm');
         Route::patch('/swarm', [ProjectApplicationConfigurationController::class, 'swarmUpdate'])->name('project.application.swarm.update');
         Route::get('/advanced', ApplicationConfiguration::class)->name('project.application.advanced');

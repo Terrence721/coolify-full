@@ -8,7 +8,7 @@
 
     <div class="flex flex-col h-full gap-8 sm:flex-row">
         <div class="sub-menu-wrapper">
-            <a class='sub-menu-item' {{ wireNavigate() }} wire:current.exact="menu-item-active"
+            <a class='sub-menu-item' wire:current.exact="menu-item-active"
                 href="{{ route('project.application.configuration', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">General</span></a>
             <a class='sub-menu-item' {{ wireNavigate() }} wire:current.exact="menu-item-active"
                 href="{{ route('project.application.advanced', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Advanced</span></a>
@@ -55,9 +55,7 @@
                 href="{{ route('project.application.danger', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Danger Zone</span></a>
         </div>
         <div class="w-full sm:flex-grow">
-            @if ($currentRoute === 'project.application.configuration')
-                <livewire:project.application.general :application="$application" />
-            @elseif ($currentRoute === 'project.application.advanced')
+            @if ($currentRoute === 'project.application.advanced')
                 <livewire:project.application.advanced :application="$application" />
             @elseif ($currentRoute === 'project.application.source' && $application->git_based())
                 <livewire:project.application.source :application="$application" />

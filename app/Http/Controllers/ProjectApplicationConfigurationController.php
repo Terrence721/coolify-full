@@ -14,15 +14,19 @@ use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
+use App\Jobs\ApplicationDeploymentJob;
 use App\Models\Application;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
+use App\Rules\ValidGitBranch;
+use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Url\Url;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Visus\Cuid2\Cuid2;
 
@@ -52,12 +56,22 @@ use Visus\Cuid2\Cuid2;
  * alongside deploy/restart/stop/check-status themselves). No new deployment routes were
  * needed here — only the props pointing at the existing ones.
  *
- * Still routed to Livewire: General, Advanced, Git Source, Servers, Preview Deployments,
- * Healthcheck — each either application-only business logic (servers' full
- * multi-server Destination behavior) or a large enough unit to deserve its own phase.
- * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
- * stay with Preview Deployments' own future conversion — see
- * ManagesResourceEnvironmentVariables' docblock.
+ * General (Phase 69, the largest tab in this whole migration — the main build-pack/deployment-
+ * configuration form: name, git source display, build-pack-specific settings, domains/redirect,
+ * Docker registry, network, HTTP basic auth, container labels, pre/post-deployment commands).
+ * Kept inline in this controller rather than a shared concern, matching Service's own General
+ * tab precedent (Phase 59) — both are single-resource-type forms with no Database/Service
+ * equivalent worth abstracting over. `updatedBuildPack()`'s pre-submit side effects are folded
+ * into updateGeneral() itself via a client-sent `buildPackChanged` flag rather than a separate
+ * route, since the original always ends by calling the equivalent of `submit()` anyway. The
+ * compose-file-load/parse path is genuinely SSH-touching, carrying the standard untested-happy-
+ * path gap (docs/smoketest.md).
+ *
+ * Still routed to Livewire: Advanced, Git Source, Servers, Preview Deployments, Healthcheck —
+ * each either application-only business logic (servers' full multi-server Destination behavior)
+ * or a large enough unit to deserve its own phase. Environment Variables' preview-deployment
+ * set, build secrets, and sort-alphabetically toggle stay with Preview Deployments' own future
+ * conversion — see ManagesResourceEnvironmentVariables' docblock.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
@@ -513,6 +527,718 @@ class ProjectApplicationConfigurationController extends Controller
         ]);
     }
 
+    public function updateGeneral(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $input = $request->all();
+
+        // Port of updatedBuildPack()'s pre-submit side effects, run only when the client
+        // flags that the build-pack <select> itself just changed (not on every save).
+        if ($request->boolean('buildPackChanged')) {
+            $buildPack = (string) ($input['buildPack'] ?? $application->build_pack);
+            if ($buildPack !== 'nixpacks' && $buildPack !== 'railpack') {
+                $input['isStatic'] = false;
+                $application->settings->is_static = false;
+                $application->settings->save();
+            } else {
+                $this->maybeRegenerateDefaultLabels($application);
+            }
+            if ($buildPack === 'dockercompose') {
+                $input['fqdn'] = null;
+                $application->fqdn = null;
+                $application->settings->save();
+            }
+            if ($buildPack === 'static') {
+                $input['portsExposes'] = '80';
+                $application->ports_exposes = '80';
+                $this->maybeRegenerateDefaultLabels($application);
+                $input['customNginxConfiguration'] = defaultNginxConfiguration('static');
+            }
+        }
+
+        $input['portsExposes'] = filled($input['portsExposes'] ?? null)
+            ? str($input['portsExposes'])->replace(' ', '')->trim()->toString()
+            : null;
+        if (filled($input['portsMappings'] ?? null)) {
+            $input['portsMappings'] = str($input['portsMappings'])->replace(' ', '')->trim()->toString();
+        }
+
+        $validated = Validator::make($input, $this->generalValidationRules(), $this->generalValidationMessages())->validate();
+
+        $oldPortsExposes = $application->ports_exposes;
+        $oldIsContainerLabelEscapeEnabled = (bool) $application->settings->is_container_label_escape_enabled;
+        $oldDockerComposeLocation = $application->docker_compose_location;
+        $oldBaseDirectory = $application->base_directory;
+
+        $warning = $this->applyNormalizedFqdn($application, (string) ($validated['fqdn'] ?? ''));
+
+        $this->syncGeneralFieldsToModel($application, $validated);
+
+        if ($application->isDirty('redirect')) {
+            $result = $this->applyRedirectDirection($application, $validated['redirect']);
+            if ($result !== null) {
+                return $result;
+            }
+        }
+        if ($application->isDirty('dockerfile')) {
+            $application->parseHealthcheckFromDockerfile((string) $application->dockerfile);
+        }
+
+        $fqdnConflicts = $this->fqdnConflicts($request, $application);
+        if ($fqdnConflicts !== null) {
+            return back()->with(['domainConflicts' => $fqdnConflicts, 'showDomainConflictModal' => true]);
+        }
+
+        if ($application->base_directory && $application->base_directory !== '/') {
+            $application->base_directory = rtrim($application->base_directory, '/');
+        }
+        if ($application->publish_directory && $application->publish_directory !== '/') {
+            $application->publish_directory = rtrim($application->publish_directory, '/');
+        }
+
+        if ($application->build_pack === 'dockercompose' &&
+            ($oldDockerComposeLocation !== $application->docker_compose_location || $oldBaseDirectory !== $application->base_directory)) {
+            try {
+                $this->reloadComposeFile($application, isInit: false, showToast: false, restoreBaseDirectory: $oldBaseDirectory, restoreDockerComposeLocation: $oldDockerComposeLocation);
+            } catch (\Throwable $e) {
+                $application->docker_compose_location = $oldDockerComposeLocation;
+                $application->base_directory = $oldBaseDirectory;
+
+                return back()->with('error', $e->getMessage());
+            }
+        }
+
+        $application->save();
+        if (blank($application->custom_labels) && $application->destination->server->proxyType() !== 'NONE' && ! $application->settings->is_container_label_readonly_enabled) {
+            $this->maybeRegenerateDefaultLabels($application, manualReset: true);
+        }
+        if ($oldPortsExposes !== $application->ports_exposes || $oldIsContainerLabelEscapeEnabled !== (bool) $application->settings->is_container_label_escape_enabled) {
+            $this->maybeRegenerateDefaultLabels($application);
+        }
+        if ($application->build_pack === 'dockerimage') {
+            Validator::make(['dockerRegistryImageName' => $application->docker_registry_image_name], [
+                'dockerRegistryImageName' => ValidationPatterns::dockerImageNameRules(required: true),
+            ])->validate();
+        }
+        if (filled($application->custom_docker_run_options)) {
+            $application->custom_docker_run_options = str($application->custom_docker_run_options)->trim()->toString();
+        }
+        if (filled($application->dockerfile)) {
+            $port = get_port_from_dockerfile($application->dockerfile);
+            if ($port && blank($application->ports_exposes)) {
+                $application->ports_exposes = (string) $port;
+            }
+        }
+
+        if ($application->build_pack === 'dockercompose') {
+            $application->docker_compose_domains = json_encode($this->parsedServiceDomainsFromRequest($request));
+            if ($application->isDirty('docker_compose_domains')) {
+                if (! $request->boolean('force_save_domains')) {
+                    $result = checkDomainUsage(resource: $application);
+                    if ($result['hasConflicts']) {
+                        return back()->with(['domainConflicts' => $result['conflicts'], 'showDomainConflictModal' => true]);
+                    }
+                }
+                $application->save();
+                $this->maybeRegenerateDefaultLabels($application, manualReset: true);
+            }
+        }
+
+        $application->custom_labels = filled($validated['customLabels'] ?? null) ? base64_encode($validated['customLabels']) : $application->custom_labels;
+        $application->save();
+
+        return back()->with($warning ? [] : ['success' => 'Application settings updated!']);
+    }
+
+    public function instantSaveGeneral(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), $this->generalValidationRules(), $this->generalValidationMessages())->validate();
+
+        $oldPortsExposes = $application->ports_exposes;
+        $oldIsContainerLabelEscapeEnabled = (bool) $application->settings->is_container_label_escape_enabled;
+        $oldIsPreserveRepositoryEnabled = (bool) $application->settings->is_preserve_repository_enabled;
+        $oldIsSpa = (bool) $application->settings->is_spa;
+        $oldIsHttpBasicAuthEnabled = (bool) $application->is_http_basic_auth_enabled;
+
+        $this->syncGeneralFieldsToModel($application, $validated);
+        $application->save();
+
+        if ($oldIsSpa !== (bool) $application->settings->is_spa) {
+            $application->custom_nginx_configuration = defaultNginxConfiguration($application->settings->is_spa ? 'spa' : 'static');
+            $application->save();
+        }
+        if ($oldIsHttpBasicAuthEnabled !== (bool) $application->is_http_basic_auth_enabled) {
+            $application->save();
+        }
+
+        if ($oldPortsExposes !== $application->ports_exposes || $oldIsContainerLabelEscapeEnabled !== (bool) $application->settings->is_container_label_escape_enabled) {
+            $this->maybeRegenerateDefaultLabels($application);
+        }
+        if ($oldIsPreserveRepositoryEnabled !== (bool) $application->settings->is_preserve_repository_enabled && ! $application->settings->is_preserve_repository_enabled) {
+            $application->fileStorages->each(function ($storage) {
+                $storage->is_based_on_git = false;
+                $storage->save();
+            });
+        }
+        if ($application->settings->is_container_label_readonly_enabled) {
+            $this->maybeRegenerateDefaultLabels($application);
+        }
+
+        return back()->with('success', 'Settings saved.');
+    }
+
+    public function loadComposeFileEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $isInit = $request->boolean('isInit');
+        if ($isInit && $application->docker_compose_raw) {
+            return back();
+        }
+
+        try {
+            $this->reloadComposeFile($application, isInit: $isInit, showToast: true);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Docker compose file loaded.');
+    }
+
+    public function generateServiceDomain(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'serviceName' => 'required|string',
+        ])->validate();
+
+        $uuid = (string) new Cuid2;
+        $domain = generateUrl(server: $application->destination->server, random: $uuid);
+
+        $decoded = json_decode((string) $application->docker_compose_domains, true) ?: [];
+        $decoded[$validated['serviceName']] = ['domain' => $domain];
+        $application->docker_compose_domains = json_encode($decoded);
+        $application->save();
+
+        if ($application->build_pack === 'dockercompose') {
+            try {
+                $this->reloadComposeFile($application, isInit: false, showToast: false);
+            } catch (\Throwable) {
+                // Domain was saved; a stale compose parse here isn't fatal.
+            }
+        }
+
+        return back()->with('success', 'Domain generated.');
+    }
+
+    public function getWildcardDomainEndpoint(string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $server = $application->destination->server;
+        $application->fqdn = generateUrl(server: $server, random: $application->uuid);
+        $application->save();
+        $this->maybeRegenerateDefaultLabels($application, manualReset: true);
+
+        return back()->with('success', 'Wildcard domain generated.');
+    }
+
+    public function generateNginxConfig(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $type = $request->string('type', 'static')->value();
+        $application->custom_nginx_configuration = defaultNginxConfiguration($type);
+        $application->save();
+
+        return back()->with('success', 'Nginx configuration generated.');
+    }
+
+    public function resetDefaultLabelsEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $this->maybeRegenerateDefaultLabels($application, manualReset: $request->boolean('manual', true));
+
+        return back()->with('success', 'Labels reset to defaults.');
+    }
+
+    public function setRedirectDirection(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'redirect' => 'required|string|in:both,www,non-www',
+        ])->validate();
+
+        $result = $this->applyRedirectDirection($application, $validated['redirect']);
+        if ($result !== null) {
+            return $result;
+        }
+        $application->save();
+        $this->maybeRegenerateDefaultLabels($application, manualReset: true);
+
+        return back()->with('success', 'Redirect updated.');
+    }
+
+    /**
+     * Sets the redirect direction on the (already-resolved) model, refusing the save if it
+     * would redirect to a www domain the application doesn't actually have — matching the
+     * original Rollback::setRedirect()'s own guard. Returns a redirect response (the error
+     * flash) if the guard tripped, or null to let the caller continue and persist.
+     */
+    private function applyRedirectDirection(Application $application, string $redirect): ?RedirectResponse
+    {
+        $application->redirect = $redirect;
+        $hasWww = collect($application->fqdns)->filter(fn ($fqdn) => str($fqdn)->contains('www.'))->count();
+        if ($hasWww === 0 && $redirect === 'www') {
+            return back()->with('error', 'You want to redirect to www, but you do not have a www domain set. Please add www to your domain list and as an A DNS record (if applicable).');
+        }
+
+        return null;
+    }
+
+    /**
+     * Port of General::normalizeFqdnAndWarn() — trims/lowercases/dedupes the comma-separated
+     * domain list and applies it to the model. Returns the sslip.io warning message, if any.
+     */
+    private function applyNormalizedFqdn(Application $application, string $fqdn): ?string
+    {
+        $fqdn = str($fqdn)->replaceEnd(',', '')->trim()->toString();
+        $fqdn = str($fqdn)->replaceStart(',', '')->trim()->toString();
+        $domains = str($fqdn)->trim()->explode(',')->filter(fn ($domain) => trim($domain) !== '')->map(function ($domain) {
+            $domain = trim($domain);
+            Url::fromString($domain, ['http', 'https']);
+
+            return str($domain)->lower();
+        });
+        $fqdn = $domains->unique()->implode(',');
+        $application->fqdn = $fqdn ?: null;
+        $warning = $fqdn ? sslipDomainWarning($fqdn) : null;
+
+        return $warning ?: null;
+    }
+
+    /**
+     * Port of General::checkFqdns() — DNS + domain-conflict validation for the top-level FQDN
+     * field, skipped entirely for dockercompose builds (whose domains live per-service in
+     * docker_compose_domains instead). Returns false (and flags a conflict in the session) if
+     * the caller should stop and show the domain-conflict modal.
+     */
+    /**
+     * @return array<int, mixed>|null null means no conflict (or the check was skipped/forced);
+     *                                 a non-null array is the conflict list to flash.
+     */
+    private function fqdnConflicts(Request $request, Application $application): ?array
+    {
+        if (blank($application->fqdn) || $application->build_pack === 'dockercompose') {
+            return null;
+        }
+        if ($request->boolean('force_save_domains')) {
+            return null;
+        }
+        $result = checkDomainUsage(resource: $application);
+
+        return $result['hasConflicts'] ? $result['conflicts'] : null;
+    }
+
+    /**
+     * Port of General::regenerateCustomLabelsIfNeeded()/resetDefaultLabels()'s shared core:
+     * regenerates the container labels from the application's current settings and persists
+     * them. Auto-triggered calls (manualReset: false) are a no-op unless labels are in
+     * Coolify-managed (readonly) mode — matching the original's own gate exactly, so a user
+     * hand-editing labels never has their edits silently overwritten by a field change
+     * elsewhere in the form.
+     */
+    private function maybeRegenerateDefaultLabels(Application $application, bool $manualReset = false): void
+    {
+        if (! (bool) $application->settings->is_container_label_readonly_enabled && ! $manualReset) {
+            return;
+        }
+
+        $customLabels = (string) str(implode('|coolify|', generateLabelsApplication($application)))->replace('|coolify|', "\n");
+        $application->custom_labels = base64_encode($customLabels);
+        $application->save();
+
+        if ($application->build_pack === 'dockercompose' && $application->docker_compose_raw) {
+            try {
+                $this->reloadComposeFile($application, isInit: false, showToast: false);
+            } catch (\Throwable) {
+                // Labels are already persisted; a stale compose parse here isn't fatal.
+            }
+        }
+    }
+
+    /**
+     * Port of General::loadComposeFile()/Application::loadComposeFile() — clones the repo on
+     * the destination server over SSH to read the compose file, then re-parses it. Genuinely
+     * SSH-touching; carries the standard untested-happy-path gap (docs/smoketest.md).
+     *
+     * @return array{parsedServices: mixed, initialDockerComposeLocation: ?string}
+     */
+    private function reloadComposeFile(Application $application, bool $isInit, bool $showToast, ?string $restoreBaseDirectory = null, ?string $restoreDockerComposeLocation = null): array
+    {
+        $result = $application->loadComposeFile($isInit, $restoreBaseDirectory, $restoreDockerComposeLocation);
+        $application->refresh();
+
+        return $result ?? ['parsedServices' => null, 'initialDockerComposeLocation' => $application->docker_compose_location];
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function syncGeneralFieldsToModel(Application $application, array $validated): void
+    {
+        $application->name = $validated['name'];
+        $application->description = $validated['description'] ?? null;
+        $application->git_repository = $validated['gitRepository'];
+        $application->git_branch = $validated['gitBranch'];
+        $application->git_commit_sha = $validated['gitCommitSha'] ?? null;
+        $application->install_command = $validated['installCommand'] ?? null;
+        $application->build_command = $validated['buildCommand'] ?? null;
+        $application->start_command = $validated['startCommand'] ?? null;
+        $application->build_pack = $validated['buildPack'];
+        $application->static_image = $validated['staticImage'];
+        $application->base_directory = $validated['baseDirectory'];
+        $application->publish_directory = $validated['publishDirectory'] ?? null;
+        $application->ports_exposes = $validated['portsExposes'] ?? null;
+        $application->ports_mappings = $validated['portsMappings'] ?? null;
+        $application->custom_network_aliases = $validated['customNetworkAliases'] ?? null;
+        $application->dockerfile = $validated['dockerfile'] ?? null;
+        $application->dockerfile_location = $validated['dockerfileLocation'] ?? null;
+        $application->dockerfile_target_build = $validated['dockerfileTargetBuild'] ?? null;
+        $application->docker_registry_image_name = $validated['dockerRegistryImageName'] ?? null;
+        $application->docker_registry_image_tag = $validated['dockerRegistryImageTag'] ?? null;
+        $application->docker_compose_location = $validated['dockerComposeLocation'] ?? null;
+        $application->docker_compose_custom_start_command = $validated['dockerComposeCustomStartCommand'] ?? null;
+        $application->docker_compose_custom_build_command = $validated['dockerComposeCustomBuildCommand'] ?? null;
+        $application->custom_labels = array_key_exists('customLabels', $validated) && $validated['customLabels'] !== null
+            ? base64_encode($validated['customLabels'])
+            : $application->custom_labels;
+        $application->custom_docker_run_options = $validated['customDockerRunOptions'] ?? null;
+        $application->pre_deployment_command = $validated['preDeploymentCommand'] ?? null;
+        $application->pre_deployment_command_container = $validated['preDeploymentCommandContainer'] ?? null;
+        $application->post_deployment_command = $validated['postDeploymentCommand'] ?? null;
+        $application->post_deployment_command_container = $validated['postDeploymentCommandContainer'] ?? null;
+        $application->custom_nginx_configuration = $validated['customNginxConfiguration'] ?? null;
+        $application->is_http_basic_auth_enabled = (bool) ($validated['isHttpBasicAuthEnabled'] ?? false);
+        $application->http_basic_auth_username = $validated['httpBasicAuthUsername'] ?? null;
+        $application->http_basic_auth_password = $validated['httpBasicAuthPassword'] ?? null;
+        $application->watch_paths = $validated['watchPaths'] ?? null;
+        $application->redirect = $validated['redirect'];
+
+        $application->settings->is_static = (bool) ($validated['isStatic'] ?? false);
+        $application->settings->is_spa = (bool) ($validated['isSpa'] ?? false);
+        $application->settings->is_build_server_enabled = (bool) ($validated['isBuildServerEnabled'] ?? false);
+        $application->settings->is_preserve_repository_enabled = (bool) ($validated['isPreserveRepositoryEnabled'] ?? false);
+        $application->settings->is_container_label_escape_enabled = (bool) ($validated['isContainerLabelEscapeEnabled'] ?? false);
+        $application->settings->is_container_label_readonly_enabled = (bool) ($validated['isContainerLabelReadonlyEnabled'] ?? false);
+        $application->settings->save();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function parsedServiceDomainsFromRequest(Request $request): array
+    {
+        $sanitized = (array) $request->input('parsedServiceDomains', []);
+        $originalDomains = [];
+        foreach ($sanitized as $key => $value) {
+            $originalDomains[$key] = $value;
+        }
+
+        return $originalDomains;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function generalValidationRules(): array
+    {
+        return [
+            'name' => ValidationPatterns::nameRules(),
+            'description' => ValidationPatterns::descriptionRules(),
+            'fqdn' => 'nullable',
+            'gitRepository' => 'required',
+            'gitBranch' => ['required', 'string', new ValidGitBranch],
+            'gitCommitSha' => ['nullable', 'string', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9._\-\/]*$/'],
+            'installCommand' => ValidationPatterns::shellSafeCommandRules(),
+            'buildCommand' => ValidationPatterns::shellSafeCommandRules(),
+            'startCommand' => ValidationPatterns::shellSafeCommandRules(),
+            'buildPack' => 'required',
+            'staticImage' => 'required',
+            'baseDirectory' => array_merge(['required'], array_slice(ValidationPatterns::directoryPathRules(), 1)),
+            'publishDirectory' => ValidationPatterns::directoryPathRules(),
+            'portsExposes' => ['nullable', 'string', 'regex:/^(\d+)(,\d+)*$/'],
+            'portsMappings' => ValidationPatterns::portMappingRules(),
+            'customNetworkAliases' => 'nullable',
+            'dockerfile' => 'nullable',
+            'dockerRegistryImageName' => ValidationPatterns::dockerImageNameRules(),
+            'dockerRegistryImageTag' => ValidationPatterns::dockerImageTagRules(),
+            'dockerfileLocation' => ValidationPatterns::filePathRules(),
+            'dockerComposeLocation' => ValidationPatterns::filePathRules(),
+            'dockerfileTargetBuild' => ValidationPatterns::dockerTargetRules(),
+            'dockerComposeCustomStartCommand' => ValidationPatterns::shellSafeCommandRules(),
+            'dockerComposeCustomBuildCommand' => ValidationPatterns::shellSafeCommandRules(),
+            'customLabels' => 'nullable',
+            'customDockerRunOptions' => ValidationPatterns::shellSafeCommandRules(2000),
+            'preDeploymentCommand' => 'nullable',
+            'preDeploymentCommandContainer' => ['nullable', ...ValidationPatterns::containerNameRules()],
+            'postDeploymentCommand' => 'nullable',
+            'postDeploymentCommandContainer' => ['nullable', ...ValidationPatterns::containerNameRules()],
+            'customNginxConfiguration' => 'nullable',
+            'isStatic' => 'boolean',
+            'isSpa' => 'boolean',
+            'isBuildServerEnabled' => 'boolean',
+            'isContainerLabelEscapeEnabled' => 'boolean',
+            'isContainerLabelReadonlyEnabled' => 'boolean',
+            'isPreserveRepositoryEnabled' => 'boolean',
+            'isHttpBasicAuthEnabled' => 'boolean',
+            'httpBasicAuthUsername' => 'nullable|string',
+            'httpBasicAuthPassword' => 'nullable|string',
+            'watchPaths' => 'nullable',
+            'redirect' => 'string|required',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function generalValidationMessages(): array
+    {
+        return array_merge(
+            ValidationPatterns::combinedMessages(),
+            [
+                ...ValidationPatterns::filePathMessages('dockerfileLocation', 'Dockerfile'),
+                ...ValidationPatterns::filePathMessages('dockerComposeLocation', 'Docker Compose'),
+                'baseDirectory.regex' => 'The base directory must be a valid path starting with / and containing only safe characters.',
+                'publishDirectory.regex' => 'The publish directory must be a valid path starting with / and containing only safe characters.',
+                'dockerfileTargetBuild.regex' => 'The Dockerfile target build must contain only alphanumeric characters, dots, hyphens, and underscores.',
+                'dockerComposeCustomStartCommand.regex' => 'The Docker Compose start command contains invalid characters.',
+                'dockerComposeCustomBuildCommand.regex' => 'The Docker Compose build command contains invalid characters.',
+                'customDockerRunOptions.regex' => 'The custom Docker run options contain invalid characters.',
+                'installCommand.regex' => 'The install command contains invalid characters.',
+                'buildCommand.regex' => 'The build command contains invalid characters.',
+                'startCommand.regex' => 'The start command contains invalid characters.',
+                'preDeploymentCommandContainer.regex' => 'The pre-deployment command container name must contain only alphanumeric characters, dots, hyphens, and underscores.',
+                'postDeploymentCommandContainer.regex' => 'The post-deployment command container name must contain only alphanumeric characters, dots, hyphens, and underscores.',
+                'name.required' => 'The Name field is required.',
+                'gitRepository.required' => 'The Git Repository field is required.',
+                'gitBranch.required' => 'The Git Branch field is required.',
+                'buildPack.required' => 'The Build Pack field is required.',
+                'staticImage.required' => 'The Static Image field is required.',
+                'baseDirectory.required' => 'The Base Directory field is required.',
+                'portsExposes.regex' => 'Ports exposes must be a comma-separated list of port numbers (e.g. 3000,3001).',
+                ...ValidationPatterns::portMappingMessages(),
+                'redirect.required' => 'The Redirect setting is required.',
+            ]
+        );
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function generalTabProps(Application $application, array $parameters): array
+    {
+        $environment = $application->environment;
+        $server = $application->destination->server;
+
+        $parsedServices = null;
+        if ($application->build_pack === 'dockercompose' && $application->docker_compose_raw) {
+            try {
+                $parsedServices = $application->parse();
+            } catch (\Throwable) {
+                $parsedServices = collect([]);
+            }
+        }
+
+        $composeServices = [];
+        if ($parsedServices) {
+            foreach ((array) data_get($parsedServices, 'services', []) as $serviceName => $service) {
+                $composeServices[] = [
+                    'name' => $serviceName,
+                    'sanitizedKey' => str($serviceName)->replace('-', '_')->replace('.', '_')->value(),
+                    'isDatabaseImage' => isDatabaseImage(data_get($service, 'image')),
+                ];
+            }
+        }
+
+        $detectedPort = $application->detectPortFromEnvironment();
+        $detectedPortInfo = null;
+        if ($detectedPort) {
+            $portsExposesArray = $application->ports_exposes_array;
+            $detectedPortInfo = [
+                'port' => $detectedPort,
+                'matches' => in_array($detectedPort, $portsExposesArray),
+                'isEmpty' => empty($portsExposesArray),
+            ];
+        }
+
+        return [
+            'general' => [
+                'name' => $application->name,
+                'description' => $application->description,
+                'fqdn' => $application->fqdn,
+                'gitRepository' => $application->git_repository,
+                'gitBranch' => $application->git_branch,
+                'gitCommitSha' => $application->git_commit_sha,
+                'installCommand' => $application->install_command,
+                'buildCommand' => $application->build_command,
+                'startCommand' => $application->start_command,
+                'buildPack' => $application->build_pack,
+                'staticImage' => $application->static_image,
+                'baseDirectory' => $application->base_directory,
+                'publishDirectory' => $application->publish_directory,
+                'portsExposes' => $application->ports_exposes,
+                'portsMappings' => $application->ports_mappings,
+                'customNetworkAliases' => $application->custom_network_aliases,
+                'dockerfile' => $application->dockerfile,
+                'dockerfileLocation' => $application->dockerfile_location,
+                'dockerfileTargetBuild' => $application->dockerfile_target_build,
+                'dockerRegistryImageName' => $application->docker_registry_image_name,
+                'dockerRegistryImageTag' => $application->docker_registry_image_tag,
+                'dockerComposeLocation' => $application->docker_compose_location,
+                'dockerCompose' => $application->docker_compose,
+                'dockerComposeRaw' => $application->docker_compose_raw,
+                'dockerComposeCustomStartCommand' => $application->docker_compose_custom_start_command,
+                'dockerComposeCustomBuildCommand' => $application->docker_compose_custom_build_command,
+                'customLabels' => $application->parseContainerLabels(),
+                'customDockerRunOptions' => $application->custom_docker_run_options,
+                'preDeploymentCommand' => $application->pre_deployment_command,
+                'preDeploymentCommandContainer' => $application->pre_deployment_command_container,
+                'postDeploymentCommand' => $application->post_deployment_command,
+                'postDeploymentCommandContainer' => $application->post_deployment_command_container,
+                'customNginxConfiguration' => $application->custom_nginx_configuration,
+                'isHttpBasicAuthEnabled' => (bool) $application->is_http_basic_auth_enabled,
+                'httpBasicAuthUsername' => $application->http_basic_auth_username,
+                'httpBasicAuthPassword' => $application->http_basic_auth_password,
+                'watchPaths' => $application->watch_paths,
+                'redirect' => $application->redirect,
+                'isStatic' => (bool) $application->settings->is_static,
+                'isSpa' => (bool) $application->settings->is_spa,
+                'isBuildServerEnabled' => (bool) $application->settings->is_build_server_enabled,
+                'isPreserveRepositoryEnabled' => (bool) $application->settings->is_preserve_repository_enabled,
+                'isContainerLabelEscapeEnabled' => (bool) $application->settings->is_container_label_escape_enabled,
+                'isContainerLabelReadonlyEnabled' => (bool) $application->settings->is_container_label_readonly_enabled,
+                'isRawComposeDeploymentEnabled' => (bool) $application->settings->is_raw_compose_deployment_enabled,
+                'couldSetBuildCommands' => $application->could_set_build_commands(),
+                'isSwarm' => (bool) $server?->isSwarm(),
+                'additionalServersCount' => $application->additional_servers->count(),
+                'isGithubBasedPrivateRepo' => $application->is_github_based() && ! $application->is_public_repository(),
+                'composeParsingVersion' => isDev() ? $application->compose_parsing_version : null,
+                'detectedPortInfo' => $detectedPortInfo,
+                'dockerComposeBuildCommandPreview' => $this->dockerComposeBuildCommandPreview($application),
+                'dockerComposeStartCommandPreview' => $this->dockerComposeStartCommandPreview($application),
+                'composeServices' => $composeServices,
+                'parsedServiceDomains' => $this->sanitizeServiceDomainKeys($application->docker_compose_domains),
+            ],
+            'resourceDetails' => [
+                'resource' => ['name' => $application->name, 'uuid' => $application->uuid],
+                'environment' => ['name' => $environment?->name, 'uuid' => $environment?->uuid],
+                'project' => ['name' => $environment?->project?->name, 'uuid' => $environment?->project?->uuid],
+                'server' => $server ? ['name' => $server->name, 'uuid' => $server->uuid] : null,
+            ],
+            'generalUrls' => [
+                'update' => route('project.application.general.update', $parameters),
+                'instantSave' => route('project.application.general.instant-save', $parameters),
+                'loadCompose' => route('project.application.general.load-compose', $parameters),
+                'generateServiceDomain' => route('project.application.general.generate-domain', $parameters),
+                'wildcardDomain' => route('project.application.general.wildcard-domain', $parameters),
+                'generateNginxConfig' => route('project.application.general.generate-nginx', $parameters),
+                'resetLabels' => route('project.application.general.reset-labels', $parameters),
+                'setRedirect' => route('project.application.general.redirect', $parameters),
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function sanitizeServiceDomainKeys(?string $jsonDomains): array
+    {
+        $parsed = $jsonDomains ? json_decode($jsonDomains, true) : [];
+        $sanitized = [];
+        foreach ((array) $parsed as $serviceName => $domain) {
+            $key = str($serviceName)->replace('-', '_')->replace('.', '_')->value();
+            $sanitized[$key] = $domain;
+        }
+
+        return $sanitized;
+    }
+
+    private function dockerComposeBuildCommandPreview(Application $application): string
+    {
+        if (blank($application->docker_compose_custom_build_command)) {
+            return '';
+        }
+        $normalizedBase = $application->base_directory === '/' ? '' : rtrim((string) $application->base_directory, '/');
+        $command = injectDockerComposeFlags(
+            $application->docker_compose_custom_build_command,
+            ".{$normalizedBase}{$application->docker_compose_location}",
+            ApplicationDeploymentJob::BUILD_TIME_ENV_PATH
+        );
+        if (! $application->settings->use_build_secrets) {
+            $buildTimeEnvs = $application->environment_variables()->where('is_buildtime', true)->get();
+            if ($buildTimeEnvs->isNotEmpty()) {
+                $buildArgs = generateDockerBuildArgs($buildTimeEnvs);
+                $command = injectDockerComposeBuildArgs($command, $buildArgs->implode(' '));
+            }
+        }
+
+        return $command;
+    }
+
+    private function dockerComposeStartCommandPreview(Application $application): string
+    {
+        if (blank($application->docker_compose_custom_start_command)) {
+            return '';
+        }
+        $normalizedBase = $application->base_directory === '/' ? '' : rtrim((string) $application->base_directory, '/');
+
+        return injectDockerComposeFlags(
+            $application->docker_compose_custom_start_command,
+            ".{$normalizedBase}{$application->docker_compose_location}",
+            '{workdir}/.env'
+        );
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -530,6 +1256,7 @@ class ProjectApplicationConfigurationController extends Controller
             'webhooks' => $this->webhooksTabProps($application, $parameters, 'project.application'),
             'swarm' => $this->swarmTabProps($application, $parameters),
             'rollback' => $this->rollbackTabProps($application, $parameters),
+            'configuration' => $this->generalTabProps($application, $parameters),
             default => [],
         };
     }

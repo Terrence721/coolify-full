@@ -1,3 +1,4 @@
+import ApplicationGeneralTab from '../../../Components/ApplicationGeneralTab';
 import ApplicationHeading from '../../../Components/ApplicationHeading';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import RollbackTab from '../../../Components/RollbackTab';
@@ -7,12 +8,12 @@ import SwarmTab from '../../../Components/SwarmTab';
 import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Application\Configuration's shell plus 10 of its 16 tabs
+ * React port of App\Livewire\Project\Application\Configuration's shell plus 11 of its 16 tabs
  * (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled Tasks — Phase 63;
  * Environment Variables and Persistent Storage — Phase 65; Webhooks — Phase 66; Swarm — Phase
- * 67; Rollback — Phase 68, all Application-only since it has no Database/Service equivalent).
- * See ProjectApplicationConfigurationController. The remaining 6 tabs (General, Advanced, Git
- * Source, Servers, Preview Deployments, Healthcheck) stay on the Livewire shell for now — plain
+ * 67; Rollback — Phase 68; General — Phase 69, the largest tab in this migration). See
+ * ProjectApplicationConfigurationController. The remaining 5 tabs (Advanced, Git Source,
+ * Servers, Preview Deployments, Healthcheck) stay on the Livewire shell for now — plain
  * full-page links here, matching the established split-by-route-name pattern.
  *
  * Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still highlights
@@ -87,6 +88,9 @@ export default function Configuration(props) {
                     {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} manualWebhooks={props.manualWebhooks} />}
                     {tab === 'swarm' && <SwarmTab swarm={props.swarm} swarmUpdateUrl={props.swarmUpdateUrl} canUpdate={canUpdate} />}
                     {tab === 'rollback' && <RollbackTab rollback={props.rollback} rollbackUrls={props.rollbackUrls} />}
+                    {tab === 'configuration' && (
+                        <ApplicationGeneralTab general={props.general} resourceDetails={props.resourceDetails} generalUrls={props.generalUrls} canUpdate={canUpdate} />
+                    )}
                 </div>
             </div>
         </div>
