@@ -324,7 +324,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/webhooks', [ProjectApplicationConfigurationController::class, 'updateWebhookSecrets'])->name('project.application.webhooks.update');
         Route::get('/preview-deployments', ApplicationConfiguration::class)->name('project.application.preview-deployments');
         Route::get('/healthcheck', ApplicationConfiguration::class)->name('project.application.healthcheck');
-        Route::get('/rollback', ApplicationConfiguration::class)->name('project.application.rollback');
+        Route::get('/rollback', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.rollback');
+        Route::patch('/rollback/settings', [ProjectApplicationConfigurationController::class, 'rollbackSaveSettings'])->name('project.application.rollback.save-settings');
+        Route::post('/rollback/images', [ProjectApplicationConfigurationController::class, 'rollbackLoadImages'])->name('project.application.rollback.load-images');
+        Route::post('/rollback/deploy', [ProjectApplicationConfigurationController::class, 'rollbackDeploy'])->name('project.application.rollback.deploy');
         Route::get('/resource-limits', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.resource-limits');
         Route::patch('/resource-limits', [ProjectApplicationConfigurationController::class, 'updateResourceLimits'])->name('project.application.resource-limits.update');
         Route::get('/resource-operations', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.resource-operations');

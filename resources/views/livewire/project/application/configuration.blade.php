@@ -41,7 +41,7 @@
                 <a class="sub-menu-item" {{ wireNavigate() }} wire:current.exact="menu-item-active"
                     href="{{ route('project.application.healthcheck', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Healthcheck</span></a>
             @endif
-            <a class="sub-menu-item" {{ wireNavigate() }} wire:current.exact="menu-item-active"
+            <a class="sub-menu-item" wire:current.exact="menu-item-active"
                 href="{{ route('project.application.rollback', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Rollback</span></a>
             <a class="sub-menu-item" wire:current.exact="menu-item-active"
                 href="{{ route('project.application.resource-limits', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Resource Limits</span></a>
@@ -67,8 +67,6 @@
                 <livewire:project.application.previews :application="$application" />
             @elseif ($currentRoute === 'project.application.healthcheck' && $application->build_pack !== 'dockercompose')
                 <livewire:project.shared.health-checks :resource="$application" />
-            @elseif ($currentRoute === 'project.application.rollback')
-                <livewire:project.application.rollback :application="$application" />
             @endif
         </div>
     </div>

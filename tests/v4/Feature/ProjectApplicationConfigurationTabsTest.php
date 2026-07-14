@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Jobs\ApplicationDeploymentJob;
 use App\Models\Application;
+use App\Models\ApplicationDeploymentQueue;
 use App\Models\Environment;
 use App\Models\InstanceSettings;
 use App\Models\Project;
@@ -12,6 +14,7 @@ use App\Models\Tag;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
@@ -499,4 +502,90 @@ it('only lists the swarm tab link for a swarm destination', function () {
 
     expect(collect($nonSwarmLinks)->pluck('key'))->not->toContain('swarm');
     expect(collect($swarmLinks)->pluck('key'))->toContain('swarm');
+});
+
+it('renders the rollback tab with current settings', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $application->settings->update(['docker_images_to_keep' => 4]);
+
+    $response = $this->get(route('project.application.rollback', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'rollback')
+        ->where('rollback.dockerImagesToKeep', 4)
+        ->where('rollback.serverRetentionDisabled', false)
+        ->where('rollback.canDeploy', true)
+        ->has('rollbackUrls.saveSettings')
+        ->has('rollbackUrls.loadImages')
+        ->has('rollbackUrls.deploy')
+    );
+});
+
+it('saves rollback settings', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.rollback.save-settings', appTabsParams($application)), [
+        'dockerImagesToKeep' => 10,
+    ]);
+
+    $response->assertSessionHas('success', 'Settings saved.');
+    expect($application->settings->fresh()->docker_images_to_keep)->toBe(10);
+});
+
+it('rejects rollback settings above the allowed maximum', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->patch(route('project.application.rollback.save-settings', appTabsParams($application)), [
+        'dockerImagesToKeep' => 101,
+    ])->assertSessionHasErrors('dockerImagesToKeep');
+});
+
+it('loads no images for a non-functional server, without touching SSH', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.rollback.load-images', appTabsParams($application)));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('rollbackImages', []);
+});
+
+it('rejects rolling back to an invalid git ref, without queuing a deployment', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.rollback.deploy', appTabsParams($application)), [
+        'tag' => '-not-a-valid-ref',
+    ]);
+
+    $response->assertSessionHas('error');
+    Queue::assertNothingPushed();
+});
+
+it('queues a rollback deployment for a valid commit tag', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.rollback.deploy', appTabsParams($application)), [
+        'tag' => 'a1b2c3d',
+    ]);
+
+    $response->assertRedirect();
+    $deployment = ApplicationDeploymentQueue::where('application_id', $application->id)->firstOrFail();
+    expect($deployment->rollback)->toBeTruthy();
+    expect($deployment->commit)->toBe('a1b2c3d');
+    Queue::assertPushed(ApplicationDeploymentJob::class);
 });

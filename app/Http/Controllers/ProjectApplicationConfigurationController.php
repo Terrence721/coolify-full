@@ -36,10 +36,13 @@ use Visus\Cuid2\Cuid2;
  * ManagesResourceEnvironmentVariables' usesDockerCompose()/dockerComposeContent() and
  * ManagesResourceStorages' configurationDir()/requiresHostPath()); Webhooks (Phase 66, its
  * third consumer for the shared read-only deploy webhook, plus the manual Git secrets form
- * that's genuinely Application-only — see ManagesResourceWebhooks' docblock); and Swarm (Phase
+ * that's genuinely Application-only — see ManagesResourceWebhooks' docblock); Swarm (Phase
  * 67, no concern needed — it's Application's own deprecated feature with no Database/Service
- * equivalent at all). "Clone" is Application's own — it delegates to clone_application(), the
- * comprehensive helper already proven by Project\CloneMe, rather than duplicating
+ * equivalent at all); and Rollback (Phase 68, likewise Application-only — the docker-images-
+ * to-keep setting plus the local-image list/rollback-deploy actions, which genuinely touch SSH
+ * for their happy path, same untested-happy-path gap as every other SSH-touching conversion —
+ * see docs/smoketest.md). "Clone" is Application's own — it delegates to clone_application(),
+ * the comprehensive helper already proven by Project\CloneMe, rather than duplicating
  * per-child-type cloning logic inline the way Database's and Service's clone() methods each had
  * to.
  *
@@ -50,7 +53,7 @@ use Visus\Cuid2\Cuid2;
  * needed here — only the props pointing at the existing ones.
  *
  * Still routed to Livewire: General, Advanced, Git Source, Servers, Preview Deployments,
- * Healthcheck, Rollback — each either application-only business logic (servers' full
+ * Healthcheck — each either application-only business logic (servers' full
  * multi-server Destination behavior) or a large enough unit to deserve its own phase.
  * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
  * stay with Preview Deployments' own future conversion — see
@@ -414,6 +417,102 @@ class ProjectApplicationConfigurationController extends Controller
         return back()->with('success', 'Swarm settings updated.');
     }
 
+    public function rollbackSaveSettings(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'dockerImagesToKeep' => 'integer|min:0|max:100',
+        ])->validate();
+
+        $application->settings->docker_images_to_keep = $validated['dockerImagesToKeep'];
+        $application->settings->save();
+
+        return back()->with('success', 'Settings saved.');
+    }
+
+    public function rollbackLoadImages(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('view', $application);
+
+        $current = null;
+        $images = [];
+        $server = $application->destination->server;
+        if ($server->isFunctional()) {
+            $image = $application->docker_registry_image_name ?? $application->uuid;
+            $output = instant_remote_process([
+                "docker inspect --format='{{.Config.Image}}' {$application->uuid}",
+            ], $server, throwError: false);
+            $current = data_get(str($output)->trim()->explode(':'), 1);
+
+            $output = instant_remote_process([
+                "docker images --format '{{.Repository}}#{{.Tag}}#{{.CreatedAt}}'",
+            ], $server);
+            $images = str($output)->trim()->explode("\n")->filter(fn ($item) => str($item)->contains($image))
+                ->map(function ($item) use ($current) {
+                    $item = str($item)->explode('#');
+
+                    return [
+                        'tag' => $item[1],
+                        'createdAt' => $item[2],
+                        'isCurrent' => $item[1] === $current,
+                    ];
+                })->values()->toArray();
+        }
+
+        return back()->with([
+            'rollbackImages' => $images,
+            'rollbackCurrentTag' => $current,
+        ] + ($request->boolean('showToast') ? ['success' => 'Images loaded.'] : []));
+    }
+
+    public function rollbackDeploy(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        $validated = Validator::make($request->all(), [
+            'tag' => 'required|string',
+        ])->validate();
+
+        try {
+            $commit = validateGitRef($validated['tag'], 'rollback commit');
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        $deploymentUuid = (string) new Cuid2;
+        $result = queue_application_deployment(
+            application: $application,
+            deployment_uuid: $deploymentUuid,
+            commit: $commit,
+            rollback: true,
+            force_rebuild: false,
+        );
+
+        if ($result['status'] === 'queue_full') {
+            return back()->with('error', $result['message']);
+        }
+
+        return redirect()->route('project.application.deployment.show', [
+            'project_uuid' => $project_uuid,
+            'environment_uuid' => $environment_uuid,
+            'application_uuid' => $application_uuid,
+            'deployment_uuid' => $deploymentUuid,
+        ]);
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -430,8 +529,29 @@ class ProjectApplicationConfigurationController extends Controller
             'persistent-storage' => $this->storagesTabProps($application, $parameters, 'project.application'),
             'webhooks' => $this->webhooksTabProps($application, $parameters, 'project.application'),
             'swarm' => $this->swarmTabProps($application, $parameters),
+            'rollback' => $this->rollbackTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function rollbackTabProps(Application $application, array $parameters): array
+    {
+        return [
+            'rollback' => [
+                'dockerImagesToKeep' => $application->settings->docker_images_to_keep ?? 2,
+                'serverRetentionDisabled' => (bool) ($application->destination->server->settings->disable_application_image_retention ?? false),
+                'canDeploy' => auth()->user()->can('deploy', $application),
+            ],
+            'rollbackUrls' => [
+                'saveSettings' => route('project.application.rollback.save-settings', $parameters),
+                'loadImages' => route('project.application.rollback.load-images', $parameters),
+                'deploy' => route('project.application.rollback.deploy', $parameters),
+            ],
+        ];
     }
 
     /**

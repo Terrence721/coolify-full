@@ -3133,54 +3133,6 @@ parameters:
 			path: app/Livewire/Project/Application/PreviewsCompose.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Rollback\:\:loadImages\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Rollback\:\:loadImages\(\) has parameter \$showToast with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Rollback\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Rollback\:\:rollbackImage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Rollback\:\:rollbackImage\(\) has parameter \$commit with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Application\\Rollback\:\:saveSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\Rollback\:\:\$images has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Application\\Rollback\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Application/Rollback.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Application\\ServerStatusBadge\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
