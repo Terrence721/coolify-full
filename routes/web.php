@@ -348,7 +348,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/preview-deployments/{pull_request_id}/force-deploy', [ProjectApplicationConfigurationController::class, 'forceDeployPreviewWithoutCache'])->name('project.application.previews.force-deploy');
         Route::post('/preview-deployments/{pull_request_id}/stop', [ProjectApplicationConfigurationController::class, 'stopPreview'])->name('project.application.previews.stop');
         Route::delete('/preview-deployments/{pull_request_id}', [ProjectApplicationConfigurationController::class, 'destroyPreview'])->name('project.application.previews.destroy');
-        Route::get('/healthcheck', ApplicationConfiguration::class)->name('project.application.healthcheck');
+        Route::get('/healthcheck', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.healthcheck');
+        Route::patch('/healthcheck', [ProjectApplicationConfigurationController::class, 'updateHealthcheck'])->name('project.application.healthcheck.update');
+        Route::post('/healthcheck/toggle', [ProjectApplicationConfigurationController::class, 'toggleHealthcheckEnabled'])->name('project.application.healthcheck.toggle');
         Route::get('/rollback', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.rollback');
         Route::patch('/rollback/settings', [ProjectApplicationConfigurationController::class, 'rollbackSaveSettings'])->name('project.application.rollback.save-settings');
         Route::post('/rollback/images', [ProjectApplicationConfigurationController::class, 'rollbackLoadImages'])->name('project.application.rollback.load-images');

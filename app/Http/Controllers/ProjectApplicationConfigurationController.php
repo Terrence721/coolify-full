@@ -88,10 +88,17 @@ use Visus\Cuid2\Cuid2;
  * `maybeRegenerateDefaultLabels()`'s existing `manualReset: false` behavior, reused as-is rather
  * than re-implemented.
  *
- * Still routed to Livewire: Git Source, Servers, Healthcheck — each either application-only
- * business logic (Servers' full multi-server Destination behavior) or large enough to deserve
- * its own phase. Environment Variables' preview-deployment set, build secrets, and
- * sort-alphabetically toggle stay deferred — see ManagesResourceEnvironmentVariables' docblock.
+ * Healthcheck (Phase 72 — HTTP/CMD healthcheck type, method/scheme/host/port/path/return-code/
+ * response-text, timing fields, and the enable/disable toggle). This tab was the last consumer
+ * of `App\Livewire\Project\Shared\HealthChecks`, a generic `$resource`-typed component Database
+ * used to share too before Phase 60 gave databases their own narrower inline version (no HTTP
+ * fields — a database has no HTTP endpoint to probe). `submit()`/`instantSave()` were identical
+ * full-form saves in the original, ported as one `updateHealthcheck()` endpoint.
+ *
+ * Still routed to Livewire: Git Source, Servers — each application-only business logic
+ * (Servers' full multi-server Destination behavior) large enough to deserve its own phase.
+ * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
+ * stay deferred — see ManagesResourceEnvironmentVariables' docblock.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
@@ -670,6 +677,88 @@ class ProjectApplicationConfigurationController extends Controller
         $application->save();
 
         return back()->with('success', 'Max restart count saved.');
+    }
+
+    /** Port of Shared\HealthChecks::submit()/instantSave() — a single whole-form save, matching this migration's established instant-save pattern. */
+    public function updateHealthcheck(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), $this->healthcheckValidationRules())->validate();
+        $this->syncHealthcheckFieldsToModel($application, $validated);
+
+        return back()->with('success', 'Health check updated.');
+    }
+
+    /** Port of Shared\HealthChecks::toggleHealthcheck(). */
+    public function toggleHealthcheckEnabled(string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $wasEnabled = (bool) $application->health_check_enabled;
+        $application->health_check_enabled = ! $wasEnabled;
+        $application->save();
+
+        if ($application->health_check_enabled && ! $wasEnabled && $application->isRunning()) {
+            return back()->with('info', 'Health check has been enabled. A restart is required to apply the new settings.');
+        }
+
+        return back()->with('success', 'Health check '.($application->health_check_enabled ? 'enabled' : 'disabled').'.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function healthcheckValidationRules(): array
+    {
+        return [
+            'healthCheckEnabled' => 'boolean',
+            'healthCheckType' => 'string|in:http,cmd',
+            'healthCheckCommand' => ['nullable', 'required_if:healthCheckType,cmd', 'string', 'max:1000', 'regex:/^[a-zA-Z0-9 \-_.\/:=@,+]+$/'],
+            'healthCheckMethod' => 'required|string|in:GET,HEAD,POST,OPTIONS',
+            'healthCheckScheme' => 'required|string|in:http,https',
+            'healthCheckHost' => ['required', 'string', 'regex:/^[a-zA-Z0-9.\-_]+$/'],
+            'healthCheckPort' => 'nullable|integer|min:1|max:65535',
+            'healthCheckPath' => ['required', 'string', 'regex:#^[a-zA-Z0-9/\-_.~%,;]+$#'],
+            'healthCheckReturnCode' => 'integer',
+            'healthCheckResponseText' => 'nullable|string',
+            'healthCheckInterval' => 'integer|min:1',
+            'healthCheckTimeout' => 'integer|min:1',
+            'healthCheckRetries' => 'integer|min:1',
+            'healthCheckStartPeriod' => 'integer',
+            'customHealthcheckFound' => 'boolean',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function syncHealthcheckFieldsToModel(Application $application, array $validated): void
+    {
+        $application->health_check_enabled = (bool) ($validated['healthCheckEnabled'] ?? false);
+        $application->health_check_type = $validated['healthCheckType'] ?? 'http';
+        $application->health_check_command = $validated['healthCheckCommand'] ?? null;
+        $application->health_check_method = $validated['healthCheckMethod'];
+        $application->health_check_scheme = $validated['healthCheckScheme'];
+        $application->health_check_host = $validated['healthCheckHost'];
+        $application->health_check_port = $validated['healthCheckPort'] ?? null;
+        $application->health_check_path = $validated['healthCheckPath'];
+        $application->health_check_return_code = $validated['healthCheckReturnCode'];
+        $application->health_check_response_text = $validated['healthCheckResponseText'] ?? null;
+        $application->health_check_interval = $validated['healthCheckInterval'];
+        $application->health_check_timeout = $validated['healthCheckTimeout'];
+        $application->health_check_retries = $validated['healthCheckRetries'];
+        $application->health_check_start_period = $validated['healthCheckStartPeriod'];
+        $application->custom_healthcheck_found = (bool) ($validated['customHealthcheckFound'] ?? false);
+        $application->save();
     }
 
     /**
@@ -1887,8 +1976,40 @@ class ProjectApplicationConfigurationController extends Controller
             'configuration' => $this->generalTabProps($application, $parameters),
             'preview-deployments' => $this->previewDeploymentsTabProps($application, $parameters),
             'advanced' => $this->advancedTabProps($application, $parameters),
+            'healthcheck' => $this->healthcheckTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function healthcheckTabProps(Application $application, array $parameters): array
+    {
+        return [
+            'healthcheck' => [
+                'healthCheckEnabled' => (bool) $application->health_check_enabled,
+                'healthCheckType' => $application->health_check_type ?? 'http',
+                'healthCheckCommand' => $application->health_check_command,
+                'healthCheckMethod' => $application->health_check_method,
+                'healthCheckScheme' => $application->health_check_scheme,
+                'healthCheckHost' => $application->health_check_host,
+                'healthCheckPort' => $application->health_check_port,
+                'healthCheckPath' => $application->health_check_path,
+                'healthCheckReturnCode' => $application->health_check_return_code,
+                'healthCheckResponseText' => $application->health_check_response_text,
+                'healthCheckInterval' => $application->health_check_interval,
+                'healthCheckTimeout' => $application->health_check_timeout,
+                'healthCheckRetries' => $application->health_check_retries,
+                'healthCheckStartPeriod' => $application->health_check_start_period,
+                'customHealthcheckFound' => (bool) $application->custom_healthcheck_found,
+            ],
+            'healthcheckUrls' => [
+                'update' => route('project.application.healthcheck.update', $parameters),
+                'toggle' => route('project.application.healthcheck.toggle', $parameters),
+            ],
+        ];
     }
 
     /**
@@ -2061,7 +2182,7 @@ class ProjectApplicationConfigurationController extends Controller
             ['key' => 'scheduled-tasks', 'label' => 'Scheduled Tasks', 'href' => route('project.application.scheduled-tasks.show', $parameters)],
             ['key' => 'webhooks', 'label' => 'Webhooks', 'href' => route('project.application.webhooks', $parameters)],
             ...($application->git_based() || $application->build_pack === 'dockerimage' ? [['key' => 'preview-deployments', 'label' => 'Preview Deployments', 'href' => route('project.application.preview-deployments', $parameters)]] : []),
-            ['key' => 'healthcheck', 'label' => 'Healthcheck', 'href' => route('project.application.healthcheck', $parameters)],
+            ...($application->build_pack !== 'dockercompose' ? [['key' => 'healthcheck', 'label' => 'Healthcheck', 'href' => route('project.application.healthcheck', $parameters)]] : []),
             ['key' => 'rollback', 'label' => 'Rollback', 'href' => route('project.application.rollback', $parameters)],
             ['key' => 'resource-limits', 'label' => 'Resource Limits', 'href' => route('project.application.resource-limits', $parameters)],
             ['key' => 'resource-operations', 'label' => 'Resource Operations', 'href' => route('project.application.resource-operations', $parameters)],

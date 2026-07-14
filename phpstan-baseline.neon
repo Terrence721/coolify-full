@@ -3307,42 +3307,6 @@ parameters:
 			path: app/Livewire/Project/Shared/GetLogs.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\HealthChecks\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\HealthChecks\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\HealthChecks\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\HealthChecks\:\:toggleHealthcheck\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\HealthChecks\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\HealthChecks\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/HealthChecks.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\UploadConfig\:\:mount\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1

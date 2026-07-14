@@ -38,7 +38,7 @@
                     href="{{ route('project.application.preview-deployments', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Preview Deployments</span></a>
             @endif
             @if ($application->build_pack !== 'dockercompose')
-                <a class="sub-menu-item" {{ wireNavigate() }} wire:current.exact="menu-item-active"
+                <a class="sub-menu-item" wire:current.exact="menu-item-active"
                     href="{{ route('project.application.healthcheck', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Healthcheck</span></a>
             @endif
             <a class="sub-menu-item" wire:current.exact="menu-item-active"
@@ -59,8 +59,6 @@
                 <livewire:project.application.source :application="$application" />
             @elseif ($currentRoute === 'project.application.servers')
                 <livewire:project.shared.destination :resource="$application" />
-            @elseif ($currentRoute === 'project.application.healthcheck' && $application->build_pack !== 'dockercompose')
-                <livewire:project.shared.health-checks :resource="$application" />
             @endif
         </div>
     </div>

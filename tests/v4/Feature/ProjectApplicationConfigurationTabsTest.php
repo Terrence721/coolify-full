@@ -1243,3 +1243,107 @@ it('saves the max restart count', function () {
     ])->assertSessionHas('success', 'Max restart count saved.');
     expect($application->refresh()->max_restart_count)->toBe(5);
 });
+
+function appHealthcheckPayload(Application $application, array $overrides = []): array
+{
+    return array_merge([
+        'healthCheckEnabled' => (bool) $application->health_check_enabled,
+        'healthCheckType' => $application->health_check_type ?? 'http',
+        'healthCheckCommand' => $application->health_check_command,
+        'healthCheckMethod' => $application->health_check_method ?? 'GET',
+        'healthCheckScheme' => $application->health_check_scheme ?? 'http',
+        'healthCheckHost' => $application->health_check_host ?? 'localhost',
+        'healthCheckPort' => $application->health_check_port,
+        'healthCheckPath' => $application->health_check_path ?? '/',
+        'healthCheckReturnCode' => $application->health_check_return_code ?? 200,
+        'healthCheckResponseText' => $application->health_check_response_text,
+        'healthCheckInterval' => $application->health_check_interval ?? 5,
+        'healthCheckTimeout' => $application->health_check_timeout ?? 5,
+        'healthCheckRetries' => $application->health_check_retries ?? 10,
+        'healthCheckStartPeriod' => $application->health_check_start_period ?? 5,
+        'customHealthcheckFound' => (bool) $application->custom_healthcheck_found,
+    ], $overrides);
+}
+
+it('renders the healthcheck tab with current settings', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->get(route('project.application.healthcheck', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'healthcheck')
+        ->where('healthcheck.healthCheckEnabled', false)
+        ->where('healthcheck.healthCheckType', 'http')
+        ->where('healthcheck.healthCheckPath', '/')
+        ->has('healthcheckUrls.update')
+        ->has('healthcheckUrls.toggle')
+    );
+});
+
+it('only lists the healthcheck tab link for a non-dockercompose application', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $nixpacksApp = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+    $composeApp = appTabsMakeApplication($team, ['build_pack' => 'dockercompose']);
+
+    $nixpacksLinks = $this->get(route('project.application.tags', appTabsParams($nixpacksApp)))->viewData('page')['props']['tabs'];
+    $composeLinks = $this->get(route('project.application.tags', appTabsParams($composeApp)))->viewData('page')['props']['tabs'];
+
+    expect(collect($nixpacksLinks)->pluck('key'))->toContain('healthcheck');
+    expect(collect($composeLinks)->pluck('key'))->not->toContain('healthcheck');
+});
+
+it('saves the full healthcheck form', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.healthcheck.update', appTabsParams($application)), appHealthcheckPayload($application, [
+        'healthCheckPath' => '/api/health',
+        'healthCheckInterval' => 20,
+    ]));
+
+    $response->assertSessionHas('success', 'Health check updated.');
+    $application->refresh();
+    expect($application->health_check_path)->toBe('/api/health')
+        ->and($application->health_check_interval)->toBe(20);
+});
+
+it('rejects an invalid healthcheck command', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.healthcheck.update', appTabsParams($application)), appHealthcheckPayload($application, [
+        'healthCheckType' => 'cmd',
+        'healthCheckCommand' => 'curl localhost; rm -rf /',
+    ]));
+
+    $response->assertSessionHasErrors('healthCheckCommand');
+});
+
+it('toggles the healthcheck off without a restart notice', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['health_check_enabled' => true]);
+
+    $response = $this->post(route('project.application.healthcheck.toggle', appTabsParams($application)));
+
+    $response->assertSessionHas('success', 'Health check disabled.');
+    expect((bool) $application->refresh()->health_check_enabled)->toBeFalse();
+});
+
+it('toggles the healthcheck on with a restart notice for a running application', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['health_check_enabled' => false, 'status' => 'running:healthy']);
+
+    $response = $this->post(route('project.application.healthcheck.toggle', appTabsParams($application)));
+
+    $response->assertSessionHas('info', 'Health check has been enabled. A restart is required to apply the new settings.');
+    expect((bool) $application->refresh()->health_check_enabled)->toBeTrue();
+});
