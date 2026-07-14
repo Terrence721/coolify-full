@@ -13,7 +13,7 @@
             <a class='sub-menu-item' {{ wireNavigate() }} wire:current.exact="menu-item-active"
                 href="{{ route('project.application.advanced', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Advanced</span></a>
             @if ($application->destination->server->isSwarm())
-                <a class="sub-menu-item" {{ wireNavigate() }} wire:current.exact="menu-item-active"
+                <a class="sub-menu-item" wire:current.exact="menu-item-active"
                     href="{{ route('project.application.swarm', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Swarm</span>
                 </a>
             @endif
@@ -57,8 +57,6 @@
         <div class="w-full sm:flex-grow">
             @if ($currentRoute === 'project.application.configuration')
                 <livewire:project.application.general :application="$application" />
-            @elseif ($currentRoute === 'project.application.swarm' && $application->destination->server->isSwarm())
-                <livewire:project.application.swarm :application="$application" />
             @elseif ($currentRoute === 'project.application.advanced')
                 <livewire:project.application.advanced :application="$application" />
             @elseif ($currentRoute === 'project.application.source' && $application->git_based())

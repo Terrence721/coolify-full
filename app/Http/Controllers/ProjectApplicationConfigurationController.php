@@ -36,10 +36,12 @@ use Visus\Cuid2\Cuid2;
  * ManagesResourceEnvironmentVariables' usesDockerCompose()/dockerComposeContent() and
  * ManagesResourceStorages' configurationDir()/requiresHostPath()); Webhooks (Phase 66, its
  * third consumer for the shared read-only deploy webhook, plus the manual Git secrets form
- * that's genuinely Application-only — see ManagesResourceWebhooks' docblock). "Clone" is
- * Application's own — it delegates to clone_application(), the comprehensive helper already
- * proven by Project\CloneMe, rather than duplicating per-child-type cloning logic inline the
- * way Database's and Service's clone() methods each had to.
+ * that's genuinely Application-only — see ManagesResourceWebhooks' docblock); and Swarm (Phase
+ * 67, no concern needed — it's Application's own deprecated feature with no Database/Service
+ * equivalent at all). "Clone" is Application's own — it delegates to clone_application(), the
+ * comprehensive helper already proven by Project\CloneMe, rather than duplicating
+ * per-child-type cloning logic inline the way Database's and Service's clone() methods each had
+ * to.
  *
  * The shell's heading (deploy/restart/stop/force-deploy/status-polling — Phase 64) is
  * ApplicationHeading.jsx, built from ManagesApplicationHeading's props on its second
@@ -47,9 +49,9 @@ use Visus\Cuid2\Cuid2;
  * alongside deploy/restart/stop/check-status themselves). No new deployment routes were
  * needed here — only the props pointing at the existing ones.
  *
- * Still routed to Livewire: General, Advanced, Swarm, Git Source, Servers, Preview
- * Deployments, Healthcheck, Rollback — each either application-only business logic (servers'
- * full multi-server Destination behavior) or a large enough unit to deserve its own phase.
+ * Still routed to Livewire: General, Advanced, Git Source, Servers, Preview Deployments,
+ * Healthcheck, Rollback — each either application-only business logic (servers' full
+ * multi-server Destination behavior) or a large enough unit to deserve its own phase.
  * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
  * stay with Preview Deployments' own future conversion — see
  * ManagesResourceEnvironmentVariables' docblock.
@@ -84,7 +86,7 @@ class ProjectApplicationConfigurationController extends Controller
             ...$this->applicationHeadingProps($application, $parameters),
             'parameters' => $parameters,
             'canUpdate' => auth()->user()->can('update', $application),
-            'tabs' => $this->tabLinks($parameters),
+            'tabs' => $this->tabLinks($application, $parameters),
         ];
 
         return Inertia::render('Project/Application/Configuration', [...$props, ...$this->tabProps($tab, $application, $parameters)]);
@@ -386,6 +388,32 @@ class ProjectApplicationConfigurationController extends Controller
         return $this->updateManualWebhookSecrets($request, $application);
     }
 
+    public function swarmUpdate(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'swarmReplicas' => 'required|integer|min:0',
+            'swarmPlacementConstraints' => 'nullable|string',
+            'isSwarmOnlyWorkerNodes' => 'required|boolean',
+        ])->validate();
+
+        $application->swarm_replicas = $validated['swarmReplicas'];
+        $application->swarm_placement_constraints = filled($validated['swarmPlacementConstraints'] ?? null)
+            ? base64_encode($validated['swarmPlacementConstraints'])
+            : null;
+        $application->save();
+
+        $application->settings->is_swarm_only_worker_nodes = $validated['isSwarmOnlyWorkerNodes'];
+        $application->settings->save();
+
+        return back()->with('success', 'Swarm settings updated.');
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -401,8 +429,25 @@ class ProjectApplicationConfigurationController extends Controller
             'environment-variables' => $this->environmentVariablesTabProps($application, $parameters, 'project.application'),
             'persistent-storage' => $this->storagesTabProps($application, $parameters, 'project.application'),
             'webhooks' => $this->webhooksTabProps($application, $parameters, 'project.application'),
+            'swarm' => $this->swarmTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function swarmTabProps(Application $application, array $parameters): array
+    {
+        return [
+            'swarm' => [
+                'swarmReplicas' => $application->swarm_replicas,
+                'swarmPlacementConstraints' => $application->swarm_placement_constraints ? base64_decode($application->swarm_placement_constraints) : null,
+                'isSwarmOnlyWorkerNodes' => (bool) $application->settings->is_swarm_only_worker_nodes,
+            ],
+            'swarmUpdateUrl' => route('project.application.swarm.update', $parameters),
+        ];
     }
 
     /**
@@ -413,11 +458,12 @@ class ProjectApplicationConfigurationController extends Controller
      * @param  array<string, string>  $parameters
      * @return array<int, array{key: string, label: string, href: string}>
      */
-    private function tabLinks(array $parameters): array
+    private function tabLinks(Application $application, array $parameters): array
     {
         return [
             ['key' => 'configuration', 'label' => 'General', 'href' => route('project.application.configuration', $parameters)],
             ['key' => 'advanced', 'label' => 'Advanced', 'href' => route('project.application.advanced', $parameters)],
+            ...($application->destination->server->isSwarm() ? [['key' => 'swarm', 'label' => 'Swarm', 'href' => route('project.application.swarm', $parameters)]] : []),
             ['key' => 'environment-variables', 'label' => 'Environment Variables', 'href' => route('project.application.environment-variables', $parameters)],
             ['key' => 'persistent-storage', 'label' => 'Persistent Storage', 'href' => route('project.application.persistent-storage', $parameters)],
             ['key' => 'source', 'label' => 'Git Source', 'href' => route('project.application.source', $parameters)],

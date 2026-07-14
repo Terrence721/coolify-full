@@ -292,7 +292,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     Route::prefix('project/{project_uuid}/environment/{environment_uuid}/application/{application_uuid}')->group(function () {
         Route::get('/', ApplicationConfiguration::class)->name('project.application.configuration');
-        Route::get('/swarm', ApplicationConfiguration::class)->name('project.application.swarm');
+        Route::get('/swarm', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.swarm');
+        Route::patch('/swarm', [ProjectApplicationConfigurationController::class, 'swarmUpdate'])->name('project.application.swarm.update');
         Route::get('/advanced', ApplicationConfiguration::class)->name('project.application.advanced');
         Route::get('/environment-variables', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.environment-variables');
         Route::post('/environment-variables', [ProjectApplicationConfigurationController::class, 'storeEnv'])->name('project.application.envs.store');

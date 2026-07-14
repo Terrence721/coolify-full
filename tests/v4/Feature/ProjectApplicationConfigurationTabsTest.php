@@ -427,3 +427,76 @@ it('updates the manual git webhook secrets', function () {
     expect($application->manual_webhook_secret_bitbucket)->toBe('bb-secret');
     expect($application->manual_webhook_secret_gitea)->toBe('ge-secret');
 });
+
+function appTabsMakeSwarmApplication(Team $team, array $attrs = []): Application
+{
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update(['is_swarm_manager' => true]);
+    $swarmDestination = \App\Models\SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
+
+    return appTabsMakeApplication($team, [
+        'destination_id' => $swarmDestination->id,
+        'destination_type' => \App\Models\SwarmDocker::class,
+        ...$attrs,
+    ]);
+}
+
+it('renders the swarm tab with current settings', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeSwarmApplication($team, ['swarm_replicas' => 3]);
+
+    $response = $this->get(route('project.application.swarm', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'swarm')
+        ->where('swarm.swarmReplicas', 3)
+        ->where('swarm.isSwarmOnlyWorkerNodes', true)
+        ->has('swarmUpdateUrl')
+    );
+});
+
+it('updates swarm settings, base64-encoding the placement constraints', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeSwarmApplication($team);
+
+    $response = $this->patch(route('project.application.swarm.update', appTabsParams($application)), [
+        'swarmReplicas' => 5,
+        'swarmPlacementConstraints' => "placement:\n    constraints:\n        - 'node.role == worker'",
+        'isSwarmOnlyWorkerNodes' => false,
+    ]);
+
+    $response->assertSessionHas('success', 'Swarm settings updated.');
+    $application->refresh();
+    expect($application->swarm_replicas)->toBe(5);
+    expect(base64_decode($application->swarm_placement_constraints))->toContain('node.role == worker');
+    expect($application->settings->fresh()->is_swarm_only_worker_nodes)->toBeFalse();
+});
+
+it('rejects a swarm update missing the required replicas field', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeSwarmApplication($team);
+
+    $this->patch(route('project.application.swarm.update', appTabsParams($application)), [
+        'isSwarmOnlyWorkerNodes' => false,
+    ])->assertSessionHasErrors('swarmReplicas');
+});
+
+it('only lists the swarm tab link for a swarm destination', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $nonSwarmApplication = appTabsMakeApplication($team);
+    $swarmApplication = appTabsMakeSwarmApplication($team);
+
+    $nonSwarmLinks = $this->get(route('project.application.tags', appTabsParams($nonSwarmApplication)))
+        ->viewData('page')['props']['tabs'];
+    $swarmLinks = $this->get(route('project.application.tags', appTabsParams($swarmApplication)))
+        ->viewData('page')['props']['tabs'];
+
+    expect(collect($nonSwarmLinks)->pluck('key'))->not->toContain('swarm');
+    expect(collect($swarmLinks)->pluck('key'))->toContain('swarm');
+});
