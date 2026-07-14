@@ -66,7 +66,7 @@ use App\Http\Controllers\TagsController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UploadController;
-use App\Livewire\Boarding\Index as BoardingIndex;
+use App\Http\Controllers\BoardingController;
 use App\Livewire\Server\Show as ServerShow;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
@@ -110,7 +110,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/admin/back', [AdminController::class, 'back'])->name('admin.back');
     Route::post('/admin/switch-user', [AdminController::class, 'switchUser'])->name('admin.switch-user');
-    Route::get('/onboarding', BoardingIndex::class)->name('onboarding');
+    Route::get('/onboarding', [BoardingController::class, 'index'])->name('onboarding');
+    Route::post('/onboarding/server', [BoardingController::class, 'createServer'])->name('onboarding.create-server');
+    Route::post('/onboarding/validate', [BoardingController::class, 'validateServer'])->name('onboarding.validate');
+    Route::post('/onboarding/project', [BoardingController::class, 'createProject'])->name('onboarding.create-project');
+    Route::post('/onboarding/skip', [BoardingController::class, 'skip'])->name('onboarding.skip');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');

@@ -76,6 +76,7 @@ class HandleInertiaRequests extends Middleware
                 'showDomainConflictModal' => $request->session()->get('showDomainConflictModal'),
                 'requiredPort' => $request->session()->get('requiredPort'),
                 'showPortWarningModal' => $request->session()->get('showPortWarningModal'),
+                'createdPrivateKeyId' => $request->session()->get('createdPrivateKeyId'),
             ],
             'echo' => $user ? [
                 'key' => config('constants.pusher.app_key') ?: 'coolify',
