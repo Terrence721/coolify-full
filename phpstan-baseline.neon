@@ -3769,12 +3769,6 @@ parameters:
 			path: app/Livewire/Server/Show.php
 
 		-
-			message: '#^Property App\\Livewire\\Server\\Show\:\:\$port \(string\) does not accept int\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Server/Show.php
-
-		-
 			message: '#^Property App\\Models\\Server\:\:\$port \(int\) does not accept string\.$#'
 			identifier: assign.propertyType
 			count: 1
