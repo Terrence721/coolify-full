@@ -1347,3 +1347,169 @@ it('toggles the healthcheck on with a restart notice for a running application',
     $response->assertSessionHas('info', 'Health check has been enabled. A restart is required to apply the new settings.');
     expect((bool) $application->refresh()->health_check_enabled)->toBeTrue();
 });
+
+function appMakeUsableServer(Team $team): Server
+{
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update(['is_reachable' => true, 'is_usable' => true]);
+
+    return $server;
+}
+
+it('renders the servers tab with the primary server and an available candidate', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $candidateServer = appMakeUsableServer($team);
+
+    $response = $this->get(route('project.application.servers', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'servers')
+        ->where('servers.primary.serverName', $application->destination->server->name)
+        ->has('servers.additionalNetworks', 0)
+        ->where('servers.canManageAdditionalServers', true)
+        ->has('servers.availableNetworks', 1)
+        ->where('servers.availableNetworks.0.serverName', $candidateServer->name)
+        ->has('serversUrls.add')
+        ->has('serversUrls.remove')
+    );
+});
+
+it('hides available networks and shows a warning when persistent storage is configured', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    appMakeUsableServer($team);
+    $application->persistentStorages()->create([
+        'name' => $application->uuid.'-data',
+        'mount_path' => '/data',
+        'resource_type' => Application::class,
+    ]);
+
+    $response = $this->get(route('project.application.servers', appTabsParams($application)));
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('servers.hasPersistentStorage', true)
+        ->has('servers.availableNetworks', 0)
+    );
+});
+
+it('adds an additional server', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $candidateServer = Server::factory()->create(['team_id' => $team->id]);
+    $network = $candidateServer->standaloneDockers()->first();
+
+    $response = $this->post(route('project.application.servers.add', appTabsParams($application)), [
+        'networkId' => $network->id,
+        'serverId' => $candidateServer->id,
+    ]);
+
+    $response->assertSessionHas('success', 'Server added.');
+    expect($application->additional_networks()->where('standalone_dockers.id', $network->id)->exists())->toBeTrue();
+});
+
+it('promotes an additional server to primary', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $candidateServer = Server::factory()->create(['team_id' => $team->id]);
+    $network = $candidateServer->standaloneDockers()->first();
+    $originalDestinationId = $application->destination_id;
+    $application->additional_networks()->attach($network->id, ['server_id' => $candidateServer->id]);
+
+    $response = $this->post(route('project.application.servers.promote', appTabsParams($application)), [
+        'networkId' => $network->id,
+        'serverId' => $candidateServer->id,
+    ]);
+
+    $response->assertSessionHas('success', 'Server promoted to primary.');
+    $application->refresh();
+    expect($application->destination_id)->toBe($network->id);
+    expect($application->additional_networks()->where('standalone_dockers.id', $originalDestinationId)->exists())->toBeTrue();
+});
+
+it('redeploys to an additional server', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['docker_registry_image_name' => 'acme/app']);
+    $candidateServer = Server::factory()->create(['team_id' => $team->id]);
+    $network = $candidateServer->standaloneDockers()->first();
+    $application->additional_networks()->attach($network->id, ['server_id' => $candidateServer->id]);
+
+    $response = $this->post(route('project.application.servers.redeploy', appTabsParams($application)), [
+        'networkId' => $network->id,
+        'serverId' => $candidateServer->id,
+    ]);
+
+    $response->assertRedirect();
+    Queue::assertPushed(ApplicationDeploymentJob::class);
+});
+
+it('stops an application on a non-functional additional server, without touching SSH', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $candidateServer = Server::factory()->create(['team_id' => $team->id]);
+
+    $response = $this->post(route('project.application.servers.stop', appTabsParams($application)), [
+        'serverId' => $candidateServer->id,
+    ]);
+
+    $response->assertSessionHas('error', 'Server is not functional');
+});
+
+it('rejects removing the main server', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->delete(route('project.application.servers.remove', appTabsParams($application)), [
+        'networkId' => $application->destination_id,
+        'serverId' => $application->destination->server_id,
+        'password' => 'password',
+    ]);
+
+    $response->assertSessionHas('error', 'You are trying to remove the main server.');
+});
+
+it('rejects removing an additional server with the wrong password', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $candidateServer = Server::factory()->create(['team_id' => $team->id]);
+    $network = $candidateServer->standaloneDockers()->first();
+    $application->additional_networks()->attach($network->id, ['server_id' => $candidateServer->id]);
+
+    $response = $this->delete(route('project.application.servers.remove', appTabsParams($application)), [
+        'networkId' => $network->id,
+        'serverId' => $candidateServer->id,
+        'password' => 'not-the-password',
+    ]);
+
+    $response->assertSessionHas('error', 'The provided password is incorrect.');
+    expect($application->additional_networks()->where('standalone_dockers.id', $network->id)->exists())->toBeTrue();
+});
+
+it('removes an additional server with the correct password', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $candidateServer = Server::factory()->create(['team_id' => $team->id]);
+    $network = $candidateServer->standaloneDockers()->first();
+    $application->additional_networks()->attach($network->id, ['server_id' => $candidateServer->id]);
+
+    $response = $this->delete(route('project.application.servers.remove', appTabsParams($application)), [
+        'networkId' => $network->id,
+        'serverId' => $candidateServer->id,
+        'password' => 'password',
+    ]);
+
+    $response->assertSessionHas('success', 'Server removed.');
+    expect($application->additional_networks()->where('standalone_dockers.id', $network->id)->exists())->toBeFalse();
+});

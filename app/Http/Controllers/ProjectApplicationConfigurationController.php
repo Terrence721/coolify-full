@@ -14,11 +14,14 @@ use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
+use App\Actions\Application\StopApplicationOneServer;
 use App\Actions\Docker\GetContainersStatus;
+use App\Events\ApplicationStatusChanged;
 use App\Jobs\ApplicationDeploymentJob;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
+use App\Models\Server;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Rules\ValidGitBranch;
@@ -95,10 +98,15 @@ use Visus\Cuid2\Cuid2;
  * fields — a database has no HTTP endpoint to probe). `submit()`/`instantSave()` were identical
  * full-form saves in the original, ported as one `updateHealthcheck()` endpoint.
  *
- * Still routed to Livewire: Git Source, Servers — each application-only business logic
- * (Servers' full multi-server Destination behavior) large enough to deserve its own phase.
- * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
- * stay deferred — see ManagesResourceEnvironmentVariables' docblock.
+ * Servers (Phase 73 — multi-server deployment management: the primary/additional-server cards,
+ * per-server Deploy/Promote-to-Primary/Stop/Remove actions, and the "add another server" picker).
+ * The last consumer of `App\Livewire\Project\Shared\Destination`, generic-`$resource`-typed but
+ * never actually used by Database or Service. Password-confirmed remove mirrors
+ * `ManagesResourceDanger::destroyResource()`'s `verifyPasswordConfirmation()` contract.
+ *
+ * Still routed to Livewire: Git Source — application-only business logic large enough to
+ * deserve its own phase. Environment Variables' preview-deployment set, build secrets, and
+ * sort-alphabetically toggle stay deferred — see ManagesResourceEnvironmentVariables' docblock.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
@@ -712,6 +720,160 @@ class ProjectApplicationConfigurationController extends Controller
         }
 
         return back()->with('success', 'Health check '.($application->health_check_enabled ? 'enabled' : 'disabled').'.');
+    }
+
+    /** Port of Shared\Destination::redeploy() — deploy to one specific server/network only. */
+    public function serversRedeploy(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        $validated = Validator::make($request->all(), [
+            'networkId' => 'required|integer',
+            'serverId' => 'required|integer',
+        ])->validate();
+
+        if ($application->additional_servers->count() > 0 && blank($application->docker_registry_image_name)) {
+            return back()->with('error', 'Before deploying to multiple servers, you must first set a Docker image in the General tab.');
+        }
+
+        $server = Server::ownedByCurrentTeam()->findOrFail($validated['serverId']);
+        $destination = $server->standaloneDockers->where('id', $validated['networkId'])->firstOrFail();
+        $deploymentUuid = (string) new Cuid2;
+        $result = queue_application_deployment(
+            deployment_uuid: $deploymentUuid,
+            application: $application,
+            server: $server,
+            destination: $destination,
+            only_this_server: true,
+            no_questions_asked: true,
+        );
+
+        if ($result['status'] === 'queue_full') {
+            return back()->with('error', $result['message']);
+        }
+        if ($result['status'] === 'skipped') {
+            return back()->with('success', $result['message']);
+        }
+
+        return redirect()->route('project.application.deployment.show', [
+            'project_uuid' => $project_uuid,
+            'environment_uuid' => $environment_uuid,
+            'application_uuid' => $application_uuid,
+            'deployment_uuid' => $deploymentUuid,
+        ]);
+    }
+
+    /** Port of Shared\Destination::stop(). */
+    public function serversStop(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        $validated = Validator::make($request->all(), [
+            'serverId' => 'required|integer',
+        ])->validate();
+
+        $server = Server::ownedByCurrentTeam()->findOrFail($validated['serverId']);
+        $error = StopApplicationOneServer::run($application, $server);
+        GetContainersStatus::run($application->destination->server);
+
+        if ($error) {
+            return back()->with('error', $error);
+        }
+
+        return back()->with('success', 'Application stopped.');
+    }
+
+    /** Port of Shared\Destination::promote() — swaps the primary destination with an additional one. */
+    public function serversPromote(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'networkId' => 'required|integer',
+            'serverId' => 'required|integer',
+        ])->validate();
+
+        $server = Server::ownedByCurrentTeam()->findOrFail($validated['serverId']);
+        $network = StandaloneDocker::ownedByCurrentTeam()->where('server_id', $server->id)->findOrFail($validated['networkId']);
+
+        $application->getConnection()->transaction(function () use ($application, $network, $server) {
+            $mainDestination = $application->destination;
+            $application->update([
+                'destination_id' => $network->id,
+                'destination_type' => StandaloneDocker::class,
+            ]);
+            $application->additional_networks()->wherePivot('server_id', $server->id)->detach($network->id);
+            $application->additional_networks()->attach($mainDestination->id, ['server_id' => $mainDestination->server->id]);
+        });
+        $application->refresh();
+        GetContainersStatus::run($application->destination->server);
+
+        return back()->with('success', 'Server promoted to primary.');
+    }
+
+    /** Port of Shared\Destination::addServer(). */
+    public function serversAdd(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'networkId' => 'required|integer',
+            'serverId' => 'required|integer',
+        ])->validate();
+
+        $server = Server::ownedByCurrentTeam()->findOrFail($validated['serverId']);
+        $network = StandaloneDocker::ownedByCurrentTeam()->where('server_id', $server->id)->findOrFail($validated['networkId']);
+
+        $application->additional_networks()->attach($network->id, ['server_id' => $server->id]);
+
+        return back()->with('success', 'Server added.');
+    }
+
+    /** Port of Shared\Destination::removeServer() — password-confirmed, matching ManagesResourceDanger's destroyResource() contract. */
+    public function serversRemove(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'networkId' => 'required|integer',
+            'serverId' => 'required|integer',
+            'password' => 'required|string',
+        ])->validate();
+
+        if (! verifyPasswordConfirmation($validated['password'])) {
+            return back()->with('error', 'The provided password is incorrect.');
+        }
+
+        if ($application->destination->server->id == $validated['serverId'] && $application->destination->id == $validated['networkId']) {
+            return back()->with('error', 'You are trying to remove the main server.');
+        }
+
+        $server = Server::ownedByCurrentTeam()->findOrFail($validated['serverId']);
+        StopApplicationOneServer::run($application, $server);
+        $application->additional_networks()->wherePivot('server_id', $validated['serverId'])->detach($validated['networkId']);
+        ApplicationStatusChanged::dispatch(data_get($application, 'environment.project.team.id'));
+
+        return back()->with('success', 'Server removed.');
     }
 
     /**
@@ -1977,8 +2139,72 @@ class ProjectApplicationConfigurationController extends Controller
             'preview-deployments' => $this->previewDeploymentsTabProps($application, $parameters),
             'advanced' => $this->advancedTabProps($application, $parameters),
             'healthcheck' => $this->healthcheckTabProps($application, $parameters),
+            'servers' => $this->serversTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function serversTabProps(Application $application, array $parameters): array
+    {
+        $primaryDestination = $application->destination;
+        $primaryServer = $primaryDestination->server;
+
+        $additionalNetworks = $application->additional_networks->map(fn ($network) => [
+            'id' => $network->id,
+            'serverId' => $network->server->id,
+            'serverName' => $network->server->name,
+            'network' => $network->network,
+            'status' => $network->pivot->status,
+            'isRunning' => str($network->pivot->status)->startsWith('running'),
+        ])->values()->toArray();
+
+        $hasPersistentStorage = $application->persistentStorages()->count() > 0;
+        $canManageAdditionalServers = $application->build_pack !== 'dockercompose';
+
+        $availableNetworks = [];
+        if ($canManageAdditionalServers && ! $hasPersistentStorage) {
+            $existingNetworkIds = collect([$primaryDestination])->merge($application->additional_networks)->pluck('id');
+            $additionalServerIds = $application->additional_servers->pluck('id');
+
+            $availableNetworks = Server::isUsable()->get()
+                ->flatMap(fn ($server) => $server->standaloneDockers)
+                ->reject(fn ($network) => $existingNetworkIds->contains($network->id))
+                ->reject(fn ($network) => $network->server->id === $primaryServer->id)
+                ->reject(fn ($network) => $additionalServerIds->contains($network->server->id))
+                ->map(fn ($network) => [
+                    'id' => $network->id,
+                    'serverId' => $network->server->id,
+                    'serverName' => $network->server->name,
+                    'name' => $network->name,
+                ])->values()->toArray();
+        }
+
+        return [
+            'servers' => [
+                'primary' => [
+                    'networkId' => $primaryDestination->id,
+                    'serverId' => $primaryServer->id,
+                    'serverName' => $primaryServer->name,
+                    'network' => $primaryDestination->network,
+                    'status' => $application->realStatus(),
+                ],
+                'additionalNetworks' => $additionalNetworks,
+                'availableNetworks' => $availableNetworks,
+                'hasPersistentStorage' => $hasPersistentStorage,
+                'canManageAdditionalServers' => $canManageAdditionalServers,
+            ],
+            'serversUrls' => [
+                'redeploy' => route('project.application.servers.redeploy', $parameters),
+                'stop' => route('project.application.servers.stop', $parameters),
+                'promote' => route('project.application.servers.promote', $parameters),
+                'add' => route('project.application.servers.add', $parameters),
+                'remove' => route('project.application.servers.remove', $parameters),
+            ],
+        ];
     }
 
     /**

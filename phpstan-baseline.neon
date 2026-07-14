@@ -193,6 +193,12 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\StandaloneDocker\:\:\$pivot\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 2
@@ -3155,90 +3161,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/Project/Shared/ConfigurationChecker.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:addServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:loadData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:promote\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:redeploy\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:refreshServers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:removeServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:removeServer\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:removeServer\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:stop\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:stop\(\) has parameter \$serverId with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Destination\:\:\$networks with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Destination\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Destination.php
 
 		-
 			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\Service\:\:\$is_include_timestamps\.$#'

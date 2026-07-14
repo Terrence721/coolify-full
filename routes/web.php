@@ -325,7 +325,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/persistent-storage/file/{file_id}/convert', [ProjectApplicationConfigurationController::class, 'storagesFileConvert'])->name('project.application.storages.file.convert');
         Route::delete('/persistent-storage/file/{file_id}', [ProjectApplicationConfigurationController::class, 'storagesFileDestroy'])->name('project.application.storages.file.destroy');
         Route::get('/source', ApplicationConfiguration::class)->name('project.application.source');
-        Route::get('/servers', ApplicationConfiguration::class)->name('project.application.servers');
+        Route::get('/servers', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.servers');
+        Route::post('/servers/redeploy', [ProjectApplicationConfigurationController::class, 'serversRedeploy'])->name('project.application.servers.redeploy');
+        Route::post('/servers/stop', [ProjectApplicationConfigurationController::class, 'serversStop'])->name('project.application.servers.stop');
+        Route::post('/servers/promote', [ProjectApplicationConfigurationController::class, 'serversPromote'])->name('project.application.servers.promote');
+        Route::post('/servers/add', [ProjectApplicationConfigurationController::class, 'serversAdd'])->name('project.application.servers.add');
+        Route::delete('/servers/remove', [ProjectApplicationConfigurationController::class, 'serversRemove'])->name('project.application.servers.remove');
         Route::get('/scheduled-tasks', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.scheduled-tasks.show');
         Route::post('/scheduled-tasks', [ProjectApplicationConfigurationController::class, 'scheduledTaskStore'])->name('project.application.scheduled-tasks.store');
         Route::patch('/tasks/{task_uuid}', [ProjectApplicationConfigurationController::class, 'scheduledTaskUpdate'])->name('project.application.scheduled-tasks.update');

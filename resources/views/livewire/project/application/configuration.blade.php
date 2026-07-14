@@ -25,7 +25,7 @@
                 <a class='sub-menu-item' {{ wireNavigate() }} wire:current.exact="menu-item-active"
                     href="{{ route('project.application.source', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Git Source</span></a>
             @endif
-            <a class="sub-menu-item flex items-center gap-2" {{ wireNavigate() }} wire:current.exact="menu-item-active"
+            <a class="sub-menu-item flex items-center gap-2" wire:current.exact="menu-item-active"
                 href="{{ route('project.application.servers', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid, 'application_uuid' => $application->uuid]) }}"><span class="menu-item-label">Servers</span>
                 <livewire:project.application.server-status-badge :application="$application" />
             </a>
@@ -57,8 +57,6 @@
         <div class="w-full sm:flex-grow">
             @if ($currentRoute === 'project.application.source' && $application->git_based())
                 <livewire:project.application.source :application="$application" />
-            @elseif ($currentRoute === 'project.application.servers')
-                <livewire:project.shared.destination :resource="$application" />
             @endif
         </div>
     </div>
