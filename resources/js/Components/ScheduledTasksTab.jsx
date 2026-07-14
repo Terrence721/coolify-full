@@ -182,7 +182,7 @@ function ExecutionEntry({ execution, selected, onSelect }) {
             {selected && (
                 <div className="p-4 mb-2 bg-gray-100 dark:bg-coolgray-200 rounded-sm">
                     {execution.status === 'running' && <div className="mb-2">Task is running...</div>}
-                    <div className="max-h-[600px] overflow-y-auto border border-gray-200 dark:border-coolgray-300 rounded p-4 bg-gray-50 dark:bg-coolgray-100 scrollbar">
+                    <div className="max-h-150 overflow-y-auto border border-gray-200 dark:border-coolgray-300 rounded p-4 bg-gray-50 dark:bg-coolgray-100 scrollbar">
                         <pre className="whitespace-pre-wrap">{visibleLines.join('\n')}</pre>
                     </div>
                     {hasMore && (
