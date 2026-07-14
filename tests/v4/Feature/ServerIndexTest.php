@@ -114,12 +114,11 @@ it('creates a new server by IP address', function () {
     $response->assertRedirect(route('server.show', ['server_uuid' => $server->uuid]));
 });
 
-it('hands off to Server\\Show via X-Inertia-Location instead of a plain redirect for Inertia requests', function () {
-    // Server\Show is still a plain Livewire/Blade page, not an Inertia::render() response — a
-    // normal redirect() would leave Inertia's client-side router trying to parse a non-Inertia
-    // HTML page as a JSON page-visit response. Inertia::location() sends a 409 with
-    // X-Inertia-Location instead, which the client library recognizes and turns into a real,
-    // full-page browser navigation (see ServerController::store()'s docblock).
+it('hands off to Server\\Show as a plain redirect for Inertia requests, now that Server\\Show is an Inertia page', function () {
+    // server.show became a real Inertia::render() response in Phase 78 (App\Http\Controllers\
+    // ServerShowController), so a plain redirect()->route() here now resolves cleanly through
+    // an Inertia client-side visit — no more Inertia::location()/409 hand-off needed, that was
+    // only required back when server.show was still a plain Livewire/Blade full-page route.
     $user = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => 'admin']);
@@ -144,8 +143,7 @@ it('hands off to Server\\Show via X-Inertia-Location instead of a plain redirect
 
     $server = Server::where('ip', '192.0.2.11')->first();
     expect($server)->not->toBeNull();
-    $response->assertStatus(409);
-    $response->assertHeader('X-Inertia-Location', route('server.show', ['server_uuid' => $server->uuid]));
+    $response->assertRedirect(route('server.show', ['server_uuid' => $server->uuid]));
 });
 
 it('rejects creating a server with an IP already used by the current team', function () {

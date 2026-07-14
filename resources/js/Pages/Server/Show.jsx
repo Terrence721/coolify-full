@@ -156,7 +156,14 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
     function startValidate() {
         setAttempt(0);
         setInstallActivity(null);
-        runValidate(true, 0);
+        setValidateError(null);
+        // Save the general form first — Validate operates on the persisted server record, not
+        // on unsaved input, so an unsaved IP/user/port edit would otherwise silently validate
+        // the old value. See docs/livewire-to-react-migration.md's Phase 78 follow-up.
+        patch(urls.update, {
+            preserveScroll: true,
+            onSuccess: () => runValidate(true, 0),
+        });
     }
 
     function onInstallFinished() {
@@ -280,7 +287,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
 
                         {needsValidation && (
                             <div className="mb-4 flex flex-col gap-2">
-                                <button type="button" onClick={startValidate} disabled={validating} className="w-full font-bold">
+                                <button type="button" onClick={startValidate} disabled={validating || processing} className="w-full font-bold">
                                     {validating ? 'Validating…' : 'Validate Server & Install Docker Engine'}
                                 </button>
                                 {validateError && <div className="text-sm text-error whitespace-pre-line">{validateError}</div>}
@@ -304,7 +311,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
 
                         {server.id !== 0 && server.isFunctional && (
                             <div className="mb-4">
-                                <button type="button" onClick={startValidate} disabled={validating}>
+                                <button type="button" onClick={startValidate} disabled={validating || processing}>
                                     Revalidate server
                                 </button>
                                 {validateError && <div className="text-sm text-error whitespace-pre-line">{validateError}</div>}
