@@ -21,6 +21,9 @@ use App\Jobs\ApplicationDeploymentJob;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
+use App\Models\GithubApp;
+use App\Models\GitlabApp;
+use App\Models\PrivateKey;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
@@ -104,9 +107,20 @@ use Visus\Cuid2\Cuid2;
  * never actually used by Database or Service. Password-confirmed remove mirrors
  * `ManagesResourceDanger::destroyResource()`'s `verifyPasswordConfirmation()` contract.
  *
- * Still routed to Livewire: Git Source — application-only business logic large enough to
- * deserve its own phase. Environment Variables' preview-deployment set, build secrets, and
- * sort-alphabetically toggle stay deferred — see ManagesResourceEnvironmentVariables' docblock.
+ * Git Source (Phase 74 — the git repository/branch/commit form, deploy-key management, and
+ * Change Git Source picker; `changeSource()` genuinely touches GitHub's API to resolve the
+ * repository's numeric project id, carrying the standard untested-happy-path gap). This is the
+ * router's last tab: `Application\Configuration` is now **fully retired from Livewire**,
+ * matching `Service\Configuration` (Phase 59) and `Database\Configuration` (Phase 62)'s own
+ * precedent. The shell itself (`App\Livewire\Project\Application\Configuration`) and two more
+ * classes that had quietly become orphaned along the way — `Heading` (superseded by
+ * `ApplicationHeading.jsx` back in Phase 64, but the Livewire shell kept rendering the old one
+ * for whichever tabs hadn't converted yet) and `ServerStatusBadge` (a sidebar nav decoration
+ * with no other consumer) — are deleted in this same phase alongside `Source` itself.
+ *
+ * Environment Variables' preview-deployment set, build secrets, and sort-alphabetically toggle
+ * stay deferred — see ManagesResourceEnvironmentVariables' docblock. These are the only pieces
+ * of Application-resource functionality from the original 16-tab router not yet ported anywhere.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
@@ -874,6 +888,91 @@ class ProjectApplicationConfigurationController extends Controller
         ApplicationStatusChanged::dispatch(data_get($application, 'environment.project.team.id'));
 
         return back()->with('success', 'Server removed.');
+    }
+
+    /** Port of Application\Source::submit() — the git repository/branch/commit form. */
+    public function updateSource(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'gitRepository' => 'required|string',
+            'gitBranch' => ['required', 'string', new ValidGitBranch],
+            'gitCommitSha' => ['nullable', 'string', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9._\-\/]*$/'],
+        ])->validate();
+
+        $gitCommitSha = filled($validated['gitCommitSha'] ?? null) ? trim($validated['gitCommitSha']) : 'HEAD';
+
+        $application->update([
+            'git_repository' => trim($validated['gitRepository']),
+            'git_branch' => trim($validated['gitBranch']),
+            'git_commit_sha' => $gitCommitSha,
+        ]);
+
+        return back()->with('success', 'Application source updated!');
+    }
+
+    /** Port of Application\Source::setPrivateKey(). */
+    public function setSourcePrivateKey(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'privateKeyId' => 'required|integer',
+        ])->validate();
+
+        $key = PrivateKey::ownedByCurrentTeam()->findOrFail($validated['privateKeyId']);
+        $application->update(['private_key_id' => $key->id]);
+
+        return back()->with('success', 'Private key updated!');
+    }
+
+    /**
+     * Port of Application\Source::changeSource() — genuinely touches GitHub's API
+     * (`githubApi()`) to resolve the repository's numeric project id, carrying the standard
+     * untested-happy-path gap (docs/smoketest.md).
+     */
+    public function changeSource(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'sourceId' => 'required|integer',
+            'sourceType' => ['required', 'string', 'in:'.GithubApp::class.','.GitlabApp::class],
+        ])->validate();
+
+        $sourceType = $validated['sourceType'];
+        $source = $sourceType::ownedByCurrentTeam()->findOrFail($validated['sourceId']);
+        $application->update([
+            'source_id' => $source->id,
+            'source_type' => $sourceType,
+        ]);
+
+        try {
+            ['repository' => $customRepository] = $application->customRepository();
+            $repository = githubApi($application->source, "repos/{$customRepository}");
+            $repositoryProjectId = data_get($repository, 'data.id');
+            if (isset($repositoryProjectId) && $application->repository_project_id !== $repositoryProjectId) {
+                $application->repository_project_id = $repositoryProjectId;
+                $application->save();
+            }
+        } catch (\Throwable) {
+            // The source itself is already switched; a failed project-id lookup isn't fatal.
+        }
+
+        return back()->with('success', 'Source updated!');
     }
 
     /**
@@ -2140,8 +2239,58 @@ class ProjectApplicationConfigurationController extends Controller
             'advanced' => $this->advancedTabProps($application, $parameters),
             'healthcheck' => $this->healthcheckTabProps($application, $parameters),
             'servers' => $this->serversTabProps($application, $parameters),
+            'source' => $this->sourceTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function sourceTabProps(Application $application, array $parameters): array
+    {
+        $privateKeys = PrivateKey::whereTeamId(currentTeam()->id)->get()
+            ->reject(fn ($key) => $key->id === $application->private_key_id)
+            ->map(fn ($key) => ['id' => $key->id, 'name' => $key->name])
+            ->values();
+
+        $sources = currentTeam()->sources()
+            ->filter(fn ($source) => filled($source->app_id))
+            ->reject(fn ($source) => $source->id === $application->source_id)
+            ->sortBy('name')
+            ->map(fn ($source) => [
+                'id' => $source->id,
+                'name' => $source->name,
+                'type' => $source->getMorphClass(),
+                'organization' => $source->organization,
+                'isCurrent' => $application->source_id === $source->id,
+            ])
+            ->values();
+
+        return [
+            'source' => [
+                'gitRepository' => $application->git_repository,
+                'gitBranch' => $application->git_branch,
+                'gitCommitSha' => $application->git_commit_sha,
+                'privateKeyId' => $application->private_key_id,
+                'privateKeyName' => data_get($application, 'private_key.name'),
+                'currentSourceName' => data_get($application, 'source.name', 'No source connected'),
+                'isSourcePublic' => (bool) data_get($application, 'source.is_public', true),
+                'installationPath' => $application->source instanceof GithubApp && ! $application->source->is_public
+                    ? getInstallationPath($application->source)
+                    : null,
+                'gitBranchLocation' => $application->gitBranchLocation,
+                'gitCommits' => $application->gitCommits,
+                'privateKeys' => $privateKeys,
+                'sources' => $sources,
+            ],
+            'sourceUrls' => [
+                'update' => route('project.application.source.update', $parameters),
+                'setPrivateKey' => route('project.application.source.set-private-key', $parameters),
+                'changeSource' => route('project.application.source.change', $parameters),
+            ],
+        ];
     }
 
     /**
@@ -2403,7 +2552,7 @@ class ProjectApplicationConfigurationController extends Controller
             ...($application->destination->server->isSwarm() ? [['key' => 'swarm', 'label' => 'Swarm', 'href' => route('project.application.swarm', $parameters)]] : []),
             ['key' => 'environment-variables', 'label' => 'Environment Variables', 'href' => route('project.application.environment-variables', $parameters)],
             ['key' => 'persistent-storage', 'label' => 'Persistent Storage', 'href' => route('project.application.persistent-storage', $parameters)],
-            ['key' => 'source', 'label' => 'Git Source', 'href' => route('project.application.source', $parameters)],
+            ...($application->git_based() ? [['key' => 'source', 'label' => 'Git Source', 'href' => route('project.application.source', $parameters)]] : []),
             ['key' => 'servers', 'label' => 'Servers', 'href' => route('project.application.servers', $parameters)],
             ['key' => 'scheduled-tasks', 'label' => 'Scheduled Tasks', 'href' => route('project.application.scheduled-tasks.show', $parameters)],
             ['key' => 'webhooks', 'label' => 'Webhooks', 'href' => route('project.application.webhooks', $parameters)],

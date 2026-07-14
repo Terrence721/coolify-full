@@ -169,6 +169,8 @@ class Show extends Component
 
     public function mount(string $server_uuid)
     {
+        $this->availableHetznerTokens = collect();
+
         try {
             $this->server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
             $this->syncData();

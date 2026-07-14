@@ -1497,6 +1497,7 @@ it('rejects removing an additional server with the wrong password', function () 
 });
 
 it('removes an additional server with the correct password', function () {
+    Queue::fake();
     $team = Team::factory()->create();
     appTabsActingAs($team);
     $application = appTabsMakeApplication($team);
@@ -1512,4 +1513,122 @@ it('removes an additional server with the correct password', function () {
 
     $response->assertSessionHas('success', 'Server removed.');
     expect($application->additional_networks()->where('standalone_dockers.id', $network->id)->exists())->toBeFalse();
+});
+
+it('renders the git source tab with current settings', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+
+    $response = $this->get(route('project.application.source', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'source')
+        ->where('source.gitRepository', $application->git_repository)
+        ->where('source.gitBranch', $application->git_branch)
+        ->where('source.currentSourceName', 'No source connected')
+        ->has('sourceUrls.update')
+        ->has('sourceUrls.setPrivateKey')
+        ->has('sourceUrls.changeSource')
+    );
+});
+
+it('only lists the git source tab link for a git-based application', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $gitApp = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+    $dockerfileApp = appTabsMakeApplication($team, ['build_pack' => 'dockerfile', 'dockerfile' => 'FROM nginx']);
+
+    $gitLinks = $this->get(route('project.application.tags', appTabsParams($gitApp)))->viewData('page')['props']['tabs'];
+    $dockerfileLinks = $this->get(route('project.application.tags', appTabsParams($dockerfileApp)))->viewData('page')['props']['tabs'];
+
+    expect(collect($gitLinks)->pluck('key'))->toContain('source');
+    expect(collect($dockerfileLinks)->pluck('key'))->not->toContain('source');
+});
+
+it('saves the git source form, defaulting a blank commit sha to HEAD', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.source.update', appTabsParams($application)), [
+        'gitRepository' => 'coollabsio/coolify-example',
+        'gitBranch' => 'develop',
+        'gitCommitSha' => '',
+    ]);
+
+    $response->assertSessionHas('success', 'Application source updated!');
+    $application->refresh();
+    expect($application->git_repository)->toBe('coollabsio/coolify-example')
+        ->and($application->git_branch)->toBe('develop')
+        ->and($application->git_commit_sha)->toBe('HEAD');
+});
+
+it('rejects an invalid git branch on the source form', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.source.update', appTabsParams($application)), [
+        'gitRepository' => $application->git_repository,
+        'gitBranch' => 'not a valid branch; rm -rf',
+    ]);
+
+    $response->assertSessionHasErrors('gitBranch');
+    expect($application->refresh()->git_branch)->not->toBe('not a valid branch; rm -rf');
+});
+
+it('sets the deploy private key', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $privateKey = \App\Models\PrivateKey::create([
+        'name' => 'deploy-key',
+        'private_key' => generateSSHKey('ed25519')['private'],
+        'team_id' => $team->id,
+    ]);
+
+    $response = $this->patch(route('project.application.source.set-private-key', appTabsParams($application)), [
+        'privateKeyId' => $privateKey->id,
+    ]);
+
+    $response->assertSessionHas('success', 'Private key updated!');
+    expect($application->refresh()->private_key_id)->toBe($privateKey->id);
+});
+
+it('rejects changing the git source to a disallowed morph type', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.source.change', appTabsParams($application)), [
+        'sourceId' => 1,
+        'sourceType' => Application::class,
+    ]);
+
+    $response->assertSessionHasErrors('sourceType');
+});
+
+it('changes the git source, tolerating a failed GitHub API lookup', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $githubApp = \App\Models\GithubApp::create([
+        'name' => 'my-github-app',
+        'api_url' => 'https://api.github.com',
+        'html_url' => 'https://github.com',
+        'team_id' => $team->id,
+    ]);
+
+    $response = $this->post(route('project.application.source.change', appTabsParams($application)), [
+        'sourceId' => $githubApp->id,
+        'sourceType' => \App\Models\GithubApp::class,
+    ]);
+
+    $response->assertSessionHas('success', 'Source updated!');
+    $application->refresh();
+    expect($application->source_id)->toBe($githubApp->id)
+        ->and($application->source_type)->toBe(\App\Models\GithubApp::class);
 });

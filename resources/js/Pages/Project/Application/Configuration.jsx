@@ -4,6 +4,7 @@ import ApplicationHealthcheckTab from '../../../Components/ApplicationHealthchec
 import ApplicationHeading from '../../../Components/ApplicationHeading';
 import ApplicationServersTab from '../../../Components/ApplicationServersTab';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
+import GitSourceTab from '../../../Components/GitSourceTab';
 import PreviewDeploymentsTab from '../../../Components/PreviewDeploymentsTab';
 import RollbackTab from '../../../Components/RollbackTab';
 import ScheduledTasksTab from '../../../Components/ScheduledTasksTab';
@@ -12,16 +13,17 @@ import SwarmTab from '../../../Components/SwarmTab';
 import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Application\Configuration's shell plus 15 of its 16 tabs
- * (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled Tasks — Phase 63;
- * Environment Variables and Persistent Storage — Phase 65; Webhooks — Phase 66; Swarm — Phase
- * 67; Rollback — Phase 68; General — Phase 69, the largest tab in this migration; Preview
- * Deployments — Phase 70, folding in what used to be three separate Livewire components;
- * Advanced — Phase 71; Healthcheck — Phase 72, the last consumer of the shared
- * `Project\Shared\HealthChecks` component; Servers — Phase 73, the last consumer of
- * `Project\Shared\Destination`). See ProjectApplicationConfigurationController. The last
- * remaining tab (Git Source) stays on the Livewire shell for now — a plain full-page link here,
- * matching the established split-by-route-name pattern.
+ * React port of App\Livewire\Project\Application\Configuration — now fully retired from
+ * Livewire (Phase 74 finished Git Source, this router's last tab), matching Service\Configuration
+ * (Phase 59) and Database\Configuration (Phase 62)'s own precedent. All 16 tabs: Tags, Danger
+ * Zone, Resource Limits, Resource Operations, Scheduled Tasks (Phase 63); Environment Variables
+ * and Persistent Storage (Phase 65); Webhooks (Phase 66); Swarm (Phase 67); Rollback (Phase 68);
+ * General (Phase 69, the largest tab in this migration); Preview Deployments (Phase 70, folding
+ * in what used to be three separate Livewire components); Advanced (Phase 71); Healthcheck
+ * (Phase 72, the last consumer of `Project\Shared\HealthChecks`); Servers (Phase 73, the last
+ * consumer of `Project\Shared\Destination`); Git Source (Phase 74, the last consumer of the
+ * shell itself, plus its own `Heading`/`ServerStatusBadge` — see
+ * ProjectApplicationConfigurationController's docblock for the full history).
  *
  * Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still highlights
  * Scheduled Tasks despite its different URL.
@@ -106,6 +108,7 @@ export default function Configuration(props) {
                         <ApplicationHealthcheckTab healthcheck={props.healthcheck} healthcheckUrls={props.healthcheckUrls} canUpdate={canUpdate} />
                     )}
                     {tab === 'servers' && <ApplicationServersTab servers={props.servers} serversUrls={props.serversUrls} canUpdate={canUpdate} />}
+                    {tab === 'source' && <GitSourceTab source={props.source} sourceUrls={props.sourceUrls} canUpdate={canUpdate} />}
                 </div>
             </div>
         </div>
