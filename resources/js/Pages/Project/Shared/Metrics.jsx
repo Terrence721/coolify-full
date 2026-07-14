@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import ApplicationHeading from '../../../Components/ApplicationHeading';
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
-import Heading from '../Application/Deployment/Heading';
 import { useApexChart } from '../../../hooks/useApexChart';
 
 const CPU_COLOR = '#1e90ff';
@@ -172,7 +172,7 @@ export default function Metrics({
         <div>
             <h1>Configuration</h1>
             <ConfigurationChecker configurationChecker={configurationChecker} />
-            {resourceType === 'application' && <Heading application={application} heading={heading} parameters={parameters} urls={headingUrls} />}
+            {resourceType === 'application' && <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={headingUrls} />}
             {resourceType === 'database' && <DatabaseHeading heading={databaseHeading} urls={headingUrls} />}
 
             <div className="flex flex-col h-full gap-8 sm:flex-row">

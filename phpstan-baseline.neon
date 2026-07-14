@@ -163,12 +163,6 @@ parameters:
 			path: app/Actions/Shared/ComplexStatusCheck.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>commit_message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/ApplicationDeploymentController.php
-
-		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
 			count: 1
@@ -913,12 +907,6 @@ parameters:
 			path: app/Http/Controllers/ProjectLogsController.php
 
 		-
-			message: '#^Using nullsafe property access "\?\-\>commit_message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
 			identifier: property.notFound
 			count: 1
@@ -945,12 +933,6 @@ parameters:
 		-
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
 			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectMetricsController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>commit_message" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/ProjectMetricsController.php
 

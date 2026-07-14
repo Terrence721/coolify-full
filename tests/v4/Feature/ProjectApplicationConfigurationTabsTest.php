@@ -54,6 +54,28 @@ function appTabsParams(Application $application): array
     ];
 }
 
+it('renders the heading props alongside a tab', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+
+    $response = $this->get(route('project.application.tags', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('application.uuid', $application->uuid)
+        ->where('application.buildPack', 'nixpacks')
+        ->where('application.hasDockerCompose', false)
+        ->where('application.isSwarm', false)
+        ->has('heading.lastDeploymentInfo')
+        ->has('headingUrls.deploy')
+        ->has('headingUrls.restart')
+        ->has('headingUrls.stop')
+        ->has('headingUrls.checkStatus')
+    );
+});
+
 it('renders the tags tab', function () {
     $team = Team::factory()->create();
     appTabsActingAs($team);

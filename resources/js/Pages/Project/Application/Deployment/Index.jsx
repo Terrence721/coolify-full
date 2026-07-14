@@ -1,7 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import { useTeamChannel } from '../../../../hooks/useTeamChannel';
-import Heading from './Heading';
+import ApplicationHeading from '../../../../Components/ApplicationHeading';
 import ConfigurationChecker from '../../../../Components/ConfigurationChecker';
 
 const STATUS_LABELS = {
@@ -88,7 +88,7 @@ export default function Index({
         <div>
             <h1>Deployments</h1>
             <ConfigurationChecker configurationChecker={configurationChecker} />
-            <Heading application={application} heading={heading} parameters={parameters} urls={urls} />
+            <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={urls} />
 
             <div className="flex flex-col gap-2 pb-10">
                 <div className="flex items-end gap-2">

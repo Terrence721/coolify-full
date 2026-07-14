@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Contracts\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\BuildsConfigurationCheckerProps;
+use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,7 @@ class ProjectMetricsController extends Controller
 {
     use AuthorizesRequests;
     use BuildsConfigurationCheckerProps;
+    use ManagesApplicationHeading;
     use ResolvesProjectResources;
 
     public function application(string $project_uuid, string $environment_uuid, string $application_uuid): Response|RedirectResponse
@@ -41,22 +43,11 @@ class ProjectMetricsController extends Controller
 
         $server = $application->destination->server;
         $parameters = compact('project_uuid', 'environment_uuid', 'application_uuid');
-        $lastDeployment = $application->get_last_successful_deployment();
 
         return Inertia::render('Project/Shared/Metrics', [
             'resourceType' => 'application',
             'title' => $application->name,
-            'application' => ['uuid' => $application->uuid, 'name' => $application->name, 'status' => $application->status],
-            'heading' => [
-                'lastDeploymentInfo' => trim(str($lastDeployment?->commit)->limit(7).' '.($lastDeployment?->commit_message ?? '')),
-                'lastDeploymentLink' => $application->gitCommitLink((string) $lastDeployment?->commit),
-            ],
-            'headingUrls' => [
-                'deploy' => route('project.application.deployment.deploy', $parameters),
-                'restart' => route('project.application.deployment.restart', $parameters),
-                'stop' => route('project.application.deployment.stop', $parameters),
-                'checkStatus' => route('project.application.deployment.check-status', $parameters),
-            ],
+            ...$this->applicationHeadingProps($application, $parameters),
             'configurationChecker' => $this->applicationConfigurationCheckerProps($application),
             'parameters' => $parameters,
             'isUnavailable' => $application->build_pack === 'dockercompose',

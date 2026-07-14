@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ManagesResourceDanger;
 use App\Http\Controllers\Concerns\ManagesResourceLimits;
 use App\Http\Controllers\Concerns\ManagesResourceOperations;
@@ -32,19 +33,21 @@ use Visus\Cuid2\Cuid2;
  * helper already proven by Project\CloneMe, rather than duplicating per-child-type cloning
  * logic inline the way Database's and Service's clone() methods each had to.
  *
+ * The shell's heading (deploy/restart/stop/force-deploy/status-polling — Phase 64) is
+ * ApplicationHeading.jsx, built from ManagesApplicationHeading's props on its second
+ * consumer (the first being ProjectLogsController's application logs page, ported earlier
+ * alongside deploy/restart/stop/check-status themselves). No new deployment routes were
+ * needed here — only the props pointing at the existing ones.
+ *
  * Still routed to Livewire: General, Advanced, Swarm, Environment Variables, Persistent
  * Storage, Git Source, Servers, Webhooks, Preview Deployments, Healthcheck, Rollback — each
  * either application-only business logic (webhooks' manual git-secrets section, servers' full
  * multi-server Destination behavior) or a large enough unit to deserve its own phase.
- *
- * Known v1 gap: the shell's heading is a minimal name/status readout, not a port of
- * Project\Application\Heading (368 PHP+Blade lines of deploy/restart/force-rebuild/status-
- * polling actions) — that's a substantial prerequisite in its own right, deliberately deferred
- * rather than rushed alongside 5 unrelated tabs.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesApplicationHeading;
     use ManagesResourceDanger;
     use ManagesResourceLimits;
     use ManagesResourceOperations;
@@ -65,11 +68,7 @@ class ProjectApplicationConfigurationController extends Controller
 
         $props = [
             'tab' => $tab,
-            'application' => [
-                'uuid' => $application->uuid,
-                'name' => $application->name,
-                'status' => $application->status,
-            ],
+            ...$this->applicationHeadingProps($application, $parameters),
             'parameters' => $parameters,
             'canUpdate' => auth()->user()->can('update', $application),
             'tabs' => $this->tabLinks($parameters),

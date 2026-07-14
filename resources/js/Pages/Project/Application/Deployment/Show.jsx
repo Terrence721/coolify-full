@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import ApplicationHeading from '../../../../Components/ApplicationHeading';
 import ConfigurationChecker from '../../../../Components/ConfigurationChecker';
-import Heading from './Heading';
 
 const STATUS_LABEL = {
     in_progress: 'In Progress',
@@ -147,7 +147,7 @@ export default function Show({ application, heading, configurationChecker, deplo
         <div className="flex h-[calc(100vh-10rem)] min-h-[50rem] flex-col overflow-hidden">
             <h1 className="py-0">Deployment</h1>
             <ConfigurationChecker configurationChecker={configurationChecker} />
-            <Heading application={application} heading={heading} parameters={parameters} urls={urls} />
+            <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={urls} />
 
             <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
                 <div className="flex items-center gap-2 pb-4">

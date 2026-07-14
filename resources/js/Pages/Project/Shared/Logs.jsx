@@ -1,7 +1,7 @@
+import ApplicationHeading from '../../../Components/ApplicationHeading';
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
 import ContainerLogs from '../../../Components/ContainerLogs';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
-import Heading from '../Application/Deployment/Heading';
 import ServiceHeading from '../../../Components/ServiceHeading';
 
 /**
@@ -30,7 +30,7 @@ export default function Logs({
                 <>
                     <h1>Logs</h1>
                     <ConfigurationChecker configurationChecker={configurationChecker} />
-                    <Heading application={application} heading={heading} parameters={parameters} urls={headingUrls} />
+                    <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={headingUrls} />
                 </>
             )}
             {type === 'database' && (

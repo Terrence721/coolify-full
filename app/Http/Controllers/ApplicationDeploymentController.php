@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Application\StopApplication;
 use App\Actions\Docker\GetContainersStatus;
 use App\Enums\ApplicationDeploymentStatus;
+use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\Server;
@@ -22,6 +23,7 @@ use Visus\Cuid2\Cuid2;
 class ApplicationDeploymentController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesApplicationHeading;
 
     private const DEFAULT_TAKE = 10;
 
@@ -41,9 +43,12 @@ class ApplicationDeploymentController extends Controller
         $showNext = $deployments->count() > 0 && $deployments->count() >= self::DEFAULT_TAKE;
         $showPrev = $skip > 0;
 
+        $parameters = compact('project_uuid', 'environment_uuid', 'application_uuid');
+        $headingProps = $this->applicationHeadingProps($application, $parameters);
+
         return Inertia::render('Project/Application/Deployment/Index', [
-            'application' => $this->applicationProps($application),
-            'heading' => $this->headingProps($application),
+            'application' => $headingProps['application'],
+            'heading' => $headingProps['heading'],
             'configurationChecker' => $this->configurationCheckerProps($application),
             'deployments' => $deployments->map(fn ($deployment) => $this->deploymentProps($application, $deployment))->values(),
             'deploymentsCount' => $count,
@@ -54,13 +59,8 @@ class ApplicationDeploymentController extends Controller
             'showPrev' => $showPrev,
             'pullRequestId' => $pullRequestId,
             'baseUrl' => $request->url(),
-            'parameters' => compact('project_uuid', 'environment_uuid', 'application_uuid'),
-            'urls' => [
-                'deploy' => route('project.application.deployment.deploy', compact('project_uuid', 'environment_uuid', 'application_uuid')),
-                'restart' => route('project.application.deployment.restart', compact('project_uuid', 'environment_uuid', 'application_uuid')),
-                'stop' => route('project.application.deployment.stop', compact('project_uuid', 'environment_uuid', 'application_uuid')),
-                'checkStatus' => route('project.application.deployment.check-status', compact('project_uuid', 'environment_uuid', 'application_uuid')),
-            ],
+            'parameters' => $parameters,
+            'urls' => $headingProps['headingUrls'],
         ]);
     }
 
@@ -87,9 +87,11 @@ class ApplicationDeploymentController extends Controller
             'command' => (bool) ($line['command'] ?? false),
         ])->values();
 
+        $headingProps = $this->applicationHeadingProps($application, $parameters);
+
         return Inertia::render('Project/Application/Deployment/Show', [
-            'application' => $this->applicationProps($application),
-            'heading' => $this->headingProps($application),
+            'application' => $headingProps['application'],
+            'heading' => $headingProps['heading'],
             'configurationChecker' => $this->configurationCheckerProps($application),
             'deployment' => [
                 'deployment_uuid' => $deployment->deployment_uuid,
@@ -103,10 +105,7 @@ class ApplicationDeploymentController extends Controller
             'logLines' => $logLines,
             'parameters' => $parameters,
             'urls' => [
-                'deploy' => route('project.application.deployment.deploy', $parameters),
-                'restart' => route('project.application.deployment.restart', $parameters),
-                'stop' => route('project.application.deployment.stop', $parameters),
-                'checkStatus' => route('project.application.deployment.check-status', $parameters),
+                ...$headingProps['headingUrls'],
                 'toggleDebug' => route('project.application.deployment.toggle-debug', $parameters),
                 'forceStart' => route('project.application.deployment.force-start', $deploymentParameters),
                 'cancel' => route('project.application.deployment.cancel', $deploymentParameters),
@@ -394,30 +393,6 @@ class ApplicationDeploymentController extends Controller
         }
 
         return (string) (int) $value;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function applicationProps(Application $application): array
-    {
-        return [
-            'uuid' => $application->uuid,
-            'name' => $application->name,
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function headingProps(Application $application): array
-    {
-        $lastDeployment = $application->get_last_successful_deployment();
-
-        return [
-            'lastDeploymentInfo' => trim(str($lastDeployment?->commit)->limit(7).' '.($lastDeployment?->commit_message ?? '')),
-            'lastDeploymentLink' => $application->gitCommitLink((string) $lastDeployment?->commit),
-        ];
     }
 
     /**

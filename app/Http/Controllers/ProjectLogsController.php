@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\BuildsConfigurationCheckerProps;
+use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ManagesServiceLifecycle;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Http\Controllers\Concerns\StreamsContainerLogs;
@@ -22,6 +23,7 @@ class ProjectLogsController extends Controller
 {
     use AuthorizesRequests;
     use BuildsConfigurationCheckerProps;
+    use ManagesApplicationHeading;
     use ManagesServiceLifecycle;
     use ResolvesProjectResources;
     use StreamsContainerLogs;
@@ -59,23 +61,12 @@ class ProjectLogsController extends Controller
             ];
         }
 
-        $lastDeployment = $application->get_last_successful_deployment();
         $parameters = compact('project_uuid', 'environment_uuid', 'application_uuid');
 
         return Inertia::render('Project/Shared/Logs', [
             'type' => 'application',
             'title' => $application->name,
-            'application' => ['uuid' => $application->uuid, 'name' => $application->name],
-            'heading' => [
-                'lastDeploymentInfo' => trim(str($lastDeployment?->commit)->limit(7).' '.($lastDeployment?->commit_message ?? '')),
-                'lastDeploymentLink' => $application->gitCommitLink((string) $lastDeployment?->commit),
-            ],
-            'headingUrls' => [
-                'deploy' => route('project.application.deployment.deploy', $parameters),
-                'restart' => route('project.application.deployment.restart', $parameters),
-                'stop' => route('project.application.deployment.stop', $parameters),
-                'checkStatus' => route('project.application.deployment.check-status', $parameters),
-            ],
+            ...$this->applicationHeadingProps($application, $parameters),
             'configurationChecker' => $this->applicationConfigurationCheckerProps($application),
             'containerGroups' => $containerGroups,
             'noServerMessage' => 'No functional server found for the application.',

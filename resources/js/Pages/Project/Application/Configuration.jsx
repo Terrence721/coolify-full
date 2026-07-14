@@ -1,31 +1,27 @@
+import ApplicationHeading from '../../../Components/ApplicationHeading';
 import ScheduledTasksTab from '../../../Components/ScheduledTasksTab';
 import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of the first cut into App\Livewire\Project\Application\Configuration (Phase 63)
- * — the shell plus 5 tabs it shares with the already-fully-converted Database/Service routers
- * (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled Tasks), all now backed
- * by shared concerns on their third consumer. See ProjectApplicationConfigurationController.
- * The remaining 11 tabs (General, Advanced, Swarm, Environment Variables, Persistent Storage,
- * Git Source, Servers, Webhooks, Preview Deployments, Healthcheck, Rollback) stay on the
- * Livewire shell for now — plain full-page links here, matching the established
- * split-by-route-name pattern.
+ * React port of the first cut into App\Livewire\Project\Application\Configuration (Phase 63,
+ * heading added in Phase 64) — the shell plus 5 tabs it shares with the already-fully-converted
+ * Database/Service routers (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled
+ * Tasks), all now backed by shared concerns on their third consumer. See
+ * ProjectApplicationConfigurationController. The remaining 11 tabs (General, Advanced, Swarm,
+ * Environment Variables, Persistent Storage, Git Source, Servers, Webhooks, Preview
+ * Deployments, Healthcheck, Rollback) stay on the Livewire shell for now — plain full-page
+ * links here, matching the established split-by-route-name pattern.
  *
- * Known v1 gap: the heading is a minimal name/status readout, not a port of
- * Project\Application\Heading (deploy/restart/force-rebuild actions) — see the controller's
- * docblock. Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still
- * highlights Scheduled Tasks despite its different URL.
+ * Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still highlights
+ * Scheduled Tasks despite its different URL.
  */
 export default function Configuration(props) {
-    const { tab, tabs, application, canUpdate } = props;
+    const { tab, tabs, application, heading, parameters, headingUrls, canUpdate } = props;
 
     return (
         <div>
             <h1>Configuration</h1>
-            <div className="flex items-center gap-2 pb-4">
-                <h2>{application.name}</h2>
-                <span className="text-xs text-neutral-500">{application.status}</span>
-            </div>
+            <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={headingUrls} />
             <div className="flex flex-col h-full gap-8 sm:flex-row">
                 <div className="sub-menu-wrapper">
                     {tabs.map((link) => (

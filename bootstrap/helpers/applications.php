@@ -141,7 +141,7 @@ function queue_next_deployment(Application $application)
     }
 }
 
-function next_queuable(string $server_id, string $application_id, string $commit = 'HEAD', int $pull_request_id = 0): bool
+function next_queuable(int|string $server_id, int|string $application_id, string $commit = 'HEAD', int $pull_request_id = 0): bool
 {
     // Check if there's already a deployment in progress for this application with the same pull_request_id
     // This allows normal deployments and PR deployments to run concurrently
