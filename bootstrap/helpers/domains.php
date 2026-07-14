@@ -17,7 +17,12 @@ function checkDomainUsage(ServiceApplication|Application|null $resource = null, 
     }
 
     if ($resource) {
-        if ($resource->getMorphClass() === Application::class && $resource->build_pack === 'dockercompose') {
+        if ($domain) {
+            // An explicit domain (e.g. a not-yet-persisted preview-deployment domain that
+            // doesn't live on $resource->fqdn itself) takes precedence over $resource's own
+            // domains, while $resource is still used for team-scoping and self-exclusion below.
+            $domains = collect([$domain]);
+        } elseif ($resource->getMorphClass() === Application::class && $resource->build_pack === 'dockercompose') {
             $domains = data_get(json_decode($resource->docker_compose_domains, true), '*.domain');
             $domains = collect($domains);
         } else {

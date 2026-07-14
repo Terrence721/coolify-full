@@ -164,7 +164,7 @@ class ApplicationPreview extends BaseModel
             $random = (string) new Cuid2;
             $preview_fqdn = str_replace('{{random}}', $random, $template);
             $preview_fqdn = str_replace('{{domain}}', $host, $preview_fqdn);
-            $preview_fqdn = str_replace('{{pr_id}}', $this->pull_request_id, $preview_fqdn);
+            $preview_fqdn = str_replace('{{pr_id}}', (string) $this->pull_request_id, $preview_fqdn);
             $preview_fqdn = "$schema://$preview_fqdn{$port}{$path}";
             $this->fqdn = $preview_fqdn;
             $this->save();
@@ -226,7 +226,7 @@ class ApplicationPreview extends BaseModel
                 $random = (string) new Cuid2;
                 $preview_fqdn = str_replace('{{random}}', $random, $template);
                 $preview_fqdn = str_replace('{{domain}}', $host, $preview_fqdn);
-                $preview_fqdn = str_replace('{{pr_id}}', $this->pull_request_id, $preview_fqdn);
+                $preview_fqdn = str_replace('{{pr_id}}', (string) $this->pull_request_id, $preview_fqdn);
                 $preview_fqdn = "$schema://$preview_fqdn{$port}{$path}";
                 $preview_domains[] = $preview_fqdn;
             }

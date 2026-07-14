@@ -14,8 +14,11 @@ use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
+use App\Actions\Docker\GetContainersStatus;
 use App\Jobs\ApplicationDeploymentJob;
+use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
+use App\Models\ApplicationPreview;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Rules\ValidGitBranch;
@@ -67,9 +70,20 @@ use Visus\Cuid2\Cuid2;
  * compose-file-load/parse path is genuinely SSH-touching, carrying the standard untested-happy-
  * path gap (docs/smoketest.md).
  *
- * Still routed to Livewire: Advanced, Git Source, Servers, Preview Deployments, Healthcheck —
- * each either application-only business logic (servers' full multi-server Destination behavior)
- * or a large enough unit to deserve its own phase. Environment Variables' preview-deployment
+ * Preview Deployments (Phase 70, folding in what used to be three separate Livewire components —
+ * Previews, its PreviewsCompose child, and Preview\Form — into one tab, one controller, one React
+ * component). Application-only, no shared concern. Found and fixed two real pre-existing bugs
+ * while porting: `checkDomainUsage()` silently ignored its `$domain` parameter whenever a
+ * `$resource` was also passed (used `$resource->fqdns` instead), meaning the original's own
+ * preview-domain conflict check was a silent no-op — fixed by preferring the explicit `$domain`
+ * when both are given, a backward-compatible change since no other call site had ever passed
+ * both; and `ApplicationPreview::generate_preview_fqdn()`/`generate_preview_fqdn_compose()`
+ * passed the (int-cast) `pull_request_id` column straight into `str_replace()`, which throws
+ * under PHP 8's `strict_types=1` — fixed with an explicit `(string)` cast.
+ *
+ * Still routed to Livewire: Advanced, Git Source, Servers, Healthcheck — each either
+ * application-only business logic (servers' full multi-server Destination behavior) or a large
+ * enough unit to deserve its own phase. Environment Variables' preview-deployment
  * set, build secrets, and sort-alphabetically toggle stay with Preview Deployments' own future
  * conversion — see ManagesResourceEnvironmentVariables' docblock.
  */
@@ -525,6 +539,428 @@ class ProjectApplicationConfigurationController extends Controller
             'application_uuid' => $application_uuid,
             'deployment_uuid' => $deploymentUuid,
         ]);
+    }
+
+    /** Port of Project\Application\Preview\Form::submit()/resetToDefault() — one endpoint, `reset` flag picks the branch. */
+    public function updatePreviewUrlTemplate(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        if ($request->boolean('reset')) {
+            $application->preview_url_template = '{{pr_id}}.{{domain}}';
+        } else {
+            $validated = Validator::make($request->all(), [
+                'previewUrlTemplate' => 'required|string',
+            ])->validate();
+            $application->preview_url_template = str_replace(' ', '', $validated['previewUrlTemplate']);
+        }
+        $application->save();
+
+        return back()->with('success', 'Preview url template updated.');
+    }
+
+    /** Port of Previews::load_prs() — a real GitHub API call, carries the same untested-happy-path gap as SSH-touching actions. */
+    public function loadPullRequests(string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        try {
+            ['rate_limit_remaining' => $rateLimitRemaining, 'data' => $data] = githubApi(source: $application->source, endpoint: "/repos/{$application->git_repository}/pulls");
+
+            return back()->with([
+                'pullRequests' => $data->sortBy('number')->values()->map(fn ($pr) => [
+                    'number' => data_get($pr, 'number'),
+                    'title' => data_get($pr, 'title'),
+                    'htmlUrl' => data_get($pr, 'html_url'),
+                ])->toArray(),
+                'rateLimitRemaining' => $rateLimitRemaining,
+            ]);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /** Port of Previews::add() — creates (or reuses) the preview row, without deploying. */
+    public function addPreview(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'pullRequestId' => 'required|integer',
+            'pullRequestHtmlUrl' => 'nullable|string',
+            'dockerRegistryImageTag' => 'nullable|string',
+        ])->validate();
+
+        $this->addPreviewToModel($application, (int) $validated['pullRequestId'], $validated['pullRequestHtmlUrl'] ?? null, $validated['dockerRegistryImageTag'] ?? null);
+
+        return back()->with('success', 'Preview added.');
+    }
+
+    /** Port of Previews::add_and_deploy() — also the manual Docker-image-preview form's target. */
+    public function addAndDeployPreview(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        $validated = Validator::make($request->all(), [
+            'pullRequestId' => 'required|integer|min:1',
+            'pullRequestHtmlUrl' => 'nullable|string',
+            'dockerRegistryImageTag' => 'nullable|string',
+        ])->validate();
+
+        if ($application->build_pack === 'dockerimage' && blank($validated['pullRequestHtmlUrl'] ?? null) && blank($validated['dockerRegistryImageTag'] ?? null)) {
+            return back()->with('error', 'Both pull request id and docker tag are required.');
+        }
+
+        $this->addPreviewToModel($application, (int) $validated['pullRequestId'], $validated['pullRequestHtmlUrl'] ?? null, $validated['dockerRegistryImageTag'] ?? null);
+
+        return $this->deployPreviewInternal($application, $project_uuid, $environment_uuid, $application_uuid, (int) $validated['pullRequestId'], $validated['pullRequestHtmlUrl'] ?? null, forceRebuild: false, dockerRegistryImageTag: $validated['dockerRegistryImageTag'] ?? null);
+    }
+
+    /** Port of Previews::deploy() — redeploy/deploy an already-added preview. */
+    public function deployPreview(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        return $this->deployPreviewInternal($application, $project_uuid, $environment_uuid, $application_uuid, (int) $pull_request_id, null, forceRebuild: false, dockerRegistryImageTag: $request->string('dockerRegistryImageTag')->value() ?: null);
+    }
+
+    /** Port of Previews::force_deploy_without_cache(). */
+    public function forceDeployPreviewWithoutCache(string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        $dockerRegistryImageTag = null;
+        if ($application->build_pack === 'dockerimage') {
+            $dockerRegistryImageTag = $application->previews()->where('pull_request_id', (int) $pull_request_id)->value('docker_registry_image_tag');
+        }
+
+        return $this->deployPreviewInternal($application, $project_uuid, $environment_uuid, $application_uuid, (int) $pull_request_id, null, forceRebuild: true, dockerRegistryImageTag: $dockerRegistryImageTag);
+    }
+
+    /**
+     * Port of the shared core of Previews::add()/add_and_deploy()/deploy() — finds or creates the
+     * preview row for a pull request, applying the docker-image-tag update the original repeats
+     * at each of those three call sites.
+     */
+    private function addPreviewToModel(Application $application, int $pullRequestId, ?string $pullRequestHtmlUrl, ?string $dockerRegistryImageTag): ?ApplicationPreview
+    {
+        $found = ApplicationPreview::where('application_id', $application->id)->where('pull_request_id', $pullRequestId)->first();
+
+        if ($application->build_pack === 'dockercompose') {
+            if (! $found && filled($pullRequestHtmlUrl)) {
+                $found = ApplicationPreview::create([
+                    'application_id' => $application->id,
+                    'pull_request_id' => $pullRequestId,
+                    'pull_request_html_url' => $pullRequestHtmlUrl,
+                    'docker_compose_domains' => $application->docker_compose_domains,
+                ]);
+            }
+            $found?->generate_preview_fqdn_compose();
+        } else {
+            if (! $found && (filled($pullRequestHtmlUrl) || ($application->build_pack === 'dockerimage' && filled($dockerRegistryImageTag)))) {
+                $found = ApplicationPreview::create([
+                    'application_id' => $application->id,
+                    'pull_request_id' => $pullRequestId,
+                    'pull_request_html_url' => $pullRequestHtmlUrl ?? '',
+                    'docker_registry_image_tag' => $dockerRegistryImageTag,
+                ]);
+            }
+            if ($found && $application->build_pack === 'dockerimage' && filled($dockerRegistryImageTag)) {
+                $found->docker_registry_image_tag = $dockerRegistryImageTag;
+                $found->save();
+            }
+            $found?->generate_preview_fqdn();
+        }
+        $application->refresh();
+
+        return $found;
+    }
+
+    /** Port of the shared core of Previews::deploy(). */
+    private function deployPreviewInternal(Application $application, string $project_uuid, string $environment_uuid, string $application_uuid, int $pullRequestId, ?string $pullRequestHtmlUrl, bool $forceRebuild, ?string $dockerRegistryImageTag): RedirectResponse
+    {
+        try {
+            $found = ApplicationPreview::where('application_id', $application->id)->where('pull_request_id', $pullRequestId)->first();
+            if (! $found && (filled($pullRequestHtmlUrl) || ($application->build_pack === 'dockerimage' && filled($dockerRegistryImageTag)))) {
+                $found = ApplicationPreview::create([
+                    'application_id' => $application->id,
+                    'pull_request_id' => $pullRequestId,
+                    'pull_request_html_url' => $pullRequestHtmlUrl ?? '',
+                    'docker_registry_image_tag' => $dockerRegistryImageTag,
+                ]);
+            }
+            if ($found && $application->build_pack === 'dockerimage' && filled($dockerRegistryImageTag)) {
+                $found->docker_registry_image_tag = $dockerRegistryImageTag;
+                $found->save();
+            }
+
+            $deploymentUuid = (string) new Cuid2;
+            $result = queue_application_deployment(
+                application: $application,
+                deployment_uuid: $deploymentUuid,
+                force_rebuild: $forceRebuild,
+                pull_request_id: $pullRequestId,
+                git_type: $found->git_type ?? null,
+                docker_registry_image_tag: $dockerRegistryImageTag,
+            );
+
+            if ($result['status'] === 'queue_full') {
+                return back()->with('error', $result['message']);
+            }
+            if ($result['status'] === 'skipped') {
+                return back()->with('success', $result['message']);
+            }
+
+            return redirect()->route('project.application.deployment.show', [
+                'project_uuid' => $project_uuid,
+                'environment_uuid' => $environment_uuid,
+                'application_uuid' => $application_uuid,
+                'deployment_uuid' => $deploymentUuid,
+            ]);
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /** Port of Previews::save_preview() — non-compose domain (+ dockerimage tag) save, with DNS validation and the domain-conflict flash flow. */
+    public function savePreviewDomain(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $preview = $application->previews->firstWhere('pull_request_id', $pull_request_id);
+        if (! $preview) {
+            return back()->with('error', 'Preview not found.');
+        }
+
+        $validated = Validator::make($request->all(), [
+            'fqdn' => 'nullable|string',
+            'dockerRegistryImageTag' => 'nullable|string',
+        ])->validate();
+
+        $success = true;
+        $fqdn = trim((string) ($validated['fqdn'] ?? ''));
+        if (filled($fqdn)) {
+            $fqdn = str($fqdn)->replaceEnd(',', '')->trim();
+            $fqdn = $fqdn->replaceStart(',', '')->trim();
+            $fqdn = $fqdn->trim()->lower()->toString();
+
+            if (! validateDNSEntry($fqdn, $application->destination->server)) {
+                $success = false;
+            }
+
+            if (! $request->boolean('force_save_domains')) {
+                $result = checkDomainUsage(resource: $application, domain: $fqdn);
+                if ($result['hasConflicts']) {
+                    return back()->with(['domainConflicts' => $result['conflicts'], 'showDomainConflictModal' => true]);
+                }
+            }
+        }
+
+        if ($success) {
+            $preview->fqdn = $fqdn ?: null;
+            if ($application->build_pack === 'dockerimage') {
+                $preview->docker_registry_image_tag = $validated['dockerRegistryImageTag'] ?? null;
+            }
+            $preview->save();
+
+            return back()->with('success', 'Preview saved.<br><br>Do not forget to redeploy the preview to apply the changes.');
+        }
+
+        return back()->with('error', 'Validating DNS failed. Make sure you have added the DNS records correctly.');
+    }
+
+    /** Port of Previews::generate_preview() — branches on build pack, matching the original. */
+    public function generatePreviewDomain(string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $preview = $application->previews->firstWhere('pull_request_id', $pull_request_id);
+        if (! $preview) {
+            return back()->with('error', 'Preview not found.');
+        }
+
+        if ($application->build_pack === 'dockercompose') {
+            $preview->generate_preview_fqdn_compose();
+        } else {
+            $preview->generate_preview_fqdn();
+        }
+        $application->refresh();
+
+        return back()->with('success', 'Domain generated.');
+    }
+
+    /** Port of Previews\PreviewsCompose::save() — per-compose-service preview domain. */
+    public function savePreviewComposeDomain(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $preview = $application->previews->firstWhere('pull_request_id', $pull_request_id);
+        if (! $preview) {
+            return back()->with('error', 'Preview not found.');
+        }
+
+        $validated = Validator::make($request->all(), [
+            'serviceName' => 'required|string',
+            'domain' => 'nullable|string',
+        ])->validate();
+
+        $domains = json_decode((string) $preview->docker_compose_domains, true) ?: [];
+        $domains[$validated['serviceName']] = $domains[$validated['serviceName']] ?? [];
+        $domains[$validated['serviceName']]['domain'] = $validated['domain'] ?? null;
+        $preview->docker_compose_domains = json_encode($domains);
+        $preview->save();
+
+        return back()->with('success', 'Domain saved.');
+    }
+
+    /** Port of Previews\PreviewsCompose::generate(). */
+    public function generatePreviewComposeDomain(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $preview = $application->previews->firstWhere('pull_request_id', $pull_request_id);
+        if (! $preview) {
+            return back()->with('error', 'Preview not found.');
+        }
+
+        $validated = Validator::make($request->all(), [
+            'serviceName' => 'required|string',
+        ])->validate();
+        $serviceName = $validated['serviceName'];
+
+        $applicationDomains = collect(json_decode((string) $application->docker_compose_domains, true) ?: []);
+        $domainString = data_get($applicationDomains->get($serviceName), 'domain');
+
+        if (blank($domainString)) {
+            $server = $application->destination->server;
+            $template = $application->preview_url_template;
+            $random = (string) new Cuid2;
+            $generatedFqdn = generateUrl(server: $server, random: $random);
+            $previewFqdn = str_replace('{{random}}', $random, $template);
+            $previewFqdn = str_replace('{{domain}}', str($generatedFqdn)->after('://')->value(), $previewFqdn);
+            $previewFqdn = str_replace('{{pr_id}}', (string) $pull_request_id, $previewFqdn);
+            $previewFqdn = str($generatedFqdn)->before('://').'://'.$previewFqdn;
+        } else {
+            $template = $application->preview_url_template;
+            $random = (string) new Cuid2;
+            $previewFqdns = [];
+            foreach (explode(',', $domainString) as $singleDomain) {
+                $singleDomain = trim($singleDomain);
+                if ($singleDomain === '') {
+                    continue;
+                }
+                $url = Url::fromString($singleDomain);
+                $host = $url->getHost();
+                $schema = $url->getScheme();
+                $portInt = $url->getPort();
+                $port = $portInt !== null ? ':'.$portInt : '';
+                $candidate = str_replace('{{random}}', $random, $template);
+                $candidate = str_replace('{{domain}}', $host, $candidate);
+                $candidate = str_replace('{{pr_id}}', (string) $pull_request_id, $candidate);
+                $previewFqdns[] = "$schema://$candidate{$port}";
+            }
+            $previewFqdn = implode(',', $previewFqdns);
+        }
+
+        $domains = json_decode((string) $preview->docker_compose_domains, true) ?: [];
+        $domains[$serviceName] = $domains[$serviceName] ?? [];
+        $domains[$serviceName]['domain'] = $previewFqdn;
+        $preview->docker_compose_domains = json_encode($domains);
+        $preview->save();
+
+        return back()->with('success', 'Domain generated.');
+    }
+
+    /** Port of Previews::stop(). */
+    public function stopPreview(string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('deploy', $application);
+
+        try {
+            $server = $application->destination->server;
+            if ($server->isSwarm()) {
+                instant_remote_process(["docker stack rm {$application->uuid}-{$pull_request_id}"], $server);
+            } else {
+                $containers = getCurrentApplicationContainerStatus($server, $application->id, (int) $pull_request_id)->toArray();
+                $timeout = $application->settings->stopGracePeriodSeconds();
+                foreach (collect($containers)->pluck('Names')->toArray() as $containerName) {
+                    instant_remote_process(command: [
+                        "docker stop --time=$timeout $containerName",
+                        "docker rm -f $containerName",
+                    ], server: $server, throwError: false);
+                }
+            }
+            GetContainersStatus::run($server);
+            $application->refresh();
+
+            return back()->with('success', 'Preview Deployment stopped.');
+        } catch (\Throwable $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /** Port of Previews::delete() — soft-deletes immediately, hands cleanup to the existing async job. */
+    public function destroyPreview(string $project_uuid, string $environment_uuid, string $application_uuid, string $pull_request_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('delete', $application);
+
+        $preview = ApplicationPreview::where('application_id', $application->id)->where('pull_request_id', $pull_request_id)->first();
+        if (! $preview) {
+            return back()->with('error', 'Preview not found.');
+        }
+
+        $preview->delete();
+        DeleteResourceJob::dispatch($preview);
+
+        return back()->with('success', 'Preview deletion started. It may take a few moments to complete.');
     }
 
     public function updateGeneral(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
@@ -1257,8 +1693,73 @@ class ProjectApplicationConfigurationController extends Controller
             'swarm' => $this->swarmTabProps($application, $parameters),
             'rollback' => $this->rollbackTabProps($application, $parameters),
             'configuration' => $this->generalTabProps($application, $parameters),
+            'preview-deployments' => $this->previewDeploymentsTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function previewDeploymentsTabProps(Application $application, array $parameters): array
+    {
+        $realPreviewUrlTemplate = $application->preview_url_template;
+        if (filled($application->fqdn)) {
+            $firstFqdn = str($application->fqdn)->before(',')->value();
+            $host = Url::fromString($firstFqdn)->getHost();
+            $realPreviewUrlTemplate = str($realPreviewUrlTemplate)->replace('{{domain}}', $host)->toString();
+        }
+
+        $previews = $application->previews->map(function (ApplicationPreview $preview) use ($parameters) {
+            $composeDomains = [];
+            foreach ((array) (json_decode((string) $preview->docker_compose_domains, true) ?: []) as $serviceName => $service) {
+                $composeDomains[] = ['serviceName' => $serviceName, 'domain' => data_get($service, 'domain')];
+            }
+            $previewParameters = [...$parameters, 'pull_request_id' => $preview->pull_request_id];
+
+            return [
+                'id' => $preview->id,
+                'pullRequestId' => $preview->pull_request_id,
+                'pullRequestHtmlUrl' => $preview->pull_request_html_url,
+                'status' => $preview->status,
+                'fqdn' => $preview->fqdn,
+                'dockerRegistryImageTag' => $preview->docker_registry_image_tag,
+                'composeDomains' => $composeDomains,
+                'deploymentLogsUrl' => route('project.application.deployment.index', $previewParameters),
+                'applicationLogsUrl' => route('project.application.logs', $previewParameters),
+                'urls' => [
+                    'domainUpdate' => route('project.application.previews.domain.update', $previewParameters),
+                    'domainGenerate' => route('project.application.previews.domain.generate', $previewParameters),
+                    'composeDomainUpdate' => route('project.application.previews.compose-domain.update', $previewParameters),
+                    'composeDomainGenerate' => route('project.application.previews.compose-domain.generate', $previewParameters),
+                    'deploy' => route('project.application.previews.deploy', $previewParameters),
+                    'forceDeploy' => route('project.application.previews.force-deploy', $previewParameters),
+                    'stop' => route('project.application.previews.stop', $previewParameters),
+                    'destroy' => route('project.application.previews.destroy', $previewParameters),
+                ],
+            ];
+        })->values()->toArray();
+
+        return [
+            'previews' => [
+                'previewUrlTemplate' => $application->preview_url_template,
+                'realPreviewUrlTemplate' => $realPreviewUrlTemplate,
+                'isGithubBased' => $application->is_github_based(),
+                'buildPack' => $application->build_pack,
+                'additionalServersCount' => $application->additional_servers->count(),
+                'primaryServerName' => $application->destination->server->name,
+                'canDeploy' => auth()->user()->can('deploy', $application),
+                'canDelete' => auth()->user()->can('delete', $application),
+                'deployments' => $previews,
+            ],
+            'previewUrls' => [
+                'updateTemplate' => route('project.application.previews.template.update', $parameters),
+                'loadPullRequests' => route('project.application.previews.load-prs', $parameters),
+                'store' => route('project.application.previews.store', $parameters),
+                'addAndDeploy' => route('project.application.previews.add-deploy', $parameters),
+            ],
+        ];
     }
 
     /**
@@ -1317,7 +1818,7 @@ class ProjectApplicationConfigurationController extends Controller
             ['key' => 'servers', 'label' => 'Servers', 'href' => route('project.application.servers', $parameters)],
             ['key' => 'scheduled-tasks', 'label' => 'Scheduled Tasks', 'href' => route('project.application.scheduled-tasks.show', $parameters)],
             ['key' => 'webhooks', 'label' => 'Webhooks', 'href' => route('project.application.webhooks', $parameters)],
-            ['key' => 'preview-deployments', 'label' => 'Preview Deployments', 'href' => route('project.application.preview-deployments', $parameters)],
+            ...($application->git_based() || $application->build_pack === 'dockerimage' ? [['key' => 'preview-deployments', 'label' => 'Preview Deployments', 'href' => route('project.application.preview-deployments', $parameters)]] : []),
             ['key' => 'healthcheck', 'label' => 'Healthcheck', 'href' => route('project.application.healthcheck', $parameters)],
             ['key' => 'rollback', 'label' => 'Rollback', 'href' => route('project.application.rollback', $parameters)],
             ['key' => 'resource-limits', 'label' => 'Resource Limits', 'href' => route('project.application.resource-limits', $parameters)],

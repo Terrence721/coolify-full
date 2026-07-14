@@ -832,3 +832,228 @@ it('loads no compose services for a non-functional server, without touching SSH'
     $response->assertRedirect();
     $response->assertSessionHas('error');
 });
+
+it('renders the preview deployments tab with the template and an empty deployments list', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+
+    $response = $this->get(route('project.application.preview-deployments', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'preview-deployments')
+        ->where('previews.previewUrlTemplate', '{{pr_id}}.{{domain}}')
+        ->where('previews.isGithubBased', false)
+        ->has('previews.deployments', 0)
+        ->has('previewUrls.updateTemplate')
+        ->has('previewUrls.loadPullRequests')
+    );
+});
+
+it('only lists the preview-deployments tab link for a git-based or docker-image application', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $gitApp = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+    $dockerfileApp = appTabsMakeApplication($team, ['build_pack' => 'dockerfile', 'dockerfile' => 'FROM nginx']);
+
+    $gitLinks = $this->get(route('project.application.tags', appTabsParams($gitApp)))->viewData('page')['props']['tabs'];
+    $dockerfileLinks = $this->get(route('project.application.tags', appTabsParams($dockerfileApp)))->viewData('page')['props']['tabs'];
+
+    expect(collect($gitLinks)->pluck('key'))->toContain('preview-deployments');
+    expect(collect($dockerfileLinks)->pluck('key'))->not->toContain('preview-deployments');
+});
+
+it('saves and resets the preview url template', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->patch(route('project.application.previews.template.update', appTabsParams($application)), [
+        'previewUrlTemplate' => '{{pr_id}}-preview.{{domain}}',
+    ])->assertSessionHas('success', 'Preview url template updated.');
+    expect($application->refresh()->preview_url_template)->toBe('{{pr_id}}-preview.{{domain}}');
+
+    $this->patch(route('project.application.previews.template.update', appTabsParams($application)), [
+        'reset' => true,
+    ])->assertSessionHas('success', 'Preview url template updated.');
+    expect($application->refresh()->preview_url_template)->toBe('{{pr_id}}.{{domain}}');
+});
+
+it('configures a preview without deploying it', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.previews.store', appTabsParams($application)), [
+        'pullRequestId' => 42,
+        'pullRequestHtmlUrl' => 'https://github.com/acme/repo/pull/42',
+    ]);
+
+    $response->assertSessionHas('success', 'Preview added.');
+    $preview = $application->previews()->where('pull_request_id', 42)->firstOrFail();
+    expect($preview->pull_request_html_url)->toBe('https://github.com/acme/repo/pull/42');
+});
+
+it('adds and queues a deployment for a preview in one action', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.previews.add-deploy', appTabsParams($application)), [
+        'pullRequestId' => 7,
+        'pullRequestHtmlUrl' => 'https://github.com/acme/repo/pull/7',
+    ]);
+
+    $response->assertRedirect();
+    expect($application->previews()->where('pull_request_id', 7)->exists())->toBeTrue();
+    $deployment = ApplicationDeploymentQueue::where('application_id', $application->id)->firstOrFail();
+    expect($deployment->pull_request_id)->toBe(7);
+    Queue::assertPushed(ApplicationDeploymentJob::class);
+});
+
+it('rejects a manual docker-image preview missing both the pull request html url and the docker tag', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'dockerimage']);
+
+    $response = $this->post(route('project.application.previews.add-deploy', appTabsParams($application)), [
+        'pullRequestId' => 9,
+    ]);
+
+    $response->assertSessionHas('error', 'Both pull request id and docker tag are required.');
+    expect($application->previews()->where('pull_request_id', 9)->exists())->toBeFalse();
+});
+
+it('redeploys an existing preview', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $preview = $application->previews()->create(['pull_request_id' => 11, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/11']);
+
+    $response = $this->post(route('project.application.previews.deploy', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]));
+
+    $response->assertRedirect();
+    $deployment = ApplicationDeploymentQueue::where('application_id', $application->id)->firstOrFail();
+    expect($deployment->pull_request_id)->toBe(11);
+    Queue::assertPushed(ApplicationDeploymentJob::class);
+});
+
+it('force-deploys a preview without cache', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $preview = $application->previews()->create(['pull_request_id' => 13, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/13']);
+
+    $response = $this->post(route('project.application.previews.force-deploy', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]));
+
+    $response->assertRedirect();
+    Queue::assertPushed(ApplicationDeploymentJob::class);
+});
+
+it('saves a preview domain, normalizing it, when DNS validation is disabled', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    InstanceSettings::first()->update(['is_dns_validation_enabled' => false]);
+    $preview = $application->previews()->create(['pull_request_id' => 21, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/21']);
+
+    $response = $this->patch(route('project.application.previews.domain.update', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]), [
+        'fqdn' => 'https://PREVIEW.example.com,',
+    ]);
+
+    $response->assertSessionHas('success');
+    expect($preview->refresh()->fqdn)->toBe('https://preview.example.com');
+});
+
+it('flags a preview domain conflict and force-saves it', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    InstanceSettings::first()->update(['is_dns_validation_enabled' => false]);
+    $preview = $application->previews()->create(['pull_request_id' => 23, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/23']);
+    Application::factory()->create([
+        'environment_id' => $application->environment_id,
+        'fqdn' => 'https://taken.example.com',
+    ]);
+
+    $response = $this->patch(route('project.application.previews.domain.update', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]), [
+        'fqdn' => 'https://taken.example.com',
+    ]);
+
+    $response->assertSessionHas('showDomainConflictModal', true);
+    expect($preview->refresh()->fqdn)->toBeNull();
+
+    $forced = $this->patch(route('project.application.previews.domain.update', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]), [
+        'fqdn' => 'https://taken.example.com',
+        'force_save_domains' => true,
+    ]);
+
+    $forced->assertSessionHas('success');
+    expect($preview->refresh()->fqdn)->toBe('https://taken.example.com');
+});
+
+it('generates a preview domain derived from the main application domain, without touching SSH', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['fqdn' => 'https://app.example.com']);
+    $preview = $application->previews()->create(['pull_request_id' => 25, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/25']);
+
+    $response = $this->post(route('project.application.previews.domain.generate', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]));
+
+    $response->assertSessionHas('success', 'Domain generated.');
+    expect($preview->refresh()->fqdn)->not->toBeNull();
+});
+
+it('saves and generates a per-service compose preview domain', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'dockercompose']);
+    $preview = $application->previews()->create([
+        'pull_request_id' => 27,
+        'pull_request_html_url' => 'https://github.com/acme/repo/pull/27',
+        'docker_compose_domains' => json_encode(['app' => ['domain' => null]]),
+    ]);
+
+    $this->patch(route('project.application.previews.compose-domain.update', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]), [
+        'serviceName' => 'app',
+        'domain' => 'https://app-preview.example.com',
+    ])->assertSessionHas('success', 'Domain saved.');
+    expect(json_decode($preview->refresh()->docker_compose_domains, true))->toBe(['app' => ['domain' => 'https://app-preview.example.com']]);
+
+    $this->post(route('project.application.previews.compose-domain.generate', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]), [
+        'serviceName' => 'app',
+    ])->assertSessionHas('success', 'Domain generated.');
+    expect(data_get(json_decode($preview->refresh()->docker_compose_domains, true), 'app.domain'))->not->toBe('https://app-preview.example.com');
+});
+
+it('stops a preview against a non-functional server, without touching SSH', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $preview = $application->previews()->create(['pull_request_id' => 29, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/29']);
+
+    $response = $this->post(route('project.application.previews.stop', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error');
+});
+
+it('soft-deletes a preview and queues async cleanup', function () {
+    Queue::fake();
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $preview = $application->previews()->create(['pull_request_id' => 31, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/31']);
+
+    $response = $this->delete(route('project.application.previews.destroy', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]));
+
+    $response->assertSessionHas('success', 'Preview deletion started. It may take a few moments to complete.');
+    expect($application->previews()->where('pull_request_id', 31)->exists())->toBeFalse();
+    expect(\App\Models\ApplicationPreview::onlyTrashed()->where('pull_request_id', 31)->exists())->toBeTrue();
+    Queue::assertPushed(\App\Jobs\DeleteResourceJob::class);
+});
