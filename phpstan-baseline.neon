@@ -193,6 +193,12 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_cpu_shares\.$#'
 			identifier: property.notFound
 			count: 1
@@ -235,6 +241,12 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
 			identifier: property.notFound
 			count: 2
@@ -243,6 +255,24 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
+			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
@@ -253,8 +283,92 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
 			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
 			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
@@ -741,7 +855,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
 			identifier: method.notFound
-			count: 6
+			count: 5
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -993,7 +1107,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
 			identifier: method.notFound
-			count: 5
+			count: 4
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
@@ -3517,54 +3631,6 @@ parameters:
 			path: app/Livewire/Project/Database/ScheduledBackups.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:convertToDirectory\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:convertToFile\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:loadStorageOnServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\FileStorage\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\FileStorage\:\:\$resource \(\(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ServiceApplication\|App\\Models\\ServiceDatabase\) does not accept Illuminate\\Database\\Eloquent\\Model\|null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\FileStorage\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/FileStorage.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Support\\Collection\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 1
@@ -3667,114 +3733,6 @@ parameters:
 			path: app/Livewire/Project/Service/Heading.php
 
 		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Service\\Storage\:\:\$directories\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Service\\Storage\:\:\$files\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:clearForm\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:getDirectoriesProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:getDirectoryCountProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:getFileCountProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:getFilesProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:getVolumeCountProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:refreshStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:refreshStoragesFromEvent\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:submitFileStorage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:submitFileStorageDirectory\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Storage\:\:submitPersistentVolume\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Storage\:\:\$fileStorage has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Storage\:\:\$isSwarm has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Storage\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Storage.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\ConfigurationChecker\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -3791,54 +3749,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/Project/Shared/ConfigurationChecker.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Danger\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Danger\:\:delete\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Danger\:\:delete\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Danger\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Danger\:\:\$environmentUuid has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Danger\:\:\$projectUuid has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Danger\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Danger\:\:\$resourceName has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Danger.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\Destination\:\:addServer\(\) has no return type specified\.$#'
@@ -3923,510 +3833,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Shared/Destination.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:availableSharedVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:clear\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:\$problematicVariables type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Add\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Add.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:\$environmentVariables\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:\$environmentVariablesPreview\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:\$hardcodedEnvironmentVariables\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:\$hardcodedEnvironmentVariablesPreview\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:createEnvironmentVariable\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:createEnvironmentVariable\(\) has parameter \$data with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:deleteRemovedVariables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:deleteRemovedVariables\(\) has parameter \$isPreview with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:deleteRemovedVariables\(\) has parameter \$variables with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:formatEnvironmentVariables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:formatEnvironmentVariables\(\) has parameter \$variables with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getDevView\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getEnvironmentVariables\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getEnvironmentVariablesPreviewProperty\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getEnvironmentVariablesProperty\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getHardcodedEnvironmentVariablesPreviewProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getHardcodedEnvironmentVariablesProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:getHardcodedVariables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:handleBulkSubmit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:handleSingleSubmit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:handleSingleSubmit\(\) has parameter \$data with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:normalizeEnvironmentVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:normalizeEnvironmentVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:refreshEnvs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:submit\(\) has parameter \$data with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:switch\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:updateOrCreateVariables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:updateOrCreateVariables\(\) has parameter \$isPreview with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:updateOrCreateVariables\(\) has parameter \$variables with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:updateOrder\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\All\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between ''App\\\\Models…'' and ''App\\\\Models…'' will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:availableSharedVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:checkEnvs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:getResourceProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:lock\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:refresh\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:serialize\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\Show\:\:\$problematicVariables type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\EnvironmentVariable\\ShowHardcoded\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/ShowHardcoded.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\EnvironmentVariable\\ShowHardcoded\:\:\$env type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/EnvironmentVariable/ShowHardcoded.php
 
 		-
 			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\Service\:\:\$is_include_timestamps\.$#'
@@ -4565,570 +3971,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/Project/Shared/ResourceDetails.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceLimits\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceLimits.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceLimits\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceLimits.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceLimits\:\:\$messages has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceLimits.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceLimits\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceLimits.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceLimits\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceLimits.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceLimits\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceLimits.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 6
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Argument of an invalid type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\ServiceApplication, App\\Models\\Service\> supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Argument of an invalid type Illuminate\\Database\\Eloquent\\Relations\\HasMany\<App\\Models\\ServiceDatabase, App\\Models\\Service\> supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:cloneTo\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:cloneTo\(\) has parameter \$destination_id with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:moveTo\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:moveTo\(\) has parameter \$environment_id with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ResourceOperations\:\:toggleVolumeCloning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceOperations\:\:\$environmentUuid has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceOperations\:\:\$projectUuid has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceOperations\:\:\$projects has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ResourceOperations\:\:\$servers has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ResourceOperations.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:\$subServiceName\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\ScheduledTask\:\:\$standalone_postgresql_id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:clear\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:saveScheduledTask\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:\$containerNames with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:\$parameters has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Add\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Models\\ScheduledTask\:\:\$application_id \(int\|null\) does not accept string\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Property App\\Models\\ScheduledTask\:\:\$service_id \(int\|null\) does not accept string\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Add.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\All\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\All\:\:refreshTasks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\All\:\:\$containerNames with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\All\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\All\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:downloadLogs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:getLogLinesProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:hasMoreLogs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:loadAllLogs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:loadMoreLogs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:mount\(\) has parameter \$taskId with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:polling\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:selectTask\(\) has parameter \$key with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:\$currentPage has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:\$executions with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:\$isPollingActive has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:\$logsPerPage has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Executions\:\:\$selectedExecution has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Executions.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:executeNow\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:refreshTasks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:syncData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:toggleEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ScheduledTask\\Show\:\:\$timeout has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/ScheduledTask/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\All\:\:getFirstStorageIdProperty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Storages\\All\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/All.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Storages\\All\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/All.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:delete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:delete\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:delete\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Storages\\Show\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Storages\\Show\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Storages\\Show\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Storages/Show.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Tags\:\:addTag\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Tags\:\:deleteTag\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Tags\:\:loadTags\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Tags\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Tags\:\:refresh\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\Tags\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Tags\:\:\$filteredTags has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Tags\:\:\$resource has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\Tags\:\:\$tags has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/Tags.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Shared\\UploadConfig\:\:mount\(\) has no return type specified\.$#'
@@ -12149,3 +10991,4 @@ parameters:
 			identifier: trait.unused
 			count: 1
 			path: app/Traits/SaveFromRedirect.php
+

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
+use App\Models\Application;
 use App\Models\LocalFileVolume;
 use App\Models\LocalPersistentVolume;
 use App\Models\Service;
@@ -16,13 +17,19 @@ use Illuminate\Support\Facades\Validator;
 /**
  * React port of the persistent-storage tab family — App\Livewire\Project\Service\Storage
  * (the tabbed volumes/files/directories layout + add modals), Project\Shared\Storages\{All,Show}
- * (volume cards), and Project\Service\FileStorage (file/directory mount cards) — scoped to
- * standalone databases and services (Phase 57). The Application router's usage (preview-suffix
- * toggles, git-based content, swarm host-path requirement) converts with that router.
+ * (volume cards), and Project\Service\FileStorage (file/directory mount cards) — standalone
+ * databases and services (Phase 57), joined by Application (Phase 65), which shares the same
+ * "single resource, full Add dropdown" shape databases get (`Project\Service\Storage` binds
+ * generically to any non-service resource, Application included — the class name is a
+ * historical artifact, not a scoping signal).
  *
  * Resource shapes, faithful to the original blade branches:
- * - A standalone database gets the full UI: Add dropdown (volume/file/directory mounts) plus
- *   editable volume cards and file-mount cards.
+ * - A standalone database or Application gets the full UI: Add dropdown (volume/file/directory
+ *   mounts) plus editable volume cards and file-mount cards. `configurationDir()` picks the
+ *   right base path per type (`application_configuration_dir()` vs `database_configuration_dir()`),
+ *   and `requiresHostPath()` ports the original's Application-only swarm rule: a swarm
+ *   destination makes the volume's host path required instead of optional (no such rule exists
+ *   for databases in the original, even though they can also target a swarm destination).
  * - A service renders one read-mostly section per child (ServiceApplication/ServiceDatabase):
  *   volumes are read-only (defined by the compose file), file/directory mounts remain
  *   editable/loadable/convertible/deletable.
@@ -54,7 +61,7 @@ trait ManagesResourceStorages
             'isService' => $isService,
             'canAddMounts' => ! $isService,
             'canUpdate' => auth()->user()->can('update', $resource),
-            'sourceDirPlaceholder' => $isService ? null : database_configuration_dir()."/{$resource->uuid}",
+            'sourceDirPlaceholder' => $isService ? null : $this->configurationDir($resource)."/{$resource->uuid}",
             'storageUrls' => $isService ? null : [
                 'volumeStore' => route("{$routePrefix}.storages.volume.store", $parameters),
                 'fileStore' => route("{$routePrefix}.storages.file.store", $parameters),
@@ -70,7 +77,11 @@ trait ManagesResourceStorages
         $validated = Validator::make($request->all(), [
             'name' => ValidationPatterns::volumeNameRules(),
             'mount_path' => 'required|string',
-            'host_path' => ['nullable', 'string', 'regex:'.ValidationPatterns::DIRECTORY_PATH_PATTERN],
+            'host_path' => [
+                $this->requiresHostPath($resource) ? 'required' : 'nullable',
+                'string',
+                'regex:'.ValidationPatterns::DIRECTORY_PATH_PATTERN,
+            ],
         ], array_merge(ValidationPatterns::volumeNameMessages(), [
             'host_path.regex' => 'Host path must start with / and only contain safe path characters.',
         ]))->validate();
@@ -104,7 +115,7 @@ trait ManagesResourceStorages
         }
 
         LocalFileVolume::create([
-            'fs_path' => database_configuration_dir().'/'.$resource->uuid.$path,
+            'fs_path' => $this->configurationDir($resource).'/'.$resource->uuid.$path,
             'mount_path' => $path,
             'content' => $validated['file_storage_content'] ?? null,
             'is_directory' => false,
@@ -306,6 +317,21 @@ trait ManagesResourceStorages
         }
 
         return false;
+    }
+
+    private function configurationDir(Model $resource): string
+    {
+        return $resource instanceof Application ? application_configuration_dir() : database_configuration_dir();
+    }
+
+    /**
+     * Port of the original Storage::mount()'s Application-only isSwarm check — a database
+     * (which can also target a swarm destination) never had this rule in the original either,
+     * so it stays Application-only here rather than generalized further.
+     */
+    private function requiresHostPath(Model $resource): bool
+    {
+        return $resource instanceof Application && (bool) $resource->destination?->server?->isSwarm();
     }
 
     /**

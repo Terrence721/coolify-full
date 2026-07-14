@@ -6,9 +6,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ManagesResourceDanger;
+use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
 use App\Http\Controllers\Concerns\ManagesResourceLimits;
 use App\Http\Controllers\Concerns\ManagesResourceOperations;
 use App\Http\Controllers\Concerns\ManagesResourceScheduledTasks;
+use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
@@ -24,14 +26,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Visus\Cuid2\Cuid2;
 
 /**
- * React port of the first cut into App\Livewire\Project\Application\Configuration (Phase 63)
- * — the shell plus the tabs it shares with the already-fully-converted Database/Service
- * routers, byte-identical enough across all three to extract into shared concerns on this
- * their third consumer: Tags, Danger Zone, Resource Limits, Resource Operations's generic
- * "move" half, and Scheduled Tasks (already Application|Service-typed since Phase 58).
- * "Clone" is Application's own — it delegates to clone_application(), the comprehensive
- * helper already proven by Project\CloneMe, rather than duplicating per-child-type cloning
- * logic inline the way Database's and Service's clone() methods each had to.
+ * React port of App\Livewire\Project\Application\Configuration's shell plus the tabs it shares
+ * with the already-fully-converted Database/Service routers: Tags, Danger Zone, Resource
+ * Limits, Resource Operations's generic "move" half, and Scheduled Tasks (Phase 63, already
+ * Application|Service-typed since Phase 58); Environment Variables (production set only) and
+ * Persistent Storage (Phase 65, on their third consumer — both concerns needed real widening,
+ * not just wiring, since neither had ever seen a non-service-non-database resource before: see
+ * ManagesResourceEnvironmentVariables' usesDockerCompose()/dockerComposeContent() and
+ * ManagesResourceStorages' configurationDir()/requiresHostPath()). "Clone" is Application's
+ * own — it delegates to clone_application(), the comprehensive helper already proven by
+ * Project\CloneMe, rather than duplicating per-child-type cloning logic inline the way
+ * Database's and Service's clone() methods each had to.
  *
  * The shell's heading (deploy/restart/stop/force-deploy/status-polling — Phase 64) is
  * ApplicationHeading.jsx, built from ManagesApplicationHeading's props on its second
@@ -39,19 +44,23 @@ use Visus\Cuid2\Cuid2;
  * alongside deploy/restart/stop/check-status themselves). No new deployment routes were
  * needed here — only the props pointing at the existing ones.
  *
- * Still routed to Livewire: General, Advanced, Swarm, Environment Variables, Persistent
- * Storage, Git Source, Servers, Webhooks, Preview Deployments, Healthcheck, Rollback — each
- * either application-only business logic (webhooks' manual git-secrets section, servers' full
- * multi-server Destination behavior) or a large enough unit to deserve its own phase.
+ * Still routed to Livewire: General, Advanced, Swarm, Git Source, Servers, Webhooks, Preview
+ * Deployments, Healthcheck, Rollback — each either application-only business logic (webhooks'
+ * manual git-secrets section, servers' full multi-server Destination behavior) or a large
+ * enough unit to deserve its own phase. Environment Variables' preview-deployment set, build
+ * secrets, and sort-alphabetically toggle stay with Preview Deployments' own future conversion
+ * — see ManagesResourceEnvironmentVariables' docblock.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
     use AuthorizesRequests;
     use ManagesApplicationHeading;
     use ManagesResourceDanger;
+    use ManagesResourceEnvironmentVariables;
     use ManagesResourceLimits;
     use ManagesResourceOperations;
     use ManagesResourceScheduledTasks;
+    use ManagesResourceStorages;
     use ManagesResourceTags;
     use ResolvesProjectResources;
 
@@ -223,6 +232,146 @@ class ProjectApplicationConfigurationController extends Controller
         );
     }
 
+    public function storeEnv(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->envStore($request, $application);
+    }
+
+    public function updateEnv(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $env_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->envUpdate($request, $application, $env_id);
+    }
+
+    public function lockEnv(string $project_uuid, string $environment_uuid, string $application_uuid, string $env_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->envLock($application, $env_id);
+    }
+
+    public function destroyEnv(string $project_uuid, string $environment_uuid, string $application_uuid, string $env_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->envDestroy($application, $env_id);
+    }
+
+    public function bulkUpdateEnvs(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->envBulkUpdate($request, $application);
+    }
+
+    public function storagesVolumeStore(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->storeStorageVolume($request, $application);
+    }
+
+    public function storagesFileStore(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->storeStorageFile($request, $application);
+    }
+
+    public function storagesDirectoryStore(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->storeStorageDirectory($request, $application);
+    }
+
+    public function storagesVolumeUpdate(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $volume_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->updateStorageVolume($request, $application, $this->resolveOwnedVolume($application, $volume_id));
+    }
+
+    public function storagesVolumeDestroy(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $volume_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->destroyStorageVolume($request, $application, $this->resolveOwnedVolume($application, $volume_id));
+    }
+
+    public function storagesFileUpdate(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $file_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->updateStorageFile($request, $application, $this->resolveOwnedFileVolume($application, $file_id));
+    }
+
+    public function storagesFileLoad(string $project_uuid, string $environment_uuid, string $application_uuid, string $file_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->loadStorageFile($application, $this->resolveOwnedFileVolume($application, $file_id));
+    }
+
+    public function storagesFileConvert(string $project_uuid, string $environment_uuid, string $application_uuid, string $file_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->convertStorageFile($application, $this->resolveOwnedFileVolume($application, $file_id));
+    }
+
+    public function storagesFileDestroy(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid, string $file_id): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+
+        return $this->destroyStorageFile($request, $application, $this->resolveOwnedFileVolume($application, $file_id));
+    }
+
     /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
@@ -235,6 +384,8 @@ class ProjectApplicationConfigurationController extends Controller
             'resource-limits' => $this->resourceLimitsTabProps($application, $parameters, 'project.application'),
             'resource-operations' => $this->resourceOperationsTabProps($application, $parameters, 'project.application'),
             'scheduled-tasks' => $this->scheduledTasksTabProps($application, $parameters, 'project.application', request()->route('task_uuid')),
+            'environment-variables' => $this->environmentVariablesTabProps($application, $parameters, 'project.application'),
+            'persistent-storage' => $this->storagesTabProps($application, $parameters, 'project.application'),
             default => [],
         };
     }

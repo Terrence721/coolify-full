@@ -18,20 +18,26 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * React port of the App\Livewire\Project\Shared\EnvironmentVariable\{All,Add,Show,ShowHardcoded}
- * family, scoped to standalone databases and services (Phase 56) — the Application router's
- * extra modes (preview-deployment variables, build secrets, the sort-alphabetically toggle,
- * which the original blade only rendered for the Application class) are deliberately not here
- * and belong to that router's own conversion.
+ * family — standalone databases and services (Phase 56), joined by Application on its
+ * production (non-preview) variable set (Phase 65). The original's Application-only extra
+ * modes (preview-deployment variables, build secrets, the sort-alphabetically toggle) are
+ * deliberately not here — all three depend on Preview Deployments, itself still Livewire, so
+ * porting them now would mean building against a feature this migration hasn't reached yet.
  *
  * Faithful-port notes:
  * - Locked (shown-once) and magic (SERVICE_FQDN, SERVICE_URL, SERVICE_NAME prefixed) variables
  *   only accept comment updates, mirroring the original blade's disabled inputs.
  * - Redis credentials (REDIS_PASSWORD/REDIS_USERNAME on standalone-redis) keep their key and
  *   require a non-empty value.
- * - Deleting/bulk-removing a variable still referenced by a service's docker-compose is
- *   blocked (EnvironmentVariableProtection), same as the original.
+ * - Deleting/bulk-removing a variable still referenced by a service's or a docker-compose
+ *   Application's compose file is blocked (EnvironmentVariableProtection), same as the
+ *   original — `usesDockerCompose()`/`dockerComposeContent()` cover both resource shapes
+ *   (Service's `docker_compose`, Application's `docker_compose_raw`).
+ * - Hardcoded (compose-file-defined) variables surface for services and dockercompose-build-pack
+ *   Applications alike, matching the original's `getHardcodedVariables()` condition exactly.
  * - The bulk "developer view" save ports handleBulkSubmit + updateOrder for production
- *   variables (db/service resources have no preview set).
+ *   variables (db/service resources have no preview set; Application's preview set is one of
+ *   the deferred extra modes above).
  */
 trait ManagesResourceEnvironmentVariables
 {
@@ -166,8 +172,8 @@ trait ManagesResourceEnvironmentVariables
         $env = $resource->environment_variables()->findOrFail($env_id);
         $this->authorize('delete', $env);
 
-        if ($resource->type() === 'service' || filled(data_get($resource, 'docker_compose'))) {
-            [$isUsed] = $this->isEnvironmentVariableUsedInDockerCompose($env->key, data_get($resource, 'docker_compose'));
+        if ($this->usesDockerCompose($resource)) {
+            [$isUsed] = $this->isEnvironmentVariableUsedInDockerCompose($env->key, $this->dockerComposeContent($resource));
             if ($isUsed) {
                 return back()->with('error', "Cannot delete environment variable '{$env->key}'. Please remove it from the Docker Compose file first.");
             }
@@ -197,8 +203,8 @@ trait ManagesResourceEnvironmentVariables
         // Delete removed variables unless docker-compose still references them
         $variablesToDelete = $resource->environment_variables()->whereNotIn('key', array_keys($variables))->get();
         foreach ($variablesToDelete as $envVar) {
-            if ($resource->type() === 'service' || filled(data_get($resource, 'docker_compose'))) {
-                [$isUsed] = $this->isEnvironmentVariableUsedInDockerCompose($envVar->key, data_get($resource, 'docker_compose'));
+            if ($this->usesDockerCompose($resource)) {
+                [$isUsed] = $this->isEnvironmentVariableUsedInDockerCompose($envVar->key, $this->dockerComposeContent($resource));
                 if ($isUsed) {
                     return back()->with('error', "Cannot delete environment variable '{$envVar->key}'. Please remove it from the Docker Compose file first.");
                 }
@@ -293,7 +299,7 @@ trait ManagesResourceEnvironmentVariables
      */
     private function hardcodedEnvProps(Model $resource): array
     {
-        if ($resource->type() !== 'service') {
+        if (! $this->usesDockerCompose($resource)) {
             return [];
         }
         $dockerComposeRaw = data_get($resource, 'docker_compose_raw') ?? data_get($resource, 'docker_compose');
@@ -308,6 +314,31 @@ trait ManagesResourceEnvironmentVariables
             ->filter(fn ($var) => ! in_array($var['key'], $managedKeys, true))
             ->values()
             ->all();
+    }
+
+    /**
+     * Port of the original's mixed conditions for "does this resource's env vars need
+     * docker-compose cross-referencing" — true for services, and for Application only when
+     * its build pack is dockercompose (a plain git/dockerfile Application never has compose
+     * content to check against).
+     */
+    private function usesDockerCompose(Model $resource): bool
+    {
+        return $resource->type() === 'service' || data_get($resource, 'build_pack') === 'dockercompose';
+    }
+
+    /**
+     * The compose-in-use check for envDestroy/envBulkUpdate deliberately reads a single,
+     * type-specific field rather than hardcodedEnvProps' raw-preferred fallback: a Service's
+     * `docker_compose_raw` column is NOT NULL (defaults to '', not null, so `??` never falls
+     * through to `docker_compose` the way it needs to here), and Application has no
+     * `docker_compose` column at all — only `docker_compose_raw`.
+     */
+    private function dockerComposeContent(Model $resource): ?string
+    {
+        return $resource->type() === 'service'
+            ? data_get($resource, 'docker_compose')
+            : data_get($resource, 'docker_compose_raw');
     }
 
     private function formatDevEnvs($envs): string

@@ -264,3 +264,112 @@ it('redirects cross-team visitors to the dashboard', function () {
     $this->get(route('project.application.tags', appTabsParams($application)))
         ->assertRedirect(route('dashboard'));
 });
+
+it('renders the environment variables tab and creates a variable', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->get(route('project.application.environment-variables', appTabsParams($application)))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Project/Application/Configuration')
+            ->where('tab', 'environment-variables')
+            ->has('envs')
+        );
+
+    $response = $this->post(route('project.application.envs.store', appTabsParams($application)), [
+        'key' => 'MY_VAR',
+        'value' => 'hello',
+        'is_multiline' => false,
+        'is_literal' => false,
+        'is_runtime' => true,
+        'is_buildtime' => true,
+    ]);
+
+    $response->assertSessionHas('success', 'Environment variable added.');
+    expect($application->environment_variables()->where('key', 'MY_VAR')->exists())->toBeTrue();
+});
+
+it('renders hardcoded compose variables for a dockercompose-build-pack application', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, [
+        'build_pack' => 'dockercompose',
+        'docker_compose_raw' => "services:\n  app:\n    image: nginx\n    environment:\n      - HARDCODED_VAR=fixed\n",
+    ]);
+
+    $response = $this->get(route('project.application.environment-variables', appTabsParams($application)));
+
+    $response->assertOk();
+    $hardcoded = collect($response->viewData('page')['props']['hardcodedEnvs']);
+    expect($hardcoded->pluck('key'))->toContain('HARDCODED_VAR');
+});
+
+it('blocks deleting a dockercompose application variable still used in the compose file', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, [
+        'build_pack' => 'dockercompose',
+        'docker_compose_raw' => "services:\n  app:\n    image: nginx\n    environment:\n      USED_VAR: in-use\n",
+    ]);
+    $env = $application->environment_variables()->create([
+        'key' => 'USED_VAR',
+        'value' => 'in-use',
+        'resourceable_type' => $application->getMorphClass(),
+    ]);
+
+    $response = $this->delete(route('project.application.envs.destroy', [...appTabsParams($application), 'env_id' => $env->id]));
+
+    $response->assertSessionHas('error');
+    expect($application->environment_variables()->find($env->id))->not->toBeNull();
+});
+
+it('renders the persistent-storage tab and adds a volume and a file mount', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->get(route('project.application.persistent-storage', appTabsParams($application)))
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Project/Application/Configuration')
+            ->where('tab', 'persistent-storage')
+            ->where('isService', false)
+            ->where('canAddMounts', true)
+        );
+
+    $this->post(route('project.application.storages.volume.store', appTabsParams($application)), [
+        'name' => 'data',
+        'mount_path' => '/data',
+    ])->assertSessionHas('success', 'Volume added successfully');
+    expect($application->persistentStorages()->where('name', $application->uuid.'-data')->exists())->toBeTrue();
+
+    $this->post(route('project.application.storages.file.store', appTabsParams($application)), [
+        'file_storage_path' => 'etc/config.conf',
+        'file_storage_content' => 'setting=1',
+    ]);
+    $file = $application->fileStorages()->firstOrFail();
+    expect($file->fs_path)->toContain('/applications/'.$application->uuid.'/etc/config.conf');
+});
+
+it('requires a host path for a volume on a swarm destination', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update(['is_swarm_manager' => true]);
+    $swarmDestination = \App\Models\SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
+    $application = appTabsMakeApplication($team, [
+        'destination_id' => $swarmDestination->id,
+        'destination_type' => \App\Models\SwarmDocker::class,
+    ]);
+
+    $this->post(route('project.application.storages.volume.store', appTabsParams($application)), [
+        'name' => 'data',
+        'mount_path' => '/data',
+    ])->assertSessionHasErrors('host_path');
+
+    $this->post(route('project.application.storages.volume.store', appTabsParams($application)), [
+        'name' => 'data',
+        'mount_path' => '/data',
+        'host_path' => '/srv/data',
+    ])->assertSessionHas('success', 'Volume added successfully');
+});

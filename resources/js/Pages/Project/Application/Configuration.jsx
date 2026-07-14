@@ -1,16 +1,17 @@
 import ApplicationHeading from '../../../Components/ApplicationHeading';
+import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import ScheduledTasksTab from '../../../Components/ScheduledTasksTab';
+import StoragesTab from '../../../Components/StoragesTab';
 import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of the first cut into App\Livewire\Project\Application\Configuration (Phase 63,
- * heading added in Phase 64) — the shell plus 5 tabs it shares with the already-fully-converted
- * Database/Service routers (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled
- * Tasks), all now backed by shared concerns on their third consumer. See
- * ProjectApplicationConfigurationController. The remaining 11 tabs (General, Advanced, Swarm,
- * Environment Variables, Persistent Storage, Git Source, Servers, Webhooks, Preview
- * Deployments, Healthcheck, Rollback) stay on the Livewire shell for now — plain full-page
- * links here, matching the established split-by-route-name pattern.
+ * React port of App\Livewire\Project\Application\Configuration's shell plus 7 of its 16 tabs
+ * (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled Tasks — Phase 63;
+ * Environment Variables and Persistent Storage — Phase 65), all backed by shared concerns on
+ * their third consumer. See ProjectApplicationConfigurationController. The remaining 9 tabs
+ * (General, Advanced, Swarm, Git Source, Servers, Webhooks, Preview Deployments, Healthcheck,
+ * Rollback) stay on the Livewire shell for now — plain full-page links here, matching the
+ * established split-by-route-name pattern.
  *
  * Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still highlights
  * Scheduled Tasks despite its different URL.
@@ -57,6 +58,28 @@ export default function Configuration(props) {
                             currentEnvironmentId={props.currentEnvironmentId}
                             operationUrls={props.operationUrls}
                             canUpdate={canUpdate}
+                        />
+                    )}
+                    {tab === 'environment-variables' && (
+                        <EnvironmentVariablesTab
+                            envs={props.envs}
+                            hardcodedEnvs={props.hardcodedEnvs}
+                            devEnvs={props.devEnvs}
+                            canManageEnvironment={props.canManageEnvironment}
+                            problematicVariables={props.problematicVariables}
+                            availableSharedVariables={props.availableSharedVariables}
+                            envUrls={props.envUrls}
+                            resourceType="application"
+                        />
+                    )}
+                    {tab === 'persistent-storage' && (
+                        <StoragesTab
+                            sections={props.sections}
+                            isService={props.isService}
+                            canAddMounts={props.canAddMounts}
+                            canUpdate={canUpdate}
+                            storageUrls={props.storageUrls}
+                            sourceDirPlaceholder={props.sourceDirPlaceholder}
                         />
                     )}
                 </div>
