@@ -251,7 +251,7 @@ class Show extends Component
             $this->description = $this->server->description;
             $this->ip = $this->server->ip;
             $this->user = $this->server->user;
-            $this->port = $this->server->port;
+            $this->port = (string) $this->server->port;
             $this->connectionTimeout = $this->server->settings->connection_timeout;
 
             $this->wildcardDomain = $this->server->settings->wildcard_domain;
