@@ -81,11 +81,17 @@ use Visus\Cuid2\Cuid2;
  * passed the (int-cast) `pull_request_id` column straight into `str_replace()`, which throws
  * under PHP 8's `strict_types=1` — fixed with an explicit `(string)` cast.
  *
- * Still routed to Livewire: Advanced, Git Source, Servers, Healthcheck — each either
- * application-only business logic (servers' full multi-server Destination behavior) or a large
- * enough unit to deserve its own phase. Environment Variables' preview-deployment
- * set, build secrets, and sort-alphabetically toggle stay with Preview Deployments' own future
- * conversion — see ManagesResourceEnvironmentVariables' docblock.
+ * Advanced (Phase 71 — Build/Container/Deployment/Git/Docker Compose/Proxy/Logs instant-save
+ * settings, plus the Custom Container Name/Stop Grace Period/Max Restart Count standalone forms
+ * and the GPU section's own explicit-Save-button form). Application-only, no shared concern.
+ * `resetDefaultLabels()`'s auto-triggered (readonly-gated) label regen is exactly
+ * `maybeRegenerateDefaultLabels()`'s existing `manualReset: false` behavior, reused as-is rather
+ * than re-implemented.
+ *
+ * Still routed to Livewire: Git Source, Servers, Healthcheck — each either application-only
+ * business logic (Servers' full multi-server Destination behavior) or large enough to deserve
+ * its own phase. Environment Variables' preview-deployment set, build secrets, and
+ * sort-alphabetically toggle stay deferred — see ManagesResourceEnvironmentVariables' docblock.
  */
 class ProjectApplicationConfigurationController extends Controller
 {
@@ -539,6 +545,192 @@ class ProjectApplicationConfigurationController extends Controller
             'application_uuid' => $application_uuid,
             'deployment_uuid' => $deploymentUuid,
         ]);
+    }
+
+    /** Port of Advanced::instantSave() — the checkbox-triggered whole-form save. */
+    public function instantSaveAdvanced(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), $this->advancedValidationRules())->validate();
+
+        if ($validated['isLogDrainEnabled'] && ! $application->destination->server->isLogDrainEnabled()) {
+            $validated['isLogDrainEnabled'] = false;
+            $this->syncAdvancedFieldsToModel($application, $validated);
+
+            return back()->with('error', 'Log drain is not enabled on this server.');
+        }
+
+        $reset = $application->isForceHttpsEnabled() !== $validated['isForceHttpsEnabled']
+            || $application->isGzipEnabled() !== $validated['isGzipEnabled']
+            || $application->isStripprefixEnabled() !== $validated['isStripprefixEnabled'];
+
+        if ($application->settings->is_raw_compose_deployment_enabled) {
+            $application->oldRawParser();
+        } else {
+            $application->parse();
+        }
+        $this->syncAdvancedFieldsToModel($application, $validated);
+
+        if ($reset) {
+            $this->maybeRegenerateDefaultLabels($application);
+        }
+
+        return back()->with('success', 'Settings saved.');
+    }
+
+    /** Port of Advanced::submit() — the GPU section's own Save button. */
+    public function updateAdvanced(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), $this->advancedValidationRules())->validate();
+
+        if (filled($validated['gpuCount'] ?? null) && filled($validated['gpuDeviceIds'] ?? null)) {
+            return back()->with('error', 'You cannot set both GPU count and GPU device IDs.');
+        }
+
+        $this->syncAdvancedFieldsToModel($application, $validated);
+
+        return back()->with('success', 'Settings saved.');
+    }
+
+    /** Port of Advanced::saveCustomName() — slugifies, then rejects a clash with another application on the same server. */
+    public function saveAdvancedCustomName(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $customInternalName = str($request->string('customInternalName')->value())->isNotEmpty()
+            ? str($request->string('customInternalName')->value())->slug()->value()
+            : null;
+
+        if ($customInternalName !== null) {
+            $server = $application->destination->server;
+            $clash = $server->applications()->contains(fn ($other) => $other->id !== $application->id && $other->settings->custom_internal_name === $customInternalName);
+            if ($clash) {
+                return back()->with('error', 'This custom container name is already in use by another application on this server.');
+            }
+        }
+
+        $application->settings->custom_internal_name = $customInternalName;
+        $application->settings->save();
+
+        return back()->with('success', 'Custom name saved.');
+    }
+
+    /** Port of Advanced::saveStopGracePeriod(). */
+    public function saveAdvancedStopGracePeriod(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $stopGracePeriod = $request->string('stopGracePeriod')->value();
+        $validated = Validator::make(
+            ['stopGracePeriod' => $stopGracePeriod === '' ? null : $stopGracePeriod],
+            ['stopGracePeriod' => ['nullable', 'integer', 'min:'.MIN_STOP_GRACE_PERIOD_SECONDS, 'max:'.MAX_STOP_GRACE_PERIOD_SECONDS]],
+            [],
+            ['stopGracePeriod' => 'stop grace period']
+        )->validate();
+
+        $application->settings->stop_grace_period = $validated['stopGracePeriod'] === null ? null : (int) $validated['stopGracePeriod'];
+        $application->settings->save();
+
+        return back()->with('success', 'Stop grace period updated.');
+    }
+
+    /** Port of Advanced::saveMaxRestartCount(). */
+    public function saveAdvancedMaxRestartCount(Request $request, string $project_uuid, string $environment_uuid, string $application_uuid): RedirectResponse
+    {
+        $application = $this->resolveApplication($project_uuid, $environment_uuid, $application_uuid);
+        if (! $application instanceof Application) {
+            return $application;
+        }
+        $this->authorize('update', $application);
+
+        $validated = Validator::make($request->all(), [
+            'maxRestartCount' => 'integer|min:0',
+        ])->validate();
+
+        $application->max_restart_count = $validated['maxRestartCount'];
+        $application->save();
+
+        return back()->with('success', 'Max restart count saved.');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function advancedValidationRules(): array
+    {
+        return [
+            'isForceHttpsEnabled' => 'boolean',
+            'isGitSubmodulesEnabled' => 'boolean',
+            'isGitLfsEnabled' => 'boolean',
+            'isGitShallowCloneEnabled' => 'boolean',
+            'isPreviewDeploymentsEnabled' => 'boolean',
+            'isPrDeploymentsPublicEnabled' => 'boolean',
+            'isAutoDeployEnabled' => 'boolean',
+            'disableBuildCache' => 'boolean',
+            'injectBuildArgsToDockerfile' => 'boolean',
+            'includeSourceCommitInBuild' => 'boolean',
+            'isLogDrainEnabled' => 'boolean',
+            'isGpuEnabled' => 'boolean',
+            'gpuDriver' => 'nullable|string',
+            'gpuCount' => 'nullable|string',
+            'gpuDeviceIds' => 'nullable|string',
+            'gpuOptions' => 'nullable|string',
+            'isBuildServerEnabled' => 'boolean',
+            'isConsistentContainerNameEnabled' => 'boolean',
+            'isGzipEnabled' => 'boolean',
+            'isStripprefixEnabled' => 'boolean',
+            'isRawComposeDeploymentEnabled' => 'boolean',
+            'isConnectToDockerNetworkEnabled' => 'boolean',
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function syncAdvancedFieldsToModel(Application $application, array $validated): void
+    {
+        $application->settings->is_force_https_enabled = (bool) ($validated['isForceHttpsEnabled'] ?? false);
+        $application->settings->is_git_submodules_enabled = (bool) ($validated['isGitSubmodulesEnabled'] ?? false);
+        $application->settings->is_git_lfs_enabled = (bool) ($validated['isGitLfsEnabled'] ?? false);
+        $application->settings->is_git_shallow_clone_enabled = (bool) ($validated['isGitShallowCloneEnabled'] ?? false);
+        $application->settings->is_preview_deployments_enabled = (bool) ($validated['isPreviewDeploymentsEnabled'] ?? false);
+        $application->settings->is_pr_deployments_public_enabled = (bool) ($validated['isPrDeploymentsPublicEnabled'] ?? false);
+        $application->settings->is_auto_deploy_enabled = (bool) ($validated['isAutoDeployEnabled'] ?? false);
+        $application->settings->is_log_drain_enabled = (bool) ($validated['isLogDrainEnabled'] ?? false);
+        $application->settings->is_gpu_enabled = (bool) ($validated['isGpuEnabled'] ?? false);
+        $application->settings->gpu_driver = $validated['gpuDriver'] ?? '';
+        $application->settings->gpu_count = $validated['gpuCount'] ?? null;
+        $application->settings->gpu_device_ids = $validated['gpuDeviceIds'] ?? null;
+        $application->settings->gpu_options = $validated['gpuOptions'] ?? null;
+        $application->settings->is_build_server_enabled = (bool) ($validated['isBuildServerEnabled'] ?? false);
+        $application->settings->is_consistent_container_name_enabled = (bool) ($validated['isConsistentContainerNameEnabled'] ?? false);
+        $application->settings->is_gzip_enabled = (bool) ($validated['isGzipEnabled'] ?? false);
+        $application->settings->is_stripprefix_enabled = (bool) ($validated['isStripprefixEnabled'] ?? false);
+        $application->settings->is_raw_compose_deployment_enabled = (bool) ($validated['isRawComposeDeploymentEnabled'] ?? false);
+        $application->settings->connect_to_docker_network = (bool) ($validated['isConnectToDockerNetworkEnabled'] ?? false);
+        $application->settings->disable_build_cache = (bool) ($validated['disableBuildCache'] ?? false);
+        $application->settings->inject_build_args_to_dockerfile = (bool) ($validated['injectBuildArgsToDockerfile'] ?? false);
+        $application->settings->include_source_commit_in_build = (bool) ($validated['includeSourceCommitInBuild'] ?? false);
+        $application->settings->save();
     }
 
     /** Port of Project\Application\Preview\Form::submit()/resetToDefault() — one endpoint, `reset` flag picks the branch. */
@@ -1694,8 +1886,58 @@ class ProjectApplicationConfigurationController extends Controller
             'rollback' => $this->rollbackTabProps($application, $parameters),
             'configuration' => $this->generalTabProps($application, $parameters),
             'preview-deployments' => $this->previewDeploymentsTabProps($application, $parameters),
+            'advanced' => $this->advancedTabProps($application, $parameters),
             default => [],
         };
+    }
+
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
+    private function advancedTabProps(Application $application, array $parameters): array
+    {
+        $settings = $application->settings;
+
+        return [
+            'advanced' => [
+                'isForceHttpsEnabled' => (bool) $application->isForceHttpsEnabled(),
+                'isGzipEnabled' => (bool) $application->isGzipEnabled(),
+                'isStripprefixEnabled' => (bool) $application->isStripprefixEnabled(),
+                'isLogDrainEnabled' => (bool) $application->isLogDrainEnabled(),
+                'isGitSubmodulesEnabled' => (bool) $settings->is_git_submodules_enabled,
+                'isGitLfsEnabled' => (bool) $settings->is_git_lfs_enabled,
+                'isGitShallowCloneEnabled' => (bool) ($settings->is_git_shallow_clone_enabled ?? false),
+                'isPreviewDeploymentsEnabled' => (bool) $settings->is_preview_deployments_enabled,
+                'isPrDeploymentsPublicEnabled' => (bool) ($settings->is_pr_deployments_public_enabled ?? false),
+                'isAutoDeployEnabled' => (bool) $settings->is_auto_deploy_enabled,
+                'isGpuEnabled' => (bool) $settings->is_gpu_enabled,
+                'gpuDriver' => $settings->gpu_driver,
+                'gpuCount' => $settings->gpu_count,
+                'gpuDeviceIds' => $settings->gpu_device_ids,
+                'gpuOptions' => $settings->gpu_options,
+                'isBuildServerEnabled' => (bool) $settings->is_build_server_enabled,
+                'isConsistentContainerNameEnabled' => (bool) $settings->is_consistent_container_name_enabled,
+                'customInternalName' => $settings->custom_internal_name,
+                'isRawComposeDeploymentEnabled' => (bool) $settings->is_raw_compose_deployment_enabled,
+                'isConnectToDockerNetworkEnabled' => (bool) $settings->connect_to_docker_network,
+                'disableBuildCache' => (bool) $settings->disable_build_cache,
+                'injectBuildArgsToDockerfile' => (bool) ($settings->inject_build_args_to_dockerfile ?? true),
+                'includeSourceCommitInBuild' => (bool) ($settings->include_source_commit_in_build ?? false),
+                'stopGracePeriod' => $settings->stop_grace_period,
+                'maxRestartCount' => $application->max_restart_count ?? 10,
+                'isContainerLabelReadonlyEnabled' => (bool) $settings->is_container_label_readonly_enabled,
+                'gitBased' => $application->git_based(),
+                'buildPack' => $application->build_pack,
+            ],
+            'advancedUrls' => [
+                'instantSave' => route('project.application.advanced.instant-save', $parameters),
+                'update' => route('project.application.advanced.update', $parameters),
+                'customName' => route('project.application.advanced.custom-name', $parameters),
+                'stopGracePeriod' => route('project.application.advanced.stop-grace-period', $parameters),
+                'maxRestartCount' => route('project.application.advanced.max-restart-count', $parameters),
+            ],
+        ];
     }
 
     /**

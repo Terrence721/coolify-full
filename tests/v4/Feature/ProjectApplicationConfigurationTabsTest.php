@@ -1057,3 +1057,189 @@ it('soft-deletes a preview and queues async cleanup', function () {
     expect(\App\Models\ApplicationPreview::onlyTrashed()->where('pull_request_id', 31)->exists())->toBeTrue();
     Queue::assertPushed(\App\Jobs\DeleteResourceJob::class);
 });
+
+function appAdvancedPayload(Application $application, array $overrides = []): array
+{
+    $settings = $application->settings;
+
+    return array_merge([
+        'isForceHttpsEnabled' => (bool) $settings->is_force_https_enabled,
+        'isGitSubmodulesEnabled' => (bool) $settings->is_git_submodules_enabled,
+        'isGitLfsEnabled' => (bool) $settings->is_git_lfs_enabled,
+        'isGitShallowCloneEnabled' => (bool) $settings->is_git_shallow_clone_enabled,
+        'isPreviewDeploymentsEnabled' => (bool) $settings->is_preview_deployments_enabled,
+        'isPrDeploymentsPublicEnabled' => (bool) $settings->is_pr_deployments_public_enabled,
+        'isAutoDeployEnabled' => (bool) $settings->is_auto_deploy_enabled,
+        'disableBuildCache' => (bool) $settings->disable_build_cache,
+        'injectBuildArgsToDockerfile' => (bool) $settings->inject_build_args_to_dockerfile,
+        'includeSourceCommitInBuild' => (bool) $settings->include_source_commit_in_build,
+        'isLogDrainEnabled' => (bool) $settings->is_log_drain_enabled,
+        'isGpuEnabled' => (bool) $settings->is_gpu_enabled,
+        'gpuDriver' => $settings->gpu_driver,
+        'gpuCount' => $settings->gpu_count,
+        'gpuDeviceIds' => $settings->gpu_device_ids,
+        'gpuOptions' => $settings->gpu_options,
+        'isBuildServerEnabled' => (bool) $settings->is_build_server_enabled,
+        'isConsistentContainerNameEnabled' => (bool) $settings->is_consistent_container_name_enabled,
+        'isGzipEnabled' => (bool) $settings->is_gzip_enabled,
+        'isStripprefixEnabled' => (bool) $settings->is_stripprefix_enabled,
+        'isRawComposeDeploymentEnabled' => (bool) $settings->is_raw_compose_deployment_enabled,
+        'isConnectToDockerNetworkEnabled' => (bool) $settings->connect_to_docker_network,
+    ], $overrides);
+}
+
+it('renders the advanced tab with current settings', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+
+    $response = $this->get(route('project.application.advanced', appTabsParams($application)));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Application/Configuration')
+        ->where('tab', 'advanced')
+        ->where('advanced.gitBased', true)
+        ->where('advanced.buildPack', 'nixpacks')
+        ->where('advanced.isContainerLabelReadonlyEnabled', true)
+        ->has('advancedUrls.instantSave')
+        ->has('advancedUrls.update')
+        ->has('advancedUrls.customName')
+        ->has('advancedUrls.stopGracePeriod')
+        ->has('advancedUrls.maxRestartCount')
+    );
+});
+
+it('instant-saves an advanced checkbox', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.advanced.instant-save', appTabsParams($application)), appAdvancedPayload($application, [
+        'disableBuildCache' => true,
+    ]));
+
+    $response->assertSessionHas('success', 'Settings saved.');
+    expect($application->settings->fresh()->disable_build_cache)->toBeTrue();
+});
+
+it('rejects enabling log drain when the server has no log drain configured', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.advanced.instant-save', appTabsParams($application)), appAdvancedPayload($application, [
+        'isLogDrainEnabled' => true,
+    ]));
+
+    $response->assertSessionHas('error', 'Log drain is not enabled on this server.');
+    expect($application->settings->fresh()->is_log_drain_enabled)->toBeFalse();
+});
+
+it('regenerates container labels when a proxy setting flips', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    expect($application->custom_labels)->toBeNull();
+    expect($application->isForceHttpsEnabled())->toBeTrue();
+
+    $response = $this->patch(route('project.application.advanced.instant-save', appTabsParams($application)), appAdvancedPayload($application, [
+        'isForceHttpsEnabled' => false,
+    ]));
+
+    $response->assertSessionHas('success', 'Settings saved.');
+    expect($application->refresh()->custom_labels)->not->toBeNull();
+    expect($application->settings->fresh()->is_force_https_enabled)->toBeFalse();
+});
+
+it('saves gpu settings via the gpu section save button', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.advanced.update', appTabsParams($application)), appAdvancedPayload($application, [
+        'isGpuEnabled' => true,
+        'gpuDriver' => 'nvidia',
+        'gpuCount' => 'all',
+    ]));
+
+    $response->assertSessionHas('success', 'Settings saved.');
+    $settings = $application->settings->fresh();
+    expect($settings->is_gpu_enabled)->toBeTrue()
+        ->and($settings->gpu_driver)->toBe('nvidia')
+        ->and($settings->gpu_count)->toBe('all');
+});
+
+it('rejects gpu settings with both count and device ids set', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.advanced.update', appTabsParams($application)), appAdvancedPayload($application, [
+        'gpuCount' => '2',
+        'gpuDeviceIds' => '0,1',
+    ]));
+
+    $response->assertSessionHas('error', 'You cannot set both GPU count and GPU device IDs.');
+    expect($application->settings->fresh()->gpu_count)->toBeNull();
+});
+
+it('saves a custom container name, slugified', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->post(route('project.application.advanced.custom-name', appTabsParams($application)), [
+        'customInternalName' => 'My Custom Name',
+    ]);
+
+    $response->assertSessionHas('success', 'Custom name saved.');
+    expect($application->settings->fresh()->custom_internal_name)->toBe('my-custom-name');
+});
+
+it('rejects a custom container name already used by another application on the same server', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $other = appTabsMakeApplication($team, ['destination_id' => $application->destination_id]);
+    $other->settings->update(['custom_internal_name' => 'taken-name']);
+
+    $response = $this->post(route('project.application.advanced.custom-name', appTabsParams($application)), [
+        'customInternalName' => 'taken-name',
+    ]);
+
+    $response->assertSessionHas('error', 'This custom container name is already in use by another application on this server.');
+    expect($application->settings->fresh()->custom_internal_name)->toBeNull();
+});
+
+it('saves the stop grace period', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->patch(route('project.application.advanced.stop-grace-period', appTabsParams($application)), [
+        'stopGracePeriod' => 60,
+    ])->assertSessionHas('success', 'Stop grace period updated.');
+    expect($application->settings->fresh()->stop_grace_period)->toBe(60);
+});
+
+it('rejects a stop grace period outside the allowed range', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->patch(route('project.application.advanced.stop-grace-period', appTabsParams($application)), [
+        'stopGracePeriod' => 999999,
+    ])->assertSessionHasErrors('stopGracePeriod');
+});
+
+it('saves the max restart count', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $this->patch(route('project.application.advanced.max-restart-count', appTabsParams($application)), [
+        'maxRestartCount' => 5,
+    ])->assertSessionHas('success', 'Max restart count saved.');
+    expect($application->refresh()->max_restart_count)->toBe(5);
+});

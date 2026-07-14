@@ -1,3 +1,4 @@
+import AdvancedTab from '../../../Components/AdvancedTab';
 import ApplicationGeneralTab from '../../../Components/ApplicationGeneralTab';
 import ApplicationHeading from '../../../Components/ApplicationHeading';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
@@ -9,14 +10,14 @@ import SwarmTab from '../../../Components/SwarmTab';
 import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Application\Configuration's shell plus 12 of its 16 tabs
+ * React port of App\Livewire\Project\Application\Configuration's shell plus 13 of its 16 tabs
  * (Tags, Danger Zone, Resource Limits, Resource Operations, Scheduled Tasks — Phase 63;
  * Environment Variables and Persistent Storage — Phase 65; Webhooks — Phase 66; Swarm — Phase
  * 67; Rollback — Phase 68; General — Phase 69, the largest tab in this migration; Preview
- * Deployments — Phase 70, folding in what used to be three separate Livewire components). See
- * ProjectApplicationConfigurationController. The remaining 4 tabs (Advanced, Git Source,
- * Servers, Healthcheck) stay on the Livewire shell for now — plain full-page links here,
- * matching the established split-by-route-name pattern.
+ * Deployments — Phase 70, folding in what used to be three separate Livewire components;
+ * Advanced — Phase 71). See ProjectApplicationConfigurationController. The remaining 3 tabs
+ * (Git Source, Servers, Healthcheck) stay on the Livewire shell for now — plain full-page links
+ * here, matching the established split-by-route-name pattern.
  *
  * Sidebar links carry a `key` so the task detail page (/tasks/{task_uuid}) still highlights
  * Scheduled Tasks despite its different URL.
@@ -96,6 +97,7 @@ export default function Configuration(props) {
                     {tab === 'preview-deployments' && (
                         <PreviewDeploymentsTab previews={props.previews} previewUrls={props.previewUrls} canUpdate={canUpdate} />
                     )}
+                    {tab === 'advanced' && <AdvancedTab advanced={props.advanced} advancedUrls={props.advancedUrls} canUpdate={canUpdate} />}
                 </div>
             </div>
         </div>

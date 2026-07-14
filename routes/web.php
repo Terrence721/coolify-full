@@ -302,7 +302,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/general/redirect', [ProjectApplicationConfigurationController::class, 'setRedirectDirection'])->name('project.application.general.redirect');
         Route::get('/swarm', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.swarm');
         Route::patch('/swarm', [ProjectApplicationConfigurationController::class, 'swarmUpdate'])->name('project.application.swarm.update');
-        Route::get('/advanced', ApplicationConfiguration::class)->name('project.application.advanced');
+        Route::get('/advanced', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.advanced');
+        Route::patch('/advanced/instant-save', [ProjectApplicationConfigurationController::class, 'instantSaveAdvanced'])->name('project.application.advanced.instant-save');
+        Route::patch('/advanced', [ProjectApplicationConfigurationController::class, 'updateAdvanced'])->name('project.application.advanced.update');
+        Route::post('/advanced/custom-name', [ProjectApplicationConfigurationController::class, 'saveAdvancedCustomName'])->name('project.application.advanced.custom-name');
+        Route::patch('/advanced/stop-grace-period', [ProjectApplicationConfigurationController::class, 'saveAdvancedStopGracePeriod'])->name('project.application.advanced.stop-grace-period');
+        Route::patch('/advanced/max-restart-count', [ProjectApplicationConfigurationController::class, 'saveAdvancedMaxRestartCount'])->name('project.application.advanced.max-restart-count');
         Route::get('/environment-variables', [ProjectApplicationConfigurationController::class, 'show'])->name('project.application.environment-variables');
         Route::post('/environment-variables', [ProjectApplicationConfigurationController::class, 'storeEnv'])->name('project.application.envs.store');
         Route::patch('/environment-variables/bulk', [ProjectApplicationConfigurationController::class, 'bulkUpdateEnvs'])->name('project.application.envs.bulk-update');
