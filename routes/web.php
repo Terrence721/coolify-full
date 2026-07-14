@@ -67,7 +67,7 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\BoardingController;
-use App\Livewire\Server\Show as ServerShow;
+use App\Http\Controllers\ServerShowController;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\ServiceDatabase;
 use App\Providers\RouteServiceProvider;
@@ -561,7 +561,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::get('/server/new', ServerCreate::class)->name('server.create');
 
     Route::prefix('server/{server_uuid}')->group(function () {
-        Route::get('/', ServerShow::class)->name('server.show');
+        Route::get('/', [ServerShowController::class, 'index'])->name('server.show');
+        Route::patch('/', [ServerShowController::class, 'update'])->name('server.show.update');
+        Route::post('/instant-save-build-server', [ServerShowController::class, 'instantSaveBuildServer'])->name('server.show.instant-save-build-server');
+        Route::post('/check-localhost', [ServerShowController::class, 'checkLocalhostConnection'])->name('server.show.check-localhost');
+        Route::post('/refresh-metadata', [ServerShowController::class, 'refreshServerMetadata'])->name('server.show.refresh-metadata');
+        Route::post('/validate', [ServerShowController::class, 'validateServer'])->name('server.show.validate');
+        Route::post('/hetzner-status', [ServerShowController::class, 'checkHetznerStatus'])->name('server.show.hetzner-status');
+        Route::post('/hetzner-start', [ServerShowController::class, 'startHetznerServer'])->name('server.show.hetzner-start');
+        Route::post('/hetzner-search-ip', [ServerShowController::class, 'searchHetznerServerByIp'])->name('server.show.hetzner-search-ip');
+        Route::post('/hetzner-search-id', [ServerShowController::class, 'searchHetznerServerById'])->name('server.show.hetzner-search-id');
+        Route::post('/hetzner-link', [ServerShowController::class, 'linkToHetzner'])->name('server.show.hetzner-link');
         Route::get('/advanced', [ServerAdvancedController::class, 'index'])->name('server.advanced');
         Route::put('/advanced', [ServerAdvancedController::class, 'update'])->name('server.advanced.update');
         Route::get('/swarm', [ServerSwarmController::class, 'index'])->name('server.swarm');

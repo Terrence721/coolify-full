@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\Proxy\CheckProxy;
-use App\Actions\Proxy\StartProxy;
-use App\Enums\ProxyTypes;
-use App\Events\ServerValidated;
 use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\Team;
-use App\Services\ConfigurationRepository;
+use App\Services\ServerValidationService;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -24,22 +20,26 @@ use Inertia\Response;
 use Visus\Cuid2\Cuid2;
 
 /**
- * React port of App\Livewire\Boarding\Index — the first-run onboarding wizard. Its three nested
- * Livewire children (Server\New\ByHetzner, Server\ActivityMonitor, Server\ValidateAndInstall)
- * stay untouched: ByHetzner is still needed by Server\Create (reachable via Server\Show's
- * still-Livewire chrome), ValidateAndInstall is still needed by Server\Show itself. Hetzner Cloud
- * server creation is deliberately not offered here (explicit user decision, matching Phase 76's
- * "IP-only, accept the loss" precedent) — it remains reachable only via that same still-Livewire
- * chrome, not fully unreachable.
+ * React port of App\Livewire\Boarding\Index — the first-run onboarding wizard. Server\New\ByHetzner
+ * stays untouched: it's still needed by the still-Livewire Server\Create, itself still reachable
+ * via the old Livewire GlobalSearch — which, in turn, is genuinely still alive (rendered by
+ * layouts/app.blade.php on auth/verify-email.blade.php, the only real remaining consumer of that
+ * layout as of Phase 78's careful re-verification). Hetzner Cloud server creation is deliberately
+ * not offered here regardless (explicit user decision, matching Phase 76's "IP-only, accept the
+ * loss" precedent) — narrow as that remaining path is, it's real, not fully unreachable.
  *
- * The original has two overlapping SSH-validation engines wired together only through Livewire's
- * browser-event bus (Index's own inline validateServer()/continueValidation(), and the nested
- * ValidateAndInstall component's separate chain — the latter is the only one that actually calls
- * installDocker(), so they're not fully redundant, just entangled). validate() below collapses
- * both into one orchestrator built from the same underlying Server model/Action primitives
- * (validateConnection, validatePrerequisites/installPrerequisites, validateDockerEngine/
- * installDocker, validateDockerEngineVersion, gatherServerMetadata, CheckProxy, StartProxy) —
- * no new provisioning logic invented, just one call path instead of two.
+ * Server\ActivityMonitor and Server\ValidateAndInstall, both formerly needed by Server\Show, were
+ * deleted in Phase 78 once Show converted — validateServer() below (extracted into
+ * ServerValidationService, shared with the new ServerShowController) replaced what
+ * ValidateAndInstall's nested-component chain used to do. The original had two overlapping
+ * SSH-validation engines wired together only through Livewire's browser-event bus (Index's own
+ * inline validateServer()/continueValidation(), and ValidateAndInstall's separate chain — the
+ * latter was the only one that actually called installDocker(), so they weren't fully redundant,
+ * just entangled). validate() below collapses both into one orchestrator built from the same
+ * underlying Server model/Action primitives (validateConnection, validatePrerequisites/
+ * installPrerequisites, validateDockerEngine/installDocker, validateDockerEngineVersion,
+ * gatherServerMetadata, CheckProxy, StartProxy) — no new provisioning logic invented, just one
+ * call path instead of two.
  *
  * createServer()/createProject() are boarding-specific rather than reusing server.store/
  * project.store directly: both of those redirect to pages outside this wizard (server.show,
@@ -120,7 +120,7 @@ class BoardingController extends Controller
         return response()->json(['uuid' => $server->uuid, 'name' => $server->name]);
     }
 
-    public function validateServer(Request $request): JsonResponse
+    public function validateServer(Request $request, ServerValidationService $validationService): JsonResponse
     {
         $validated = Validator::make($request->all(), [
             'server_uuid' => 'required|string',
@@ -131,81 +131,11 @@ class BoardingController extends Controller
         $server = Server::ownedByCurrentTeam()->where('uuid', $validated['server_uuid'])->firstOrFail();
         $this->authorize('update', $server);
 
-        $install = $validated['install'] ?? true;
-        $attempt = $validated['attempt'] ?? 0;
-        $maxAttempts = 3;
-
-        app(ConfigurationRepository::class)->disableSshMux();
-
-        $connection = $server->validateConnection();
-        if (! $connection['uptime']) {
-            return response()->json(['status' => 'unreachable', 'error' => $connection['error']]);
-        }
-
-        if (! $server->validateOS()) {
-            return response()->json(['status' => 'unsupported_os']);
-        }
-
-        $prerequisites = $server->validatePrerequisites();
-        if (! $prerequisites['success']) {
-            if (! $install) {
-                $missing = implode(', ', $prerequisites['missing']);
-
-                return response()->json(['status' => 'failed', 'error' => "Prerequisites ({$missing}) are not installed. Please install them before continuing."]);
-            }
-            if ($attempt >= $maxAttempts) {
-                $missing = implode(', ', $prerequisites['missing']);
-
-                return response()->json(['status' => 'failed', 'error' => "Prerequisites ({$missing}) could not be installed after {$maxAttempts} attempts. Please install them manually."]);
-            }
-            $activity = $server->installPrerequisites();
-
-            return response()->json(['status' => 'installing', 'step' => 'prerequisites', 'activityId' => $activity->id, 'attempt' => $attempt + 1]);
-        }
-
-        $dockerReady = $server->validateDockerEngine() && $server->validateDockerCompose();
-        if (! $dockerReady) {
-            if (! $install) {
-                return response()->json(['status' => 'failed', 'error' => 'Docker Engine is not installed. Please install Docker manually before continuing.']);
-            }
-            if ($attempt >= $maxAttempts) {
-                return response()->json(['status' => 'failed', 'error' => 'Docker Engine could not be installed. Please install Docker manually before continuing.']);
-            }
-            $activity = $server->installDocker();
-
-            return response()->json(['status' => 'installing', 'step' => 'docker', 'activityId' => $activity->id, 'attempt' => $attempt + 1]);
-        }
-
-        if ($server->isSwarm()) {
-            try {
-                $server->validateDockerSwarm();
-            } catch (\Throwable $e) {
-                return response()->json(['status' => 'failed', 'error' => $e->getMessage()]);
-            }
-        } elseif (! $server->validateDockerEngineVersion()) {
-            $requiredVersion = str(config('constants.docker.minimum_required_version'))->before('.');
-
-            return response()->json(['status' => 'failed', 'error' => "Minimum Docker Engine version {$requiredVersion} is not installed. Please install Docker manually before continuing."]);
-        }
-
-        $server->update(['is_validating' => false]);
-        $server->gatherServerMetadata();
-
-        ServerValidated::dispatch($server->team_id, $server->uuid);
-
-        $server->proxy->type = ProxyTypes::TRAEFIK->value;
-        $server->proxy->status = 'exited';
-        $server->proxy->last_saved_settings = null;
-        $server->proxy->last_applied_settings = null;
-        $server->save();
-
-        $proxyShouldRun = CheckProxy::run($server, true);
-        if ($proxyShouldRun) {
-            instant_remote_process(ensureProxyNetworksExist($server)->toArray(), $server, false);
-            StartProxy::dispatch($server);
-        }
-
-        return response()->json(['status' => 'validated', 'serverUuid' => $server->uuid]);
+        return response()->json($validationService->validate(
+            $server,
+            $validated['install'] ?? true,
+            $validated['attempt'] ?? 0,
+        ));
     }
 
     public function createProject(): JsonResponse
