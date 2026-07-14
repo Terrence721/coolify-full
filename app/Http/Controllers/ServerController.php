@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class ServerController extends Controller
 {
@@ -53,7 +54,7 @@ class ServerController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|SymfonyResponse
     {
         $validated = Validator::make($request->all(), [
             'private_key_id' => 'nullable|integer',
@@ -104,6 +105,12 @@ class ServerController extends Controller
         $server->settings->is_build_server = $validated['is_build_server'];
         $server->settings->save();
 
-        return redirect()->route('server.show', ['server_uuid' => $server->uuid]);
+        // Inertia::location() (not redirect()->route()) since server.show is still a plain
+        // Livewire/Blade page, not an Inertia::render() response — Inertia's XHR-based post()
+        // can't render a hand-off to a page it doesn't control, the same class of problem
+        // AppLayout.jsx's Logout form works around by using a native <form> submit instead.
+        // Inertia::location() sends a 409 with X-Inertia-Location, which the client-side
+        // library recognizes and turns into a real, full-page browser navigation.
+        return Inertia::location(route('server.show', ['server_uuid' => $server->uuid]));
     }
 }

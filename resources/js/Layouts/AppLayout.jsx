@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
+import GlobalSearchModal from '../Components/GlobalSearchModal';
 import LayoutPopups from '../Components/LayoutPopups';
 import ThemeSwitcher from '../Components/ThemeSwitcher';
 import WhatsNewButton from '../Components/WhatsNewButton';
@@ -21,6 +22,11 @@ import WhatsNewButton from '../Components/WhatsNewButton';
  * — the Livewire version stays alive unchanged for pages still rendered through
  * layouts/app.blade.php (Boarding\Index, Server\Show).
  *
+ * GlobalSearchModal.jsx (the "/" or ⌘K command palette) is likewise a parallel React port of
+ * `<livewire:global-search/>` — same reasoning as LayoutPopups: the Livewire version stays alive
+ * unchanged for Boarding\Index/Server\Show. Both sides now share their actual search/creatable-
+ * item query logic via GlobalSearchService rather than duplicating it.
+ *
  * Known v1 gaps, still intentionally out of scope for this pass (mixing live Livewire components
  * inside a React tree remains unsolved for these): team switching (read-only team name shown
  * instead of <livewire:switch-team/>), the upgrade banner, delete-team modal trigger, and the
@@ -33,8 +39,7 @@ import WhatsNewButton from '../Components/WhatsNewButton';
  * form POST lets the browser's own navigation follow the redirect chain (POST 302 -> GET 302 ->
  * GET /login) with no SPA involved at all, exactly like the original Livewire navbar did. Also
  * no mobile hamburger drawer or collapse/expand toggle yet — the sidebar is always expanded.
- * Global search (<livewire:global-search/>) and deployment status indicator
- * (<livewire:deployments-indicator/>) are omitted for the same reason.
+ * Deployment status indicator (<livewire:deployments-indicator/>) is omitted for the same reason.
  */
 const NAV_ITEMS = [
     { label: 'Dashboard', href: '/', match: '/' },
@@ -85,6 +90,21 @@ export default function AppLayout({ children }) {
                         <div className="text-sm text-neutral-500 dark:text-coolgray-400">{currentTeam.name}</div>
                     )}
                 </div>
+                {auth?.user && (
+                    <div className="px-4 pb-2">
+                        <button
+                            type="button"
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
+                            title="Search (Press / or ⌘K)"
+                            className="flex h-8 w-full items-center justify-between gap-1.5 px-2.5 py-1.5 bg-neutral-100 dark:bg-coolgray-100 border border-neutral-300 dark:border-coolgray-200 rounded-md hover:bg-neutral-200 dark:hover:bg-coolgray-200 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-neutral-500 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <kbd className="px-1 py-0.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 bg-neutral-200 dark:bg-coolgray-200 rounded">/</kbd>
+                        </button>
+                    </div>
+                )}
                 <nav className="flex flex-col gap-1 px-2 flex-1 overflow-y-auto">
                     {NAV_ITEMS.filter((item) => !item.permission || permissions?.[item.permission]).map((item) => {
                         const isActive = item.match === '/' ? currentPath === '/' : currentPath.startsWith(item.match);
@@ -127,6 +147,7 @@ export default function AppLayout({ children }) {
                 <main className="flex-1 p-6">{children}</main>
             </div>
             {auth?.user && <LayoutPopups />}
+            {auth?.user && <GlobalSearchModal />}
         </div>
     );
 }

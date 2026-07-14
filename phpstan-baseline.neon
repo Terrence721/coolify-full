@@ -2065,24 +2065,6 @@ parameters:
 			path: app/Livewire/GlobalSearch.php
 
 		-
-			message: '#^Call to method showQueries\(\) on an unknown class Spatie\\RayBundle\\Ray\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Livewire/GlobalSearch.php
-
-		-
-			message: '#^Call to method showQueries\(\) on an unknown class Spatie\\WordPressRay\\Ray\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Livewire/GlobalSearch.php
-
-		-
-			message: '#^Call to method showQueries\(\) on an unknown class Spatie\\YiiRay\\Ray\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Livewire/GlobalSearch.php
-
-		-
 			message: '#^Method App\\Livewire\\GlobalSearch\:\:cancelResourceSelection\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2457,13 +2439,13 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 13
+			count: 10
 			path: app/Livewire/GlobalSearch.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 13
+			count: 10
 			path: app/Livewire/GlobalSearch.php
 
 		-

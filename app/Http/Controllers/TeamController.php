@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\User\RevokeUserTeamTokens;
 use App\Enums\Role;
+use App\Models\Team;
 use App\Models\TeamInvitation;
 use App\Models\User;
 use App\Support\ValidationPatterns;
@@ -68,6 +69,28 @@ class TeamController extends Controller
             'updateUrl' => route('team.update'),
             'deleteUrl' => route('team.destroy'),
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = Validator::make(
+            $request->all(),
+            [
+                'name' => ValidationPatterns::nameRules(),
+                'description' => ValidationPatterns::descriptionRules(),
+            ],
+            ValidationPatterns::combinedMessages(),
+        )->validate();
+
+        $team = Team::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'personal_team' => false,
+        ]);
+        $request->user()->teams()->attach($team, ['role' => 'admin']);
+        refreshSession($team);
+
+        return redirect()->route('team.index');
     }
 
     public function update(Request $request): RedirectResponse

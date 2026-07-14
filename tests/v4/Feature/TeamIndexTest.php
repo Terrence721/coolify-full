@@ -26,6 +26,37 @@ it('renders the team index Inertia page', function () {
     );
 });
 
+it('creates a new team and attaches the creator as admin', function () {
+    $user = User::factory()->create();
+    $existingTeam = Team::factory()->create();
+    $existingTeam->members()->attach($user, ['role' => 'admin']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $existingTeam])
+        ->post(route('team.store'), [
+            'name' => 'Brand New Team',
+            'description' => 'A fresh team',
+        ]);
+
+    $response->assertRedirect(route('team.index'));
+    $team = Team::where('name', 'Brand New Team')->first();
+    expect($team)->not->toBeNull()
+        ->and($team->personal_team)->toBeFalse();
+    expect($team->members()->where('user_id', $user->id)->first()?->pivot->role)->toBe('admin');
+});
+
+it('rejects creating a team without a name', function () {
+    $user = User::factory()->create();
+    $existingTeam = Team::factory()->create();
+    $existingTeam->members()->attach($user, ['role' => 'admin']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $existingTeam])
+        ->post(route('team.store'), ['description' => 'No name']);
+
+    $response->assertSessionHasErrors(['name']);
+});
+
 it('updates the team name and description', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

@@ -65,7 +65,7 @@ function TypeStep({ project, environment, environments, services, categories, gi
     }
 
     function switchEnvironment(environmentUuid) {
-        router.get(route('project.resource.create', { project_uuid: project.uuid, environment_uuid: environmentUuid }));
+        router.get(`/project/${project.uuid}/environment/${environmentUuid}/new`);
     }
 
     return (

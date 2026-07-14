@@ -6,6 +6,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationDeploymentController;
 use App\Http\Controllers\ChangelogController;
+use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProjectApplicationConfigurationController;
 use App\Http\Controllers\DashboardController;
@@ -97,6 +98,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/mark-read', [ChangelogController::class, 'markAsRead'])->name('changelog.mark-read');
         Route::post('/mark-all-read', [ChangelogController::class, 'markAllAsRead'])->name('changelog.mark-all-read');
         Route::post('/fetch', [ChangelogController::class, 'manualFetch'])->name('changelog.fetch');
+    });
+    Route::prefix('search')->group(function () {
+        Route::get('/data', [GlobalSearchController::class, 'data'])->name('search.data');
+        Route::get('/server-create-data', [GlobalSearchController::class, 'serverCreateData'])->name('search.server-create-data');
+        Route::get('/servers', [GlobalSearchController::class, 'servers'])->name('search.servers');
+        Route::get('/destinations', [GlobalSearchController::class, 'destinations'])->name('search.destinations');
+        Route::get('/projects', [GlobalSearchController::class, 'projects'])->name('search.projects');
+        Route::get('/environments', [GlobalSearchController::class, 'environments'])->name('search.environments');
     });
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/admin/back', [AdminController::class, 'back'])->name('admin.back');
@@ -216,6 +225,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('team')->group(function () {
         Route::get('/', [TeamController::class, 'index'])->name('team.index');
+        Route::post('/', [TeamController::class, 'store'])->name('team.store');
         Route::put('/', [TeamController::class, 'update'])->name('team.update');
         Route::delete('/', [TeamController::class, 'destroy'])->name('team.destroy');
         Route::get('/members', [TeamController::class, 'memberIndex'])->name('team.member.index');
