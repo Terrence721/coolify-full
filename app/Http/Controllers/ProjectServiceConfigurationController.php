@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\ManagesResourceDanger;
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
+use App\Http\Controllers\Concerns\ManagesResourceOperations;
 use App\Http\Controllers\Concerns\ManagesResourceScheduledTasks;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
+use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\NormalizesServiceFqdns;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
-use App\Jobs\DeleteResourceJob;
-use App\Models\Environment;
-use App\Models\Project;
 use App\Models\Service;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
-use App\Models\Tag;
 use App\Support\ValidationPatterns;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,9 +44,12 @@ use Visus\Cuid2\Cuid2;
  */
 class ProjectServiceConfigurationController extends Controller
 {
+    use ManagesResourceDanger;
     use ManagesResourceEnvironmentVariables;
+    use ManagesResourceOperations;
     use ManagesResourceScheduledTasks;
     use ManagesResourceStorages;
+    use ManagesResourceTags;
     use NormalizesServiceFqdns;
     use ResolvesProjectResources;
 
@@ -94,46 +96,8 @@ class ProjectServiceConfigurationController extends Controller
         if (! $service instanceof Service) {
             return $service;
         }
-        $this->authorize('update', $service);
 
-        $validated = Validator::make($request->all(), [
-            'tags' => 'required_without:tag_id|nullable|string|min:2',
-            'tag_id' => 'required_without:tags|nullable|integer',
-        ])->validate();
-
-        if (filled($validated['tag_id'] ?? null)) {
-            $tag = Tag::ownedByCurrentTeam()->findOrFail((int) $validated['tag_id']);
-            if ($service->tags()->where('id', $tag->id)->exists()) {
-                return back()->with('error', "Tag {$tag->name} already added.");
-            }
-            $service->tags()->attach($tag->id);
-
-            return back()->with('success', 'Tag added.');
-        }
-
-        $skipped = [];
-        foreach (str($validated['tags'])->trim()->explode(' ') as $name) {
-            $name = strip_tags($name);
-            if (strlen($name) < 2) {
-                $skipped[] = "Tag {$name} is invalid (min length is 2).";
-
-                continue;
-            }
-            if ($service->tags()->where('name', $name)->exists()) {
-                $skipped[] = "Tag {$name} already added.";
-
-                continue;
-            }
-            $tag = Tag::ownedByCurrentTeam()->where('name', $name)->first()
-                ?? Tag::create(['name' => $name, 'team_id' => currentTeam()->id]);
-            $service->tags()->attach($tag->id);
-        }
-
-        if ($skipped !== []) {
-            return back()->with('error', implode(' ', $skipped));
-        }
-
-        return back()->with('success', 'Tags added.');
+        return $this->storeResourceTag($request, $service);
     }
 
     public function destroyTag(string $project_uuid, string $environment_uuid, string $service_uuid, string $tag_id): RedirectResponse
@@ -142,15 +106,8 @@ class ProjectServiceConfigurationController extends Controller
         if (! $service instanceof Service) {
             return $service;
         }
-        $this->authorize('update', $service);
 
-        $service->tags()->detach($tag_id);
-        $tag = Tag::ownedByCurrentTeam()->find($tag_id);
-        if ($tag && $tag->applications()->count() == 0 && $tag->services()->count() == 0) {
-            $tag->delete();
-        }
-
-        return back()->with('success', 'Tag deleted.');
+        return $this->destroyResourceTag($service, $tag_id);
     }
 
     public function move(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
@@ -159,20 +116,8 @@ class ProjectServiceConfigurationController extends Controller
         if (! $service instanceof Service) {
             return $service;
         }
-        $this->authorize('update', $service);
 
-        $validated = Validator::make($request->all(), [
-            'environment_id' => 'required|integer',
-        ])->validate();
-
-        $newEnvironment = Environment::ownedByCurrentTeam()->findOrFail($validated['environment_id']);
-        $service->update(['environment_id' => $newEnvironment->id]);
-
-        return redirect()->to(route('project.service.configuration', [
-            'project_uuid' => $newEnvironment->project->uuid,
-            'environment_uuid' => $newEnvironment->uuid,
-            'service_uuid' => $service->uuid,
-        ]).'#resource-operations');
+        return $this->moveResourceToEnvironment($request, $service, 'project.service.configuration', compact('project_uuid', 'environment_uuid', 'service_uuid'), 'service_uuid');
     }
 
     public function clone(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
@@ -238,33 +183,7 @@ class ProjectServiceConfigurationController extends Controller
             return $service;
         }
 
-        $validated = Validator::make($request->all(), [
-            'password' => 'required|string',
-            'delete_volumes' => 'nullable|boolean',
-            'delete_connected_networks' => 'nullable|boolean',
-            'delete_configurations' => 'nullable|boolean',
-            'docker_cleanup' => 'nullable|boolean',
-        ])->validate();
-
-        if (! verifyPasswordConfirmation($validated['password'])) {
-            return back()->with('error', 'The provided password is incorrect.');
-        }
-
-        $this->authorize('delete', $service);
-
-        $service->delete();
-        DeleteResourceJob::dispatch(
-            $service,
-            $request->boolean('delete_volumes'),
-            $request->boolean('delete_connected_networks'),
-            $request->boolean('delete_configurations'),
-            $request->boolean('docker_cleanup'),
-        );
-
-        return redirect()->route('project.resource.index', [
-            'project_uuid' => $project_uuid,
-            'environment_uuid' => $environment_uuid,
-        ]);
+        return $this->destroyResource($request, $service, compact('project_uuid', 'environment_uuid'));
     }
 
     public function storeEnv(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid): RedirectResponse
@@ -653,53 +572,12 @@ class ProjectServiceConfigurationController extends Controller
             'environment-variables' => $this->environmentVariablesTabProps($service, $parameters, 'project.service'),
             'storages' => $this->storagesTabProps($service, $parameters, 'project.service'),
             'scheduled-tasks' => $this->scheduledTasksTabProps($service, $parameters, 'project.service', request()->route('task_uuid')),
-            'tags' => [
-                'tags' => $service->tags->map(fn (Tag $tag) => [
-                    'id' => $tag->id,
-                    'name' => $tag->name,
-                    'destroyUrl' => route('project.service.tags.destroy', [...$parameters, 'tag_id' => $tag->id]),
-                ])->values(),
-                'availableTags' => Tag::ownedByCurrentTeam()->get()
-                    ->reject(fn (Tag $tag) => $service->tags->contains($tag))
-                    ->map(fn (Tag $tag) => ['id' => $tag->id, 'name' => $tag->name])
-                    ->values(),
-                'tagsStoreUrl' => route('project.service.tags.store', $parameters),
-            ],
-            'danger' => [
-                'resourceName' => $service->name ?? 'Service',
-                'canDelete' => auth()->user()->can('delete', $service),
-                'destroyUrl' => route('project.service.destroy', $parameters),
-            ],
+            'tags' => $this->tagsTabProps($service, $parameters, 'project.service'),
+            'danger' => $this->dangerTabProps($service, $parameters, 'project.service'),
             'webhooks' => [
                 'deployWebhook' => generateDeployWebhook($service),
             ],
-            'resource-operations' => [
-                'servers' => currentTeam()->servers
-                    ->filter(fn ($server) => ! $server->isBuildServer())
-                    ->map(fn ($server) => [
-                        'id' => $server->id,
-                        'name' => $server->name,
-                        'ip' => $server->ip,
-                        'destinations' => $server->destinations()->map(fn ($destination) => [
-                            'id' => $destination->id,
-                            'name' => $destination->name,
-                        ])->values(),
-                    ])->values(),
-                'projects' => Project::ownedByCurrentTeamCached()->map(fn (Project $project) => [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                    'environments' => $project->environments->map(fn (Environment $environment) => [
-                        'id' => $environment->id,
-                        'name' => $environment->name,
-                    ])->values(),
-                ])->values(),
-                'currentProjectId' => $service->environment->project->id,
-                'currentEnvironmentId' => $service->environment->id,
-                'operationUrls' => [
-                    'clone' => route('project.service.clone', $parameters),
-                    'move' => route('project.service.move', $parameters),
-                ],
-            ],
+            'resource-operations' => $this->resourceOperationsTabProps($service, $parameters, 'project.service'),
             default => [],
         };
     }

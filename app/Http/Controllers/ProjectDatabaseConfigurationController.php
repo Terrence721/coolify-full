@@ -8,17 +8,17 @@ use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Http\Controllers\Concerns\ManagesDatabaseGeneralForm;
 use App\Http\Controllers\Concerns\ManagesDatabaseImport;
+use App\Http\Controllers\Concerns\ManagesResourceDanger;
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
+use App\Http\Controllers\Concerns\ManagesResourceLimits;
+use App\Http\Controllers\Concerns\ManagesResourceOperations;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
+use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
-use App\Jobs\DeleteResourceJob;
 use App\Jobs\VolumeCloneJob;
-use App\Models\Environment;
-use App\Models\Project;
 use App\Models\StandaloneDocker;
 use App\Models\StandalonePostgresql;
 use App\Models\SwarmDocker;
-use App\Models\Tag;
 use App\Support\DatabaseEngineRegistry;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -54,32 +54,13 @@ class ProjectDatabaseConfigurationController extends Controller
     use AuthorizesRequests;
     use ManagesDatabaseGeneralForm;
     use ManagesDatabaseImport;
+    use ManagesResourceDanger;
     use ManagesResourceEnvironmentVariables;
+    use ManagesResourceLimits;
+    use ManagesResourceOperations;
     use ManagesResourceStorages;
+    use ManagesResourceTags;
     use ResolvesProjectResources;
-
-    private const LIMIT_RULES = [
-        'limitsMemory' => ['required', 'string', 'regex:/^(0|\d+[bBkKmMgG])$/'],
-        'limitsMemorySwap' => ['required', 'string', 'regex:/^(0|\d+[bBkKmMgG])$/'],
-        'limitsMemorySwappiness' => 'required|integer|min:0|max:100',
-        'limitsMemoryReservation' => ['required', 'string', 'regex:/^(0|\d+[bBkKmMgG])$/'],
-        'limitsCpus' => ['nullable', 'regex:/^\d*\.?\d+$/'],
-        'limitsCpuset' => ['nullable', 'regex:/^\d+([,-]\d+)*$/'],
-        'limitsCpuShares' => 'nullable|integer|min:0',
-    ];
-
-    private const LIMIT_MESSAGES = [
-        'limitsMemory.regex' => 'Maximum Memory Limit must be a number followed by a unit (b, k, m, g). Example: 256m, 1g. Use 0 for unlimited.',
-        'limitsMemorySwap.regex' => 'Maximum Swap Limit must be a number followed by a unit (b, k, m, g). Example: 256m, 1g. Use 0 for unlimited.',
-        'limitsMemoryReservation.regex' => 'Soft Memory Limit must be a number followed by a unit (b, k, m, g). Example: 256m, 1g. Use 0 for unlimited.',
-        'limitsCpus.regex' => 'Number of CPUs must be a number (integer or decimal). Example: 0.5, 2.',
-        'limitsCpuset.regex' => 'CPU sets must be a comma-separated list of CPU numbers or ranges. Example: 0-2 or 0,1,3.',
-        'limitsMemorySwappiness.integer' => 'Swappiness must be a whole number between 0 and 100.',
-        'limitsMemorySwappiness.min' => 'Swappiness must be between 0 and 100.',
-        'limitsMemorySwappiness.max' => 'Swappiness must be between 0 and 100.',
-        'limitsCpuShares.integer' => 'CPU Weight must be a whole number.',
-        'limitsCpuShares.min' => 'CPU Weight must be a positive number.',
-    ];
 
     public function show(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): Response|RedirectResponse
     {
@@ -132,46 +113,8 @@ class ProjectDatabaseConfigurationController extends Controller
         if (! $database instanceof Model) {
             return $database;
         }
-        $this->authorize('update', $database);
 
-        $validated = Validator::make($request->all(), [
-            'tags' => 'required_without:tag_id|nullable|string|min:2',
-            'tag_id' => 'required_without:tags|nullable|integer',
-        ])->validate();
-
-        if (filled($validated['tag_id'] ?? null)) {
-            $tag = Tag::ownedByCurrentTeam()->findOrFail((int) $validated['tag_id']);
-            if ($database->tags()->where('id', $tag->id)->exists()) {
-                return back()->with('error', "Tag {$tag->name} already added.");
-            }
-            $database->tags()->attach($tag->id);
-
-            return back()->with('success', 'Tag added.');
-        }
-
-        $skipped = [];
-        foreach (str($validated['tags'])->trim()->explode(' ') as $name) {
-            $name = strip_tags($name);
-            if (strlen($name) < 2) {
-                $skipped[] = "Tag {$name} is invalid (min length is 2).";
-
-                continue;
-            }
-            if ($database->tags()->where('name', $name)->exists()) {
-                $skipped[] = "Tag {$name} already added.";
-
-                continue;
-            }
-            $tag = Tag::ownedByCurrentTeam()->where('name', $name)->first()
-                ?? Tag::create(['name' => $name, 'team_id' => currentTeam()->id]);
-            $database->tags()->attach($tag->id);
-        }
-
-        if ($skipped !== []) {
-            return back()->with('error', implode(' ', $skipped));
-        }
-
-        return back()->with('success', 'Tags added.');
+        return $this->storeResourceTag($request, $database);
     }
 
     public function destroyTag(string $project_uuid, string $environment_uuid, string $database_uuid, string $tag_id): RedirectResponse
@@ -180,15 +123,8 @@ class ProjectDatabaseConfigurationController extends Controller
         if (! $database instanceof Model) {
             return $database;
         }
-        $this->authorize('update', $database);
 
-        $database->tags()->detach($tag_id);
-        $tag = Tag::ownedByCurrentTeam()->find($tag_id);
-        if ($tag && $tag->applications()->count() == 0 && $tag->services()->count() == 0) {
-            $tag->delete();
-        }
-
-        return back()->with('success', 'Tag deleted.');
+        return $this->destroyResourceTag($database, $tag_id);
     }
 
     public function updateResourceLimits(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
@@ -197,31 +133,8 @@ class ProjectDatabaseConfigurationController extends Controller
         if (! $database instanceof Model) {
             return $database;
         }
-        $this->authorize('update', $database);
 
-        // Same pre-validation defaulting as the original component
-        $input = $request->all();
-        $input['limitsMemory'] = filled($input['limitsMemory'] ?? null) ? $input['limitsMemory'] : '0';
-        $input['limitsMemorySwap'] = filled($input['limitsMemorySwap'] ?? null) ? $input['limitsMemorySwap'] : '0';
-        $input['limitsMemorySwappiness'] = ($input['limitsMemorySwappiness'] ?? '') === '' ? 60 : $input['limitsMemorySwappiness'];
-        $input['limitsMemoryReservation'] = filled($input['limitsMemoryReservation'] ?? null) ? $input['limitsMemoryReservation'] : '0';
-        $input['limitsCpus'] = filled($input['limitsCpus'] ?? null) ? $input['limitsCpus'] : '0';
-        $input['limitsCpuset'] = ($input['limitsCpuset'] ?? '') === '' ? null : $input['limitsCpuset'];
-        $input['limitsCpuShares'] = ($input['limitsCpuShares'] ?? '') === '' ? 1024 : $input['limitsCpuShares'];
-
-        $validated = Validator::make($input, self::LIMIT_RULES, self::LIMIT_MESSAGES)->validate();
-
-        $database->update([
-            'limits_cpus' => $validated['limitsCpus'],
-            'limits_cpuset' => $validated['limitsCpuset'] ?? null,
-            'limits_cpu_shares' => (int) ($validated['limitsCpuShares'] ?? 1024),
-            'limits_memory' => $validated['limitsMemory'],
-            'limits_memory_swap' => $validated['limitsMemorySwap'],
-            'limits_memory_swappiness' => (int) $validated['limitsMemorySwappiness'],
-            'limits_memory_reservation' => $validated['limitsMemoryReservation'],
-        ]);
-
-        return back()->with('success', 'Resource limits updated.');
+        return $this->applyResourceLimitsUpdate($request, $database);
     }
 
     public function move(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
@@ -230,20 +143,8 @@ class ProjectDatabaseConfigurationController extends Controller
         if (! $database instanceof Model) {
             return $database;
         }
-        $this->authorize('update', $database);
 
-        $validated = Validator::make($request->all(), [
-            'environment_id' => 'required|integer',
-        ])->validate();
-
-        $newEnvironment = Environment::ownedByCurrentTeam()->findOrFail($validated['environment_id']);
-        $database->update(['environment_id' => $newEnvironment->id]);
-
-        return redirect()->to(route('project.database.configuration', [
-            'project_uuid' => $newEnvironment->project->uuid,
-            'environment_uuid' => $newEnvironment->uuid,
-            'database_uuid' => $database->uuid,
-        ]).'#resource-operations');
+        return $this->moveResourceToEnvironment($request, $database, 'project.database.configuration', compact('project_uuid', 'environment_uuid', 'database_uuid'), 'database_uuid');
     }
 
     public function clone(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
@@ -350,33 +251,7 @@ class ProjectDatabaseConfigurationController extends Controller
             return $database;
         }
 
-        $validated = Validator::make($request->all(), [
-            'password' => 'required|string',
-            'delete_volumes' => 'nullable|boolean',
-            'delete_connected_networks' => 'nullable|boolean',
-            'delete_configurations' => 'nullable|boolean',
-            'docker_cleanup' => 'nullable|boolean',
-        ])->validate();
-
-        if (! verifyPasswordConfirmation($validated['password'])) {
-            return back()->with('error', 'The provided password is incorrect.');
-        }
-
-        $this->authorize('delete', $database);
-
-        $database->delete();
-        DeleteResourceJob::dispatch(
-            $database,
-            $request->boolean('delete_volumes'),
-            $request->boolean('delete_connected_networks'),
-            $request->boolean('delete_configurations'),
-            $request->boolean('docker_cleanup'),
-        );
-
-        return redirect()->route('project.resource.index', [
-            'project_uuid' => $project_uuid,
-            'environment_uuid' => $environment_uuid,
-        ]);
+        return $this->destroyResource($request, $database, compact('project_uuid', 'environment_uuid'));
     }
 
     public function storeEnv(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
@@ -715,65 +590,13 @@ class ProjectDatabaseConfigurationController extends Controller
                     'toggle' => route('project.database.healthcheck.toggle', $parameters),
                 ],
             ],
-            'tags' => [
-                'tags' => $database->tags->map(fn (Tag $tag) => [
-                    'id' => $tag->id,
-                    'name' => $tag->name,
-                    'destroyUrl' => route('project.database.tags.destroy', [...$parameters, 'tag_id' => $tag->id]),
-                ])->values(),
-                'availableTags' => Tag::ownedByCurrentTeam()->get()
-                    ->reject(fn (Tag $tag) => $database->tags->contains($tag))
-                    ->map(fn (Tag $tag) => ['id' => $tag->id, 'name' => $tag->name])
-                    ->values(),
-                'tagsStoreUrl' => route('project.database.tags.store', $parameters),
-            ],
-            'danger' => [
-                'resourceName' => $database->name ?? 'Database',
-                'canDelete' => auth()->user()->can('delete', $database),
-                'destroyUrl' => route('project.database.destroy', $parameters),
-            ],
+            'tags' => $this->tagsTabProps($database, $parameters, 'project.database'),
+            'danger' => $this->dangerTabProps($database, $parameters, 'project.database'),
             'webhooks' => [
                 'deployWebhook' => generateDeployWebhook($database),
             ],
-            'resource-limits' => [
-                'limits' => [
-                    'limitsCpus' => $database->limits_cpus,
-                    'limitsCpuset' => $database->limits_cpuset,
-                    'limitsCpuShares' => $database->limits_cpu_shares,
-                    'limitsMemory' => $database->limits_memory,
-                    'limitsMemorySwap' => $database->limits_memory_swap,
-                    'limitsMemorySwappiness' => $database->limits_memory_swappiness,
-                    'limitsMemoryReservation' => $database->limits_memory_reservation,
-                ],
-                'limitsUpdateUrl' => route('project.database.resource-limits.update', $parameters),
-            ],
-            'resource-operations' => [
-                'servers' => currentTeam()->servers
-                    ->filter(fn ($server) => ! $server->isBuildServer())
-                    ->map(fn ($server) => [
-                        'id' => $server->id,
-                        'name' => $server->name,
-                        'ip' => $server->ip,
-                        'destinations' => $server->destinations()->map(fn ($destination) => [
-                            'id' => $destination->id,
-                            'name' => $destination->name,
-                        ])->values(),
-                    ])->values(),
-                'projects' => Project::ownedByCurrentTeamCached()->map(fn ($project) => [
-                    'id' => $project->id,
-                    'name' => $project->name,
-                    'environments' => $project->environments->map(fn ($environment) => [
-                        'id' => $environment->id,
-                        'name' => $environment->name,
-                    ])->values(),
-                ])->values(),
-                'currentProjectId' => $database->environment->project->id,
-                'currentEnvironmentId' => $database->environment->id,
-                'operationUrls' => [
-                    'clone' => route('project.database.clone', $parameters),
-                    'move' => route('project.database.move', $parameters),
-                ],
-            ],
+            'resource-limits' => $this->resourceLimitsTabProps($database, $parameters, 'project.database'),
+            'resource-operations' => $this->resourceOperationsTabProps($database, $parameters, 'project.database'),
             'servers' => [
                 'primaryServer' => [
                     'name' => data_get($database, 'destination.server.name'),

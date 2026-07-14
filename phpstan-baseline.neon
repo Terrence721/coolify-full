@@ -193,6 +193,78 @@ parameters:
 			path: app/Http/Controllers/ExecuteContainerCommandController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_cpu_shares\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_cpus\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_cpuset\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_memory\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_memory_reservation\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_memory_swap\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$limits_memory_swappiness\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
 			count: 4
@@ -369,7 +441,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 8
+			count: 7
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -579,7 +651,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 7
+			count: 8
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -615,7 +687,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
 			identifier: method.notFound
-			count: 6
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -664,6 +736,12 @@ parameters:
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
 			identifier: method.notFound
 			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
+			count: 5
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -754,6 +832,12 @@ parameters:
 			message: '#^Parameter \#1 \$database of method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:redisFormExtras\(\) expects App\\Models\\StandaloneRedis, Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -871,6 +955,12 @@ parameters:
 			path: app/Http/Controllers/ProjectMetricsController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 5
@@ -883,9 +973,15 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 4
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
@@ -904,6 +1000,12 @@ parameters:
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
 			identifier: method.notFound
 			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
+			count: 5
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
@@ -975,6 +1077,12 @@ parameters:
 		-
 			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Controllers/ProjectServiceConfigurationController.php
+
+		-
+			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
