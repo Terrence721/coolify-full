@@ -313,6 +313,36 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_enabled\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_interval\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_retries\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_start_period\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_timeout\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 4
@@ -343,9 +373,45 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_enabled\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_interval\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_retries\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_start_period\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_timeout\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -458,6 +524,12 @@ parameters:
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
@@ -3329,12 +3401,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Livewire/Project/Database/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\Health\:\:\$database has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/Health.php
 
 		-
 			message: '#^Method App\\Livewire\\Project\\Database\\Import\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'

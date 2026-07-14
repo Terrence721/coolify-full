@@ -59,8 +59,6 @@
                 <livewire:project.shared.destination :resource="$database" />
             @elseif ($currentRoute === 'project.database.persistent-storage')
                 <livewire:project.service.storage :resource="$database" />
-            @elseif ($currentRoute === 'project.database.healthcheck')
-                <livewire:project.database.health :database="$database" />
             @elseif ($currentRoute === 'project.database.import-backup')
                 <livewire:project.database.import :resource="$database" />
             @elseif ($currentRoute === 'project.database.webhooks')

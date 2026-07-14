@@ -1,4 +1,5 @@
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
+import DatabaseHealthcheckTab from '../../../Components/DatabaseHealthcheckTab';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import StoragesTab from '../../../Components/StoragesTab';
@@ -12,9 +13,10 @@ import {
 } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Database\Configuration's shell plus 6 of its 12 tabs
- * (Tags, Danger Zone, Webhooks, Resource Limits, Resource Operations, Servers) — see
- * ProjectDatabaseConfigurationController. The sidebar links all 12 tabs; the unconverted
+ * React port of App\Livewire\Project\Database\Configuration's shell plus 9 of its 12 tabs
+ * (Tags, Danger Zone, Webhooks, Resource Limits, Resource Operations, Servers, Environment
+ * Variables, Persistent Storage, Healthcheck) — see ProjectDatabaseConfigurationController.
+ * The sidebar links all 12 tabs; the unconverted
  * ones are plain full-page links to the still-Livewire routes, exactly as the original's
  * per-tab full navigations behaved.
  */
@@ -56,6 +58,9 @@ export default function Configuration(props) {
                             storageUrls={props.storageUrls}
                             sourceDirPlaceholder={props.sourceDirPlaceholder}
                         />
+                    )}
+                    {tab === 'healthcheck' && (
+                        <DatabaseHealthcheckTab healthcheck={props.healthcheck} healthcheckUrls={props.healthcheckUrls} canUpdate={props.canUpdate} />
                     )}
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}

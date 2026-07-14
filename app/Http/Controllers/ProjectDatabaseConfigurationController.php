@@ -515,6 +515,62 @@ class ProjectDatabaseConfigurationController extends Controller
     }
 
     /**
+     * Port of Project\Database\Health::submit() — saves the four probe numbers (and the
+     * enabled flag as-is), then runs the original's config-hash side effect.
+     */
+    public function updateHealthcheck(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+        $this->authorize('update', $database);
+
+        $validated = Validator::make($request->all(), [
+            'enabled' => 'boolean',
+            'interval' => 'required|integer|min:1',
+            'timeout' => 'required|integer|min:1',
+            'retries' => 'required|integer|min:1',
+            'startPeriod' => 'required|integer|min:0',
+        ])->validate();
+
+        $database->health_check_enabled = $request->boolean('enabled', (bool) $database->health_check_enabled);
+        $database->health_check_interval = (int) $validated['interval'];
+        $database->health_check_timeout = (int) $validated['timeout'];
+        $database->health_check_retries = (int) $validated['retries'];
+        $database->health_check_start_period = (int) $validated['startPeriod'];
+        $database->save();
+
+        $this->markHealthcheckConfigurationChanged($database);
+
+        return back()->with('success', 'Health check updated. Restart the database to apply the changes.');
+    }
+
+    /** Port of Project\Database\Health::toggleHealthcheck(). */
+    public function toggleHealthcheck(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+        $this->authorize('update', $database);
+
+        $database->health_check_enabled = ! $database->health_check_enabled;
+        $database->save();
+
+        $this->markHealthcheckConfigurationChanged($database);
+
+        return back()->with('success', 'Health check '.($database->health_check_enabled ? 'enabled' : 'disabled').'. Restart the database to apply the changes.');
+    }
+
+    private function markHealthcheckConfigurationChanged(Model $database): void
+    {
+        if (is_null($database->config_hash)) {
+            $database->isConfigurationChanged(true);
+        }
+    }
+
+    /**
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
@@ -523,6 +579,19 @@ class ProjectDatabaseConfigurationController extends Controller
         return match ($tab) {
             'environment-variables' => $this->environmentVariablesTabProps($database, $parameters, 'project.database'),
             'persistent-storage' => $this->storagesTabProps($database, $parameters, 'project.database'),
+            'healthcheck' => [
+                'healthcheck' => [
+                    'enabled' => (bool) $database->health_check_enabled,
+                    'interval' => $database->health_check_interval,
+                    'timeout' => $database->health_check_timeout,
+                    'retries' => $database->health_check_retries,
+                    'startPeriod' => $database->health_check_start_period,
+                ],
+                'healthcheckUrls' => [
+                    'update' => route('project.database.healthcheck.update', $parameters),
+                    'toggle' => route('project.database.healthcheck.toggle', $parameters),
+                ],
+            ],
             'tags' => [
                 'tags' => $database->tags->map(fn (Tag $tag) => [
                     'id' => $tag->id,

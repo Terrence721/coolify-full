@@ -346,7 +346,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/persistent-storage/file/{file_id}/load', [ProjectDatabaseConfigurationController::class, 'storagesFileLoad'])->name('project.database.storages.file.load');
         Route::post('/persistent-storage/file/{file_id}/convert', [ProjectDatabaseConfigurationController::class, 'storagesFileConvert'])->name('project.database.storages.file.convert');
         Route::delete('/persistent-storage/file/{file_id}', [ProjectDatabaseConfigurationController::class, 'storagesFileDestroy'])->name('project.database.storages.file.destroy');
-        Route::get('/healthcheck', DatabaseConfiguration::class)->name('project.database.healthcheck');
+        Route::get('/healthcheck', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.healthcheck');
+        Route::patch('/healthcheck', [ProjectDatabaseConfigurationController::class, 'updateHealthcheck'])->name('project.database.healthcheck.update');
+        Route::post('/healthcheck/toggle', [ProjectDatabaseConfigurationController::class, 'toggleHealthcheck'])->name('project.database.healthcheck.toggle');
         Route::get('/webhooks', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.webhooks');
         Route::get('/resource-limits', [ProjectDatabaseConfigurationController::class, 'show'])->name('project.database.resource-limits');
         Route::patch('/resource-limits', [ProjectDatabaseConfigurationController::class, 'updateResourceLimits'])->name('project.database.resource-limits.update');
