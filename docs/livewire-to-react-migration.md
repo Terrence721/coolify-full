@@ -16,15 +16,15 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 ## 3. Current status
 
-**As of Phase 64 (2026-07-14, see `todo.md` for the authoritative up-to-the-minute count): 81 of 84** full-page Livewire components converted. The Easy and Medium buckets have been complete since early in this migration; the Hard bucket — which absorbed the `Server\Navbar` shared-chrome foundation (Section 49) and the three big Configuration routers — is now 54 of 59.
+**As of Phase 78 (2026-07-14, see `todo.md` for the authoritative up-to-the-minute count): 84 of 84** full-page Livewire components converted — the full-page-component count is complete. The Easy and Medium buckets have been complete since early in this migration; the Hard bucket — which absorbed the `Server\Navbar` shared-chrome foundation (Section 49) and the three big Configuration routers — is now 56 of 59.
 
 | Bucket | Converted | Remaining |
 | --- | --- | --- |
 | Easy | 5 of 5 (all done) | 0 |
 | Medium | 20 of 20 (all done) | 0 |
-| Hard | 54 of 59 | 5 |
+| Hard | 56 of 59 | 3 |
 
-Only 3 classes remain on Livewire: `Boarding\Index` (onboarding wizard, nests unported SSH-heavy children), `Application\Configuration` (11 of 16 tabs remain — see Phase 63/64 below), and `Server\Show` (deferred by design, Section 68). Of the three big Configuration routers, `Service\Configuration` (Phase 59) and `Database\Configuration` (Phase 62) are fully retired; `Application\Configuration` is the last one still in progress. This section is a point-in-time summary — `todo.md`'s "Still to do → Migration" list and per-phase sections below (numbered sequentially past Section 44 or so) are the sources of truth for exactly what's left; update the count here whenever it drifts, don't treat this paragraph itself as authoritative if it looks stale.
+All three big Configuration routers are fully retired (`Service\Configuration`, Phase 59; `Database\Configuration`, Phase 62; `Application\Configuration`, Phase 74), and `Boarding\Index` (Phase 77) and `Server\Show` (Phase 78) — the two full-page components deferred longest — are both converted too, closing out the full-page count at 84 of 84. What's left on Livewire now isn't full-page routes at all: a small, deliberately-kept tail of chrome and nested components (`GlobalSearch`, `LayoutPopups`, `Server\Create`/`New\ByHetzner`/`New\ByIp`) kept alive by one real, narrow consumer — `resources/views/auth/verify-email.blade.php`, the last page anywhere in the app still using `<x-layout>`/`layouts/app.blade.php` (found during Phase 78's cascade re-verification; see Section 140). This section is a point-in-time summary — `todo.md`'s "Still to do → Migration" list and per-phase sections below (numbered sequentially past Section 44 or so) are the sources of truth for exactly what's left; update the count here whenever it drifts, don't treat this paragraph itself as authoritative if it looks stale.
 
 ## 4. Foundation (change ledger)
 
