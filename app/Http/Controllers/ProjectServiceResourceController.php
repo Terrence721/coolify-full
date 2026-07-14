@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabaseProxy;
 use App\Actions\Database\StopDatabaseProxy;
+use App\Http\Controllers\Concerns\ManagesDatabaseImport;
 use App\Http\Controllers\Concerns\NormalizesServiceFqdns;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Http\Controllers\Concerns\StreamsContainerLogs;
@@ -33,6 +34,7 @@ use Spatie\Url\Url;
 class ProjectServiceResourceController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesDatabaseImport;
     use NormalizesServiceFqdns;
     use ResolvesProjectResources;
     use StreamsContainerLogs;
@@ -281,6 +283,39 @@ class ProjectServiceResourceController extends Controller
         return response()->json(['logLines' => $logLines]);
     }
 
+    public function import(string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): Response|RedirectResponse
+    {
+        return $this->renderResource($project_uuid, $environment_uuid, $service_uuid, $stack_service_uuid, 'import');
+    }
+
+    public function importCheckFileEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
+    {
+        [, $serviceDatabase] = $this->resolveDatabaseOr404($project_uuid, $environment_uuid, $service_uuid, $stack_service_uuid);
+
+        return $this->importCheckFile($request, $serviceDatabase);
+    }
+
+    public function importRunEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
+    {
+        [, $serviceDatabase] = $this->resolveDatabaseOr404($project_uuid, $environment_uuid, $service_uuid, $stack_service_uuid);
+
+        return $this->importRun($request, $serviceDatabase);
+    }
+
+    public function importCheckS3Endpoint(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
+    {
+        [, $serviceDatabase] = $this->resolveDatabaseOr404($project_uuid, $environment_uuid, $service_uuid, $stack_service_uuid);
+
+        return $this->importCheckS3($request, $serviceDatabase);
+    }
+
+    public function importRestoreS3Endpoint(Request $request, string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid): RedirectResponse
+    {
+        [, $serviceDatabase] = $this->resolveDatabaseOr404($project_uuid, $environment_uuid, $service_uuid, $stack_service_uuid);
+
+        return $this->importRestoreS3($request, $serviceDatabase);
+    }
+
     private function renderResource(string $project_uuid, string $environment_uuid, string $service_uuid, string $stack_service_uuid, string $tab): Response|RedirectResponse
     {
         $service = $this->resolveService($project_uuid, $environment_uuid, $service_uuid);
@@ -373,6 +408,7 @@ class ProjectServiceResourceController extends Controller
                 'isBackupSolutionAvailable' => (bool) $serviceDatabase->isBackupSolutionAvailable(),
                 'isMigrated' => (bool) $serviceDatabase->is_migrated,
             ],
+            ...($tab === 'import' ? $this->importTabProps($serviceDatabase, 'project.service.database', $parameters) : []),
             'urls' => [
                 'update' => route('project.service.database.update', $parameters),
                 'updateAdvanced' => route('project.service.database.update-advanced', $parameters),

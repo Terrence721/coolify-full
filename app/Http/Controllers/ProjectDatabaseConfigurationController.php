@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
+use App\Http\Controllers\Concerns\ManagesDatabaseImport;
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
 use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
@@ -49,6 +50,7 @@ use Visus\Cuid2\Cuid2;
 class ProjectDatabaseConfigurationController extends Controller
 {
     use AuthorizesRequests;
+    use ManagesDatabaseImport;
     use ManagesResourceEnvironmentVariables;
     use ManagesResourceStorages;
     use ResolvesProjectResources;
@@ -514,6 +516,46 @@ class ProjectDatabaseConfigurationController extends Controller
         return $this->destroyStorageFile($request, $database, $this->resolveOwnedFileVolume($database, $file_id));
     }
 
+    public function importCheckFileEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->importCheckFile($request, $database);
+    }
+
+    public function importRunEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->importRun($request, $database);
+    }
+
+    public function importCheckS3Endpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->importCheckS3($request, $database);
+    }
+
+    public function importRestoreS3Endpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
+    {
+        $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
+        if (! $database instanceof Model) {
+            return $database;
+        }
+
+        return $this->importRestoreS3($request, $database);
+    }
+
     /**
      * Port of Project\Database\Health::submit() — saves the four probe numbers (and the
      * enabled flag as-is), then runs the original's config-hash side effect.
@@ -579,6 +621,7 @@ class ProjectDatabaseConfigurationController extends Controller
         return match ($tab) {
             'environment-variables' => $this->environmentVariablesTabProps($database, $parameters, 'project.database'),
             'persistent-storage' => $this->storagesTabProps($database, $parameters, 'project.database'),
+            'import-backup' => $this->importTabProps($database, 'project.database', $parameters),
             'healthcheck' => [
                 'healthcheck' => [
                     'enabled' => (bool) $database->health_check_enabled,

@@ -17,7 +17,7 @@ export default function PasswordConfirmModal({ title, action, actions, checkboxe
         if (confirmationText && confirmation !== confirmationText) return;
         setProcessing(true);
         setError(null);
-        const data = withPassword ? { password } : {};
+        const data = { ...(action.data ?? {}), ...(withPassword ? { password } : {}) };
         selectedActions.forEach((id) => {
             data[id] = true;
         });

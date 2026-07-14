@@ -379,6 +379,12 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 2
@@ -465,7 +471,13 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 1
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -477,7 +489,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 6
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -517,6 +529,12 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:databaseType\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
 			identifier: method.notFound
 			count: 11
@@ -549,7 +567,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
 			identifier: method.notFound
-			count: 5
+			count: 6
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -905,6 +923,42 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 2
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:databaseType\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectServiceResourceController.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectServiceResourceController.php
 
 		-
 			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
@@ -3403,132 +3457,6 @@ parameters:
 			path: app/Livewire/Project/Database/Heading.php
 
 		-
-			message: '#^Method App\\Livewire\\Project\\Database\\Import\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/Import.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Database\\ImportForm\:\:\$resource\.$#'
-			identifier: property.notFound
-			count: 7
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Access to an undefined property App\\Livewire\\Project\\Database\\ImportForm\:\:\$server\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:checkFile\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:checkS3File\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:getContainers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:loadAvailableS3Storages\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:resetActivityId\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:resource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:server\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:updatedDumpAll\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:updatedDumpAll\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:updatedS3Path\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:updatedS3Path\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\ImportForm\:\:updatedS3StorageId\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\ImportForm\:\:\$availableS3Storages type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\ImportForm\:\:\$containers type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\ImportForm\:\:\$importCommands type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\ImportForm\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\ImportForm\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Database/ImportForm.php
-
-		-
 			message: '#^Method App\\Livewire\\Project\\Database\\InitScript\:\:delete\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -4193,228 +4121,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:cancelRemovePort\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:confirmDomainUsage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:confirmRemovePort\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:convertToApplication\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:convertToDatabase\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:deleteApplication\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:deleteApplication\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:deleteApplication\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:deleteDatabase\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:deleteDatabase\(\) has parameter \$password with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:deleteDatabase\(\) has parameter \$selectedActions with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:generateDockerCompose\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:instantSaveApplication\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:instantSaveApplicationAdvanced\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:instantSaveApplicationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:instantSaveExclude\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:instantSaveLogDrain\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:refreshFileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:submitApplication\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Index\:\:submitDatabase\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$delete_volumes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$docker_cleanup has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$domainConflicts has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$fileStorages has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$forceRemovePort has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$forceSaveDomains has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$query type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$requiredPort has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$rules has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$s3s has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$services with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$showDomainConflictModal has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Index\:\:\$showPortWarningModal has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Index.php
 
 		-
 			message: '#^Access to an undefined property App\\Livewire\\Project\\Service\\Storage\:\:\$directories\.$#'

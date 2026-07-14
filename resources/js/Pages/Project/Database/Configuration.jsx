@@ -1,6 +1,7 @@
 import ConfigurationChecker from '../../../Components/ConfigurationChecker';
 import DatabaseHealthcheckTab from '../../../Components/DatabaseHealthcheckTab';
 import DatabaseHeading from '../../../Components/DatabaseHeading';
+import DatabaseImportTab from '../../../Components/DatabaseImportTab';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import StoragesTab from '../../../Components/StoragesTab';
 import {
@@ -13,12 +14,12 @@ import {
 } from '../../../Components/ResourceTabs';
 
 /**
- * React port of App\Livewire\Project\Database\Configuration's shell plus 9 of its 12 tabs
+ * React port of App\Livewire\Project\Database\Configuration's shell plus 10 of its 12 tabs
  * (Tags, Danger Zone, Webhooks, Resource Limits, Resource Operations, Servers, Environment
- * Variables, Persistent Storage, Healthcheck) — see ProjectDatabaseConfigurationController.
- * The sidebar links all 12 tabs; the unconverted
- * ones are plain full-page links to the still-Livewire routes, exactly as the original's
- * per-tab full navigations behaved.
+ * Variables, Persistent Storage, Healthcheck, Import Backup) — see
+ * ProjectDatabaseConfigurationController. Only the per-engine General forms remain on the
+ * Livewire shell; the sidebar links all 12 tabs, unconverted ones as plain full-page links,
+ * exactly as the original's per-tab full navigations behaved.
  */
 export default function Configuration(props) {
     const { tab, tabs, heading, configurationChecker, urls } = props;
@@ -62,6 +63,7 @@ export default function Configuration(props) {
                     {tab === 'healthcheck' && (
                         <DatabaseHealthcheckTab healthcheck={props.healthcheck} healthcheckUrls={props.healthcheckUrls} canUpdate={props.canUpdate} />
                     )}
+                    {tab === 'import-backup' && <DatabaseImportTab importTab={props.importTab} flash={props.flash} />}
                     {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}
                     {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} />}

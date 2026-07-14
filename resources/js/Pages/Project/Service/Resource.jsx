@@ -2,6 +2,7 @@ import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import DomainConflictModal from '../../../Components/DomainConflictModal';
 import PasswordConfirmModal from '../../../Components/PasswordConfirmModal';
+import DatabaseImportTab from '../../../Components/DatabaseImportTab';
 import ServiceHeading from '../../../Components/ServiceHeading';
 
 const SERVICE_DOMAIN_CONFLICT_CONSEQUENCES = [
@@ -436,7 +437,8 @@ function DatabaseAdvanced({ database, urls }) {
  * `project.service.index.advanced` routes. `project.service.database.import` deliberately
  * stays on the original Livewire page — see ProjectServiceResourceController's docblock.
  */
-export default function Resource({ resourceType, tab, service, serviceHeadingUrls, parameters, serviceParameters, application, database, urls }) {
+export default function Resource({ resourceType, tab, service, serviceHeadingUrls, parameters, serviceParameters, application, database, urls, importTab }) {
+    const { props: pageProps } = usePage();
     return (
         <div>
             <Head title={`${service.name} > Commands`} />
@@ -448,6 +450,7 @@ export default function Resource({ resourceType, tab, service, serviceHeadingUrl
                     {resourceType === 'application' && tab === 'advanced' && <ApplicationAdvanced application={application} urls={urls} />}
                     {resourceType === 'database' && tab === 'general' && <DatabaseGeneral database={database} urls={urls} />}
                     {resourceType === 'database' && tab === 'advanced' && <DatabaseAdvanced database={database} urls={urls} />}
+                    {resourceType === 'database' && tab === 'import' && importTab && <DatabaseImportTab importTab={importTab} flash={pageProps.flash} />}
                 </div>
             </div>
         </div>
