@@ -22,7 +22,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Fortify;
@@ -41,9 +44,31 @@ class Controller extends BaseController
         return 'Look at your other tab.';
     }
 
-    public function verify(): Factory|View
+    public function verify(): Response
     {
-        return view('auth.verify-email');
+        return Inertia::render('VerifyEmail', [
+            'resendUrl' => route('verify.resend'),
+        ]);
+    }
+
+    public function resendVerificationEmail(): RedirectResponse
+    {
+        $key = 'verify-email:user:'.Auth::id();
+
+        if (! RateLimiter::attempt($key, 1, function () {}, 300)) {
+            $seconds = RateLimiter::availableIn($key);
+            $minutes = ceil($seconds / 60);
+
+            return back()->with('error', "Too many requests. Please wait {$minutes} minute(s) before trying again.");
+        }
+
+        try {
+            Auth::user()->sendVerificationEmail();
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', 'Email verification link sent!');
     }
 
     public function email_verify(Request $request): Redirector|RedirectResponse

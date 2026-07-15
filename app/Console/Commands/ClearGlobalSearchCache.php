@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use App\Livewire\GlobalSearch;
 use App\Models\Team;
+use App\Services\GlobalSearchService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Cache;
 
 class ClearGlobalSearchCache extends Command
 {
@@ -56,7 +55,7 @@ class ClearGlobalSearchCache extends Command
             return Command::FAILURE;
         }
 
-        GlobalSearch::clearTeamCache($teamId);
+        GlobalSearchService::clearTeamCache($teamId);
         $this->info("✓ Cleared global search cache for team: {$team->name} (ID: {$teamId})");
 
         return Command::SUCCESS;
@@ -74,7 +73,7 @@ class ClearGlobalSearchCache extends Command
 
         $count = 0;
         foreach ($teams as $team) {
-            GlobalSearch::clearTeamCache($team->id);
+            GlobalSearchService::clearTeamCache($team->id);
             $count++;
         }
 
