@@ -8,6 +8,7 @@ use App\Actions\Application\CleanupPreviewDeployment;
 use App\Actions\Application\LoadComposeFile;
 use App\Actions\Application\StopApplication;
 use App\Enums\BuildPackTypes;
+use App\Http\Controllers\Api\Concerns\ManagesApiResourceEnvs;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
 use App\Http\Controllers\Controller;
 use App\Jobs\DeleteResourceJob;
@@ -35,6 +36,7 @@ use Visus\Cuid2\Cuid2;
 
 class ApplicationsController extends Controller
 {
+    use ManagesApiResourceEnvs;
     use ManagesApiResourceStorages;
 
     private function removeSensitiveData(mixed $application): mixed
@@ -2635,25 +2637,17 @@ class ApplicationsController extends Controller
 
         $this->authorize('view', $application);
 
-        $envs = $application->environment_variables->sortBy('id')->merge($application->environment_variables_preview->sortBy('id'));
-
-        $envs = $envs->map(function ($env) {
-            $env->makeHidden([
-                'service_id',
-                'standalone_clickhouse_id',
-                'standalone_dragonfly_id',
-                'standalone_keydb_id',
-                'standalone_mariadb_id',
-                'standalone_mongodb_id',
-                'standalone_mysql_id',
-                'standalone_postgresql_id',
-                'standalone_redis_id',
-            ]);
-
-            return $this->removeSensitiveData($env);
-        });
-
-        return response()->json($envs);
+        return $this->apiEnvsPayload($application, [
+            'service_id',
+            'standalone_clickhouse_id',
+            'standalone_dragonfly_id',
+            'standalone_keydb_id',
+            'standalone_mariadb_id',
+            'standalone_mongodb_id',
+            'standalone_mysql_id',
+            'standalone_postgresql_id',
+            'standalone_redis_id',
+        ], fn ($env) => $this->removeSensitiveData($env));
     }
 
     #[OA\Patch(

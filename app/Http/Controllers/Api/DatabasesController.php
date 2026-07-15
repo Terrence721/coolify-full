@@ -10,6 +10,7 @@ use App\Actions\Database\StartDatabaseProxy;
 use App\Actions\Database\StopDatabase;
 use App\Actions\Database\StopDatabaseProxy;
 use App\Enums\NewDatabaseTypes;
+use App\Http\Controllers\Api\Concerns\ManagesApiResourceEnvs;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
 use App\Http\Controllers\Controller;
 use App\Jobs\DatabaseBackupJob;
@@ -28,6 +29,7 @@ use OpenApi\Attributes as OA;
 
 class DatabasesController extends Controller
 {
+    use ManagesApiResourceEnvs;
     use ManagesApiResourceStorages;
 
     private function removeSensitiveData(mixed $database): mixed
@@ -2878,11 +2880,7 @@ class DatabasesController extends Controller
 
         $this->authorize('view', $database);
 
-        $envs = $database->environment_variables->map(function ($env) {
-            return $this->removeSensitiveEnvData($env);
-        });
-
-        return response()->json($envs);
+        return $this->apiEnvsPayload($database, [], fn ($env) => $this->removeSensitiveEnvData($env));
     }
 
     #[OA\Patch(

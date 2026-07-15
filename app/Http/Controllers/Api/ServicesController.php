@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Actions\Service\RestartService;
 use App\Actions\Service\StartService;
 use App\Actions\Service\StopService;
+use App\Http\Controllers\Api\Concerns\ManagesApiResourceEnvs;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
 use App\Http\Controllers\Controller;
 use App\Jobs\DeleteResourceJob;
@@ -22,6 +23,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class ServicesController extends Controller
 {
+    use ManagesApiResourceEnvs;
     use ManagesApiResourceStorages;
 
     private function removeSensitiveData(mixed $service): mixed
@@ -1108,23 +1110,17 @@ class ServicesController extends Controller
 
         $this->authorize('manageEnvironment', $service);
 
-        $envs = $service->environment_variables()->get()->map(function ($env) {
-            $env->makeHidden([
-                'application_id',
-                'standalone_clickhouse_id',
-                'standalone_dragonfly_id',
-                'standalone_keydb_id',
-                'standalone_mariadb_id',
-                'standalone_mongodb_id',
-                'standalone_mysql_id',
-                'standalone_postgresql_id',
-                'standalone_redis_id',
-            ]);
-
-            return $this->removeSensitiveData($env);
-        });
-
-        return response()->json($envs);
+        return $this->apiEnvsPayload($service, [
+            'application_id',
+            'standalone_clickhouse_id',
+            'standalone_dragonfly_id',
+            'standalone_keydb_id',
+            'standalone_mariadb_id',
+            'standalone_mongodb_id',
+            'standalone_mysql_id',
+            'standalone_postgresql_id',
+            'standalone_redis_id',
+        ], fn ($env) => $this->removeSensitiveData($env));
     }
 
     #[OA\Patch(
