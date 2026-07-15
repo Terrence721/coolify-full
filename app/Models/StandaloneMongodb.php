@@ -268,7 +268,7 @@ class StandaloneMongodb extends BaseModel implements StandaloneDatabaseInstance
         return new Attribute(
             get: function () {
                 if ($this->is_public && $this->public_port) {
-                    $serverIp = $this->destination->server->getIp;
+                    $serverIp = $this->destination->server->get_ip;
                     if (empty($serverIp)) {
                         return null;
                     }

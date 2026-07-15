@@ -148,7 +148,7 @@ class ProjectLogsController extends Controller
             'type' => 'service',
             'title' => $service->name,
             'isExited' => str($service->status)->contains('exited'),
-            'service' => ['uuid' => $service->uuid, 'name' => $service->name, 'status' => $service->status, 'isDeployable' => $service->isDeployable],
+            'service' => ['uuid' => $service->uuid, 'name' => $service->name, 'status' => $service->status, 'isDeployable' => $service->is_deployable],
             'headingUrls' => [
                 'start' => route('project.logs.service.start', $parameters),
                 'forceDeploy' => route('project.logs.service.force-deploy', $parameters),

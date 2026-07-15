@@ -40,7 +40,7 @@ trait ManagesResourceWebhooks
 
         $props['manualWebhooks'] = [
             'usesOfficialGitApp' => $usesOfficialGitApp,
-            'configUrl' => $resource->gitWebhook,
+            'configUrl' => $resource->git_webhook,
             'canUpdate' => auth()->user()->can('update', $resource),
             'updateUrl' => route("{$routePrefix}.webhooks.update", $parameters),
             'providers' => $usesOfficialGitApp ? [] : collect(['github', 'gitlab', 'bitbucket', 'gitea'])

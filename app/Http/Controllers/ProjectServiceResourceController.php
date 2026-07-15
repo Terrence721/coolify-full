@@ -430,7 +430,7 @@ class ProjectServiceResourceController extends Controller
             'uuid' => $service->uuid,
             'name' => $service->name,
             'status' => $service->status,
-            'isDeployable' => $service->isDeployable,
+            'isDeployable' => $service->is_deployable,
         ];
     }
 

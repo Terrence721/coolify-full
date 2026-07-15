@@ -2291,8 +2291,8 @@ class ProjectApplicationConfigurationController extends Controller
                 'installationPath' => $application->source instanceof GithubApp && ! $application->source->is_public
                     ? getInstallationPath($application->source)
                     : null,
-                'gitBranchLocation' => $application->gitBranchLocation,
-                'gitCommits' => $application->gitCommits,
+                'gitBranchLocation' => $application->git_branch_location,
+                'gitCommits' => $application->git_commits,
                 'privateKeys' => $privateKeys,
                 'sources' => $sources,
             ],

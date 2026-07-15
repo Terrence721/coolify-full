@@ -301,24 +301,6 @@ parameters:
 			path: app/Http/Controllers/ExecuteContainerCommandController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitBranchLocation\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitCommits\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitWebhook\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\StandaloneDocker\:\:\$pivot\.$#'
 			identifier: property.notFound
 			count: 2
@@ -658,12 +640,6 @@ parameters:
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
 			count: 7
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitWebhook\.$#'
-			identifier: property.notFound
-			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -1109,12 +1085,6 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectMetricsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Application\:\:\$gitWebhook\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
@@ -4363,12 +4333,6 @@ parameters:
 			path: app/Models/SslCertificate.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneClickhouse\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -4567,12 +4531,6 @@ parameters:
 			path: app/Models/StandaloneDocker.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\StandaloneDragonfly\:\:\$ssl_mode\.$#'
 			identifier: property.notFound
 			count: 2
@@ -4681,12 +4639,6 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\StandaloneKeydb\:\:\$ssl_mode\.$#'
 			identifier: property.notFound
 			count: 2
@@ -4789,12 +4741,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -4895,12 +4841,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneMongodb.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMongodb\) and ''team'' will always evaluate to true\.$#'
@@ -5011,12 +4951,6 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMysql\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -5119,12 +5053,6 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandalonePostgresql\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -5225,12 +5153,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/StandaloneRedis.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\StandaloneRedis\:\:\$ssl_mode\.$#'
