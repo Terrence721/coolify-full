@@ -2168,53 +2168,6 @@ parameters:
 			count: 1
 			path: app/Models/LocalPersistentVolume.php
 
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Access to protected property Illuminate\\Support\\Stringable\:\:\$value\.$#'
-			identifier: property.protected
-			count: 3
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalPersistentVolume\:\:application\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalPersistentVolume\:\:database\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalPersistentVolume\:\:hostPath\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalPersistentVolume\:\:mountPath\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalPersistentVolume\:\:resource\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalPersistentVolume\:\:service\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
 
 		-
 			message: '#^Class App\\Models\\OauthSetting uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'

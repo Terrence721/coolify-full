@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Yaml\Yaml;
@@ -62,44 +63,62 @@ class LocalPersistentVolume extends BaseModel
         'is_preview_suffix_enabled' => 'boolean',
     ];
 
-    public function resource()
+    /**
+     * @return MorphTo<Model, $this>
+     */
+    public function resource(): MorphTo
     {
         return $this->morphTo('resource');
     }
 
-    public function application()
+    /**
+     * @return MorphTo<Model, $this>
+     */
+    public function application(): MorphTo
     {
         return $this->morphTo('resource');
     }
 
-    public function service()
+    /**
+     * @return MorphTo<Model, $this>
+     */
+    public function service(): MorphTo
     {
         return $this->morphTo('resource');
     }
 
-    public function database()
+    /**
+     * @return MorphTo<Model, $this>
+     */
+    public function database(): MorphTo
     {
         return $this->morphTo('resource');
     }
 
     protected function customizeName(string $value): string
     {
-        return str($value)->trim()->value;
+        return str($value)->trim()->toString();
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     protected function mountPath(): Attribute
     {
         return Attribute::make(
-            set: fn (string $value) => str($value)->trim()->start('/')->value
+            set: fn (string $value) => str($value)->trim()->start('/')->toString()
         );
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     protected function hostPath(): Attribute
     {
         return Attribute::make(
             set: function (?string $value) {
                 if ($value) {
-                    return str($value)->trim()->start('/')->value;
+                    return str($value)->trim()->start('/')->toString();
                 } else {
                     return $value;
                 }
@@ -170,13 +189,14 @@ class LocalPersistentVolume extends BaseModel
                 return false;
             }
 
-            $actualService = $resource->service;
-            if (! $actualService || ! $actualService->docker_compose_raw) {
+            $actualService = $resource->service()->first();
+            $dockerComposeRaw = data_get($actualService, 'docker_compose_raw');
+            if (! $actualService || ! $dockerComposeRaw) {
                 return false;
             }
 
             // Parse the docker-compose content
-            $compose = Yaml::parse($actualService->docker_compose_raw);
+            $compose = Yaml::parse($dockerComposeRaw);
             if (! isset($compose['services'])) {
                 return false;
             }
