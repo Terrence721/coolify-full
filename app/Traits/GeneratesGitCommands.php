@@ -603,11 +603,12 @@ trait GeneratesGitCommands
         } catch (\Exception $e) {
             throw new RuntimeException($e->getMessage());
         }
-        $services = data_get($yaml, 'services');
+        $servicesData = data_get($yaml, 'services');
 
         $commands = collect([]);
-        $services = collect($services)->map(function ($service) use ($commands) {
-            $serviceVolumes = collect(data_get($service, 'volumes', []));
+        $services = collect(is_array($servicesData) ? $servicesData : [])->map(function ($service) use ($commands) {
+            $serviceVolumesData = data_get($service, 'volumes', []);
+            $serviceVolumes = collect(is_array($serviceVolumesData) ? $serviceVolumesData : []);
             if ($serviceVolumes->count() > 0) {
                 foreach ($serviceVolumes as $volume) {
                     $workdir = $this->workdir();
@@ -637,7 +638,8 @@ trait GeneratesGitCommands
                     }
                 }
             }
-            $labels = collect(data_get($service, 'labels', []));
+            $labelsData = data_get($service, 'labels', []);
+            $labels = collect(is_array($labelsData) ? $labelsData : []);
             if (! $labels->contains('coolify.managed')) {
                 $labels->push('coolify.managed=true');
             }
