@@ -35,6 +35,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Laravel\Horizon\Contracts\Silenced;
 
 class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
@@ -705,6 +706,8 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
                         $this->server->team?->notify(new ContainerRestarted('coolify-proxy', $this->server));
                     }
                 } catch (\Throwable $e) {
+                    Log::error('Unhandled exception in updateProxyStatus().', ['error' => $e->getMessage()]);
+
                 }
             } else {
                 // Connect proxy to networks periodically as a safety net to avoid excessive job dispatches.

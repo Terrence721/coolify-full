@@ -74,6 +74,8 @@ class CleanupHelperContainersJob implements ShouldBeEncrypted, ShouldBeUnique, S
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             send_internal_notification('CleanupHelperContainersJob failed with error: '.$e->getMessage());
         }
     }

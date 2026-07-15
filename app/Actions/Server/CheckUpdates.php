@@ -121,6 +121,7 @@ class CheckUpdates
                     ];
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
 
             return [
                 'osId' => $osId,
@@ -168,6 +169,8 @@ class CheckUpdates
                 'updates' => $updates,
             ];
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in parseZypperOutput().', ['error' => $e->getMessage()]);
+
             return [
                 'total_updates' => 0,
                 'updates' => [],

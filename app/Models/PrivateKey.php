@@ -177,6 +177,8 @@ class PrivateKey extends BaseModel
 
             return true;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in validatePrivateKey().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -216,6 +218,8 @@ class PrivateKey extends BaseModel
                 'public_key' => $keyPair['public'],
             ];
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in generateNewKeyPair().', ['error' => $e->getMessage()]);
+
             throw new \Exception("Failed to generate new {$type} key: ".$e->getMessage());
         }
     }
@@ -227,6 +231,8 @@ class PrivateKey extends BaseModel
 
             return $key->getPublicKey()->toString('OpenSSH', ['comment' => '']);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in extractPublicKeyFromPrivate().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -392,6 +398,8 @@ class PrivateKey extends BaseModel
 
             return $key->getPublicKey()->getFingerprint('sha256');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in generateFingerprint().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -403,6 +411,8 @@ class PrivateKey extends BaseModel
 
             return $key->getPublicKey()->getFingerprint('md5');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in generateMd5Fingerprint().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }

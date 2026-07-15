@@ -9,6 +9,7 @@ use App\Models\Server;
 use App\Models\Team;
 use App\Notifications\Server\HetznerDeletionFailed;
 use App\Services\HetznerService;
+use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DeleteServer
@@ -40,6 +41,8 @@ class DeleteServer
         try {
             $server->forceDelete();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             ray('Failed to force delete server from Coolify', [
                 'error' => $e->getMessage(),
                 'server_id' => $server->id,
@@ -84,6 +87,8 @@ class DeleteServer
                 'team_id' => $teamId,
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in deleteFromHetznerById().', ['error' => $e->getMessage()]);
+
             ray('Failed to delete server from Hetzner', [
                 'error' => $e->getMessage(),
                 'hetzner_server_id' => $hetznerServerId,

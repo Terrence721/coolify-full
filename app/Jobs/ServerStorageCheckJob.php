@@ -79,6 +79,8 @@ class ServerStorageCheckJob implements ShouldBeEncrypted, ShouldQueue, Silenced
 
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }

@@ -126,6 +126,8 @@ class CleanupPreviewDeployment
                 instant_remote_process(["docker rm -f {$escapedUuid}"], $server);
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in killHelperContainer().', ['error' => $e->getMessage()]);
+
             // Silently handle - container may already be gone
         }
     }

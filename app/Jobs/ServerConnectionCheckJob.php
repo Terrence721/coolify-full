@@ -177,7 +177,9 @@ class ServerConnectionCheckJob implements ShouldBeEncrypted, ShouldQueue
             $serverData = $hetznerService->getServer($this->server->hetzner_server_id);
             $status = $serverData['status'] ?? null;
 
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in checkHetznerStatus().', ['error' => $e->getMessage()]);
+
             // Silently ignore — server may have been deleted from Hetzner.
         }
         if ($this->server->hetzner_server_status !== $status) {

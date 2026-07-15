@@ -84,6 +84,8 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
                 $this->resource->deleteConnectedNetworks();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             throw $e;
         } finally {
             $this->resource->forceDelete();
@@ -141,6 +143,8 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
                 }
 
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in deleteApplicationPreview().', ['error' => $e->getMessage()]);
+
                 // Silently handle errors during deployment cancellation
             }
         }

@@ -8,6 +8,7 @@ use App\Enums\ProxyTypes;
 use App\Models\Server;
 use App\Services\ProxyDashboardCacheService;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -30,7 +31,9 @@ class ServerChromeData
         if ($proxyStatus === 'running') {
             try {
                 $traefikDashboardAvailable = ProxyDashboardCacheService::isTraefikDashboardAvailableFromCache($server);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in navbar().', ['error' => $e->getMessage()]);
+
                 $traefikDashboardAvailable = false;
             }
         }

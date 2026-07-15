@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Server;
 
 use App\Models\Server;
+use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\Activitylog\Models\Activity;
 use Symfony\Component\Yaml\Yaml;
@@ -56,6 +57,8 @@ class ConfigureCloudflared
                 'ssh_domain' => $ssh_domain,
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             throw $e;
         }
     }

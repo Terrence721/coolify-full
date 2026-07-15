@@ -11,6 +11,7 @@ use App\Models\Server;
 use App\Models\Service;
 use App\Services\GlobalSearchService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 trait ClearsGlobalSearchCache
 {
@@ -26,6 +27,8 @@ trait ClearsGlobalSearchCache
                     }
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in bootClearsGlobalSearchCache() closure.', ['error' => $e->getMessage()]);
+
                 // Silently fail cache clearing - don't break the save operation
                 ray('Failed to clear global search cache on saving: '.$e->getMessage());
             }
@@ -39,6 +42,8 @@ trait ClearsGlobalSearchCache
                     GlobalSearchService::clearTeamCache($teamId);
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in bootClearsGlobalSearchCache() closure.', ['error' => $e->getMessage()]);
+
                 // Silently fail cache clearing - don't break the create operation
                 ray('Failed to clear global search cache on creation: '.$e->getMessage());
             }
@@ -52,6 +57,8 @@ trait ClearsGlobalSearchCache
                     GlobalSearchService::clearTeamCache($teamId);
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in bootClearsGlobalSearchCache() closure.', ['error' => $e->getMessage()]);
+
                 // Silently fail cache clearing - don't break the delete operation
                 ray('Failed to clear global search cache on deletion: '.$e->getMessage());
             }
@@ -87,6 +94,8 @@ trait ClearsGlobalSearchCache
 
             return false;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in hasSearchableChanges().', ['error' => $e->getMessage()]);
+
             // If checking changes fails, assume changes exist to be safe
             ray('Failed to check searchable changes: '.$e->getMessage());
 
@@ -126,6 +135,8 @@ trait ClearsGlobalSearchCache
 
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getTeamIdForCache().', ['error' => $e->getMessage()]);
+
             // If we can't determine team ID, return null
             ray('Failed to get team ID for cache: '.$e->getMessage());
 

@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CheckHelperImageJob implements ShouldBeEncrypted, ShouldQueue
 {
@@ -34,6 +35,8 @@ class CheckHelperImageJob implements ShouldBeEncrypted, ShouldQueue
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             send_internal_notification('CheckHelperImageJob failed with: '.$e->getMessage());
             throw $e;
         }

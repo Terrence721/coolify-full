@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Attributes as OA;
 use Spatie\Activitylog\Models\Activity;
@@ -230,7 +231,9 @@ class Service extends BaseModel
             $status = data_get($activity, 'properties.status');
 
             return $status === ProcessStatus::QUEUED->value || $status === ProcessStatus::IN_PROGRESS->value;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in isStarting().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -427,7 +430,9 @@ class Service extends BaseModel
             $port = data_get($service, 'port');
 
             return $port ? (int) $port : null;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getRequiredPort().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }

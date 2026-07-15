@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -227,6 +228,8 @@ class LocalPersistentVolume extends BaseModel
 
             return false;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in isReadOnlyVolume().', ['error' => $e->getMessage()]);
+
             ray($e->getMessage(), 'Error checking read-only persistent volume');
 
             return false;

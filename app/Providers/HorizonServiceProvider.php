@@ -13,6 +13,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\TimeoutExceededException;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Laravel\Horizon\Contracts\JobRepository;
 use Laravel\Horizon\Events\JobReserved;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
@@ -70,6 +71,8 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
                     app(JobRepository::class)->deleteFailed($uuid);
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in boot() closure.', ['error' => $e->getMessage()]);
+
                 // Best-effort scrub; never mask the original failure.
             }
         });

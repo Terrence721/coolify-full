@@ -7,6 +7,7 @@ namespace App\Helpers;
 use App\Models\Server;
 use App\Models\SslCertificate;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
 
 class SslHelper
 {
@@ -227,6 +228,8 @@ class SslHelper
 
             return $sslCertificate;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in generateSslCertificate().', ['error' => $e->getMessage()]);
+
             throw new \RuntimeException('SSL Certificate generation failed: '.$e->getMessage(), 0, $e);
         } finally {
             fclose($tempConfig);

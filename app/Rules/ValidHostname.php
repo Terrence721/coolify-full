@@ -61,6 +61,8 @@ class ValidHostname implements ValidationRule
 
                     Log::warning('Hostname validation failed - dangerous character', $logData);
                 } catch (\Throwable $e) {
+                    Log::error('Unhandled exception in validate().', ['error' => $e->getMessage()]);
+
                     // Ignore errors when facades are not available (e.g., in unit tests)
                 }
 

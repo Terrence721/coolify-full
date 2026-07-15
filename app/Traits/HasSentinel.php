@@ -119,6 +119,8 @@ trait HasSentinel
                 StartSentinel::run($this, true, null, $customImage);
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in restartSentinel().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }

@@ -15,6 +15,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
 {
@@ -76,6 +77,8 @@ class ApplicationPullRequestUpdateJob implements ShouldBeEncrypted, ShouldQueue
 
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             return $e;
         }
     }

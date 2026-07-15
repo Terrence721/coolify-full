@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class Init extends Command
 {
@@ -43,18 +44,24 @@ class Init extends Command
         try {
             $this->pullTemplatesFromCDN();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Could not pull templates from CDN: {$e->getMessage()}\n";
         }
 
         try {
             $this->pullChangelogFromGitHub();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Could not changelogs from github: {$e->getMessage()}\n";
         }
 
         try {
             $this->pullHelperImage();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Error in pullHelperImage command: {$e->getMessage()}\n";
         }
 
@@ -82,16 +89,22 @@ class Init extends Command
         try {
             $this->call('cleanup:redis', ['--restart' => true, '--clear-locks' => true]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Error in cleanup:redis command: {$e->getMessage()}\n";
         }
         try {
             $this->call('cleanup:names');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Error in cleanup:names command: {$e->getMessage()}\n";
         }
         try {
             $this->call('cleanup:stucked-resources');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Error in cleanup:stucked-resources command: {$e->getMessage()}\n";
             echo "Continuing with initialization - cleanup errors will not prevent Coolify from starting\n";
         }
@@ -107,6 +120,8 @@ class Init extends Command
                 echo "Marked {$updatedCount} stuck deployments as failed\n";
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Could not cleanup inprogress deployments: {$e->getMessage()}\n";
         }
 
@@ -121,6 +136,8 @@ class Init extends Command
                 echo "Marked {$updatedTaskCount} stuck scheduled task executions as failed\n";
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Could not cleanup stuck scheduled task executions: {$e->getMessage()}\n";
         }
 
@@ -135,6 +152,8 @@ class Init extends Command
                 echo "Marked {$updatedBackupCount} stuck database backup executions as failed\n";
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Could not cleanup stuck database backup executions: {$e->getMessage()}\n";
         }
 
@@ -144,6 +163,8 @@ class Init extends Command
                 $localhost->setupDynamicProxyConfiguration();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             echo "Could not setup dynamic configuration: {$e->getMessage()}\n";
         }
 
@@ -178,6 +199,8 @@ class Init extends Command
             PullChangelog::dispatch();
             echo "Changelog fetch initiated\n";
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in pullChangelogFromGitHub().', ['error' => $e->getMessage()]);
+
             echo "Could not fetch changelog from GitHub: {$e->getMessage()}\n";
         }
     }
@@ -189,6 +212,8 @@ class Init extends Command
                 $user->update(['email' => $user->email]);
             });
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in updateUserEmails().', ['error' => $e->getMessage()]);
+
             echo "Error in updating user emails: {$e->getMessage()}\n";
         }
     }
@@ -198,6 +223,8 @@ class Init extends Command
         try {
             Server::query()->where('proxy->type', 'TRAEFIK_V2')->update(['proxy->type' => 'TRAEFIK']);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in updateTraefikLabels().', ['error' => $e->getMessage()]);
+
             echo "Error in updating traefik labels: {$e->getMessage()}\n";
         }
     }
@@ -237,6 +264,8 @@ class Init extends Command
                     remote_process(command: $commands, type: ActivityTypes::INLINE->value, server: $server, ignore_errors: false);
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in cleanupUnusedNetworkFromCoolifyProxy().', ['error' => $e->getMessage()]);
+
                 echo "Error in cleaning up unused networks from coolify proxy: {$e->getMessage()}\n";
             }
         }
@@ -263,6 +292,8 @@ class Init extends Command
                     }
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in restoreCoolifyDbBackup().', ['error' => $e->getMessage()]);
+
                 echo "Error in restoring coolify db backup: {$e->getMessage()}\n";
             }
         }
@@ -275,6 +306,8 @@ class Init extends Command
         try {
             Http::get("https://undead.coolify.io/v4/alive?appId=$id&version=$version");
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in sendAliveSignal().', ['error' => $e->getMessage()]);
+
             echo "Error in sending live signal: {$e->getMessage()}\n";
         }
     }

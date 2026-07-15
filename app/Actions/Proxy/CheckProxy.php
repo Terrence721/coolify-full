@@ -306,10 +306,14 @@ class CheckProxy
                     // Our proxy is using the port, which is fine
                     return false;
                 } catch (\Throwable $e) {
+                    Log::error('Unhandled exception in isPortConflict().', ['error' => $e->getMessage()]);
+
                     // Our container exists but not using this port
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in isPortConflict().', ['error' => $e->getMessage()]);
+
             // Container not found or error checking, continue with regular checks
         }
 
@@ -406,6 +410,8 @@ class CheckProxy
                 return true;
 
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in isPortConflict().', ['error' => $e->getMessage()]);
+
                 // This command set failed, try the next one
                 continue;
             }
@@ -419,6 +425,8 @@ class CheckProxy
 
             return trim($result) === 'in-use';
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in isPortConflict().', ['error' => $e->getMessage()]);
+
             // If everything fails, assume the port is free to avoid false positives
             return false;
         }

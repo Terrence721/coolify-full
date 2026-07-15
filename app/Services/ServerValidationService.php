@@ -9,6 +9,7 @@ use App\Actions\Proxy\StartProxy;
 use App\Enums\ProxyTypes;
 use App\Events\ServerValidated;
 use App\Models\Server;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Extracted from BoardingController::validateServer() (Phase 77) on its second real consumer,
@@ -69,6 +70,8 @@ class ServerValidationService
             try {
                 $server->validateDockerSwarm();
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in validate().', ['error' => $e->getMessage()]);
+
                 return ['status' => 'failed', 'error' => $e->getMessage()];
             }
         } elseif (! $server->validateDockerEngineVersion()) {

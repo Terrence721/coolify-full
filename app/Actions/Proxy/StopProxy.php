@@ -8,6 +8,7 @@ use App\Events\ProxyStatusChanged;
 use App\Events\ProxyStatusChangedUI;
 use App\Models\Server;
 use App\Services\ProxyDashboardCacheService;
+use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StopProxy
@@ -43,6 +44,8 @@ class StopProxy
 
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         } finally {
             ProxyDashboardCacheService::clearCache($server);

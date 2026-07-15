@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Yaml\Yaml;
 
 class UpdateServiceVersions extends Command
@@ -123,6 +124,8 @@ class UpdateServiceVersions extends Command
             }
 
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in processTemplate().', ['error' => $e->getMessage()]);
+
             $this->error("  Failed: {$e->getMessage()}");
             $this->stats['failed']++;
         }
@@ -284,6 +287,8 @@ class UpdateServiceVersions extends Command
             return $this->findBestTag($tags, $currentTag, $repository);
 
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getDockerHubLatestVersion().', ['error' => $e->getMessage()]);
+
             $this->warn("  DockerHub API error for {$repository}: {$e->getMessage()}");
 
             return null;
@@ -381,6 +386,8 @@ class UpdateServiceVersions extends Command
             return $this->findBestTag($tags, $currentTag, $repository);
 
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getGhcrLatestVersion().', ['error' => $e->getMessage()]);
+
             $this->warn("  GHCR API error for {$repository}: {$e->getMessage()}");
 
             return null;
@@ -415,6 +422,8 @@ class UpdateServiceVersions extends Command
             return $this->findBestTag($tags, $currentTag, $repository);
 
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getQuayLatestVersion().', ['error' => $e->getMessage()]);
+
             $this->warn("  Quay API error for {$repository}: {$e->getMessage()}");
 
             return null;
@@ -467,6 +476,8 @@ class UpdateServiceVersions extends Command
             return $this->findBestTag($tags, $currentTag, $repository);
 
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getCodebergLatestVersion().', ['error' => $e->getMessage()]);
+
             $this->warn("  Codeberg API error for {$repository}: {$e->getMessage()}");
 
             return null;

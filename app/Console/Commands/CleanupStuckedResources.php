@@ -24,6 +24,7 @@ use App\Models\StandaloneRedis;
 use App\Models\Team;
 use App\Support\DatabaseEngineRegistry;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CleanupStuckedResources extends Command
 {
@@ -52,6 +53,8 @@ class CleanupStuckedResources extends Command
                 CleanupHelperContainersJob::dispatch($server);
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stucked resources: {$e->getMessage()}\n";
         }
         try {
@@ -61,6 +64,8 @@ class CleanupStuckedResources extends Command
                 $server->forceDelete();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck servers: {$e->getMessage()}\n";
         }
         try {
@@ -72,6 +77,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck application deployment queue: {$e->getMessage()}\n";
         }
         try {
@@ -81,6 +88,8 @@ class CleanupStuckedResources extends Command
                 DeleteResourceJob::dispatch($application);
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck application: {$e->getMessage()}\n";
         }
         try {
@@ -92,6 +101,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck application: {$e->getMessage()}\n";
         }
         try {
@@ -101,6 +112,8 @@ class CleanupStuckedResources extends Command
                 DeleteResourceJob::dispatch($applicationPreview);
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck application: {$e->getMessage()}\n";
         }
         foreach (DatabaseEngineRegistry::all() as $engine) {
@@ -112,6 +125,8 @@ class CleanupStuckedResources extends Command
                     DeleteResourceJob::dispatch($instance);
                 }
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
                 echo "Error in cleaning stuck {$engine->type}: {$e->getMessage()}\n";
             }
         }
@@ -122,6 +137,8 @@ class CleanupStuckedResources extends Command
                 DeleteResourceJob::dispatch($service);
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck service: {$e->getMessage()}\n";
         }
         try {
@@ -131,6 +148,8 @@ class CleanupStuckedResources extends Command
                 $serviceApp->forceDelete();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck serviceapp: {$e->getMessage()}\n";
         }
         try {
@@ -140,6 +159,8 @@ class CleanupStuckedResources extends Command
                 $serviceDb->forceDelete();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck serviceapp: {$e->getMessage()}\n";
         }
         try {
@@ -151,6 +172,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck scheduledtasks: {$e->getMessage()}\n";
         }
 
@@ -164,10 +187,14 @@ class CleanupStuckedResources extends Command
                         $scheduled_backup->delete();
                     }
                 } catch (\Throwable $e) {
+                    Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
                     echo "Error checking server for scheduledbackup {$scheduled_backup->id}: {$e->getMessage()}\n";
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning stuck scheduledbackups: {$e->getMessage()}\n";
         }
 
@@ -195,6 +222,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in application: {$e->getMessage()}\n";
         }
         try {
@@ -220,6 +249,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in postgresql: {$e->getMessage()}\n";
         }
         try {
@@ -245,6 +276,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in redis: {$e->getMessage()}\n";
         }
 
@@ -271,6 +304,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in mongodb: {$e->getMessage()}\n";
         }
 
@@ -297,6 +332,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in mysql: {$e->getMessage()}\n";
         }
 
@@ -323,6 +360,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in mariadb: {$e->getMessage()}\n";
         }
 
@@ -349,6 +388,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in service: {$e->getMessage()}\n";
         }
         try {
@@ -362,6 +403,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in serviceApplications: {$e->getMessage()}\n";
         }
         try {
@@ -375,6 +418,8 @@ class CleanupStuckedResources extends Command
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in ServiceDatabases: {$e->getMessage()}\n";
         }
 
@@ -388,6 +433,8 @@ class CleanupStuckedResources extends Command
                 $cert->delete();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
             echo "Error in cleaning orphaned SSL certificates: {$e->getMessage()}\n";
         }
     }

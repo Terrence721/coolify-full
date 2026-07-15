@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @property-read string $internal_db_url
@@ -227,6 +228,8 @@ class StandaloneMongodb extends BaseModel implements StandaloneDatabaseInstance
                 try {
                     return decrypt($value);
                 } catch (\Throwable $th) {
+                    Log::error('Unhandled exception in mongoInitdbRootPassword() closure.', ['error' => $th->getMessage()]);
+
                     $this->mongo_initdb_root_password = encrypt($value);
                     $this->save();
 

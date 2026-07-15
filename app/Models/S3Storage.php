@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -233,6 +234,8 @@ class S3Storage extends BaseModel
             $this->unusable_email_sent = false;
             $this->is_usable = true;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in testConnection().', ['error' => $e->getMessage()]);
+
             $exception = $this->toUserFriendlyConnectionException($e);
             $this->is_usable = false;
             if ($this->unusable_email_sent === false && is_transactional_emails_enabled()) {

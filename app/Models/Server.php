@@ -22,12 +22,14 @@ use App\Traits\HasSentinel;
 use App\Traits\ValidatesDockerEnvironment;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Stringable;
 use OpenApi\Attributes as OA;
@@ -113,21 +115,21 @@ use Visus\Cuid2\Cuid2;
  * @property bool $is_validating
  * @property string|null $detected_traefik_version
  * @property array<array-key, mixed>|null $server_metadata
- * @property-read \Illuminate\Database\Eloquent\Collection<int, DockerCleanupExecution> $dockerCleanupExecutions
+ * @property-read Collection<int, DockerCleanupExecution> $dockerCleanupExecutions
  * @property-read int|null $docker_cleanup_executions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SharedEnvironmentVariable> $environment_variables
+ * @property-read Collection<int, SharedEnvironmentVariable> $environment_variables
  * @property-read int|null $environment_variables_count
  * @property-read mixed $get_ip
  * @property-read mixed $image
  * @property-read mixed $is_coolify_host
  * @property-read mixed $sanitized_name
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
+ * @property-read Collection<int, Service> $services
  * @property-read int|null $services_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SslCertificate> $sslCertificates
+ * @property-read Collection<int, SslCertificate> $sslCertificates
  * @property-read int|null $ssl_certificates_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, StandaloneDocker> $standaloneDockers
+ * @property-read Collection<int, StandaloneDocker> $standaloneDockers
  * @property-read int|null $standalone_dockers_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SwarmDocker> $swarmDockers
+ * @property-read Collection<int, SwarmDocker> $swarmDockers
  * @property-read int|null $swarm_dockers_count
  *
  * @method static \Database\Factories\ServerFactory factory($count = null, $state = [])
@@ -807,6 +809,8 @@ class Server extends BaseModel
 
             return ['uptime' => true, 'error' => null];
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in validateConnection().', ['error' => $e->getMessage()]);
+
             if ($justCheckingNewKey) {
                 return ['uptime' => false, 'error' => 'This key is not valid for this server.'];
             }
@@ -912,6 +916,8 @@ class Server extends BaseModel
                 ));
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in generateCaCertificate().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }

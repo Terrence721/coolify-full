@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\confirm;
 
@@ -123,6 +124,8 @@ class SyncBunny extends Command
                             $hasChanges = true;
                         }
                     } catch (\Throwable $e) {
+                        Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
                         $this->warn("Could not fetch $cdnUrl: {$e->getMessage()}");
                     }
                 }
@@ -237,6 +240,8 @@ class SyncBunny extends Command
             $this->info('=== Summary ===');
             $this->info('BunnyCDN sync: Complete');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             $this->error('Error: '.$e->getMessage());
         }
     }

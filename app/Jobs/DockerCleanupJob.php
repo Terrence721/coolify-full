@@ -20,6 +20,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
 {
@@ -153,6 +154,8 @@ class DockerCleanupJob implements ShouldBeEncrypted, ShouldQueue
                 event(new DockerCleanupDone($this->execution_log));
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             if ($this->execution_log) {
                 $this->execution_log->update([
                     'status' => 'failed',

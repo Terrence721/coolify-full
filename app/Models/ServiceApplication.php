@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -282,7 +283,9 @@ class ServiceApplication extends BaseModel
             $port = $parsed['port'] ?? null;
 
             return $port ? (int) $port : null;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in extractPortFromUrl().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -393,6 +396,8 @@ class ServiceApplication extends BaseModel
             // (DO NOT fall back to service-level port, as that applies to all services)
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in getRequiredPort().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }

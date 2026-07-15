@@ -84,6 +84,8 @@ class CheckForUpdatesJob implements ShouldBeEncrypted, ShouldQueue
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             // Consider implementing a notification to administrators
         }
     }

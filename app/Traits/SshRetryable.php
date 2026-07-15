@@ -91,6 +91,8 @@ trait SshRetryable
             try {
                 return $callback();
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in executeWithSshRetry().', ['error' => $e->getMessage()]);
+
                 $lastError = $e;
                 $lastErrorMessage = $e->getMessage();
 

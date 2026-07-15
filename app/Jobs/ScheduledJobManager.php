@@ -132,7 +132,9 @@ class ScheduledJobManager implements ShouldQueue
         // Write heartbeat so the UI can detect when the scheduler has stopped
         try {
             Cache::put('scheduled-job-manager:heartbeat', now()->toIso8601String(), 300);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             // Non-critical; don't let heartbeat failure affect the job
         }
     }

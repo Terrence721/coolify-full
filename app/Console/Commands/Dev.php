@@ -11,6 +11,7 @@ use App\Models\ScheduledTaskExecution;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 /**
  * First-boot/dev-startup initialization. The dev container's s6 `init-setup` service runs
@@ -64,6 +65,8 @@ class Dev extends Command
             Artisan::call('cleanup:redis', ['--restart' => true, '--clear-locks' => true]);
             echo "   INFO  Redis cleanup completed.\n";
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in init().', ['error' => $e->getMessage()]);
+
             echo "   ERROR  Redis cleanup failed: {$e->getMessage()}\n";
         }
 
@@ -78,6 +81,8 @@ class Dev extends Command
                 echo "   INFO  Marked {$updatedTaskCount} stuck scheduled task executions as failed.\n";
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in init().', ['error' => $e->getMessage()]);
+
             echo "   ERROR  Could not clean up stuck scheduled task executions: {$e->getMessage()}\n";
         }
 
@@ -92,6 +97,8 @@ class Dev extends Command
                 echo "   INFO  Marked {$updatedBackupCount} stuck database backup executions as failed.\n";
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in init().', ['error' => $e->getMessage()]);
+
             echo "   ERROR  Could not clean up stuck database backup executions: {$e->getMessage()}\n";
         }
 

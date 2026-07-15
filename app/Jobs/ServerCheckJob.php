@@ -106,6 +106,8 @@ class ServerCheckJob implements ShouldBeEncrypted, ShouldQueue
                                 $this->notifyServerTeam(new ContainerRestarted('coolify-proxy', $this->server));
                             }
                         } catch (\Throwable $e) {
+                            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
                         }
                     } else {
                         $proxy = $this->server->proxy;
@@ -120,6 +122,8 @@ class ServerCheckJob implements ShouldBeEncrypted, ShouldQueue
 
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             return (string) handleError($e);
         }
     }

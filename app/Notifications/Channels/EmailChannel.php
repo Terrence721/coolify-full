@@ -8,6 +8,7 @@ use App\Exceptions\NonReportableException;
 use App\Models\Team;
 use Exception;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
 use Resend;
 use Resend\Exceptions\ErrorException;
 use Resend\Exceptions\TransporterException;
@@ -160,6 +161,8 @@ class EmailChannel
             send_internal_notification("Resend Transport Error: {$e->getMessage()}");
             throw new Exception('Unable to connect to Resend API. Please check your internet connection and try again.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in send().', ['error' => $e->getMessage()]);
+
             // Check if this is a Resend domain verification error on cloud instances
             if (isCloud() && str_contains($e->getMessage(), 'domain is not verified')) {
                 // Throw as NonReportableException so it won't go to Sentry

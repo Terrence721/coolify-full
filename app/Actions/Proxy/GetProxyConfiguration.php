@@ -88,6 +88,8 @@ class GetProxyConfiguration
                 default => true,
             };
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in configMatchesProxyType().', ['error' => $e->getMessage()]);
+
             // If YAML is unparseable, don't block — let the existing flow handle it
             return true;
         }

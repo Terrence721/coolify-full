@@ -8,6 +8,7 @@ use App\Actions\Server\InstallDocker;
 use App\Actions\Server\InstallPrerequisites;
 use App\Actions\Server\ValidatePrerequisites;
 use App\Events\ServerReachabilityChanged;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Docker engine/compose/swarm prerequisite installation and validation for a
@@ -50,6 +51,8 @@ trait ValidatesDockerEnvironment
         try {
             instant_remote_process(['docker version'], $this);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in validateDockerEngine().', ['error' => $e->getMessage()]);
+
             $this->settings->is_usable = false;
             $this->settings->save();
             if ($throwError) {

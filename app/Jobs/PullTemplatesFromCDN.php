@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PullTemplatesFromCDN implements ShouldBeEncrypted, ShouldQueue
 {
@@ -38,6 +39,8 @@ class PullTemplatesFromCDN implements ShouldBeEncrypted, ShouldQueue
                 send_internal_notification('PullTemplatesAndVersions failed with: '.$response->status().' '.$response->body());
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             send_internal_notification('PullTemplatesAndVersions failed with: '.$e->getMessage());
         }
     }

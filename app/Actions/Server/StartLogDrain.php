@@ -6,6 +6,7 @@ namespace App\Actions\Server;
 
 use App\Models\Server;
 use App\Models\Service;
+use Illuminate\Support\Facades\Log;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StartLogDrain
@@ -196,6 +197,8 @@ Files:
 
             return instant_remote_process($command, $server);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }
