@@ -15,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -164,7 +165,8 @@ class ServerDockerCleanupController extends Controller
             $threshold = max($intervalMinutes * 2, 10);
 
             return Carbon::parse($lastExecution->created_at)->diffInMinutes($now) > $threshold;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in isCleanupStale().', ['error' => $e->getMessage()]);
             return false;
         }
     }

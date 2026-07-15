@@ -9,6 +9,7 @@ use App\Support\ServerChromeData;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,7 +50,8 @@ class ServerAdvancedController extends Controller
 
         try {
             $isValidFrequency = validate_cron_expression($validated['serverDiskUsageCheckFrequency']);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in update().', ['error' => $e->getMessage()]);
             $isValidFrequency = false;
         }
         if (! $isValidFrequency) {

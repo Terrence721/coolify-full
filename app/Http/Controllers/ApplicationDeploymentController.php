@@ -16,6 +16,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Visus\Cuid2\Cuid2;
@@ -146,6 +147,7 @@ class ApplicationDeploymentController extends Controller
         try {
             force_start_deployment($deployment);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in forceStart().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -208,10 +210,12 @@ class ApplicationDeploymentController extends Controller
                     $processKillCommand = "kill -9 {$deployment->current_process_id}";
                     instant_remote_process([$processKillCommand], $server);
                 } catch (\Throwable $e) {
+                    Log::error('Unhandled exception in cancel().', ['error' => $e->getMessage()]);
                     // Process might already be gone, that's ok
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cancel().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         } finally {
             $deployment->update(['current_process_id' => null]);

@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -54,6 +55,7 @@ class ServerMetricsController extends Controller
 
             return back()->with('success', 'Metrics disabled. Restarting Sentinel.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in toggleMetrics().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -70,6 +72,7 @@ class ServerMetricsController extends Controller
                 'memory' => $server->getMemoryMetrics($interval),
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in data().', ['error' => $e->getMessage()]);
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

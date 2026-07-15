@@ -11,6 +11,7 @@ use App\Models\Server;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 trait ManagesScheduledDatabaseBackups
@@ -159,6 +160,7 @@ trait ManagesScheduledDatabaseBackups
             try {
                 validateDatabasesBackupInput($validated['databases_to_backup']);
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in applyBackupScheduleUpdate().', ['error' => $e->getMessage()]);
                 return $e->getMessage();
             }
         }
@@ -244,6 +246,7 @@ trait ManagesScheduledDatabaseBackups
 
             return null;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in deleteBackupExecution().', ['error' => $e->getMessage()]);
             return 'Failed to delete backup: '.$e->getMessage();
         }
     }

@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -118,7 +119,8 @@ class SecurityCloudTokensController extends Controller
             // if ($provider === 'digitalocean') { ... }
 
             return false;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in validateProviderToken().', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -131,7 +133,8 @@ class SecurityCloudTokensController extends Controller
                 ->get('https://api.hetzner.cloud/v1/servers?per_page=1');
 
             return $response->successful();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in validateHetznerToken().', ['error' => $e->getMessage()]);
             return false;
         }
     }
@@ -144,7 +147,8 @@ class SecurityCloudTokensController extends Controller
                 ->get('https://api.digitalocean.com/v2/account');
 
             return $response->successful();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in validateDigitalOceanToken().', ['error' => $e->getMessage()]);
             return false;
         }
     }

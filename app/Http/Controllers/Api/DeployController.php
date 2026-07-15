@@ -18,6 +18,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
+use Illuminate\Support\Facades\Log;
 use Visus\Cuid2\Cuid2;
 
 class DeployController extends Controller
@@ -279,6 +280,7 @@ class DeployController extends Controller
                         $processKillCommand = "kill -9 {$deployment->current_process_id}";
                         instant_remote_process([$processKillCommand], $server);
                     } catch (\Throwable $e) {
+                        Log::error('Unhandled exception in cancel_deployment().', ['error' => $e->getMessage()]);
                         // Process might already be gone
                     }
                 }
@@ -300,6 +302,7 @@ class DeployController extends Controller
                 'status' => $deployment->status,
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in cancel_deployment().', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Failed to cancel deployment: '.$e->getMessage(),
             ], 500);

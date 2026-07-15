@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -338,6 +339,7 @@ class TeamController extends Controller
                 'via' => $sendEmail ? 'email' : 'link',
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in sendInvitation().', ['error' => $e->getMessage()]);
             $message = $e->getCode() === '23505' ? 'Invitation already sent.' : $e->getMessage();
 
             return back()->with('error', $message);

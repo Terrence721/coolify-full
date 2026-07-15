@@ -17,6 +17,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -282,6 +283,8 @@ class ServerShowController extends Controller
         try {
             $matched = (new HetznerService($token->token))->findServerByIp($server->ip);
         } catch (\Throwable $e) {
+            Log::error('Failed to search Hetzner servers by IP.', ['server_uuid' => $server_uuid, 'error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to search Hetzner servers: '.$e->getMessage()], 422);
         }
 
@@ -306,6 +309,8 @@ class ServerShowController extends Controller
         try {
             $serverData = (new HetznerService($token->token))->getServer($validated['hetzner_server_id']);
         } catch (\Throwable $e) {
+            Log::error('Failed to fetch Hetzner server by ID.', ['server_uuid' => $server_uuid, 'hetzner_server_id' => $validated['hetzner_server_id'], 'error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to fetch Hetzner server: '.$e->getMessage()], 422);
         }
 

@@ -13,6 +13,7 @@ use App\Models\StandaloneDocker;
 use App\Models\StandalonePostgresql;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -161,6 +162,7 @@ class SettingsBackupController extends Controller
 
             return back()->with('success', 'Coolify database added for backups.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in addDatabase().', ['error' => $e->getMessage()]);
             return back()->with('error', 'Failed to add Coolify database: '.$e->getMessage());
         }
     }

@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,7 +50,8 @@ class ServerCaCertificateController extends Controller
 
         try {
             $parsedCert = openssl_x509_read($validated['certificateContent']);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in save().', ['error' => $e->getMessage()]);
             $parsedCert = false;
         }
         if (! $parsedCert) {

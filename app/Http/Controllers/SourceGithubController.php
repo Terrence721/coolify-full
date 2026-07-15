@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -245,6 +246,7 @@ class SourceGithubController extends Controller
 
             return back()->with('error', "Failed to fetch GitHub App information: {$errorMessage}");
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in updateName().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -274,6 +276,7 @@ class SourceGithubController extends Controller
 
             return back()->with('success', 'Github App permissions updated.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in checkPermissions().', ['error' => $e->getMessage()]);
             $errorMessage = $e->getMessage();
             if (str_contains($errorMessage, 'DECODER routines::unsupported') || str_contains($errorMessage, 'parse your key')) {
                 return back()->with('error', 'The selected private key format is not supported for GitHub Apps. Please use an RSA private key in PEM format (BEGIN RSA PRIVATE KEY). OpenSSH format keys (BEGIN OPENSSH PRIVATE KEY) are not supported.');

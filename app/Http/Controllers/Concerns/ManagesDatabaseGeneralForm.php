@@ -19,6 +19,7 @@ use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -361,6 +362,7 @@ trait ManagesDatabaseGeneralForm
         try {
             validateFilenameSafe($validated['filename'], 'init script filename');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in storeDatabaseInitScript().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 

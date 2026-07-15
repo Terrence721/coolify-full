@@ -18,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Visus\Cuid2\Cuid2;
 
@@ -634,7 +635,8 @@ class Github extends Controller
 
             return $response->successful()
                 && (string) data_get($response->json(), 'app_id') === (string) $github_app->app_id;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in githubInstallationBelongsToApp().', ['error' => $e->getMessage()]);
             return false;
         }
     }

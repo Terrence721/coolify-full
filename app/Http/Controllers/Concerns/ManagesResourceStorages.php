@@ -12,6 +12,7 @@ use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -111,6 +112,7 @@ trait ManagesResourceStorages
         try {
             validateShellSafePath($path, 'file storage path');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in storeStorageFile().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -142,6 +144,7 @@ trait ManagesResourceStorages
             validateShellSafePath($source, 'storage source path');
             validateShellSafePath($destination, 'storage destination path');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in storeStorageDirectory().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -217,6 +220,7 @@ trait ManagesResourceStorages
             $file->save();
             $file->saveStorageOnServer();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in updateStorageFile().', ['error' => $e->getMessage()]);
             $file->setRawAttributes($original);
             $file->save();
 
@@ -233,6 +237,7 @@ trait ManagesResourceStorages
         try {
             $file->loadStorageOnServer();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in loadStorageFile().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -251,6 +256,7 @@ trait ManagesResourceStorages
             $file->save();
             $file->saveStorageOnServer();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in convertStorageFile().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -276,6 +282,7 @@ trait ManagesResourceStorages
                 $file->deleteStorageOnServer();
                 $message = $file->is_directory ? 'Directory deleted from the server.' : 'File deleted from the server.';
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in destroyStorageFile().', ['error' => $e->getMessage()]);
                 return back()->with('error', $e->getMessage());
             }
         }

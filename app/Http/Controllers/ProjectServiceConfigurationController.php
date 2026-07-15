@@ -20,6 +20,7 @@ use App\Support\ValidationPatterns;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -356,6 +357,7 @@ class ProjectServiceConfigurationController extends Controller
 
             return back()->with('success', 'Service saved.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in updateGeneral().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         } finally {
             if (is_null($service->config_hash)) {
@@ -437,6 +439,7 @@ class ProjectServiceConfigurationController extends Controller
         try {
             $fqdn = $this->normalizeFqdn((string) ($validated['fqdn'] ?? ''));
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in updateChildDomain().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
         $warning = $fqdn ? sslipDomainWarning($fqdn) : false;
@@ -489,6 +492,7 @@ class ProjectServiceConfigurationController extends Controller
         try {
             $child->restart();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in restartChild().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 

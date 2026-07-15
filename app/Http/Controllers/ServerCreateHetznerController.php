@@ -16,6 +16,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -93,6 +94,7 @@ class ServerCreateHetznerController extends Controller
 
             return $response;
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in data().', ['error' => $e->getMessage()]);
             return response()->json(['message' => 'Failed to fetch Hetzner Cloud data: '.$e->getMessage()], 422);
         }
     }
@@ -154,6 +156,7 @@ class ServerCreateHetznerController extends Controller
         } catch (RateLimitException $e) {
             return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in store().', ['error' => $e->getMessage()]);
             return back()->with('error', 'Failed to create Hetzner server: '.$e->getMessage());
         }
 

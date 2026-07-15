@@ -32,6 +32,7 @@ use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -552,6 +553,7 @@ class ProjectApplicationConfigurationController extends Controller
         try {
             $commit = validateGitRef($validated['tag'], 'rollback commit');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in rollbackDeploy().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -968,7 +970,8 @@ class ProjectApplicationConfigurationController extends Controller
                 $application->repository_project_id = $repositoryProjectId;
                 $application->save();
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in changeSource().', ['error' => $e->getMessage()]);
             // The source itself is already switched; a failed project-id lookup isn't fatal.
         }
 
@@ -1126,6 +1129,7 @@ class ProjectApplicationConfigurationController extends Controller
                 'rateLimitRemaining' => $rateLimitRemaining,
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in loadPullRequests().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -1284,6 +1288,7 @@ class ProjectApplicationConfigurationController extends Controller
                 'deployment_uuid' => $deploymentUuid,
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in deployPreviewInternal().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -1481,6 +1486,7 @@ class ProjectApplicationConfigurationController extends Controller
 
             return back()->with('success', 'Preview Deployment stopped.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in stopPreview().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -1584,6 +1590,7 @@ class ProjectApplicationConfigurationController extends Controller
             try {
                 $this->reloadComposeFile($application, isInit: false, showToast: false, restoreBaseDirectory: $oldBaseDirectory, restoreDockerComposeLocation: $oldDockerComposeLocation);
             } catch (\Throwable $e) {
+                Log::error('Unhandled exception in updateGeneral().', ['error' => $e->getMessage()]);
                 $application->docker_compose_location = $oldDockerComposeLocation;
                 $application->base_directory = $oldBaseDirectory;
 
@@ -1692,6 +1699,7 @@ class ProjectApplicationConfigurationController extends Controller
         try {
             $this->reloadComposeFile($application, isInit: $isInit, showToast: true);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in loadComposeFileEndpoint().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -1721,7 +1729,8 @@ class ProjectApplicationConfigurationController extends Controller
         if ($application->build_pack === 'dockercompose') {
             try {
                 $this->reloadComposeFile($application, isInit: false, showToast: false);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in generateServiceDomain().', ['error' => $e->getMessage()]);
                 // Domain was saved; a stale compose parse here isn't fatal.
             }
         }
@@ -1877,7 +1886,8 @@ class ProjectApplicationConfigurationController extends Controller
         if ($application->build_pack === 'dockercompose' && $application->docker_compose_raw) {
             try {
                 $this->reloadComposeFile($application, isInit: false, showToast: false);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in maybeRegenerateDefaultLabels().', ['error' => $e->getMessage()]);
                 // Labels are already persisted; a stale compose parse here isn't fatal.
             }
         }
@@ -2062,7 +2072,8 @@ class ProjectApplicationConfigurationController extends Controller
         if ($application->build_pack === 'dockercompose' && $application->docker_compose_raw) {
             try {
                 $parsedServices = $application->parse();
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in generalTabProps().', ['error' => $e->getMessage()]);
                 $parsedServices = collect([]);
             }
         }

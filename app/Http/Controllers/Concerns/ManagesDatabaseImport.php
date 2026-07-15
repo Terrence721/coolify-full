@@ -12,6 +12,7 @@ use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -179,6 +180,7 @@ trait ManagesDatabaseImport
 
             return back()->with('success', 'File found in S3. Size: '.formatBytes($disk->size($cleanPath)));
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in importCheckS3().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -291,6 +293,7 @@ trait ManagesDatabaseImport
                 'info' => 'Restoring database from S3. Progress will be shown in the activity monitor...',
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in importRestoreS3().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }

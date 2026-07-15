@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -124,6 +125,7 @@ class ServerSentinelController extends Controller
 
             return back()->with('success', 'Sentinel settings updated.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in submit().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -155,6 +157,7 @@ class ServerSentinelController extends Controller
 
             return back()->with('info', 'Restarting Sentinel.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in toggle().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -170,6 +173,7 @@ class ServerSentinelController extends Controller
 
             return back()->with('info', 'Restarting Sentinel.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in restart().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }
@@ -184,6 +188,7 @@ class ServerSentinelController extends Controller
 
             return back()->with('success', 'Token regenerated. Restarting Sentinel.');
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in regenerateToken().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
     }

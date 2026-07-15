@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -140,6 +141,7 @@ class ProjectMetricsController extends Controller
                 'memory' => $resource->getMemoryMetrics($interval),
             ]);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in metricsData().', ['error' => $e->getMessage()]);
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

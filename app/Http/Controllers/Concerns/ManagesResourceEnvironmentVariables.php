@@ -14,6 +14,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -198,6 +199,7 @@ trait ManagesResourceEnvironmentVariables
                 ->mapWithKeys(fn ($data, $key) => [ValidationPatterns::validatedEnvironmentVariableKey((string) $key) => $data])
                 ->all();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in envBulkUpdate().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 

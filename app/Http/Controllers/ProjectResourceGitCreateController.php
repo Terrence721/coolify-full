@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -174,6 +175,7 @@ class ProjectResourceGitCreateController extends Controller
                         $branchFound = true;
                         break;
                     } catch (\Throwable $e) {
+                        Log::error('Unhandled exception in checkPublicRepository().', ['error' => $e->getMessage()]);
                         if (str_contains($branchToTry, '/')) {
                             $branchToTry = str($branchToTry)->beforeLast('/')->value();
 
@@ -183,12 +185,14 @@ class ProjectResourceGitCreateController extends Controller
                         throw $e;
                     }
                 }
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in checkPublicRepository().', ['error' => $e->getMessage()]);
                 if ($branch === 'main') {
                     try {
                         githubApi(source: $source, endpoint: "/repos/{$repository}/branches/master");
                         $branch = 'master';
-                    } catch (\Throwable) {
+                    } catch (\Throwable $e) {
+                        Log::error('Unhandled exception in checkPublicRepository().', ['error' => $e->getMessage()]);
                         // Assume the guessed branch exists; a wrong guess surfaces at deploy time.
                     }
                 }
@@ -219,6 +223,7 @@ class ProjectResourceGitCreateController extends Controller
         try {
             $token = generateGithubInstallationToken($githubApp);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in loadRepositories().', ['error' => $e->getMessage()]);
             return response()->json(['message' => strip_tags($e->getMessage())], 422);
         }
 
@@ -263,6 +268,7 @@ class ProjectResourceGitCreateController extends Controller
         try {
             $token = generateGithubInstallationToken($githubApp);
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in loadBranches().', ['error' => $e->getMessage()]);
             return response()->json(['message' => strip_tags($e->getMessage())], 422);
         }
 

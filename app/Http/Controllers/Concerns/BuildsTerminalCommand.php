@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Concerns;
 use App\Helpers\SshMultiplexingHelper;
 use App\Models\Server;
 use App\Support\ValidationPatterns;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Builds the SSH command a browser-side terminal session should run, either a plain login
@@ -79,7 +80,8 @@ trait BuildsTerminalCommand
             ], $server);
 
             return true;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in checkShellAvailability().', ['error' => $e->getMessage()]);
             return false;
         }
     }

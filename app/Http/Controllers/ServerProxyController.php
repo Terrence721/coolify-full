@@ -17,6 +17,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,7 +39,8 @@ class ServerProxyController extends Controller
         if ($selectedProxy && $selectedProxy !== 'NONE') {
             try {
                 $proxySettings = GetProxyConfiguration::run($server);
-            } catch (\Throwable) {
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in index().', ['error' => $e->getMessage()]);
                 $proxySettings = null;
             }
         }
@@ -167,6 +169,7 @@ class ServerProxyController extends Controller
             $server->save();
             $server->setupDefaultRedirect();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in instantSaveRedirect().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -189,6 +192,7 @@ class ServerProxyController extends Controller
             $server->save();
             $server->setupDefaultRedirect();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in submit().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -205,6 +209,7 @@ class ServerProxyController extends Controller
             SaveProxyConfiguration::run($server, $proxySettings);
             $server->save();
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in resetConfiguration().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -285,6 +290,7 @@ class ServerProxyController extends Controller
                 $server->reloadCaddy();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in storeDynamicConfiguration().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -317,6 +323,7 @@ class ServerProxyController extends Controller
                 $server->reloadCaddy();
             }
         } catch (\Throwable $e) {
+            Log::error('Unhandled exception in destroyDynamicConfiguration().', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage());
         }
 
@@ -383,7 +390,8 @@ class ServerProxyController extends Controller
                 ->last();
 
             return $newestVersion ? "v{$newestVersion}" : null;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in latestTraefikVersion().', ['error' => $e->getMessage()]);
             return null;
         }
     }
@@ -454,7 +462,8 @@ class ServerProxyController extends Controller
             }
 
             return $newestBranch ? "v{$newestBranch}" : null;
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in newerTraefikBranchAvailable().', ['error' => $e->getMessage()]);
             return null;
         }
     }
