@@ -8,14 +8,13 @@ use App\Actions\Application\CleanupPreviewDeployment;
 use App\Actions\Application\LoadComposeFile;
 use App\Actions\Application\StopApplication;
 use App\Enums\BuildPackTypes;
+use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
 use App\Http\Controllers\Controller;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
 use App\Models\EnvironmentVariable;
 use App\Models\GithubApp;
-use App\Models\LocalFileVolume;
-use App\Models\LocalPersistentVolume;
 use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
@@ -36,6 +35,8 @@ use Visus\Cuid2\Cuid2;
 
 class ApplicationsController extends Controller
 {
+    use ManagesApiResourceStorages;
+
     private function removeSensitiveData(mixed $application): mixed
     {
         $application->makeHidden([
@@ -3823,13 +3824,7 @@ class ApplicationsController extends Controller
 
         $this->authorize('view', $application);
 
-        $persistentStorages = $application->persistentStorages->sortBy('id')->values();
-        $fileStorages = $application->fileStorages->sortBy('id')->values();
-
-        return response()->json([
-            'persistent_storages' => $persistentStorages,
-            'file_storages' => $fileStorages,
-        ]);
+        return response()->json($this->apiStoragesPayload($application));
     }
 
     #[OA\Patch(
@@ -3923,123 +3918,15 @@ class ApplicationsController extends Controller
 
         $this->authorize('update', $application);
 
-        $validator = customApiValidator($request->all(), [
-            'uuid' => 'string',
-            'id' => 'integer',
-            'type' => 'required|string|in:persistent,file',
-            'is_preview_suffix_enabled' => 'boolean',
-            'name' => ['string', 'regex:'.ValidationPatterns::VOLUME_NAME_PATTERN],
-            'mount_path' => 'string',
-            'host_path' => ['string', 'nullable', 'regex:'.ValidationPatterns::DIRECTORY_PATH_PATTERN],
-            'content' => 'string|nullable',
-        ]);
-
-        $allAllowedFields = ['uuid', 'id', 'type', 'is_preview_suffix_enabled', 'name', 'mount_path', 'host_path', 'content'];
-        $extraFields = array_diff(array_keys($request->all()), $allAllowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $storage = $this->resolveApiStorageForUpdate($request, $application);
+        if ($storage instanceof JsonResponse) {
+            return $storage;
         }
 
-        $storageUuid = $request->input('uuid');
-        $storageId = $request->input('id');
-
-        if (! $storageUuid && ! $storageId) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => ['uuid' => 'Either uuid or id is required.'],
-            ], 422);
-        }
-
-        $lookupField = $storageUuid ? 'uuid' : 'id';
-        $lookupValue = $storageUuid ?? $storageId;
-
-        if ($request->type === 'persistent') {
-            $storage = $application->persistentStorages->where($lookupField, $lookupValue)->first();
-        } else {
-            $storage = $application->fileStorages->where($lookupField, $lookupValue)->first();
-        }
-
-        if (! $storage) {
-            return response()->json([
-                'message' => 'Storage not found.',
-            ], 404);
-        }
-
-        $isReadOnly = $storage->shouldBeReadOnlyInUI();
-        $editableOnlyFields = ['name', 'mount_path', 'host_path', 'content'];
-        $requestedEditableFields = array_intersect($editableOnlyFields, array_keys($request->all()));
-
-        if ($isReadOnly && ! empty($requestedEditableFields)) {
-            return response()->json([
-                'message' => 'This storage is read-only (managed by docker-compose or service definition). Only is_preview_suffix_enabled can be updated.',
-                'read_only_fields' => array_values($requestedEditableFields),
-            ], 422);
-        }
-
-        // Reject fields that don't apply to the given storage type
-        if (! $isReadOnly) {
-            $typeSpecificInvalidFields = $request->type === 'persistent'
-                ? array_intersect(['content'], array_keys($request->all()))
-                : array_intersect(['name', 'host_path'], array_keys($request->all()));
-
-            if (! empty($typeSpecificInvalidFields)) {
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => collect($typeSpecificInvalidFields)
-                        ->mapWithKeys(fn ($field) => [$field => "Field '{$field}' is not valid for type '{$request->type}'."]),
-                ], 422);
-            }
-        }
-
-        // Always allowed
-        if ($request->has('is_preview_suffix_enabled')) {
-            $storage->is_preview_suffix_enabled = $request->is_preview_suffix_enabled;
-        }
-
-        // Only for editable storages
-        if (! $isReadOnly) {
-            if ($request->type === 'persistent') {
-                if ($request->has('name')) {
-                    $storage->name = $request->name;
-                }
-                if ($request->has('mount_path')) {
-                    $storage->mount_path = $request->mount_path;
-                }
-                if ($request->has('host_path')) {
-                    $storage->host_path = $request->host_path;
-                }
-            } else {
-                if ($request->has('mount_path')) {
-                    $storage->mount_path = $request->mount_path;
-                }
-                if ($request->has('content')) {
-                    $storage->content = $request->content;
-                }
-            }
-        }
-
-        $storage->save();
-
-        auditLog('api.application.storage_updated', [
-            'team_id' => $teamId,
-            'application_uuid' => $application->uuid,
-            'storage_uuid' => $storage->uuid ?? null,
-            'storage_id' => $storage->id,
-            'storage_type' => $request->type,
-            'mount_path' => $storage->mount_path ?? null,
-        ]);
-
-        return response()->json($storage);
+        return $this->applyApiStorageUpdate($request, $storage, [
+            'event' => 'api.application.storage',
+            'resourceKey' => 'application_uuid',
+        ], $teamId, $application->uuid);
     }
 
     #[OA\Post(
@@ -4113,120 +4000,10 @@ class ApplicationsController extends Controller
 
         $this->authorize('update', $application);
 
-        $validator = customApiValidator($request->all(), [
-            'type' => 'required|string|in:persistent,file',
-            'name' => ['string', 'regex:'.ValidationPatterns::VOLUME_NAME_PATTERN],
-            'mount_path' => 'required|string',
-            'host_path' => ['string', 'nullable', 'regex:'.ValidationPatterns::DIRECTORY_PATH_PATTERN],
-            'content' => 'string|nullable',
-            'is_directory' => 'boolean',
-            'fs_path' => 'string',
-        ]);
-
-        $allAllowedFields = ['type', 'name', 'mount_path', 'host_path', 'content', 'is_directory', 'fs_path'];
-        $extraFields = array_diff(array_keys($request->all()), $allAllowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
-        }
-
-        if ($request->type === 'persistent') {
-            if (! $request->name) {
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => ['name' => 'The name field is required for persistent storages.'],
-                ], 422);
-            }
-
-            $typeSpecificInvalidFields = array_intersect(['content', 'is_directory', 'fs_path'], array_keys($request->all()));
-            if (! empty($typeSpecificInvalidFields)) {
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => collect($typeSpecificInvalidFields)
-                        ->mapWithKeys(fn ($field) => [$field => "Field '{$field}' is not valid for type 'persistent'."]),
-                ], 422);
-            }
-
-            $storage = LocalPersistentVolume::create([
-                'name' => $application->uuid.'-'.$request->name,
-                'mount_path' => $request->mount_path,
-                'host_path' => $request->host_path,
-                'resource_id' => $application->id,
-                'resource_type' => $application->getMorphClass(),
-            ]);
-
-            return response()->json($storage, 201);
-        }
-
-        // File storage
-        $typeSpecificInvalidFields = array_intersect(['name', 'host_path'], array_keys($request->all()));
-        if (! empty($typeSpecificInvalidFields)) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => collect($typeSpecificInvalidFields)
-                    ->mapWithKeys(fn ($field) => [$field => "Field '{$field}' is not valid for type 'file'."]),
-            ], 422);
-        }
-
-        $isDirectory = $request->boolean('is_directory', false);
-
-        if ($isDirectory) {
-            if (! $request->fs_path) {
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => ['fs_path' => 'The fs_path field is required for directory mounts.'],
-                ], 422);
-            }
-
-            $fsPath = str($request->fs_path)->trim()->start('/')->value();
-            $mountPath = str($request->mount_path)->trim()->start('/')->value();
-
-            validateShellSafePath($fsPath, 'storage source path');
-            validateShellSafePath($mountPath, 'storage destination path');
-
-            $storage = LocalFileVolume::create([
-                'fs_path' => $fsPath,
-                'mount_path' => $mountPath,
-                'is_directory' => true,
-                'resource_id' => $application->id,
-                'resource_type' => get_class($application),
-            ]);
-        } else {
-            $mountPath = str($request->mount_path)->trim()->start('/')->value();
-
-            validateShellSafePath($mountPath, 'file storage path');
-
-            $fsPath = application_configuration_dir().'/'.$application->uuid.$mountPath;
-
-            $storage = LocalFileVolume::create([
-                'fs_path' => $fsPath,
-                'mount_path' => $mountPath,
-                'content' => $request->content,
-                'is_directory' => false,
-                'resource_id' => $application->id,
-                'resource_type' => get_class($application),
-            ]);
-        }
-
-        auditLog('api.application.storage_created', [
-            'team_id' => $teamId,
-            'application_uuid' => $application->uuid,
-            'storage_uuid' => $storage->uuid ?? null,
-            'storage_id' => $storage->id,
-            'storage_type' => $request->type,
-            'mount_path' => $storage->mount_path,
-        ]);
-
-        return response()->json($storage, 201);
+        return $this->applyApiStorageCreate($request, $application, $application, [
+            'event' => 'api.application.storage',
+            'resourceKey' => 'application_uuid',
+        ], $teamId, $application->uuid);
     }
 
     #[OA\Delete(
@@ -4279,39 +4056,16 @@ class ApplicationsController extends Controller
         $this->authorize('update', $application);
 
         $storageUuid = $request->route('storage_uuid');
-
-        $storage = $application->persistentStorages->where('uuid', $storageUuid)->first();
-        if (! $storage) {
-            $storage = $application->fileStorages->where('uuid', $storageUuid)->first();
-        }
+        $storage = $this->findApiStorageByUuid($application, $storageUuid);
 
         if (! $storage) {
             return response()->json(['message' => 'Storage not found.'], 404);
         }
 
-        if ($storage->shouldBeReadOnlyInUI()) {
-            return response()->json([
-                'message' => 'This storage is read-only (managed by docker-compose or service definition) and cannot be deleted.',
-            ], 422);
-        }
-
-        if ($storage instanceof LocalFileVolume) {
-            $storage->deleteStorageOnServer();
-        }
-
-        $storageType = $storage instanceof LocalFileVolume ? 'file' : 'persistent';
-        $storageMountPath = $storage->mount_path ?? null;
-        $storage->delete();
-
-        auditLog('api.application.storage_deleted', [
-            'team_id' => $teamId,
-            'application_uuid' => $application->uuid,
-            'storage_uuid' => $storageUuid,
-            'storage_type' => $storageType,
-            'mount_path' => $storageMountPath,
-        ]);
-
-        return response()->json(['message' => 'Storage deleted.']);
+        return $this->applyApiStorageDelete($storage, [
+            'event' => 'api.application.storage',
+            'resourceKey' => 'application_uuid',
+        ], $teamId, $application->uuid, $storageUuid);
     }
 
     #[OA\Delete(

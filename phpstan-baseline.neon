@@ -163,6 +163,96 @@ parameters:
 			path: app/Actions/Shared/ComplexStatusCheck.php
 
 		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fileStorages\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ApplicationsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ApplicationsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$persistentStorages\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ApplicationsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/ApplicationsController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/Api/ApplicationsController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fileStorages\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/DatabasesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/DatabasesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$persistentStorages\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/DatabasesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/DatabasesController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/Api/DatabasesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fileStorages\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ServicesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ServicesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$persistentStorages\.$#'
+			identifier: property.notFound
+			count: 3
+			path: app/Http/Controllers/Api/ServicesController.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/Api/ServicesController.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/Api/ServicesController.php
+
+		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
 			count: 1
