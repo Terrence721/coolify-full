@@ -184,7 +184,7 @@ return [
         'config' => false, // Display config settings
         'cache' => false, // Display cache events
         'models' => true,  // Display models
-        'livewire' => true,  // Display Livewire (when available)
+        'livewire' => false,  // Display Livewire (when available) — Livewire fully removed, see docs/livewire-to-react-migration.md
         'jobs' => false, // Display dispatched jobs
     ],
 
