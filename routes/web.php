@@ -42,6 +42,7 @@ use App\Http\Controllers\ServerCaCertificateController;
 use App\Http\Controllers\ServerCloudflareTunnelController;
 use App\Http\Controllers\ServerCloudProviderTokenController;
 use App\Http\Controllers\ServerController;
+use App\Http\Controllers\ServerCreateHetznerController;
 use App\Http\Controllers\ServerDeleteController;
 use App\Http\Controllers\ServerDestinationsController;
 use App\Http\Controllers\ServerDockerCleanupController;
@@ -559,7 +560,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/servers', [ServerController::class, 'index'])->name('server.index');
     Route::post('/servers', [ServerController::class, 'store'])->name('server.store');
-    // Route::get('/server/new', ServerCreate::class)->name('server.create');
+    Route::get('/servers/new/hetzner', [ServerCreateHetznerController::class, 'index'])->name('server.new.hetzner');
+    Route::get('/servers/new/hetzner/data', [ServerCreateHetznerController::class, 'data'])->name('server.new.hetzner.data');
+    Route::post('/servers/new/hetzner', [ServerCreateHetznerController::class, 'store'])->name('server.new.hetzner.store');
 
     Route::prefix('server/{server_uuid}')->group(function () {
         Route::get('/', [ServerShowController::class, 'index'])->name('server.show');

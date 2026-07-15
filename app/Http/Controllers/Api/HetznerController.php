@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Actions\Server\ValidateServer;
-use App\Enums\ProxyTypes;
+use App\Actions\Server\CreateHetznerServer;
 use App\Exceptions\RateLimitException;
 use App\Http\Controllers\Controller;
 use App\Models\CloudProviderToken;
 use App\Models\PrivateKey;
-use App\Models\Server;
 use App\Rules\ValidCloudInitYaml;
 use App\Rules\ValidHostname;
 use App\Services\HetznerService;
@@ -601,112 +599,33 @@ class HetznerController extends Controller
         }
 
         try {
-            $hetznerService = new HetznerService($token->token);
-
-            // Get public key and MD5 fingerprint
-            $publicKey = $privateKey->getPublicKey();
-            $md5Fingerprint = PrivateKey::generateMd5Fingerprint($privateKey->private_key);
-
-            // Check if SSH key already exists on Hetzner
-            $existingSshKeys = $hetznerService->getSshKeys();
-            $existingKey = null;
-
-            foreach ($existingSshKeys as $key) {
-                if ($key['fingerprint'] === $md5Fingerprint) {
-                    $existingKey = $key;
-                    break;
-                }
-            }
-
-            // Upload SSH key if it doesn't exist
-            if ($existingKey) {
-                $sshKeyId = $existingKey['id'];
-            } else {
-                $sshKeyName = $privateKey->name;
-                $uploadedKey = $hetznerService->uploadSshKey($sshKeyName, $publicKey);
-                $sshKeyId = $uploadedKey['id'];
-            }
-
-            // Normalize server name to lowercase for RFC 1123 compliance
-            $normalizedServerName = strtolower(trim($request->name));
-
-            // Prepare SSH keys array: Coolify key + user-selected Hetzner keys
-            $sshKeys = array_merge(
-                [$sshKeyId],
-                $request->hetzner_ssh_key_ids
+            $server = CreateHetznerServer::run(
+                token: $token,
+                privateKey: $privateKey,
+                teamId: $teamId,
+                location: $request->location,
+                serverType: $request->server_type,
+                image: $request->image,
+                name: $request->name,
+                enableIpv4: $request->enable_ipv4,
+                enableIpv6: $request->enable_ipv6,
+                hetznerSshKeyIds: $request->hetzner_ssh_key_ids,
+                cloudInitScript: $request->cloud_init_script,
+                instantValidate: $request->instant_validate,
             );
-
-            // Remove duplicates
-            $sshKeys = array_unique($sshKeys);
-            $sshKeys = array_values($sshKeys);
-
-            // Prepare server creation parameters
-            $params = [
-                'name' => $normalizedServerName,
-                'server_type' => $request->server_type,
-                'image' => $request->image,
-                'location' => $request->location,
-                'start_after_create' => true,
-                'ssh_keys' => $sshKeys,
-                'public_net' => [
-                    'enable_ipv4' => $request->enable_ipv4,
-                    'enable_ipv6' => $request->enable_ipv6,
-                ],
-            ];
-
-            // Add cloud-init script if provided
-            if (! empty($request->cloud_init_script)) {
-                $params['user_data'] = $request->cloud_init_script;
-            }
-
-            // Create server on Hetzner
-            $hetznerServer = $hetznerService->createServer($params);
-
-            // Determine IP address to use (prefer IPv4, fallback to IPv6)
-            $ipAddress = null;
-            if ($request->enable_ipv4 && isset($hetznerServer['public_net']['ipv4']['ip'])) {
-                $ipAddress = $hetznerServer['public_net']['ipv4']['ip'];
-            } elseif ($request->enable_ipv6 && isset($hetznerServer['public_net']['ipv6']['ip'])) {
-                $ipAddress = $hetznerServer['public_net']['ipv6']['ip'];
-            }
-
-            if (! $ipAddress) {
-                throw new \Exception('No public IP address available. Enable at least one of IPv4 or IPv6.');
-            }
-
-            // Create server in Coolify database
-            $server = Server::create([
-                'name' => $normalizedServerName,
-                'ip' => $ipAddress,
-                'user' => 'root',
-                'port' => 22,
-                'team_id' => $teamId,
-                'private_key_id' => $privateKey->id,
-                'cloud_provider_token_id' => $token->id,
-                'hetzner_server_id' => $hetznerServer['id'],
-            ]);
-
-            $server->proxy->set('status', 'exited');
-            $server->proxy->set('type', ProxyTypes::TRAEFIK->value);
-            $server->save();
-
-            // Validate server if requested
-            if ($request->instant_validate) {
-                ValidateServer::dispatch($server);
-            }
 
             auditLog('api.hetzner_server.created', [
                 'team_id' => $teamId,
                 'server_uuid' => $server->uuid,
                 'server_name' => $server->name,
-                'hetzner_server_id' => $hetznerServer['id'],
-                'ip' => $ipAddress,
+                'hetzner_server_id' => $server->hetzner_server_id,
+                'ip' => $server->ip,
             ]);
 
             return response()->json([
                 'uuid' => $server->uuid,
-                'hetzner_server_id' => $hetznerServer['id'],
-                'ip' => $ipAddress,
+                'hetzner_server_id' => $server->hetzner_server_id,
+                'ip' => $server->ip,
             ])->setStatusCode(201);
         } catch (RateLimitException $e) {
             $response = response()->json(['message' => $e->getMessage()], 429);

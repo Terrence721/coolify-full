@@ -86,7 +86,14 @@ Phases 75–76 (2026-07-14) picked up the small non-router chrome pieces after a
 
 There is no more "still routed to Livewire" list to maintain — every full-page route (84 of 84, since Phase 78) and every piece of chrome/navigation infrastructure that supported them is now React. Any Livewire code remaining in the codebase, if any, is narrow and resource-scoped with no bearing on page routing or navigation.
 
-**Permanent consequence, not just cleanup**: Hetzner Cloud server creation is now fully unreachable from the UI — it was only ever reachable via the `GlobalSearch` → `Server\Create` → `ByHetzner` chain deleted in this pass, itself only rendered on the now-converted `auth/verify-email.blade.php`. This was narrowed phase by phase (76, 77, 78) as a series of explicit "accept the loss" scope decisions; this phase closes the loop with no Livewire fallback left. Confirmed explicitly with the user before proceeding. **If Hetzner Cloud creation is ever wanted back, it needs to be rebuilt as a new React flow from scratch** — the old `ByHetzner.php`/`ByIp.php` Livewire wizard logic is gone, though its git history remains as a reference for the field/step structure if useful.
+**RESOLVED 2026-07-15** — Hetzner Cloud server creation has been rebuilt as a new React flow from scratch, per the note below (kept for context on how the gap arose). `App\Actions\Server\CreateHetznerServer` (extracted from `Api\HetznerController`, which had zero test coverage before this), `App\Http\Controllers\ServerCreateHetznerController` (`index`/`data`/`store`), `resources/js/Pages/Server/New/Hetzner.jsx` (2-step wizard, field/filter shape recovered from the deleted Livewire component's git history), routes `server.new.hetzner{,.data,.store}`, and an "Add via Hetzner Cloud →" entry point in `AddServerModal.jsx`. 10 new Pest feature tests in `tests/v4/Feature/ServerCreateHetznerControllerTest.php`. See Section 150 of the migration doc for the full writeup.
+
+<details>
+<summary>Original note (superseded by the resolution above)</summary>
+
+Hetzner Cloud server creation was fully unreachable from the UI — it was only ever reachable via the `GlobalSearch` → `Server\Create` → `ByHetzner` chain deleted in the Phase 79 pass, itself only rendered on the now-converted `auth/verify-email.blade.php`. This was narrowed phase by phase (76, 77, 78) as a series of explicit "accept the loss" scope decisions; Phase 79 closed the loop with no Livewire fallback left. Confirmed explicitly with the user before proceeding. If Hetzner Cloud creation was ever wanted back, it would need to be rebuilt as a new React flow from scratch — the old `ByHetzner.php`/`ByIp.php` Livewire wizard logic was gone, though its git history remained as a reference for the field/step structure.
+
+</details>
 
 Known follow-ups:
 

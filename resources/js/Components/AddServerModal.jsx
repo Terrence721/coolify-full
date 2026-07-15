@@ -1,10 +1,5 @@
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 
-/**
- * "Add Server by IP Address" flow only — Hetzner Cloud server creation is a deliberate
- * scope-reduction (see Phase 33 of the migration doc). Still reachable via GlobalSearch's
- * own unconverted Add Server modal.
- */
 export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defaultName, storeUrl, onClose }) {
     const { data, setData, post, processing, errors } = useForm({
         name: defaultName,
@@ -34,6 +29,16 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                         ✕
                     </button>
                 </div>
+                <button
+                    type="button"
+                    className="self-start pb-2 text-sm underline"
+                    onClick={() => {
+                        onClose();
+                        router.visit('/servers/new/hetzner');
+                    }}
+                >
+                    Add via Hetzner Cloud →
+                </button>
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <div className="flex w-full gap-2 flex-wrap sm:flex-nowrap">
                         <label className="flex flex-col gap-1 w-full">
