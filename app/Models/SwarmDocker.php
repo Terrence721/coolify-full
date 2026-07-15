@@ -6,7 +6,11 @@ namespace App\Models;
 
 use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -71,69 +75,105 @@ class SwarmDocker extends BaseModel
         $this->attributes['network'] = $value;
     }
 
-    public function applications()
+    /**
+     * @return MorphMany<Application, $this>
+     */
+    public function applications(): MorphMany
     {
         return $this->morphMany(Application::class, 'destination');
     }
 
-    public function postgresqls()
+    /**
+     * @return MorphMany<StandalonePostgresql, $this>
+     */
+    public function postgresqls(): MorphMany
     {
         return $this->morphMany(StandalonePostgresql::class, 'destination');
     }
 
-    public function redis()
+    /**
+     * @return MorphMany<StandaloneRedis, $this>
+     */
+    public function redis(): MorphMany
     {
         return $this->morphMany(StandaloneRedis::class, 'destination');
     }
 
-    public function keydbs()
+    /**
+     * @return MorphMany<StandaloneKeydb, $this>
+     */
+    public function keydbs(): MorphMany
     {
         return $this->morphMany(StandaloneKeydb::class, 'destination');
     }
 
-    public function dragonflies()
+    /**
+     * @return MorphMany<StandaloneDragonfly, $this>
+     */
+    public function dragonflies(): MorphMany
     {
         return $this->morphMany(StandaloneDragonfly::class, 'destination');
     }
 
-    public function clickhouses()
+    /**
+     * @return MorphMany<StandaloneClickhouse, $this>
+     */
+    public function clickhouses(): MorphMany
     {
         return $this->morphMany(StandaloneClickhouse::class, 'destination');
     }
 
-    public function mongodbs()
+    /**
+     * @return MorphMany<StandaloneMongodb, $this>
+     */
+    public function mongodbs(): MorphMany
     {
         return $this->morphMany(StandaloneMongodb::class, 'destination');
     }
 
-    public function mysqls()
+    /**
+     * @return MorphMany<StandaloneMysql, $this>
+     */
+    public function mysqls(): MorphMany
     {
         return $this->morphMany(StandaloneMysql::class, 'destination');
     }
 
-    public function mariadbs()
+    /**
+     * @return MorphMany<StandaloneMariadb, $this>
+     */
+    public function mariadbs(): MorphMany
     {
         return $this->morphMany(StandaloneMariadb::class, 'destination');
     }
 
-    public function server()
+    /**
+     * @return BelongsTo<Server, $this>
+     */
+    public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<SwarmDocker>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         $team = currentTeam();
         if (! $team) {
-            return static::query()->whereRaw('0=1');
+            return self::query()->whereRaw('0=1');
         }
 
-        return static::whereHas('server', fn ($q) => $q->whereTeamId($team->id));
+        return self::whereHas('server', fn ($q) => $q->whereTeamId($team->id));
     }
 
-    public static function ownedByCurrentTeamAPI(int|string $teamId)
+    /**
+     * @return Builder<SwarmDocker>
+     */
+    public static function ownedByCurrentTeamAPI(int|string $teamId): Builder
     {
-        return static::whereHas('server', fn ($q) => $q->whereTeamId($teamId));
+        return self::whereHas('server', fn ($q) => $q->whereTeamId($teamId));
     }
 
     /**
@@ -158,12 +198,18 @@ class SwarmDocker extends BaseModel
         return $server;
     }
 
-    public function services()
+    /**
+     * @return MorphMany<Service, $this>
+     */
+    public function services(): MorphMany
     {
         return $this->morphMany(Service::class, 'destination');
     }
 
-    public function databases()
+    /**
+     * @return Collection<int, Model>
+     */
+    public function databases(): Collection
     {
         $result = new Collection;
         foreach (DatabaseEngineRegistry::relationNames() as $relationName) {
@@ -173,7 +219,7 @@ class SwarmDocker extends BaseModel
         return $result;
     }
 
-    public function attachedTo()
+    public function attachedTo(): bool
     {
         return $this->applications->count() > 0 || $this->databases()->count() > 0;
     }
