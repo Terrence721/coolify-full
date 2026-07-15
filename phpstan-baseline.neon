@@ -1789,426 +1789,6 @@ parameters:
 			path: app/Jobs/ServerLimitCheckJob.php
 
 		-
-			message: '#^Property App\\Livewire\\MonacoEditor\:\:\$listeners has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/MonacoEditor.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\AddEmpty\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/AddEmpty.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\AddEmpty\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/AddEmpty.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\AddEmpty\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/AddEmpty.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Database\\BackupNow\:\:backupNow\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Database/BackupNow.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Database\\BackupNow\:\:\$backup has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Database/BackupNow.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Support\\Collection\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:checkDeployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:checkStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:forceDeploy\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:getListeners\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:manualCheckStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:pullAndRestartEvent\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:restart\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:serviceChecked\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:start\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Service\\Heading\:\:stop\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Heading\:\:\$docker_cleanup has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Heading\:\:\$isDeploymentProgress has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Heading\:\:\$parameters type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Heading\:\:\$query type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Service\\Heading\:\:\$title has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Service/Heading.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\ConfigurationChecker\:\:getListeners\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/ConfigurationChecker.php
-
-		-
-			message: '#^Offset ''changes'' on array\{changed\: bool, count\: int, requires_build\: bool, requires_redeploy\: bool, legacy_fallback\: bool, changes\: array\<int, array\<string, mixed\>\>\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Livewire/Project/Shared/ConfigurationChecker.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\ConfigurationChecker\:\:\$configurationDiff type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Project/Shared/ConfigurationChecker.php
-
-		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\Service\:\:\$is_include_timestamps\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:getLogs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:getLogs\(\) has parameter \$refresh with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:instantSave\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:toggleStreamLogs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\GetLogs\:\:toggleTimestamps\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 5
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Right side of \|\| is always false\.$#'
-			identifier: booleanOr.rightAlwaysFalse
-			count: 1
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 5
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 5
-			path: app/Livewire/Project/Shared/GetLogs.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\UploadConfig\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/UploadConfig.php
-
-		-
-			message: '#^Method App\\Livewire\\Project\\Shared\\UploadConfig\:\:uploadConfig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Project/Shared/UploadConfig.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\UploadConfig\:\:\$applicationId has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/UploadConfig.php
-
-		-
-			message: '#^Property App\\Livewire\\Project\\Shared\\UploadConfig\:\:\$config has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Project/Shared/UploadConfig.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokenForm\:\:addToken\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokenForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokenForm\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokenForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokenForm\:\:mount\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokenForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\CloudProviderTokenForm\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/CloudProviderTokenForm.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:createPrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:generateNewEDKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:generateNewKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:generateNewKey\(\) has parameter \$type with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:generateNewRSAKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:redirectAfterCreation\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:setKeyData\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:setKeyData\(\) has parameter \$keyData with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:updated\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:updated\(\) has parameter \$property with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Security\\PrivateKey\\Create\:\:validatePrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Security/PrivateKey/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Storage\\Create\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Storage/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Storage\\Create\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Storage/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Storage\\Create\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Storage/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Storage\\Create\:\:updatedEndpoint\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Storage/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Storage\\Create\:\:updatedEndpoint\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Livewire/Storage/Create.php
-
-		-
-			message: '#^Property App\\Livewire\\Storage\\Create\:\:\$validationAttributes has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Storage/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Tags\\Deployments\:\:getDeployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Tags/Deployments.php
-
-		-
-			message: '#^Property App\\Livewire\\Tags\\Deployments\:\:\$deploymentsPerTagPerServer has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Tags/Deployments.php
-
-		-
-			message: '#^Property App\\Livewire\\Tags\\Deployments\:\:\$resourceIds has no type specified\.$#'
-			identifier: missingType.property
-			count: 1
-			path: app/Livewire/Tags/Deployments.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Create\:\:messages\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Team/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Create\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Livewire/Team/Create.php
-
-		-
-			message: '#^Method App\\Livewire\\Team\\Create\:\:submit\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Livewire/Team/Create.php
-
-		-
 			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
@@ -2230,12 +1810,6 @@ parameters:
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Application\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
 			path: app/Models/Application.php
 
 		-
@@ -3085,12 +2659,6 @@ parameters:
 			path: app/Models/Environment.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/Environment.php
-
-		-
 			message: '#^Class App\\Models\\Environment uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -3841,12 +3409,6 @@ parameters:
 			path: app/Models/Project.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/Project.php
-
-		-
 			message: '#^Class App\\Models\\Project uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -4222,12 +3784,6 @@ parameters:
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Server\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
 			path: app/Models/Server.php
 
 		-
@@ -4873,12 +4429,6 @@ parameters:
 			path: app/Models/Service.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/Service.php
-
-		-
 			message: '#^Class App\\Models\\Service uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -5401,12 +4951,6 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Class App\\Models\\StandaloneClickhouse uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -5821,12 +5365,6 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Class App\\Models\\StandaloneDragonfly uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -6109,12 +5647,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Class App\\Models\\StandaloneKeydb uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -6382,12 +5914,6 @@ parameters:
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
 			path: app/Models/StandaloneMariadb.php
 
 		-
@@ -6664,12 +6190,6 @@ parameters:
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMongodb\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
 			path: app/Models/StandaloneMongodb.php
 
 		-
@@ -6955,12 +6475,6 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Class App\\Models\\StandaloneMysql uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -7234,12 +6748,6 @@ parameters:
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandalonePostgresql\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
 			path: app/Models/StandalonePostgresql.php
 
 		-
@@ -7522,12 +7030,6 @@ parameters:
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneRedis\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Call to static method clearTeamCache\(\) on an unknown class App\\Livewire\\GlobalSearch\.$#'
-			identifier: class.notFound
-			count: 3
 			path: app/Models/StandaloneRedis.php
 
 		-

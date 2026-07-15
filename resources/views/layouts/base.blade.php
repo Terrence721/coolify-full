@@ -205,100 +205,11 @@
         let checkIfIamDeadInterval = null;
 
         function copyToClipboard(text) {
-            navigator?.clipboard?.writeText(text) && window.Livewire.dispatch('success', 'Copied to clipboard.');
+            navigator?.clipboard?.writeText(text) && window.toast('Success', {
+                type: 'success',
+                description: 'Copied to clipboard.',
+            });
         }
-        document.addEventListener('livewire:init', () => {
-            window.Livewire.on('reloadWindow', (timeout) => {
-                if (timeout) {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, timeout);
-                    return;
-                } else {
-                    window.location.reload();
-                }
-            })
-            window.Livewire.on('info', (message) => {
-                if (typeof message === 'string') {
-                    window.toast('Info', {
-                        type: 'info',
-                        description: message,
-                    })
-                    return;
-                }
-                if (message.length == 1) {
-                    window.toast('Info', {
-                        type: 'info',
-                        description: message[0],
-                    })
-                } else if (message.length == 2) {
-                    window.toast(message[0], {
-                        type: 'info',
-                        description: message[1],
-                    })
-                }
-            })
-            window.Livewire.on('error', (message) => {
-                if (typeof message === 'string') {
-                    window.toast('Error', {
-                        type: 'danger',
-                        description: message,
-                    })
-                    return;
-                }
-                if (message.length == 1) {
-                    window.toast('Error', {
-                        type: 'danger',
-                        description: message[0],
-                    })
-                } else if (message.length == 2) {
-                    window.toast(message[0], {
-                        type: 'danger',
-                        description: message[1],
-                    })
-                }
-            })
-            window.Livewire.on('warning', (message) => {
-                if (typeof message === 'string') {
-                    window.toast('Warning', {
-                        type: 'warning',
-                        description: message,
-                    })
-                    return;
-                }
-                if (message.length == 1) {
-                    window.toast('Warning', {
-                        type: 'warning',
-                        description: message[0],
-                    })
-                } else if (message.length == 2) {
-                    window.toast(message[0], {
-                        type: 'warning',
-                        description: message[1],
-                    })
-                }
-            })
-            window.Livewire.on('success', (message) => {
-                if (typeof message === 'string') {
-                    window.toast('Success', {
-                        type: 'success',
-                        description: message,
-                    })
-                    return;
-                }
-                if (message.length == 1) {
-                    window.toast('Success', {
-                        type: 'success',
-                        description: message[0],
-                    })
-                } else if (message.length == 2) {
-                    window.toast(message[0], {
-                        type: 'success',
-                        description: message[1],
-                    })
-                }
-            })
-        });
     </script>
 </body>
 @show

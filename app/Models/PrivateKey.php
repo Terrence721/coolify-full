@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
-use DanHarrin\LivewireRateLimiting\WithRateLimiting;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
@@ -73,7 +73,7 @@ use phpseclib3\Crypt\PublicKeyLoader;
 )]
 class PrivateKey extends BaseModel
 {
-    use HasSafeStringAttribute, WithRateLimiting;
+    use HasSafeStringAttribute;
 
     protected $fillable = [
         'name',
@@ -200,8 +200,11 @@ class PrivateKey extends BaseModel
     public static function generateNewKeyPair($type = 'rsa')
     {
         try {
-            $instance = new self;
-            $instance->rateLimit(10);
+            $key = 'private-key-generate:'.request()->ip();
+            if (RateLimiter::tooManyAttempts($key, 10)) {
+                throw new \Exception('Too many requests. Please try again in '.RateLimiter::availableIn($key).' seconds.');
+            }
+            RateLimiter::hit($key, 60);
             $name = generate_random_name();
             $description = 'Created by Coolify';
             $keyPair = generateSSHKey($type === 'ed25519' ? 'ed25519' : 'rsa');

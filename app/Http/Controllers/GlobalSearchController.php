@@ -13,10 +13,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * JSON endpoints behind the React GlobalSearchModal.jsx — a parallel port of
- * App\Livewire\GlobalSearch, which stays alive unchanged for auth/verify-email.blade.php, the
- * last page still rendered through layouts/app.blade.php (Phase 78). Both sides share their
- * actual search/creatable-item logic via GlobalSearchService rather than duplicating it.
+ * JSON endpoints behind the React GlobalSearchModal.jsx (the "/" or ⌘K command palette) — ported
+ * from the former App\Livewire\GlobalSearch, which no longer exists. Search/creatable-item logic
+ * itself lives in GlobalSearchService, shared rather than duplicated here.
  */
 class GlobalSearchController extends Controller
 {

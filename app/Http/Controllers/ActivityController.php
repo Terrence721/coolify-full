@@ -10,10 +10,11 @@ use Illuminate\Http\JsonResponse;
 use Spatie\Activitylog\Models\Activity;
 
 /**
- * JSON polling endpoint backing ActivityLog.jsx — the React port of ActivityMonitor.php's
- * polling loop, scoped to what ServerNavbar.jsx's proxy-startup-log slide-over needs (this
- * migration's first use of ActivityMonitor from a React page; the original Livewire component
- * stays in place, still used by 9 other still-Livewire pages).
+ * JSON polling endpoint backing ActivityLog.jsx — a React port of the former Livewire
+ * ActivityMonitor's polling loop (that component no longer exists). Now shared by every page
+ * that streams a background task's live output: Settings, Boarding\Index, Server\Show,
+ * Server\CloudflareTunnel, Server\Security\Patches, ServerNavbar, DatabaseImportTab,
+ * DatabaseHeading, and ServiceHeading.
  */
 class ActivityController extends Controller
 {

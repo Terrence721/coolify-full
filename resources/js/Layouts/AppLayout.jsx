@@ -6,40 +6,31 @@ import ThemeSwitcher from '../Components/ThemeSwitcher';
 import WhatsNewButton from '../Components/WhatsNewButton';
 
 /**
- * React port of the persistent navbar/sidebar shell (resources/views/components/navbar.blade.php
- * + resources/views/layouts/app.blade.php), used as an Inertia persistent layout so it survives
- * client-side page transitions instead of remounting per page (see inertia-app.jsx).
+ * React port of the persistent navbar/sidebar shell (formerly
+ * resources/views/components/navbar.blade.php + resources/views/layouts/app.blade.php, both
+ * deleted once the Livewire→React migration completed), used as an Inertia persistent layout so
+ * it survives client-side page transitions instead of remounting per page (see inertia-app.jsx).
+ * The app has no Livewire runtime left at all — every page is React/Inertia or a plain Blade
+ * auth/error screen with no shared chrome.
  *
- * The topbar's theme switcher and What's New button close two real gaps this docblock used to
- * list: investigating `<livewire:settings-dropdown/>` (previously listed here as deferred)
- * found it was already fully orphaned on the Livewire side too — its zoom/width-toggle half was
- * dead code calling nothing, and theme-switching had already moved into navbar.blade.php's own
- * inline Alpine data. The only genuinely-missing piece was the What's New changelog, which is
- * what's actually ported here (ChangelogController + WhatsNewButton.jsx), alongside a
- * ThemeSwitcher.jsx that mirrors navbar.blade.php's live theme logic exactly (same `theme`
- * localStorage key) so switching themes stays consistent across React and Livewire pages.
- * LayoutPopups.jsx is a parallel React port of `<livewire:layout-popups/>` for the same reason
- * — the Livewire version stays alive unchanged for pages still rendered through
- * layouts/app.blade.php (Boarding\Index, Server\Show).
+ * ThemeSwitcher.jsx and WhatsNewButton.jsx (ChangelogController) are React ports of the old
+ * navbar's theme toggle and What's New changelog; ThemeSwitcher mirrors the original's `theme`
+ * localStorage key so it stays consistent with pages that predate this shell. LayoutPopups.jsx
+ * and GlobalSearchModal.jsx (the "/" or ⌘K command palette) are ports of the former
+ * `<livewire:layout-popups/>` and `<livewire:global-search/>` components — the search side shares
+ * its actual query logic with the backend via GlobalSearchService rather than duplicating it.
  *
- * GlobalSearchModal.jsx (the "/" or ⌘K command palette) is likewise a parallel React port of
- * `<livewire:global-search/>` — same reasoning as LayoutPopups: the Livewire version stays alive
- * unchanged for Boarding\Index/Server\Show. Both sides now share their actual search/creatable-
- * item query logic via GlobalSearchService rather than duplicating it.
- *
- * Known v1 gaps, still intentionally out of scope for this pass (mixing live Livewire components
- * inside a React tree remains unsolved for these): team switching (read-only team name shown
- * instead of <livewire:switch-team/>), the upgrade banner, delete-team modal trigger, and the
- * help modal (<livewire:upgrade/>, <livewire:navbar-delete-team/>, <livewire:help/>). Logout
- * itself (POST /logout, matching the plain <form action="/logout" method="POST"> in
- * navbar.blade.php) is ported below since its absence otherwise leaves no way to log out from
- * any converted page — deliberately a real browser form submission, not router.post(): logout
- * redirects through a plain (non-Inertia) Blade login page, and Inertia's XHR-based navigation
- * has no reliable way to hand off to a full page it doesn't control the rendering of. A native
- * form POST lets the browser's own navigation follow the redirect chain (POST 302 -> GET 302 ->
- * GET /login) with no SPA involved at all, exactly like the original Livewire navbar did. Also
- * no mobile hamburger drawer or collapse/expand toggle yet — the sidebar is always expanded.
- * Deployment status indicator (<livewire:deployments-indicator/>) is omitted for the same reason.
+ * Known v1 gaps — features the old Livewire navbar had that have no React port yet, not deferred
+ * for any architectural reason: team switching (read-only team name shown instead of a working
+ * switcher), the upgrade banner, delete-team modal trigger, and the help modal. Logout itself
+ * (POST /logout, matching the plain <form action="/logout" method="POST"> the old navbar used) is
+ * ported below since its absence otherwise leaves no way to log out from any page — deliberately
+ * a real browser form submission, not router.post(): logout redirects through a plain
+ * (non-Inertia) Blade login page, and Inertia's XHR-based navigation has no reliable way to hand
+ * off to a full page it doesn't control the rendering of. A native form POST lets the browser's
+ * own navigation follow the redirect chain (POST 302 -> GET 302 -> GET /login) with no SPA
+ * involved at all. Also no mobile hamburger drawer or collapse/expand toggle yet — the sidebar is
+ * always expanded. A deployment status indicator is likewise not yet ported.
  */
 const NAV_ITEMS = [
     { label: 'Dashboard', href: '/', match: '/' },

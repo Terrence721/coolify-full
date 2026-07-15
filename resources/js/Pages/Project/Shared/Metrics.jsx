@@ -146,12 +146,10 @@ function MetricsCharts({ dataUrl }) {
 }
 
 /**
- * Port of livewire/project/shared/metrics.blade.php's application/database branches,
- * reached at project.application.metrics/project.database.metrics — the only two routes
- * repointed off App\Livewire\Project\Application\Configuration and
- * App\Livewire\Project\Database\Configuration (both still-Livewire routers; every other
- * tab route is untouched). Reuses the ApexCharts setup Server/Metrics.jsx already proved,
- * extracted into hooks/useApexChart.js.
+ * Port of the former livewire/project/shared/metrics.blade.php's application/database branches,
+ * reached at project.application.metrics/project.database.metrics. Both
+ * Application\Configuration and Database\Configuration are now fully React. Reuses the
+ * ApexCharts setup Server/Metrics.jsx already proved, extracted into hooks/useApexChart.js.
  */
 export default function Metrics({
     resourceType,

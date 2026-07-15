@@ -1,7 +1,3 @@
-// Livewire 3.5.19+ re-applies `x-cloak` to morphed elements during wire:navigate
-// (via replaceHtmlAttributes). With `[x-cloak]{display:none}` on the app wrapper,
-// this blanks the whole page on every navigation until Alpine re-processes it.
-// Strip leftover x-cloak after each navigation; the initial-load FOUC guard stays.
-document.addEventListener('livewire:navigated', () => {
-    document.querySelectorAll('[x-cloak]').forEach((el) => el.removeAttribute('x-cloak'));
-});
+// Vite entrypoint for the remaining Blade-only pages (guest/auth screens, error pages).
+// Livewire's own JS runtime (and the wire:navigate FOUC workaround this file used to carry)
+// was removed once the Livewire→React migration completed and app/Livewire/ emptied out.

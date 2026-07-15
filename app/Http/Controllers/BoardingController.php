@@ -20,13 +20,12 @@ use Inertia\Response;
 use Visus\Cuid2\Cuid2;
 
 /**
- * React port of App\Livewire\Boarding\Index — the first-run onboarding wizard. Server\New\ByHetzner
- * stays untouched: it's still needed by the still-Livewire Server\Create, itself still reachable
- * via the old Livewire GlobalSearch — which, in turn, is genuinely still alive (rendered by
- * layouts/app.blade.php on auth/verify-email.blade.php, the only real remaining consumer of that
- * layout as of Phase 78's careful re-verification). Hetzner Cloud server creation is deliberately
- * not offered here regardless (explicit user decision, matching Phase 76's "IP-only, accept the
- * loss" precedent) — narrow as that remaining path is, it's real, not fully unreachable.
+ * React port of the former App\Livewire\Boarding\Index — the first-run onboarding wizard. Only
+ * IP-based server creation is offered here (explicit user decision, Phase 76). Server\New\ByHetzner
+ * and the rest of the Livewire server-creation chain it depended on were deleted once
+ * auth/verify-email.blade.php — their last remaining entry point — converted to React (Phase 79);
+ * Hetzner Cloud server creation is consequently gone from the UI entirely unless rebuilt as a
+ * React flow from scratch, a permanent, deliberately-accepted loss (see todo.md).
  *
  * Server\ActivityMonitor and Server\ValidateAndInstall, both formerly needed by Server\Show, were
  * deleted in Phase 78 once Show converted — validateServer() below (extracted into

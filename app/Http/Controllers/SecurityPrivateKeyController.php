@@ -113,10 +113,8 @@ class SecurityPrivateKeyController extends Controller
     }
 
     /**
-     * Backs the "+ Add" modal ported inline wherever App\Livewire\Security\PrivateKey\Create's
-     * modal_mode=true usage is being replaced (Server\PrivateKey\Show is the first) — the shared
-     * Livewire component itself is untouched, still used by security.private-key.index,
-     * server.new.by-hetzner, GlobalSearch, and Dashboard.
+     * Backs the "+ Add" modal (PrivateKeyCreateModal.jsx) — a React port of the former
+     * App\Livewire\Security\PrivateKey\Create's modal_mode=true usage, which no longer exists.
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {

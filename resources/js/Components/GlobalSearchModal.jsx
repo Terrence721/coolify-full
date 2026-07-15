@@ -66,8 +66,7 @@ function typeLabel(result) {
 }
 
 /**
- * React port of App\Livewire\GlobalSearch. The Livewire version stays in place (unchanged) for
- * Boarding\Index/Server\Show, the two pages still rendered through layouts/app.blade.php.
+ * React port of the former App\Livewire\GlobalSearch, which no longer exists.
  *
  * Investigating the original before porting turned up something worth recording: the search
  * input only ever used Alpine's `x-model` (client-side), never `wire:model` — so the elaborate

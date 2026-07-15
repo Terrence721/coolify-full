@@ -6,9 +6,9 @@ function csrfToken() {
 }
 
 /**
- * React port of App\Livewire\Security\PrivateKey\Create's modal_mode=true usage — reused by
- * both Server/PrivateKey/Show.jsx and Security/PrivateKey/Index.jsx. The Livewire component
- * itself stays in place for its other consumers (Dashboard, GlobalSearch, server.new.by-hetzner).
+ * React port of the former App\Livewire\Security\PrivateKey\Create's modal_mode=true usage
+ * (that Livewire component no longer exists) — reused by Dashboard, Boarding\Index,
+ * Server/PrivateKey/Show, Security/PrivateKey/Index, and GlobalSearchModal.
  */
 export default function PrivateKeyCreateModal({ open, onClose, createKeyUrl, generateKeyUrl, onCreated }) {
     const [publicKey, setPublicKey] = useState('');

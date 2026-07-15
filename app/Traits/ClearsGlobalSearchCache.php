@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use App\Livewire\GlobalSearch;
 use App\Models\Application;
 use App\Models\Environment;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\Service;
+use App\Services\GlobalSearchService;
 use Illuminate\Database\Eloquent\Model;
 
 trait ClearsGlobalSearchCache
@@ -22,7 +22,7 @@ trait ClearsGlobalSearchCache
                 if ($model->hasSearchableChanges()) {
                     $teamId = $model->getTeamIdForCache();
                     if (filled($teamId)) {
-                        GlobalSearch::clearTeamCache($teamId);
+                        GlobalSearchService::clearTeamCache($teamId);
                     }
                 }
             } catch (\Throwable $e) {
@@ -36,7 +36,7 @@ trait ClearsGlobalSearchCache
                 // Always clear cache when model is created
                 $teamId = $model->getTeamIdForCache();
                 if (filled($teamId)) {
-                    GlobalSearch::clearTeamCache($teamId);
+                    GlobalSearchService::clearTeamCache($teamId);
                 }
             } catch (\Throwable $e) {
                 // Silently fail cache clearing - don't break the create operation
@@ -49,7 +49,7 @@ trait ClearsGlobalSearchCache
                 // Always clear cache when model is deleted
                 $teamId = $model->getTeamIdForCache();
                 if (filled($teamId)) {
-                    GlobalSearch::clearTeamCache($teamId);
+                    GlobalSearchService::clearTeamCache($teamId);
                 }
             } catch (\Throwable $e) {
                 // Silently fail cache clearing - don't break the delete operation

@@ -38,12 +38,10 @@ function Popup({ title, description, onAcknowledge, buttonText = 'Accept and Clo
 }
 
 /**
- * React port of App\Livewire\LayoutPopups — the two dismissible monthly-reminder popups
- * (no-notification-channel-enabled, real-time-service-unreachable) plus the TestEvent listener
- * used by Settings' "Test Realtime" button. Livewire's own LayoutPopups stays alive unchanged
- * for the pages still rendered through layouts/app.blade.php (Boarding\Index, Server\Show);
- * this is a parallel port for the React-rendered pages sharing the same browser, hence the same
- * localStorage keys and monthly re-show logic.
+ * React port of the former App\Livewire\LayoutPopups (deleted, no longer exists) — the two
+ * dismissible monthly-reminder popups (no-notification-channel-enabled,
+ * real-time-service-unreachable) plus the TestEvent listener used by Settings' "Test Realtime"
+ * button. Kept the same localStorage keys and monthly re-show logic as the original.
  */
 export default function LayoutPopups() {
     const { props } = usePage();

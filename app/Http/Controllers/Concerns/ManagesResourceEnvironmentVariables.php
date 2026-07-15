@@ -17,12 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * React port of the App\Livewire\Project\Shared\EnvironmentVariable\{All,Add,Show,ShowHardcoded}
- * family — standalone databases and services (Phase 56), joined by Application on its
- * production (non-preview) variable set (Phase 65). The original's Application-only extra
- * modes (preview-deployment variables, build secrets, the sort-alphabetically toggle) are
- * deliberately not here — all three depend on Preview Deployments, itself still Livewire, so
- * porting them now would mean building against a feature this migration hasn't reached yet.
+ * React port of the former App\Livewire\Project\Shared\EnvironmentVariable\{All,Add,Show,
+ * ShowHardcoded} family — standalone databases and services (Phase 56), joined by Application on
+ * its production (non-preview) variable set (Phase 65). The original's Application-only extra
+ * modes (preview-deployment variables, build secrets, the sort-alphabetically toggle) were
+ * deliberately left out at the time, since Preview Deployments hadn't been converted yet — it
+ * has been since (PreviewDeploymentsTab.jsx), but these three modes were never subsequently
+ * ported here.
  *
  * Faithful-port notes:
  * - Locked (shown-once) and magic (SERVICE_FQDN, SERVICE_URL, SERVICE_NAME prefixed) variables
