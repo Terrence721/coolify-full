@@ -122,7 +122,7 @@ export default function WhatsNewButton({ unreadCount: initialUnreadCount, curren
                             </div>
                         </div>
 
-                        <div className="pb-4 border-b dark:border-coolgray-200 flex-shrink-0">
+                        <div className="pb-4 border-b dark:border-coolgray-200 shrink-0">
                             <input
                                 id="whats-new-search"
                                 name="whats-new-search"

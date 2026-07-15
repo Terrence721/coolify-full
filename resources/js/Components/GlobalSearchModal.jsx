@@ -684,9 +684,9 @@ function SelectionStep({ title, subtitle, loading, items, emptyMessage, onBack, 
                         key={item.key}
                         type="button"
                         onClick={() => onSelect(item.key)}
-                        className="search-result-item w-full text-left block px-4 py-3 min-h-[4rem] hover:bg-warning-50 dark:hover:bg-warning-900/20 transition-colors focus:outline-none focus:bg-warning-100 dark:focus:bg-warning-900/30 border-b border-neutral-100 dark:border-coolgray-300 last:border-0"
+                        className="search-result-item w-full text-left block px-4 py-3 min-h-16 hover:bg-warning-50 dark:hover:bg-warning-900/20 transition-colors focus:outline-none focus:bg-warning-100 dark:focus:bg-warning-900/30 border-b border-neutral-100 dark:border-coolgray-300 last:border-0"
                     >
-                        <div className="flex items-center justify-between gap-3 min-h-[2.5rem]">
+                        <div className="flex items-center justify-between gap-3 min-h-10">
                             <div className="flex-1 min-w-0">
                                 <div className="font-medium text-neutral-900 dark:text-white">{item.name}</div>
                                 {item.description && <div className="text-xs text-neutral-500 dark:text-neutral-400">{item.description}</div>}
@@ -747,11 +747,11 @@ function CreatableRow({ item, onClick }) {
             <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     {item.logo ? (
-                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden">
+                        <div className="shrink-0 w-10 h-10 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden">
                             <img src={`/${item.logo}`} alt={item.name} className="w-7 h-7 object-contain" />
                         </div>
                     ) : (
-                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-900/40 flex items-center justify-center">
+                        <div className="shrink-0 w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-900/40 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-warning-600 dark:text-warning-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                             </svg>

@@ -144,7 +144,7 @@ export default function Show({ application, heading, configurationChecker, deplo
     }
 
     return (
-        <div className="flex h-[calc(100vh-10rem)] min-h-[50rem] flex-col overflow-hidden">
+        <div className="flex h-[calc(100vh-10rem)] min-h-200 flex-col overflow-hidden">
             <h1 className="py-0">Deployment</h1>
             <ConfigurationChecker configurationChecker={configurationChecker} />
             <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={urls} />
@@ -225,7 +225,7 @@ export default function Show({ application, heading, configurationChecker, deplo
                                 <button
                                     type="button"
                                     title="Toggle Timestamps"
-                                    className={showTimestamps ? '!text-warning' : ''}
+                                    className={showTimestamps ? 'text-warning!' : ''}
                                     onClick={() => setShowTimestamps((v) => !v)}
                                 >
                                     Timestamps
@@ -233,7 +233,7 @@ export default function Show({ application, heading, configurationChecker, deplo
                                 <button
                                     type="button"
                                     title={isDebugEnabled ? 'Hide Debug Logs' : 'Show Debug Logs'}
-                                    className={isDebugEnabled ? '!text-warning' : ''}
+                                    className={isDebugEnabled ? 'text-warning!' : ''}
                                     onClick={toggleDebug}
                                 >
                                     Debug
@@ -241,7 +241,7 @@ export default function Show({ application, heading, configurationChecker, deplo
                                 <button
                                     type="button"
                                     title="Follow Logs"
-                                    className={alwaysScroll ? '!text-warning' : ''}
+                                    className={alwaysScroll ? 'text-warning!' : ''}
                                     onClick={() => setAlwaysScroll((v) => !v)}
                                 >
                                     Follow

@@ -99,8 +99,8 @@ export default function TerminalWindow({ terminalConfig, pendingCommand, noShell
                 ref={wrapperRef}
                 className={
                     state.fullscreen
-                        ? 'fixed inset-0 z-[9999] m-0 h-[100dvh] w-screen max-w-none overflow-hidden rounded-none !bg-black p-0'
-                        : 'relative w-full h-full py-4 mx-auto max-h-[510px]'
+                        ? 'fixed inset-0 z-9999 m-0 h-dvh w-screen max-w-none overflow-hidden rounded-none bg-black! p-0'
+                        : 'relative w-full h-full py-4 mx-auto max-h-127.5'
                 }
             >
                 {state.terminalActive && (
@@ -119,14 +119,14 @@ export default function TerminalWindow({ terminalConfig, pendingCommand, noShell
                         (state.fullscreen
                             ? (state.mobileToolbarCollapsed
                                 ? 'h-[calc(100dvh-3.5rem)] mb-14 px-2 py-1 bg-black'
-                                : 'h-[calc(100dvh-6rem)] mb-[6rem] px-2 py-1 bg-black')
-                            : 'h-[510px] max-h-[calc(100dvh-10rem)] overflow-hidden px-2 py-1 rounded-sm bg-black') +
+                                : 'h-[calc(100dvh-6rem)] mb-24 px-2 py-1 bg-black')
+                            : 'h-127.5 max-h-[calc(100dvh-10rem)] overflow-hidden px-2 py-1 rounded-sm bg-black') +
                         (state.terminalActive ? '' : ' hidden')
                     }
                 />
                 {state.terminalActive && (
                     <div
-                        className={`sm:hidden ${state.fullscreen ? 'absolute inset-x-0 bottom-0 z-[9999] px-2 pb-2' : 'relative mt-2'}`}
+                        className={`sm:hidden ${state.fullscreen ? 'absolute inset-x-0 bottom-0 z-9999 px-2 pb-2' : 'relative mt-2'}`}
                         data-terminal-mobile-toolbar
                     >
                         <div className="mx-auto max-w-3xl rounded-lg border border-white/10 bg-black/90 p-1.5 text-white shadow-lg backdrop-blur">

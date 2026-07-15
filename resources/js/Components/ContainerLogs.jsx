@@ -231,7 +231,7 @@ export default function ContainerLogs({
                         <button type="button" title="Refresh Logs" disabled={streaming} onClick={refresh}>
                             Refresh
                         </button>
-                        <button type="button" title={streaming ? 'Stop Streaming' : 'Stream Logs'} className={streaming ? '!text-warning' : ''} onClick={() => setStreaming((v) => !v)}>
+                        <button type="button" title={streaming ? 'Stop Streaming' : 'Stream Logs'} className={streaming ? 'text-warning!' : ''} onClick={() => setStreaming((v) => !v)}>
                             {streaming ? 'Stop' : 'Stream'}
                         </button>
                         <button type="button" title="Copy Logs" onClick={copyLogs}>
@@ -258,17 +258,17 @@ export default function ContainerLogs({
                                 </div>
                             )}
                         </div>
-                        <button type="button" title="Toggle Timestamps" className={showTimestamps ? '!text-warning' : ''} onClick={toggleTimestamps}>
+                        <button type="button" title="Toggle Timestamps" className={showTimestamps ? 'text-warning!' : ''} onClick={toggleTimestamps}>
                             Timestamps
                         </button>
-                        <button type="button" title="Toggle Log Colors" className={colorLogs ? '!text-warning' : ''} onClick={toggleColorLogs}>
+                        <button type="button" title="Toggle Log Colors" className={colorLogs ? 'text-warning!' : ''} onClick={toggleColorLogs}>
                             Colors
                         </button>
                         <div className="relative">
                             <button
                                 type="button"
                                 title="Filter Log Levels"
-                                className={Object.values(logFilters).some((v) => !v) ? '!text-warning' : ''}
+                                className={Object.values(logFilters).some((v) => !v) ? 'text-warning!' : ''}
                                 onClick={() => setFilterMenuOpen((v) => !v)}
                             >
                                 Filter
@@ -287,7 +287,7 @@ export default function ContainerLogs({
                                 </div>
                             )}
                         </div>
-                        <button type="button" title="Follow Logs" className={alwaysScroll ? '!text-warning' : ''} onClick={() => setAlwaysScroll((v) => !v)}>
+                        <button type="button" title="Follow Logs" className={alwaysScroll ? 'text-warning!' : ''} onClick={() => setAlwaysScroll((v) => !v)}>
                             Follow
                         </button>
                         <button type="button" title={fullscreen ? 'Minimize' : 'Fullscreen'} onClick={() => setFullscreen((v) => !v)}>

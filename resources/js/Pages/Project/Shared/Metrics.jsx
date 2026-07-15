@@ -179,7 +179,7 @@ export default function Metrics({
                 ) : (
                     <DatabaseSidebar parameters={parameters} sidebarFlags={sidebarFlags} />
                 )}
-                <div className="w-full sm:flex-grow">
+                <div className="w-full sm:grow">
                     <div className="flex items-center gap-2">
                         <h2>Metrics</h2>
                     </div>

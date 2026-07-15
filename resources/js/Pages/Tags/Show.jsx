@@ -51,7 +51,7 @@ export default function Show({ tags, tag, applications, services, deploymentsPer
                 <div>
                     <h3 className="py-4">Tag Details</h3>
                     <div className="flex items-end gap-2">
-                        <label className="flex flex-col gap-1 w-[500px]">
+                        <label className="flex flex-col gap-1 w-125">
                             Deploy Webhook URL
                             <input id="tag-webhook" name="tag-webhook" readOnly value={tag.webhook} />
                         </label>

@@ -116,13 +116,13 @@ export default function Show({
                             <textarea
                                 id="ca-certificate-content"
                                 name="ca-certificate-content"
-                                className="w-full h-[370px] input"
+                                className="w-full h-92.5 input"
                                 placeholder="Paste or edit CA certificate content here..."
                                 value={data.certificateContent}
                                 onChange={(e) => setData('certificateContent', e.target.value)}
                             />
                         ) : (
-                            <div className="w-full h-[370px] input">
+                            <div className="w-full h-92.5 input">
                                 <div className="h-full flex flex-col items-center justify-center text-gray-300">
                                     <div className="mb-2">━━━━━━━━ CERTIFICATE CONTENT ━━━━━━━━</div>
                                     <div className="text-sm">Click "Show" to view or edit</div>

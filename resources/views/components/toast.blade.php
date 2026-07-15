@@ -428,7 +428,7 @@
                                     </p>
                                 </div>
                                 <div x-show="toast.description" :class="{ 'pl-5': toast.type!='default' }"
-                                    class="mt-1.5 text-xs px-2 opacity-90 whitespace-pre-wrap w-full break-words"
+                                    class="mt-1.5 text-xs px-2 opacity-90 whitespace-pre-wrap w-full wrap-break-word"
                                     x-html="window.sanitizeHTML(toast.description)"></div>
                             </div>
                         </template>
