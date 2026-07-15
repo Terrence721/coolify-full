@@ -427,62 +427,8 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
@@ -1027,48 +973,6 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -1076,18 +980,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:generalFormTabProps\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
@@ -1285,62 +1177,8 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
@@ -1705,36 +1543,6 @@ parameters:
 			path: app/Jobs/ApplicationDeploymentJob.php
 
 		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:analyzeBuildVariable\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:analyzeBuildVariables\(\) has parameter \$variables with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:analyzeBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:checkDjangoSettings\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:checkDjangoSettings\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
 			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:executeCommandWithProcess\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -1791,30 +1599,6 @@ parameters:
 		-
 			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:execute_remote_command\(\) has parameter \$commands with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:formatBuildWarning\(\) has parameter \$warning with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:formatBuildWarning\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:getProblematicBuildVariables\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
-			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:getProblematicVariablesForFrontend\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Jobs/ApplicationDeploymentJob.php
 
@@ -2101,12 +1885,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:getFilesFromServer\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2120,18 +1898,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Application\:\:getLimits\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Application.php
@@ -3739,26 +3505,8 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:getIp\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Server.php
 
@@ -4663,24 +4411,6 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -4891,24 +4621,6 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -5023,24 +4735,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -5139,24 +4833,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -5265,24 +4941,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
@@ -5401,24 +5059,6 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -5523,24 +5163,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
@@ -5655,24 +5277,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:getCpuMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:getMemoryMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/StandaloneRedis.php
 

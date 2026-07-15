@@ -10,11 +10,17 @@ use Illuminate\Support\Facades\Log;
 
 trait HasMetrics
 {
+    /**
+     * @return array<int, array{0: int, 1: float}>|null
+     */
     public function getCpuMetrics(int $mins = 5): ?array
     {
         return $this->getMetrics('cpu', $mins, 'percent');
     }
 
+    /**
+     * @return array<int, array{0: int, 1: float}>|null
+     */
     public function getMemoryMetrics(int $mins = 5): ?array
     {
         $field = $this->isServerMetrics() ? 'usedPercent' : 'used';
@@ -22,6 +28,9 @@ trait HasMetrics
         return $this->getMetrics('memory', $mins, $field);
     }
 
+    /**
+     * @return array<int, array{0: int, 1: float}>|null
+     */
     private function getMetrics(string $type, int $mins, string $valueField): ?array
     {
         $server = $this->getMetricsServer();

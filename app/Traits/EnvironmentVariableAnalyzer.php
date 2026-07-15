@@ -9,6 +9,8 @@ trait EnvironmentVariableAnalyzer
     /**
      * List of environment variables that commonly cause build issues when set to production values.
      * Each entry contains the variable pattern and associated metadata.
+     *
+     * @return array<string, array{problematic_values: array<int, string>, affects: string, issue: string, recommendation: string, check_function?: string}>
      */
     protected static function getProblematicBuildVariables(): array
     {
@@ -98,6 +100,8 @@ trait EnvironmentVariableAnalyzer
     /**
      * Analyze an environment variable for potential build issues.
      * Always returns a warning if the key is in our list, regardless of value.
+     *
+     * @return array{variable: string, value: string, affects: string, issue: string, recommendation: string}|null
      */
     public static function analyzeBuildVariable(string $key, string $value): ?array
     {
@@ -130,6 +134,9 @@ trait EnvironmentVariableAnalyzer
 
     /**
      * Analyze multiple environment variables for potential build issues.
+     *
+     * @param  array<string, string>  $variables
+     * @return array<int, array{variable: string, value: string, affects: string, issue: string, recommendation: string}>
      */
     public static function analyzeBuildVariables(array $variables): array
     {
@@ -147,6 +154,9 @@ trait EnvironmentVariableAnalyzer
 
     /**
      * Custom check for Django settings module.
+     *
+     * @param  array{problematic_values: array<int, string>, affects: string, issue: string, recommendation: string, check_function?: string}  $config
+     * @return array{variable: string, value: string, affects: string, issue: string, recommendation: string}|null
      */
     protected static function checkDjangoSettings(string $key, string $value, array $config): ?array
     {
@@ -162,6 +172,9 @@ trait EnvironmentVariableAnalyzer
 
     /**
      * Generate a formatted warning message for deployment logs.
+     *
+     * @param  array{variable: string, value: string, affects: string, issue: string, recommendation: string}  $warning
+     * @return array<int, string>
      */
     public static function formatBuildWarning(array $warning): array
     {
@@ -202,6 +215,8 @@ trait EnvironmentVariableAnalyzer
 
     /**
      * Get problematic variables configuration for frontend use.
+     *
+     * @return array<string, array{problematic_values: array<int, string>, affects: string, issue: string, recommendation: string}>
      */
     public static function getProblematicVariablesForFrontend(): array
     {
