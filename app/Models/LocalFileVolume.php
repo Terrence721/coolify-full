@@ -9,7 +9,9 @@ use App\Jobs\ServerStorageSaveJob;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Yaml\Yaml;
 
@@ -34,6 +36,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property mixed $plain_mount_path
  * @property-read mixed $sanitized_name
  * @property-read Model|\Eloquent|null $service
+ * @property-read Model|\Eloquent|null $resource
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalFileVolume newQuery()
@@ -97,6 +100,9 @@ class LocalFileVolume extends BaseModel
         });
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isBinary(): Attribute
     {
         return Attribute::make(
@@ -104,6 +110,9 @@ class LocalFileVolume extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isTooLarge(): Attribute
     {
         return Attribute::make(
@@ -111,21 +120,19 @@ class LocalFileVolume extends BaseModel
         );
     }
 
-    public function service()
+    /**
+     * @return MorphTo<Model, $this>
+     */
+    public function service(): MorphTo
     {
         return $this->morphTo('resource');
     }
 
-    public function loadStorageOnServer()
+    public function loadStorageOnServer(): void
     {
-        $this->load(['service']);
-        $isService = data_get($this->resource, 'service');
-        if ($isService) {
-            $workdir = $this->resource->service->workdir();
-            $server = $this->resource->service->server;
-        } else {
-            $workdir = $this->resource->workdir();
-            $server = $this->resource->destination->server;
+        [$workdir, $server] = $this->resolveStorageContext();
+        if (! is_string($workdir)) {
+            return;
         }
         $commands = collect([]);
         $path = data_get_str($this, 'fs_path');
@@ -159,7 +166,7 @@ class LocalFileVolume extends BaseModel
         }
     }
 
-    protected function remoteFileExceedsLimit(string $escapedPath, $server): bool
+    protected function remoteFileExceedsLimit(string $escapedPath, mixed $server): bool
     {
         $sizeOutput = instant_remote_process(
             ["stat -c%s {$escapedPath} 2>/dev/null || wc -c < {$escapedPath}"],
@@ -171,16 +178,11 @@ class LocalFileVolume extends BaseModel
         return $size > self::MAX_CONTENT_SIZE;
     }
 
-    public function deleteStorageOnServer()
+    public function deleteStorageOnServer(): ?string
     {
-        $this->load(['service']);
-        $isService = data_get($this->resource, 'service');
-        if ($isService) {
-            $workdir = $this->resource->service->workdir();
-            $server = $this->resource->service->server;
-        } else {
-            $workdir = $this->resource->workdir();
-            $server = $this->resource->destination->server;
+        [$workdir, $server] = $this->resolveStorageContext();
+        if (! is_string($workdir)) {
+            return null;
         }
         $commands = collect([]);
         $path = data_get_str($this, 'fs_path');
@@ -207,18 +209,15 @@ class LocalFileVolume extends BaseModel
         if ($commands->count() > 0) {
             return instant_remote_process($commands, $server);
         }
+
+        return null;
     }
 
     public function saveStorageOnServer(): ?string
     {
-        $this->load(['service']);
-        $isService = data_get($this->resource, 'service');
-        if ($isService) {
-            $workdir = $this->resource->service->workdir();
-            $server = $this->resource->service->server;
-        } else {
-            $workdir = $this->resource->workdir();
-            $server = $this->resource->destination->server;
+        [$workdir, $server] = $this->resolveStorageContext();
+        if (! is_string($workdir)) {
+            return null;
         }
         $commands = collect([]);
 
@@ -264,7 +263,7 @@ class LocalFileVolume extends BaseModel
             FileStorageChanged::dispatch(data_get($server, 'team_id'));
             throw new \Exception('The following file is a file on the server, but you are trying to mark it as a directory. Please delete the file on the server or mark it as directory.');
         } elseif ($isDir === 'OK' && ! $this->is_directory) {
-            if ($path === '/' || $path === '.' || $path === '..' || $path === '' || str($path)->isEmpty() || is_null($path)) {
+            if ($path === '/' || $path === '.' || $path === '..' || $path === '' || str($path)->isEmpty()) {
                 $this->is_directory = true;
                 $this->save();
                 throw new \Exception('The following file is a directory on the server, but you are trying to mark it as a file. <br><br>Please delete the directory on the server or mark it as directory.');
@@ -298,7 +297,41 @@ class LocalFileVolume extends BaseModel
         return instant_remote_process($commands, $server);
     }
 
+    /**
+     * @return array{0: string|null, 1: mixed}
+     */
+    private function resolveStorageContext(): array
+    {
+        $this->load(['service']);
+
+        $linkedResource = $this->resource;
+        if (! is_object($linkedResource)) {
+            return [null, null];
+        }
+
+        $actualService = method_exists($linkedResource, 'service') ? $linkedResource->service()->first() : null;
+        if (is_object($actualService) && method_exists($actualService, 'workdir')) {
+            $workdir = $actualService->workdir();
+            $server = method_exists($actualService, 'server') ? $actualService->server : null;
+
+            return [is_string($workdir) ? $workdir : null, $server];
+        }
+
+        if (! method_exists($linkedResource, 'workdir')) {
+            return [null, null];
+        }
+
+        $workdir = $linkedResource->workdir();
+        $destination = method_exists($linkedResource, 'destination') ? $linkedResource->destination()->first() : null;
+        $server = is_object($destination) && method_exists($destination, 'server') ? $destination->server : null;
+
+        return [is_string($workdir) ? $workdir : null, $server];
+    }
+
     // Accessor for convenient access
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     protected function plainMountPath(): Attribute
     {
         return Attribute::make(
@@ -308,7 +341,11 @@ class LocalFileVolume extends BaseModel
     }
 
     // Scope for searching
-    public function scopeWherePlainMountPath($query, $path)
+    /**
+     * @param  \Illuminate\Database\Eloquent\Builder<self>  $query
+     * @return Collection<int, self>
+     */
+    public function scopeWherePlainMountPath($query, string $path): Collection
     {
         return $query->get()->where('plain_mount_path', $path);
     }
@@ -340,19 +377,23 @@ class LocalFileVolume extends BaseModel
                 return false;
             }
 
-            $actualService = $service->service;
-            if (! $actualService || ! $actualService->docker_compose_raw) {
+            $actualService = data_get($service, 'service');
+            $dockerComposeRaw = data_get($actualService, 'docker_compose_raw');
+            if (! $actualService || ! $dockerComposeRaw) {
                 return false;
             }
 
             // Parse the docker-compose content
-            $compose = Yaml::parse($actualService->docker_compose_raw);
+            $compose = Yaml::parse($dockerComposeRaw);
             if (! isset($compose['services'])) {
                 return false;
             }
 
             // Find the service that this volume belongs to
-            $serviceName = $service->name;
+            $serviceName = data_get($service, 'name');
+            if (! is_string($serviceName) || $serviceName === '') {
+                return false;
+            }
             if (! isset($compose['services'][$serviceName]['volumes'])) {
                 return false;
             }

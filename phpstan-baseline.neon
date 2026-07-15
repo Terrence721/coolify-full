@@ -2154,29 +2154,6 @@ parameters:
 			count: 1
 			path: app/Models/InstanceSettings.php
 
-		-
-			message: '#^Access to an undefined property App\\Models\\LocalFileVolume\:\:\$resource\.$#'
-			identifier: property.notFound
-			count: 15
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$service\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Call to function is_null\(\) with non\-empty\-string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/LocalFileVolume.php
 
 		-
 			message: '#^Class App\\Models\\LocalFileVolume uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -2184,65 +2161,6 @@ parameters:
 			count: 1
 			path: app/Models/LocalFileVolume.php
 
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:deleteStorageOnServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:isBinary\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:isTooLarge\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:loadStorageOnServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:plainMountPath\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:remoteFileExceedsLimit\(\) has parameter \$server with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:scopeWherePlainMountPath\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:scopeWherePlainMountPath\(\) has parameter \$path with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:scopeWherePlainMountPath\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Method App\\Models\\LocalFileVolume\:\:service\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/LocalFileVolume.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
