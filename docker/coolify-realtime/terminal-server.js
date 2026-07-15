@@ -4,12 +4,9 @@ import pty from 'node-pty';
 import cookie from 'cookie';
 import 'dotenv/config';
 import {
-    extractHereDocContent,
-    extractSshArgs,
-    extractTargetHost,
-    extractTimeout,
     getTerminalSessionTimeout,
     isAuthorizedTargetHost,
+    parseCommandMessage,
 } from './terminal-utils.js';
 
 async function postToCoolify(path, headers) {
@@ -347,14 +344,8 @@ async function handleCommand(ws, command, userId) {
         userSession.terminalSessionTimer = null;
     }
 
-    const commandString = command[0].split('\n').join(' ');
-    const commandTimeout = extractTimeout(commandString);
     const terminalSessionTimeout = getTerminalSessionTimeout();
-    const sshArgs = extractSshArgs(commandString);
-    const hereDocContent = extractHereDocContent(commandString);
-
-    // Extract target host from SSH command
-    const targetHost = extractTargetHost(sshArgs);
+    const { sshArgs, hereDocContent, targetHost, commandTimeout } = parseCommandMessage(command);
     logTerminal('log', 'Parsed terminal command metadata.', {
         userId,
         targetHost,

@@ -120,6 +120,26 @@ export function extractTargetHost(sshArgs) {
     return normalizeHostForAuthorization(userAtHost.slice(atIndex + 1));
 }
 
+/**
+ * Turns the raw `command` string sent over the terminal websocket (the full multi-line SSH
+ * invocation built by SshMultiplexingHelper::generateSshCommand()) into everything
+ * handleCommand() needs to spawn the PTY. Flattening + parsing is centralized here, rather
+ * than inlined at the websocket message handler, so the exact string this function receives
+ * — the untouched raw command, not a single character of it — is covered by a test.
+ */
+export function parseCommandMessage(rawCommand) {
+    const commandString = rawCommand.split('\n').join(' ');
+    const sshArgs = extractSshArgs(commandString);
+
+    return {
+        commandString,
+        commandTimeout: extractTimeout(commandString),
+        sshArgs,
+        hereDocContent: extractHereDocContent(commandString),
+        targetHost: extractTargetHost(sshArgs),
+    };
+}
+
 export function isAuthorizedTargetHost(targetHost, authorizedHosts = []) {
     const normalizedTargetHost = normalizeHostForAuthorization(targetHost);
 

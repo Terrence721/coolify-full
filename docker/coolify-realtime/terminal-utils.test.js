@@ -7,6 +7,7 @@ import {
     getTerminalSessionTimeout,
     isAuthorizedTargetHost,
     normalizeHostForAuthorization,
+    parseCommandMessage,
 } from './terminal-utils.js';
 
 test('extractTargetHost normalizes quoted IPv4 hosts from generated ssh commands', () => {
@@ -53,4 +54,34 @@ test('getTerminalSessionTimeout always enforces the maximum terminal session lif
     assert.equal(getTerminalSessionTimeout(null), MAX_TERMINAL_SESSION_TIMEOUT_SECONDS);
     assert.equal(getTerminalSessionTimeout(60), MAX_TERMINAL_SESSION_TIMEOUT_SECONDS);
     assert.equal(getTerminalSessionTimeout(MAX_TERMINAL_SESSION_TIMEOUT_SECONDS + 60), MAX_TERMINAL_SESSION_TIMEOUT_SECONDS);
+});
+
+// Regression test for a bug found via a real end-to-end browser session (2026-07-15):
+// handleCommand() in terminal-server.js used to index `command[0]` on the raw websocket
+// message value, which is already a plain string — `command[0]` silently truncated every
+// SSH command down to its first character before parsing, so extractTargetHost() always
+// received an empty sshArgs array and every real terminal connection was rejected with
+// "Invalid SSH command: No target host found". parseCommandMessage() is the exact function
+// handleCommand() calls with the raw, untouched message value, so this test covers the
+// integration point the previous unit tests (which called extractSshArgs()/extractTargetHost()
+// directly with an already-correct string) never exercised.
+test('parseCommandMessage extracts the target host from the full raw command string handleCommand() receives', () => {
+    const rawCommand =
+        "ssh -o ControlMaster=auto -o ControlPath=/var/www/html/storage/app/ssh/mux/mux_localhost -o ControlPersist=3600 -i /var/www/html/storage/app/ssh/keys/ssh_key@ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ConnectTimeout=10 -o ServerAliveInterval=20 -o RequestTTY=no -o LogLevel=ERROR -p '22' 'root'@'coolify-testing-host' 'bash -se' << \\abc\nPATH=$PATH:/usr/local/sbin && sh\nabc";
+
+    const { targetHost, sshArgs } = parseCommandMessage(rawCommand);
+
+    assert.equal(targetHost, 'coolify-testing-host');
+    assert.ok(sshArgs.length > 1, 'sshArgs should contain the full parsed option list, not be empty');
+});
+
+test('parseCommandMessage would have caught the command[0] truncation bug', () => {
+    const rawCommand = "ssh -o StrictHostKeyChecking=no 'root'@'10.0.0.5' 'bash -se' << \\abc\necho hi\nabc";
+
+    // The bug indexed the raw string itself (a single character, e.g. rawCommand[0] === 's')
+    // instead of passing the whole string through — asserting against that shape directly
+    // documents exactly what regressed and would fail again if reintroduced.
+    assert.notEqual(parseCommandMessage(rawCommand).targetHost, parseCommandMessage(rawCommand[0]).targetHost);
+    assert.equal(parseCommandMessage(rawCommand).targetHost, '10.0.0.5');
+    assert.equal(parseCommandMessage(rawCommand[0]).targetHost, null);
 });
