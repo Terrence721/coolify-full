@@ -1,7 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-function DeleteVariableConfirmModal({ variableKey, onClose, onConfirm }) {
+function DeleteVariableConfirmModal({ idBase, variableKey, onClose, onConfirm }) {
     const [confirmation, setConfirmation] = useState('');
 
     return (
@@ -14,7 +14,13 @@ function DeleteVariableConfirmModal({ variableKey, onClose, onConfirm }) {
                 </ul>
                 <label className="flex flex-col gap-1 pb-4">
                     Please confirm the execution of the actions by entering the Environment Variable Name below
-                    <input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={variableKey} />
+                    <input
+                        id={`${idBase}-delete-confirm`}
+                        name={`${idBase}-delete-confirm`}
+                        value={confirmation}
+                        onChange={(e) => setConfirmation(e.target.value)}
+                        placeholder={variableKey}
+                    />
                 </label>
                 <div className="flex gap-2 justify-end">
                     <button type="button" onClick={onClose}>
@@ -72,11 +78,13 @@ function VariableRow({ variable, canUpdate }) {
         router.delete(variable.deleteUrl, { preserveScroll: true });
     }
 
+    const idBase = `shared-variable-${variable.id}`;
+
     if (variable.isShownOnce) {
         return (
             <div className="flex flex-col gap-2 p-4 bg-white border dark:border-coolgray-300 border-neutral-200 dark:bg-base lg:flex-row lg:items-end">
                 <div className="flex flex-1 gap-2">
-                    <input disabled value={key} className="flex-1" />
+                    <input id={`${idBase}-key`} name={`${idBase}-key`} disabled value={key} className="flex-1" />
                     {canUpdate && (
                         <button type="button" onClick={() => setShowDeleteModal(true)}>
                             Delete
@@ -88,6 +96,8 @@ function VariableRow({ variable, canUpdate }) {
                         <label className="flex flex-1 flex-col gap-1">
                             Comment
                             <input
+                                id={`${idBase}-comment`}
+                                name={`${idBase}-comment`}
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
                                 maxLength={256}
@@ -100,7 +110,7 @@ function VariableRow({ variable, canUpdate }) {
                     </form>
                 )}
                 {showDeleteModal && (
-                    <DeleteVariableConfirmModal variableKey={key} onClose={() => setShowDeleteModal(false)} onConfirm={destroy} />
+                    <DeleteVariableConfirmModal idBase={idBase} variableKey={key} onClose={() => setShowDeleteModal(false)} onConfirm={destroy} />
                 )}
             </div>
         );
@@ -112,9 +122,19 @@ function VariableRow({ variable, canUpdate }) {
             className="flex flex-col gap-2 p-4 bg-white border dark:border-coolgray-300 border-neutral-200 dark:bg-base lg:items-start"
         >
             <div className="flex flex-col w-full gap-2 lg:flex-row">
-                <input value={key} onChange={(e) => setKey(e.target.value)} disabled={!canUpdate} className="flex-1" required />
+                <input
+                    id={`${idBase}-key`}
+                    name={`${idBase}-key`}
+                    value={key}
+                    onChange={(e) => setKey(e.target.value)}
+                    disabled={!canUpdate}
+                    className="flex-1"
+                    required
+                />
                 {isMultiline ? (
                     <textarea
+                        id={`${idBase}-value`}
+                        name={`${idBase}-value`}
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
                         disabled={!canUpdate}
@@ -123,6 +143,8 @@ function VariableRow({ variable, canUpdate }) {
                     />
                 ) : (
                     <input
+                        id={`${idBase}-value`}
+                        name={`${idBase}-value`}
                         type="password"
                         value={value}
                         onChange={(e) => setValue(e.target.value)}
@@ -134,6 +156,8 @@ function VariableRow({ variable, canUpdate }) {
             <label className="flex w-full flex-col gap-1">
                 Comment
                 <input
+                    id={`${idBase}-comment`}
+                    name={`${idBase}-comment`}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     disabled={!canUpdate}
@@ -143,7 +167,7 @@ function VariableRow({ variable, canUpdate }) {
             </label>
             {canUpdate && (
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={isMultiline} onChange={(e) => toggleMultiline(e.target.checked)} />
+                    <input id={`${idBase}-multiline`} type="checkbox" checked={isMultiline} onChange={(e) => toggleMultiline(e.target.checked)} />
                     Is Multiline?
                 </label>
             )}
@@ -160,7 +184,9 @@ function VariableRow({ variable, canUpdate }) {
                     </button>
                 </div>
             )}
-            {showDeleteModal && <DeleteVariableConfirmModal variableKey={key} onClose={() => setShowDeleteModal(false)} onConfirm={destroy} />}
+            {showDeleteModal && (
+                <DeleteVariableConfirmModal idBase={idBase} variableKey={key} onClose={() => setShowDeleteModal(false)} onConfirm={destroy} />
+            )}
         </form>
     );
 }
@@ -184,6 +210,8 @@ function DevView({ devViewText, bulkUpdateUrl, canUpdate, scope }) {
             <label className="flex flex-col gap-1">
                 {scope.charAt(0).toUpperCase() + scope.slice(1)} Shared Variables
                 <textarea
+                    id={`shared-variable-dev-view-${scope}`}
+                    name={`shared-variable-dev-view-${scope}`}
                     rows={20}
                     className="whitespace-pre-wrap font-mono"
                     value={value}
@@ -242,13 +270,22 @@ function AddVariableModal({ open, onClose, storeUrl }) {
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <label className="flex flex-col gap-1">
                         Name
-                        <input placeholder="NODE_ENV" required value={data.key} onChange={(e) => setData('key', e.target.value)} />
+                        <input
+                            id="shared-variable-add-key"
+                            name="shared-variable-add-key"
+                            placeholder="NODE_ENV"
+                            required
+                            value={data.key}
+                            onChange={(e) => setData('key', e.target.value)}
+                        />
                         {errors.key && <span className="text-error">{errors.key}</span>}
                     </label>
                     {data.is_multiline ? (
                         <label className="flex flex-col gap-1">
                             Value
                             <textarea
+                                id="shared-variable-add-value"
+                                name="shared-variable-add-value"
                                 required
                                 rows={6}
                                 className="font-sans"
@@ -260,13 +297,22 @@ function AddVariableModal({ open, onClose, storeUrl }) {
                     ) : (
                         <label className="flex flex-col gap-1">
                             Value
-                            <input placeholder="production" required value={data.value} onChange={(e) => setData('value', e.target.value)} />
+                            <input
+                                id="shared-variable-add-value"
+                                name="shared-variable-add-value"
+                                placeholder="production"
+                                required
+                                value={data.value}
+                                onChange={(e) => setData('value', e.target.value)}
+                            />
                             {errors.value && <span className="text-error">{errors.value}</span>}
                         </label>
                     )}
                     <label className="flex flex-col gap-1">
                         Comment
                         <input
+                            id="shared-variable-add-comment"
+                            name="shared-variable-add-comment"
                             maxLength={256}
                             value={data.comment}
                             onChange={(e) => setData('comment', e.target.value)}
@@ -276,6 +322,7 @@ function AddVariableModal({ open, onClose, storeUrl }) {
                     </label>
                     <label className="flex items-center gap-2">
                         <input
+                            id="shared-variable-add-multiline"
                             type="checkbox"
                             checked={data.is_multiline}
                             onChange={(e) => setData('is_multiline', e.target.checked)}

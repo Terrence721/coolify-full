@@ -97,6 +97,7 @@ export default function Slack({ settings, updateUrl, sendTestUrl }) {
                 <div className="w-32">
                     <label className="flex items-center gap-2">
                         <input
+                            id="slack_enabled"
                             type="checkbox"
                             checked={data.slack_enabled}
                             onChange={(e) => setData('slack_enabled', e.target.checked)}
@@ -107,6 +108,8 @@ export default function Slack({ settings, updateUrl, sendTestUrl }) {
                 <label className="flex flex-col gap-1">
                     Webhook
                     <input
+                        id="slack_webhook_url"
+                        name="slack_webhook_url"
                         type="password"
                         value={data.slack_webhook_url ?? ''}
                         onChange={(e) => setData('slack_webhook_url', e.target.value)}
@@ -131,6 +134,7 @@ export default function Slack({ settings, updateUrl, sendTestUrl }) {
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
                                     <input
+                                        id={field}
                                         type="checkbox"
                                         checked={data[field]}
                                         onChange={(e) => setData(field, e.target.checked)}

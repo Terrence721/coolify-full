@@ -22,11 +22,13 @@ export default function ForcePasswordReset({ email, updateUrl }) {
                         <form onSubmit={submit} className="flex flex-col gap-2">
                             <label className="flex flex-col gap-1">
                                 Email
-                                <input type="email" readOnly value={email} />
+                                <input id="force-password-reset-email" name="force-password-reset-email" type="email" readOnly value={email} />
                             </label>
                             <label className="flex flex-col gap-1">
                                 New Password
                                 <input
+                                    id="force-password-reset-password"
+                                    name="force-password-reset-password"
                                     type="password"
                                     placeholder="New Password"
                                     required
@@ -38,6 +40,8 @@ export default function ForcePasswordReset({ email, updateUrl }) {
                             <label className="flex flex-col gap-1">
                                 Confirm New Password
                                 <input
+                                    id="force-password-reset-password-confirmation"
+                                    name="force-password-reset-password-confirmation"
                                     type="password"
                                     placeholder="Confirm New Password"
                                     required

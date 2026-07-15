@@ -44,6 +44,8 @@ export default function SwarmTab({ swarm, swarmUpdateUrl, canUpdate }) {
                     <label className="flex flex-col flex-1 gap-1">
                         Replicas
                         <input
+                            id="swarm-replicas"
+                            name="swarm-replicas"
                             type="number"
                             min={0}
                             required
@@ -54,6 +56,7 @@ export default function SwarmTab({ swarm, swarmUpdateUrl, canUpdate }) {
                     </label>
                     <label className="flex items-center gap-2" title="If turned off, this resource will start on manager nodes too.">
                         <input
+                            id="swarm-only-worker-nodes"
                             type="checkbox"
                             disabled={!canUpdate}
                             checked={form.isSwarmOnlyWorkerNodes}
@@ -65,6 +68,8 @@ export default function SwarmTab({ swarm, swarmUpdateUrl, canUpdate }) {
                 <label className="flex flex-col gap-1">
                     Custom Placement Constraints
                     <textarea
+                        id="swarm-placement-constraints"
+                        name="swarm-placement-constraints"
                         rows={7}
                         disabled={!canUpdate}
                         placeholder={"placement:\n    constraints:\n        - 'node.role == worker'"}

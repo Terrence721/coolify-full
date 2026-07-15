@@ -22,9 +22,11 @@ function Field({ label, helper, ...props }) {
     );
 }
 
-function CredentialField({ field, value, onChange, canUpdate }) {
+function CredentialField({ id, field, value, onChange, canUpdate }) {
     return (
         <Field
+            id={id}
+            name={id}
             label={field.label}
             type={field.type}
             placeholder={field.placeholder}
@@ -64,11 +66,34 @@ function StatusInfoSection({ statusInfo, sslUrls, canUpdate }) {
 
     return (
         <div className="flex flex-col gap-2">
-            <Field label={`${statusInfo.label} URL (internal)`} type="password" readOnly value={statusInfo.dbUrl ?? ''} helper="If you change the user/password/port, this could be different. This is with the default values." />
+            <Field
+                id="db-general-status-url-internal"
+                name="db-general-status-url-internal"
+                label={`${statusInfo.label} URL (internal)`}
+                type="password"
+                readOnly
+                value={statusInfo.dbUrl ?? ''}
+                helper="If you change the user/password/port, this could be different. This is with the default values."
+            />
             {statusInfo.dbUrlPublic ? (
-                <Field label={`${statusInfo.label} URL (public)`} type="password" readOnly value={statusInfo.dbUrlPublic} />
+                <Field
+                    id="db-general-status-url-public"
+                    name="db-general-status-url-public"
+                    label={`${statusInfo.label} URL (public)`}
+                    type="password"
+                    readOnly
+                    value={statusInfo.dbUrlPublic}
+                />
             ) : (
-                statusInfo.showPublicUrlPlaceholder && <Field label={`${statusInfo.label} URL (public)`} readOnly value="Starting the database will generate this." />
+                statusInfo.showPublicUrlPlaceholder && (
+                    <Field
+                        id="db-general-status-url-public"
+                        name="db-general-status-url-public"
+                        label={`${statusInfo.label} URL (public)`}
+                        readOnly
+                        value="Starting the database will generate this."
+                    />
+                )
             )}
 
             {statusInfo.supportsSsl && (
@@ -183,6 +208,8 @@ function ProxySection({ generalForm, generalUrls, canUpdate }) {
             </label>
             <form onSubmit={saveConnection} className="flex flex-col gap-2">
                 <Field
+                    id="db-general-public-port"
+                    name="db-general-public-port"
                     type="number"
                     placeholder="5432"
                     label="Public Port"
@@ -191,6 +218,8 @@ function ProxySection({ generalForm, generalUrls, canUpdate }) {
                     onChange={(e) => setPublicPort(e.target.value)}
                 />
                 <Field
+                    id="db-general-public-port-timeout"
+                    name="db-general-public-port-timeout"
                     type="number"
                     placeholder="3600"
                     label="Proxy Timeout (seconds)"
@@ -219,7 +248,14 @@ function InitScriptCard({ script, onSave, onDelete, canUpdate }) {
             className="flex flex-col gap-2 p-4 bg-white border dark:bg-coolgray-100 dark:border-coolgray-300 border-neutral-200"
         >
             <div className="flex items-end gap-2">
-                <Field label="Filename" value={filename} onChange={(e) => setFilename(e.target.value)} disabled={!canUpdate} />
+                <Field
+                    id={`init-script-${script.index}-filename`}
+                    name={`init-script-${script.index}-filename`}
+                    label="Filename"
+                    value={filename}
+                    onChange={(e) => setFilename(e.target.value)}
+                    disabled={!canUpdate}
+                />
                 {canUpdate && <button type="submit">Save</button>}
                 {canUpdate && (
                     <button type="button" className="button-error" onClick={() => setConfirmingDelete(true)}>
@@ -229,7 +265,15 @@ function InitScriptCard({ script, onSave, onDelete, canUpdate }) {
             </div>
             <label className="flex flex-col gap-1">
                 Content
-                <textarea rows={8} className="font-mono" value={content} onChange={(e) => setContent(e.target.value)} disabled={!canUpdate} />
+                <textarea
+                    id={`init-script-${script.index}-content`}
+                    name={`init-script-${script.index}-content`}
+                    rows={8}
+                    className="font-mono"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    disabled={!canUpdate}
+                />
             </label>
 
             {confirmingDelete && (
@@ -243,7 +287,13 @@ function InitScriptCard({ script, onSave, onDelete, canUpdate }) {
                         </ul>
                         <label className="flex flex-col gap-1 pt-2">
                             Please confirm the execution of the actions by entering the init-script name below
-                            <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder={filename} />
+                            <input
+                                id={`init-script-${script.index}-delete-confirm`}
+                                name={`init-script-${script.index}-delete-confirm`}
+                                value={confirmText}
+                                onChange={(e) => setConfirmText(e.target.value)}
+                                placeholder={filename}
+                            />
                         </label>
                         <div className="flex justify-end gap-2 pt-4">
                             <button type="button" onClick={() => setConfirmingDelete(false)}>
@@ -317,10 +367,27 @@ function InitScriptsSection({ initScripts, generalUrls, canUpdate }) {
                             </button>
                         </div>
                         <form className="flex flex-col w-full gap-2" onSubmit={addNew}>
-                            <Field label="Filename" required placeholder="create_test_db.sql" value={newFilename} onChange={(e) => setNewFilename(e.target.value)} />
+                            <Field
+                                id="init-script-new-filename"
+                                name="init-script-new-filename"
+                                label="Filename"
+                                required
+                                placeholder="create_test_db.sql"
+                                value={newFilename}
+                                onChange={(e) => setNewFilename(e.target.value)}
+                            />
                             <label className="flex flex-col gap-1">
                                 Content
-                                <textarea rows={12} required className="font-mono" placeholder="CREATE DATABASE test;" value={newContent} onChange={(e) => setNewContent(e.target.value)} />
+                                <textarea
+                                    id="init-script-new-content"
+                                    name="init-script-new-content"
+                                    rows={12}
+                                    required
+                                    className="font-mono"
+                                    placeholder="CREATE DATABASE test;"
+                                    value={newContent}
+                                    onChange={(e) => setNewContent(e.target.value)}
+                                />
                             </label>
                             <button type="submit">Save</button>
                         </form>
@@ -374,9 +441,25 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
                     </button>
                 </div>
                 <div className="flex flex-wrap gap-2 sm:flex-nowrap">
-                    <Field label="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={!canUpdate} />
-                    <Field label="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} disabled={!canUpdate} />
                     <Field
+                        id="db-general-name"
+                        name="db-general-name"
+                        label="Name"
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        disabled={!canUpdate}
+                    />
+                    <Field
+                        id="db-general-description"
+                        name="db-general-description"
+                        label="Description"
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                        disabled={!canUpdate}
+                    />
+                    <Field
+                        id="db-general-image"
+                        name="db-general-image"
                         label="Image"
                         required
                         helper={generalForm.dockerHubUrl ? `For all available images, check here: ${generalForm.dockerHubUrl}` : undefined}
@@ -393,6 +476,7 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
                     {generalForm.credentials.map((field) => (
                         <CredentialField
                             key={field.prop}
+                            id={`db-general-credential-${field.prop}`}
                             field={field}
                             value={credentials[field.prop]}
                             onChange={(value) => setCredentials({ ...credentials, [field.prop]: value })}
@@ -402,6 +486,8 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
                 </div>
 
                 <Field
+                    id="db-general-custom-docker-run-options"
+                    name="db-general-custom-docker-run-options"
                     label="Custom Docker Options"
                     helper="You can add custom docker run options that will be used when your container is started. Not all options are supported."
                     placeholder="--cap-add SYS_ADMIN --device=/dev/fuse"
@@ -413,6 +499,8 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
                 <div className="flex flex-col gap-2">
                     <h3 className="py-2">Network</h3>
                     <Field
+                        id="db-general-ports-mappings"
+                        name="db-general-ports-mappings"
                         placeholder="3000:5432"
                         label="Ports Mappings"
                         helper="A comma separated list of ports you would like to map to the host system. Example: 3000:5432,3002:5433"
@@ -428,7 +516,15 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
                 {generalForm.configField && (
                     <label className="flex flex-col gap-1">
                         <span title={generalForm.configField.helper}>{generalForm.configField.label}</span>
-                        <textarea rows={10} className="font-mono" value={form.configValue} onChange={(e) => setForm({ ...form, configValue: e.target.value })} disabled={!canUpdate} />
+                        <textarea
+                            id="db-general-config-value"
+                            name="db-general-config-value"
+                            rows={10}
+                            className="font-mono"
+                            value={form.configValue}
+                            onChange={(e) => setForm({ ...form, configValue: e.target.value })}
+                            disabled={!canUpdate}
+                        />
                     </label>
                 )}
             </form>

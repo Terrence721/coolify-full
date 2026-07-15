@@ -214,6 +214,8 @@ export default function DockerCleanup({
                                 <label className="flex flex-col gap-1">
                                     Docker cleanup frequency
                                     <input
+                                        id="docker-cleanup-frequency"
+                                        name="docker-cleanup-frequency"
                                         disabled={!canUpdate}
                                         placeholder="*/10 * * * *"
                                         required
@@ -226,6 +228,8 @@ export default function DockerCleanup({
                                     <label className="flex flex-col gap-1">
                                         Docker cleanup threshold (%)
                                         <input
+                                            id="docker-cleanup-threshold"
+                                            name="docker-cleanup-threshold"
                                             disabled={!canUpdate}
                                             type="number"
                                             required
@@ -239,6 +243,7 @@ export default function DockerCleanup({
                             <div className="w-full sm:w-96">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="docker-cleanup-force"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.forceDockerCleanup}
@@ -257,6 +262,7 @@ export default function DockerCleanup({
                             <div className="w-full sm:w-96">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="docker-cleanup-delete-unused-volumes"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.deleteUnusedVolumes}
@@ -266,6 +272,7 @@ export default function DockerCleanup({
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="docker-cleanup-delete-unused-networks"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.deleteUnusedNetworks}
@@ -275,6 +282,7 @@ export default function DockerCleanup({
                                 </label>
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="docker-cleanup-disable-application-image-retention"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.disableApplicationImageRetention}

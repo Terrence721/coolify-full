@@ -66,6 +66,7 @@ export default function Delete({ serverNavbar, sidebar, server, hasResources, ch
                             {checkboxes.map((cb) => (
                                 <label key={cb.id} className="flex items-center gap-2">
                                     <input
+                                        id={cb.id}
                                         type="checkbox"
                                         checked={selectedActions.includes(cb.id)}
                                         onChange={() => toggleAction(cb.id)}
@@ -75,11 +76,22 @@ export default function Delete({ serverNavbar, sidebar, server, hasResources, ch
                             ))}
                             <label className="flex flex-col gap-1">
                                 Please confirm the execution of the actions by entering the Server Name below
-                                <input value={confirmationText} onChange={(e) => setConfirmationText(e.target.value)} />
+                                <input
+                                    id="server-delete-confirm"
+                                    name="server-delete-confirm"
+                                    value={confirmationText}
+                                    onChange={(e) => setConfirmationText(e.target.value)}
+                                />
                             </label>
                             <label className="flex flex-col gap-1">
                                 Password
-                                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <input
+                                    id="server-delete-password"
+                                    name="server-delete-password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
                             </label>
                             <div>
                                 <button type="submit" className="text-error" disabled={confirmationText !== server.name || !password}>

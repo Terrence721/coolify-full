@@ -152,7 +152,13 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                 <div className="flex flex-col gap-2 pb-4">
                     <label className="flex flex-col gap-1">
                         Preview URL Template
-                        <input value={previewUrlTemplate} onChange={(e) => setPreviewUrlTemplate(e.target.value)} disabled={!canUpdate} />
+                        <input
+                            id="previews-url-template"
+                            name="previews-url-template"
+                            value={previewUrlTemplate}
+                            onChange={(e) => setPreviewUrlTemplate(e.target.value)}
+                            disabled={!canUpdate}
+                        />
                     </label>
                     {realPreviewUrlTemplate && <div>Domain Preview: {realPreviewUrlTemplate}</div>}
                 </div>
@@ -225,12 +231,22 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                     <form onSubmit={submitManualDockerImagePreview} className="flex flex-col gap-2 xl:flex-row xl:items-end">
                         <label className="flex flex-col gap-1">
                             Pull Request Id
-                            <input value={manualPullRequestId} onChange={(e) => setManualPullRequestId(e.target.value)} />
+                            <input
+                                id="previews-manual-pull-request-id"
+                                name="previews-manual-pull-request-id"
+                                value={manualPullRequestId}
+                                onChange={(e) => setManualPullRequestId(e.target.value)}
+                            />
                             <span className="text-xs text-neutral-500">Used as the preview identifier for naming, domains, logs, and cleanup.</span>
                         </label>
                         <label className="flex flex-col gap-1">
                             Docker Tag
-                            <input value={manualDockerTag} onChange={(e) => setManualDockerTag(e.target.value)} />
+                            <input
+                                id="previews-manual-docker-tag"
+                                name="previews-manual-docker-tag"
+                                value={manualDockerTag}
+                                onChange={(e) => setManualDockerTag(e.target.value)}
+                            />
                             <span className="text-xs text-neutral-500">The image tag to deploy for this preview, for example pr_1234.</span>
                         </label>
                         {previews.canDeploy && <button type="submit">Deploy Preview</button>}
@@ -278,6 +294,8 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                                                 <label className="flex flex-col gap-1">
                                                     Domain
                                                     <input
+                                                        id={`preview-${preview.id}-domain`}
+                                                        name={`preview-${preview.id}-domain`}
                                                         disabled={!canUpdate}
                                                         value={domainForms[preview.id]?.fqdn ?? ''}
                                                         onChange={(e) => updateDomainForm(preview.id, 'fqdn', e.target.value)}
@@ -306,6 +324,8 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                                                     <label className="flex flex-col gap-1">
                                                         Domains for {d.serviceName}
                                                         <input
+                                                            id={`preview-${preview.id}-compose-domain-${d.serviceName}`}
+                                                            name={`preview-${preview.id}-compose-domain-${d.serviceName}`}
                                                             disabled={!canUpdate}
                                                             value={composeDomainForms[`${preview.id}:${d.serviceName}`] ?? ''}
                                                             onChange={(e) => updateComposeDomainForm(preview.id, d.serviceName, e.target.value)}
@@ -335,6 +355,8 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                                         <label className="flex flex-col gap-1">
                                             Domain
                                             <input
+                                                id={`preview-${preview.id}-domain`}
+                                                name={`preview-${preview.id}-domain`}
                                                 disabled={!canUpdate}
                                                 value={domainForms[preview.id]?.fqdn ?? ''}
                                                 onChange={(e) => updateDomainForm(preview.id, 'fqdn', e.target.value)}
@@ -345,6 +367,8 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                                             <label className="flex flex-col gap-1">
                                                 Docker Tag
                                                 <input
+                                                    id={`preview-${preview.id}-docker-tag`}
+                                                    name={`preview-${preview.id}-docker-tag`}
                                                     disabled={!canUpdate}
                                                     value={domainForms[preview.id]?.dockerRegistryImageTag ?? ''}
                                                     onChange={(e) => updateDomainForm(preview.id, 'dockerRegistryImageTag', e.target.value)}

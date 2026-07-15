@@ -38,7 +38,13 @@ export default function DeleteProjectModal({ open, onClose, projectName, disable
                         </ul>
                         <label className="flex flex-col gap-1 pb-4">
                             Please confirm the execution of the actions by entering the Project Name below
-                            <input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={projectName} />
+                            <input
+                                id="delete-project-confirm"
+                                name="delete-project-confirm"
+                                value={confirmation}
+                                onChange={(e) => setConfirmation(e.target.value)}
+                                placeholder={projectName}
+                            />
                         </label>
                     </>
                 )}

@@ -13,12 +13,14 @@ import { useMemo, useState } from 'react';
  * `resourceType`: 'service' shows the service checkbox set (multiline/literal) and hardcoded
  * compose variables; anything else gets the buildtime/runtime/multiline/literal set.
  */
-function PasswordInput({ value, onChange, disabled, required, placeholder }) {
+function PasswordInput({ id, name, value, onChange, disabled, required, placeholder }) {
     const [show, setShow] = useState(false);
 
     return (
         <div className="flex flex-1 gap-1">
             <input
+                id={id}
+                name={name}
                 className="w-full"
                 type={show ? 'text' : 'password'}
                 value={value ?? ''}
@@ -34,10 +36,10 @@ function PasswordInput({ value, onChange, disabled, required, placeholder }) {
     );
 }
 
-function Checkbox({ label, checked, onChange, disabled, title }) {
+function Checkbox({ id, label, checked, onChange, disabled, title }) {
     return (
         <label className="flex items-center gap-2" title={title}>
-            <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange?.(e.target.checked)} />
+            <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange?.(e.target.checked)} />
             {label}
         </label>
     );
@@ -84,14 +86,27 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
         resourceType === 'service' ? (
             !env.isMagic && (
                 <>
-                    <Checkbox label="Is Multiline?" checked={form.is_multiline} disabled={!editable} onChange={(v) => toggle('is_multiline', v)} />
-                    <Checkbox label="Is Literal?" checked={form.is_literal} disabled={!editable} onChange={(v) => toggle('is_literal', v)} />
+                    <Checkbox
+                        id={`env-${env.id}-multiline`}
+                        label="Is Multiline?"
+                        checked={form.is_multiline}
+                        disabled={!editable}
+                        onChange={(v) => toggle('is_multiline', v)}
+                    />
+                    <Checkbox
+                        id={`env-${env.id}-literal`}
+                        label="Is Literal?"
+                        checked={form.is_literal}
+                        disabled={!editable}
+                        onChange={(v) => toggle('is_literal', v)}
+                    />
                 </>
             )
         ) : (
             <>
                 {!env.isBuildpackControl && (
                     <Checkbox
+                        id={`env-${env.id}-buildtime`}
                         label="Available at Buildtime"
                         title="Make this variable available during the Docker build process."
                         checked={form.is_buildtime}
@@ -100,6 +115,7 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                     />
                 )}
                 <Checkbox
+                    id={`env-${env.id}-runtime`}
                     label="Available at Runtime"
                     title="Make this variable available in the running container."
                     checked={form.is_runtime}
@@ -108,9 +124,21 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                 />
                 {!env.isBuildpackControl && (
                     <>
-                        <Checkbox label="Is Multiline?" checked={form.is_multiline} disabled={!editable} onChange={(v) => toggle('is_multiline', v)} />
+                        <Checkbox
+                            id={`env-${env.id}-multiline`}
+                            label="Is Multiline?"
+                            checked={form.is_multiline}
+                            disabled={!editable}
+                            onChange={(v) => toggle('is_multiline', v)}
+                        />
                         {!form.is_multiline && (
-                            <Checkbox label="Is Literal?" checked={form.is_literal} disabled={!editable} onChange={(v) => toggle('is_literal', v)} />
+                            <Checkbox
+                                id={`env-${env.id}-literal`}
+                                label="Is Literal?"
+                                checked={form.is_literal}
+                                disabled={!editable}
+                                onChange={(v) => toggle('is_literal', v)}
+                            />
                         )}
                     </>
                 )}
@@ -129,6 +157,8 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
         >
             <div className="flex flex-col w-full gap-2 lg:flex-row">
                 <input
+                    id={`env-${env.id}-key`}
+                    name={`env-${env.id}-key`}
                     className="flex-1"
                     value={form.key}
                     disabled={!editable || env.isRedisCredential}
@@ -140,6 +170,8 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                     </div>
                 ) : form.is_multiline ? (
                     <textarea
+                        id={`env-${env.id}-value`}
+                        name={`env-${env.id}-value`}
                         className="flex-1 font-mono"
                         rows={4}
                         value={form.value}
@@ -148,6 +180,8 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                     />
                 ) : (
                     <PasswordInput
+                        id={`env-${env.id}-value`}
+                        name={`env-${env.id}-value`}
                         value={form.value}
                         disabled={!editable}
                         required={env.isRedisCredential || env.isRequired}
@@ -155,9 +189,19 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                         onChange={(v) => set('value', v)}
                     />
                 )}
-                {env.isShared && !env.isLocked && <PasswordInput value={env.realValue ?? ''} disabled placeholder="(resolved value)" />}
+                {env.isShared && !env.isLocked && (
+                    <PasswordInput
+                        id={`env-${env.id}-resolved-value`}
+                        name={`env-${env.id}-resolved-value`}
+                        value={env.realValue ?? ''}
+                        disabled
+                        placeholder="(resolved value)"
+                    />
+                )}
             </div>
             <input
+                id={`env-${env.id}-comment`}
+                name={`env-${env.id}-comment`}
                 placeholder={env.isMagic ? 'This env cannot be edited manually, it is handled by Coolify.' : 'Comment'}
                 maxLength={256}
                 value={form.comment}
@@ -182,6 +226,8 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                     ) : (
                         <span className="flex items-center gap-2">
                             <input
+                                id={`env-${env.id}-delete-confirm`}
+                                name={`env-${env.id}-delete-confirm`}
                                 placeholder={`Type "${env.key}" to confirm`}
                                 value={deleteConfirmation}
                                 onChange={(e) => setDeleteConfirmation(e.target.value)}
@@ -200,7 +246,7 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
     );
 }
 
-function HardcodedEnvCard({ env }) {
+function HardcodedEnvCard({ env, idBase }) {
     return (
         <div className="flex flex-col gap-2 p-4 bg-white border dark:bg-base dark:border-coolgray-300 border-neutral-200">
             <div className="flex flex-wrap items-center gap-2">
@@ -212,8 +258,12 @@ function HardcodedEnvCard({ env }) {
                 )}
             </div>
             <div className="flex flex-col w-full gap-2 lg:flex-row">
-                <input className="flex-1" disabled value={env.key} />
-                {env.value ? <PasswordInput value={env.value} disabled /> : <input className="flex-1" disabled value="(inherited from host)" />}
+                <input id={`${idBase}-key`} name={`${idBase}-key`} className="flex-1" disabled value={env.key} />
+                {env.value ? (
+                    <PasswordInput id={`${idBase}-value`} name={`${idBase}-value`} value={env.value} disabled />
+                ) : (
+                    <input id={`${idBase}-value`} name={`${idBase}-value`} className="flex-1" disabled value="(inherited from host)" />
+                )}
             </div>
         </div>
     );
@@ -266,12 +316,21 @@ function AddModal({ open, onClose, storeUrl, resourceType, availableSharedVariab
                 <form className="flex flex-col w-full gap-2" onSubmit={submit}>
                     <label className="flex flex-col gap-1">
                         Name
-                        <input required placeholder="NODE_ENV" value={form.key} onChange={(e) => setForm({ ...form, key: e.target.value })} />
+                        <input
+                            id="env-add-key"
+                            name="env-add-key"
+                            required
+                            placeholder="NODE_ENV"
+                            value={form.key}
+                            onChange={(e) => setForm({ ...form, key: e.target.value })}
+                        />
                     </label>
                     <label className="flex flex-col gap-1">
                         Value
                         {form.is_multiline ? (
                             <textarea
+                                id="env-add-value"
+                                name="env-add-value"
                                 required
                                 rows={5}
                                 className="font-mono"
@@ -280,6 +339,8 @@ function AddModal({ open, onClose, storeUrl, resourceType, availableSharedVariab
                             />
                         ) : (
                             <input
+                                id="env-add-value"
+                                name="env-add-value"
                                 required
                                 placeholder="production"
                                 value={form.value}
@@ -294,24 +355,42 @@ function AddModal({ open, onClose, storeUrl, resourceType, availableSharedVariab
                     )}
                     <label className="flex flex-col gap-1">
                         Comment
-                        <input maxLength={256} value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} />
+                        <input
+                            id="env-add-comment"
+                            name="env-add-comment"
+                            maxLength={256}
+                            value={form.comment}
+                            onChange={(e) => setForm({ ...form, comment: e.target.value })}
+                        />
                     </label>
                     {resourceType !== 'service' && (
                         <>
                             <Checkbox
+                                id="env-add-buildtime"
                                 label="Available at Buildtime"
                                 checked={form.is_buildtime}
                                 onChange={(v) => setForm({ ...form, is_buildtime: v })}
                             />
                             <Checkbox
+                                id="env-add-runtime"
                                 label="Available at Runtime"
                                 checked={form.is_runtime}
                                 onChange={(v) => setForm({ ...form, is_runtime: v })}
                             />
-                            <Checkbox label="Is Literal?" checked={form.is_literal} onChange={(v) => setForm({ ...form, is_literal: v })} />
+                            <Checkbox
+                                id="env-add-literal"
+                                label="Is Literal?"
+                                checked={form.is_literal}
+                                onChange={(v) => setForm({ ...form, is_literal: v })}
+                            />
                         </>
                     )}
-                    <Checkbox label="Is Multiline?" checked={form.is_multiline} onChange={(v) => setForm({ ...form, is_multiline: v })} />
+                    <Checkbox
+                        id="env-add-multiline"
+                        label="Is Multiline?"
+                        checked={form.is_multiline}
+                        onChange={(v) => setForm({ ...form, is_multiline: v })}
+                    />
                     <button type="submit" className="mt-2" disabled={processing}>
                         Save
                     </button>
@@ -370,6 +449,8 @@ export default function EnvironmentVariablesTab({
             {view === 'normal' ? (
                 <>
                     <input
+                        id="env-search"
+                        name="env-search"
                         type="search"
                         className="w-full md:w-96"
                         placeholder="Search"
@@ -394,9 +475,10 @@ export default function EnvironmentVariablesTab({
                                     problematicVariables={problematicVariables}
                                 />
                             ))}
-                            {filteredHardcoded.map((env, index) => (
-                                <HardcodedEnvCard key={`${env.key}-${env.service_name ?? 'default'}-${index}`} env={env} />
-                            ))}
+                            {filteredHardcoded.map((env, index) => {
+                                const idBase = `hardcoded-env-${env.key}-${env.service_name ?? 'default'}-${index}`;
+                                return <HardcodedEnvCard key={idBase} env={env} idBase={idBase} />;
+                            })}
                         </>
                     )}
                 </>
@@ -408,6 +490,8 @@ export default function EnvironmentVariablesTab({
                     <label className="flex flex-col gap-1">
                         Production Environment Variables
                         <textarea
+                            id="env-dev-view"
+                            name="env-dev-view"
                             rows={10}
                             className="whitespace-pre-wrap font-mono"
                             value={devText}

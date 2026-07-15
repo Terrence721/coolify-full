@@ -52,6 +52,7 @@ export default function SettingsOauth({ providers, updateUrl }) {
                             <div className="w-32">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id={`oauth-${provider.provider}-enabled`}
                                         type="checkbox"
                                         checked={provider.enabled}
                                         onChange={(e) => updateProvider(index, 'enabled', e.target.checked)}
@@ -62,11 +63,18 @@ export default function SettingsOauth({ providers, updateUrl }) {
                             <div className="flex flex-col w-full gap-2 xl:flex-row">
                                 <label className="flex flex-col gap-1">
                                     Client ID
-                                    <input value={provider.client_id ?? ''} onChange={(e) => updateProvider(index, 'client_id', e.target.value)} />
+                                    <input
+                                        id={`oauth-${provider.provider}-client-id`}
+                                        name={`oauth-${provider.provider}-client-id`}
+                                        value={provider.client_id ?? ''}
+                                        onChange={(e) => updateProvider(index, 'client_id', e.target.value)}
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     Client Secret
                                     <input
+                                        id={`oauth-${provider.provider}-client-secret`}
+                                        name={`oauth-${provider.provider}-client-secret`}
                                         type="password"
                                         autoComplete="new-password"
                                         value={provider.client_secret ?? ''}
@@ -76,6 +84,8 @@ export default function SettingsOauth({ providers, updateUrl }) {
                                 <label className="flex flex-col gap-1">
                                     Redirect URI
                                     <input
+                                        id={`oauth-${provider.provider}-redirect-uri`}
+                                        name={`oauth-${provider.provider}-redirect-uri`}
                                         placeholder={provider.callbackUrl}
                                         value={provider.redirect_uri ?? ''}
                                         onChange={(e) => updateProvider(index, 'redirect_uri', e.target.value)}
@@ -84,13 +94,23 @@ export default function SettingsOauth({ providers, updateUrl }) {
                                 {EXTRA_TENANT_PROVIDERS.includes(provider.provider) && (
                                     <label className="flex flex-col gap-1">
                                         Tenant
-                                        <input value={provider.tenant ?? ''} onChange={(e) => updateProvider(index, 'tenant', e.target.value)} />
+                                        <input
+                                            id={`oauth-${provider.provider}-tenant`}
+                                            name={`oauth-${provider.provider}-tenant`}
+                                            value={provider.tenant ?? ''}
+                                            onChange={(e) => updateProvider(index, 'tenant', e.target.value)}
+                                        />
                                     </label>
                                 )}
                                 {EXTRA_BASE_URL_PROVIDERS.includes(provider.provider) && (
                                     <label className="flex flex-col gap-1">
                                         Base URL
-                                        <input value={provider.base_url ?? ''} onChange={(e) => updateProvider(index, 'base_url', e.target.value)} />
+                                        <input
+                                            id={`oauth-${provider.provider}-base-url`}
+                                            name={`oauth-${provider.provider}-base-url`}
+                                            value={provider.base_url ?? ''}
+                                            onChange={(e) => updateProvider(index, 'base_url', e.target.value)}
+                                        />
                                     </label>
                                 )}
                             </div>

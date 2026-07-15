@@ -34,12 +34,17 @@ export default function Edit({ project, canDelete, updateUrl, deleteUrl }) {
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                        <input id="project-edit-name" name="project-edit-name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                         {errors.name && <span className="text-error">{errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input
+                            id="project-edit-description"
+                            name="project-edit-description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                         {errors.description && <span className="text-error">{errors.description}</span>}
                     </label>
                 </div>

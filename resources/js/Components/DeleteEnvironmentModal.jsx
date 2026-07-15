@@ -26,6 +26,8 @@ export default function DeleteEnvironmentModal({ environment, deleteUrl, onClose
                         <label className="flex flex-col gap-1 pb-4">
                             Please confirm by entering the environment name below
                             <input
+                                id="delete-environment-confirm"
+                                name="delete-environment-confirm"
                                 value={confirmation}
                                 onChange={(e) => setConfirmation(e.target.value)}
                                 placeholder={environment.name}

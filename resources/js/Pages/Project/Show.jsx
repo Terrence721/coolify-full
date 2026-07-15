@@ -72,6 +72,8 @@ export default function Show({ project, environments, canUpdate, canDelete, crea
                             <label className="flex flex-col gap-1">
                                 Name
                                 <input
+                                    id="project-show-add-environment-name"
+                                    name="project-show-add-environment-name"
                                     required
                                     placeholder="production"
                                     value={data.name}

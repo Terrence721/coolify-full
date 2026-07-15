@@ -104,6 +104,8 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                             <label className="flex flex-col gap-1 w-full">
                                 URL
                                 <input
+                                    id="settings-fqdn"
+                                    name="settings-fqdn"
                                     value={data.fqdn ?? ''}
                                     onChange={(e) => setData('fqdn', e.target.value)}
                                     placeholder="https://coolify.yourdomain.com"
@@ -119,6 +121,8 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                             <label className="flex flex-col gap-1 w-full">
                                 Name
                                 <input
+                                    id="settings-instance-name"
+                                    name="settings-instance-name"
                                     value={data.instance_name ?? ''}
                                     onChange={(e) => setData('instance_name', e.target.value)}
                                     placeholder="Coolify"
@@ -166,6 +170,8 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                             <label className="flex flex-col gap-1 w-full">
                                 Instance's Public IPv4
                                 <input
+                                    id="settings-public-ipv4"
+                                    name="settings-public-ipv4"
                                     type="password"
                                     autoComplete="new-password"
                                     value={data.public_ipv4 ?? ''}
@@ -181,6 +187,8 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                             <label className="flex flex-col gap-1 w-full">
                                 Instance's Public IPv6
                                 <input
+                                    id="settings-public-ipv6"
+                                    name="settings-public-ipv6"
                                     type="password"
                                     autoComplete="new-password"
                                     value={data.public_ipv6 ?? ''}
@@ -206,6 +214,8 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                 <label className="flex flex-col gap-1 w-full">
                                     Dev Helper Version (Development Only)
                                     <input
+                                        id="settings-dev-helper-version"
+                                        name="settings-dev-helper-version"
                                         value={data.dev_helper_version ?? ''}
                                         onChange={(e) => setData('dev_helper_version', e.target.value)}
                                         placeholder={defaultHelperVersion}

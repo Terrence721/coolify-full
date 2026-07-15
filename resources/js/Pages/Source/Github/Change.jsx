@@ -25,7 +25,13 @@ function DeleteGithubAppModal({ githubApp, hasApplications, deleteUrl, onClose }
                         </ul>
                         <label className="flex flex-col gap-1 pb-4">
                             Please confirm by entering the GitHub App name below
-                            <input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={githubApp.name} />
+                            <input
+                                id="github-app-delete-confirm"
+                                name="github-app-delete-confirm"
+                                value={confirmation}
+                                onChange={(e) => setConfirmation(e.target.value)}
+                                placeholder={githubApp.name}
+                            />
                         </label>
                     </>
                 )}
@@ -219,6 +225,7 @@ export default function Change({
                                             <div className="flex flex-col gap-3 pt-4 border-t border-neutral-200 dark:border-coolgray-400">
                                                 <label className="flex items-center gap-2">
                                                     <input
+                                                        id="github-app-use-custom-webhook-endpoint"
                                                         type="checkbox"
                                                         checked={useCustomWebhookEndpoint}
                                                         onChange={(e) => setUseCustomWebhookEndpoint(e.target.checked)}
@@ -226,7 +233,12 @@ export default function Change({
                                                     Use custom webhook endpoint
                                                 </label>
                                                 {!useCustomWebhookEndpoint ? (
-                                                    <select value={webhookEndpoint} onChange={(e) => setWebhookEndpoint(e.target.value)}>
+                                                    <select
+                                                        id="github-app-webhook-endpoint"
+                                                        name="github-app-webhook-endpoint"
+                                                        value={webhookEndpoint}
+                                                        onChange={(e) => setWebhookEndpoint(e.target.value)}
+                                                    >
                                                         {fqdn && <option value={fqdn}>Use {fqdn}</option>}
                                                         {ipv4 && <option value={ipv4}>Use {ipv4}</option>}
                                                         {ipv6 && <option value={ipv6}>Use {ipv6}</option>}
@@ -234,6 +246,8 @@ export default function Change({
                                                     </select>
                                                 ) : (
                                                     <input
+                                                        id="github-app-custom-webhook-endpoint"
+                                                        name="github-app-custom-webhook-endpoint"
                                                         type="url"
                                                         value={customWebhookEndpoint}
                                                         onChange={(e) => setCustomWebhookEndpoint(e.target.value)}
@@ -244,11 +258,12 @@ export default function Change({
                                         )}
                                         <div className="flex w-full flex-col gap-2">
                                             <label className="flex items-center gap-2">
-                                                <input type="checkbox" checked disabled />
+                                                <input id="github-app-mandatory-permissions" type="checkbox" checked disabled />
                                                 Mandatory (Contents: read, Metadata: read, Email: read)
                                             </label>
                                             <label className="flex items-center gap-2">
                                                 <input
+                                                    id="github-app-preview-deployment-permissions"
                                                     type="checkbox"
                                                     checked={previewDeploymentPermissions}
                                                     onChange={(e) => setPreviewDeploymentPermissions(e.target.checked)}
@@ -359,7 +374,13 @@ export default function Change({
                                     <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2 w-full">
                                         <label className="flex flex-col gap-1">
                                             App Name
-                                            <input disabled={!canUpdate} value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                                            <input
+                                                id="github-app-name"
+                                                name="github-app-name"
+                                                disabled={!canUpdate}
+                                                value={data.name}
+                                                onChange={(e) => setData('name', e.target.value)}
+                                            />
                                             {errors.name && <span className="text-error">{errors.name}</span>}
                                         </label>
                                         {canUpdate && (
@@ -379,6 +400,8 @@ export default function Change({
                                     <label className="flex flex-col gap-1">
                                         Organization
                                         <input
+                                            id="github-app-organization"
+                                            name="github-app-organization"
                                             disabled={!canUpdate}
                                             placeholder="If empty, personal user will be used"
                                             value={data.organization}
@@ -389,6 +412,7 @@ export default function Change({
                                         <>
                                             <label className="flex items-center gap-2 w-48">
                                                 <input
+                                                    id="github-app-is-system-wide"
                                                     type="checkbox"
                                                     disabled={!canUpdate}
                                                     checked={data.isSystemWide}
@@ -408,12 +432,24 @@ export default function Change({
                                     <div className="flex flex-col sm:flex-row gap-2">
                                         <label className="flex flex-col gap-1 w-full">
                                             HTML Url
-                                            <input disabled={!canUpdate} value={data.htmlUrl} onChange={(e) => setData('htmlUrl', e.target.value)} />
+                                            <input
+                                                id="github-app-html-url"
+                                                name="github-app-html-url"
+                                                disabled={!canUpdate}
+                                                value={data.htmlUrl}
+                                                onChange={(e) => setData('htmlUrl', e.target.value)}
+                                            />
                                             {errors.htmlUrl && <span className="text-error">{errors.htmlUrl}</span>}
                                         </label>
                                         <label className="flex flex-col gap-1 w-full">
                                             API Url
-                                            <input disabled={!canUpdate} value={data.apiUrl} onChange={(e) => setData('apiUrl', e.target.value)} />
+                                            <input
+                                                id="github-app-api-url"
+                                                name="github-app-api-url"
+                                                disabled={!canUpdate}
+                                                value={data.apiUrl}
+                                                onChange={(e) => setData('apiUrl', e.target.value)}
+                                            />
                                             {errors.apiUrl && <span className="text-error">{errors.apiUrl}</span>}
                                         </label>
                                     </div>
@@ -421,6 +457,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             User
                                             <input
+                                                id="github-app-custom-user"
+                                                name="github-app-custom-user"
                                                 required
                                                 disabled={!canUpdate}
                                                 value={data.customUser}
@@ -431,6 +469,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             Port
                                             <input
+                                                id="github-app-custom-port"
+                                                name="github-app-custom-port"
                                                 type="number"
                                                 required
                                                 disabled={!canUpdate}
@@ -444,6 +484,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             App Id
                                             <input
+                                                id="github-app-app-id"
+                                                name="github-app-app-id"
                                                 type="number"
                                                 required
                                                 disabled={!canUpdate}
@@ -455,6 +497,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             Installation Id
                                             <input
+                                                id="github-app-installation-id"
+                                                name="github-app-installation-id"
                                                 type="number"
                                                 required
                                                 disabled={!canUpdate}
@@ -468,6 +512,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             Client Id
                                             <input
+                                                id="github-app-client-id"
+                                                name="github-app-client-id"
                                                 type="password"
                                                 required
                                                 disabled={!canUpdate}
@@ -478,6 +524,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             Client Secret
                                             <input
+                                                id="github-app-client-secret"
+                                                name="github-app-client-secret"
                                                 type="password"
                                                 required
                                                 disabled={!canUpdate}
@@ -488,6 +536,8 @@ export default function Change({
                                         <label className="flex flex-col gap-1 w-full">
                                             Webhook Secret
                                             <input
+                                                id="github-app-webhook-secret"
+                                                name="github-app-webhook-secret"
                                                 type="password"
                                                 required
                                                 disabled={!canUpdate}
@@ -499,6 +549,8 @@ export default function Change({
                                     <label className="flex flex-col gap-1">
                                         Private Key
                                         <select
+                                            id="github-app-private-key-id"
+                                            name="github-app-private-key-id"
                                             required
                                             disabled={!canUpdate}
                                             value={data.privateKeyId}
@@ -529,15 +581,33 @@ export default function Change({
                                     <div className="flex flex-col sm:flex-row gap-2">
                                         <label className="flex flex-col gap-1 w-full">
                                             Content
-                                            <input readOnly placeholder="N/A" value={githubApp.contents ?? ''} />
+                                            <input
+                                                id="github-app-permissions-contents"
+                                                name="github-app-permissions-contents"
+                                                readOnly
+                                                placeholder="N/A"
+                                                value={githubApp.contents ?? ''}
+                                            />
                                         </label>
                                         <label className="flex flex-col gap-1 w-full">
                                             Metadata
-                                            <input readOnly placeholder="N/A" value={githubApp.metadata ?? ''} />
+                                            <input
+                                                id="github-app-permissions-metadata"
+                                                name="github-app-permissions-metadata"
+                                                readOnly
+                                                placeholder="N/A"
+                                                value={githubApp.metadata ?? ''}
+                                            />
                                         </label>
                                         <label className="flex flex-col gap-1 w-full">
                                             Pull Request
-                                            <input readOnly placeholder="N/A" value={githubApp.pullRequests ?? ''} />
+                                            <input
+                                                id="github-app-permissions-pull-requests"
+                                                name="github-app-permissions-pull-requests"
+                                                readOnly
+                                                placeholder="N/A"
+                                                value={githubApp.pullRequests ?? ''}
+                                            />
                                         </label>
                                     </div>
                                 </div>
@@ -550,6 +620,8 @@ export default function Change({
                                     ) : (
                                         <>
                                             <input
+                                                id="github-app-resources-search"
+                                                name="github-app-resources-search"
                                                 placeholder="Search resources..."
                                                 value={search}
                                                 onChange={(e) => setSearch(e.target.value)}

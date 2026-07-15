@@ -69,6 +69,8 @@ export default function RollbackTab({ rollback, rollbackUrls }) {
                 <label className="flex flex-col flex-1 gap-1">
                     Images to keep for rollback
                     <input
+                        id="rollback-docker-images-to-keep"
+                        name="rollback-docker-images-to-keep"
                         type="number"
                         min={0}
                         max={100}

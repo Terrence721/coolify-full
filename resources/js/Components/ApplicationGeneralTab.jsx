@@ -32,10 +32,10 @@ function Field({ label, helper, className = '', ...props }) {
     );
 }
 
-function Checkbox({ label, helper, checked, onChange, disabled }) {
+function Checkbox({ id, label, helper, checked, onChange, disabled }) {
     return (
         <label className="flex items-center gap-2" title={helper}>
-            <input type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
+            <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
             {label}
         </label>
     );
@@ -178,8 +178,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                 <div>General configuration for your application.</div>
                 <div className="flex flex-col gap-2 py-4">
                     <div className="flex flex-col items-end gap-2 xl:flex-row">
-                        <Field disabled={shouldDisable} label="Name" required value={form.name} onChange={(e) => set('name', e.target.value)} />
-                        <Field disabled={shouldDisable} label="Description" value={form.description} onChange={(e) => set('description', e.target.value)} />
+                        <Field disabled={shouldDisable} label="Name" required value={form.name} onChange={(e) => set('name', e.target.value)} id="app-general-name" name="app-general-name" />
+                        <Field disabled={shouldDisable} label="Description" value={form.description} onChange={(e) => set('description', e.target.value)} id="app-general-description" name="app-general-description" />
                     </div>
 
                     {!hasDockerfileOverride && !isDockerImage && (
@@ -187,7 +187,13 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <div className="flex gap-2">
                                 <label className="flex flex-col flex-1 gap-1">
                                     Build Pack
-                                    <select disabled={shouldDisable} value={form.buildPack} onChange={handleBuildPackChange}>
+                                    <select
+                                        id="app-general-build-pack"
+                                        name="app-general-build-pack"
+                                        disabled={shouldDisable}
+                                        value={form.buildPack}
+                                        onChange={handleBuildPackChange}
+                                    >
                                         <option value="nixpacks">Nixpacks</option>
                                         <option value="railpack">Railpack (Beta)</option>
                                         <option value="static">Static</option>
@@ -198,7 +204,13 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                 {(form.isStatic || isStaticBuildPack) && (
                                     <label className="flex flex-col flex-1 gap-1">
                                         Static Image
-                                        <select disabled={!canUpdate} value={form.staticImage} onChange={(e) => set('staticImage', e.target.value)}>
+                                        <select
+                                            id="app-general-static-image"
+                                            name="app-general-static-image"
+                                            disabled={!canUpdate}
+                                            value={form.staticImage}
+                                            onChange={(e) => set('staticImage', e.target.value)}
+                                        >
                                             <option value="nginx:alpine">nginx:alpine</option>
                                             <option disabled value="apache:alpine">
                                                 apache:alpine
@@ -216,6 +228,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                         .map((s) => (
                                             <div key={s.sanitizedKey} className="flex items-end gap-2">
                                                 <Field
+                                                    id={`app-general-service-domain-${s.sanitizedKey}`}
+                                                    name={`app-general-service-domain-${s.sanitizedKey}`}
                                                     disabled={shouldDisable}
                                                     label={`Domains for ${s.name}`}
                                                     helper="You can specify one domain with path or more with comma."
@@ -241,6 +255,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <label className="flex flex-col gap-1">
                                 Custom Nginx Configuration
                                 <textarea
+                                    id="app-general-custom-nginx-configuration"
+                                    name="app-general-custom-nginx-configuration"
                                     placeholder="Empty means default configuration will be used."
                                     disabled={!canUpdate}
                                     value={form.customNginxConfiguration}
@@ -259,6 +275,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                         <div className="w-96 pb-6 flex flex-col gap-1">
                             {showStaticToggle && (
                                 <Checkbox
+                                    id="app-general-is-static"
                                     label="Is it a static site?"
                                     helper="If your application is a static site or the final build assets should be served as a static site, enable this."
                                     checked={form.isStatic}
@@ -268,6 +285,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             )}
                             {showSpaToggle && (
                                 <Checkbox
+                                    id="app-general-is-spa"
                                     label="Is it a SPA (Single Page Application)?"
                                     helper="If your application is a SPA, enable this."
                                     checked={form.isSpa}
@@ -283,6 +301,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <div className="flex items-end gap-2">
                                 {!general.isContainerLabelReadonlyEnabled ? (
                                     <Field
+                                id="app-general-fqdn"
+                                name="app-general-fqdn"
                                         placeholder="https://coolify.io"
                                         label="Domains"
                                         readOnly
@@ -293,6 +313,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                 ) : (
                                     <>
                                         <Field
+                                            id="app-general-fqdn"
+                                            name="app-general-fqdn"
                                             placeholder="https://coolify.io"
                                             label="Domains"
                                             helper="You can specify one domain with path or more with comma."
@@ -311,6 +333,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <div className="flex items-end gap-2">
                                 {!general.isContainerLabelReadonlyEnabled ? (
                                     <Field
+                                        id="app-general-direction"
+                                        name="app-general-direction"
                                         label="Direction"
                                         readOnly
                                         value={
@@ -327,7 +351,13 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                     <>
                                         <label className="flex flex-col flex-1 gap-1">
                                             Direction
-                                            <select disabled={!canUpdate} value={form.redirect} onChange={(e) => set('redirect', e.target.value)}>
+                                            <select
+                                                id="app-general-direction"
+                                                name="app-general-direction"
+                                                disabled={!canUpdate}
+                                                value={form.redirect}
+                                                onChange={(e) => set('redirect', e.target.value)}
+                                            >
                                                 <option value="both">Allow www & non-www.</option>
                                                 <option value="www">Redirect to www.</option>
                                                 <option value="non-www">Redirect to non-www.</option>
@@ -351,6 +381,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             </div>
                             <div className="flex flex-col gap-2 xl:flex-row">
                                 <Field
+                                    id="app-general-docker-registry-image-name"
+                                    name="app-general-docker-registry-image-name"
                                     label="Docker Image"
                                     required={isDockerImage && general.isSwarm}
                                     disabled={!canUpdate}
@@ -358,6 +390,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                     onChange={(e) => set('dockerRegistryImageName', e.target.value)}
                                 />
                                 <Field
+                                    id="app-general-docker-registry-image-tag"
+                                    name="app-general-docker-registry-image-tag"
                                     label="Docker Image Tag"
                                     disabled={!canUpdate}
                                     value={form.dockerRegistryImageTag}
@@ -371,6 +405,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                         <h3>Build</h3>
                         {isDockerImage ? (
                             <Field
+                                id="app-general-custom-docker-run-options"
+                                name="app-general-custom-docker-run-options"
                                 label="Custom Docker Options"
                                 placeholder="--cap-add SYS_ADMIN"
                                 disabled={!canUpdate}
@@ -383,6 +419,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                     <div className="flex flex-col gap-2">
                                         <div className="flex gap-2">
                                             <Field
+                                                id="app-general-base-directory"
+                                                name="app-general-base-directory"
                                                 disabled={shouldDisable}
                                                 placeholder="/"
                                                 label="Base Directory"
@@ -392,6 +430,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                                 onBlur={(e) => set('baseDirectory', normalizePath(e.target.value))}
                                             />
                                             <Field
+                                                id="app-general-docker-compose-location"
+                                                name="app-general-docker-compose-location"
                                                 disabled={shouldDisable}
                                                 placeholder="/docker-compose.yaml"
                                                 label="Docker Compose Location"
@@ -402,6 +442,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                         </div>
                                         <div className="w-full sm:w-96">
                                             <Checkbox
+                                                id="app-general-is-preserve-repository-enabled"
                                                 label="Preserve Repository During Deployment"
                                                 helper="Git repository (based on the base directory settings) will be copied to the deployment directory."
                                                 checked={form.isPreserveRepositoryEnabled}
@@ -412,6 +453,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                         <div className="pt-4">The following commands are for advanced use cases. Only modify them if you know what you are doing.</div>
                                         <div className="flex gap-2">
                                             <Field
+                                                id="app-general-docker-compose-custom-build-command"
+                                                name="app-general-docker-compose-custom-build-command"
                                                 disabled={shouldDisable}
                                                 placeholder="docker compose build"
                                                 label="Custom Build Command"
@@ -419,6 +462,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                                 onChange={(e) => set('dockerComposeCustomBuildCommand', e.target.value)}
                                             />
                                             <Field
+                                                id="app-general-docker-compose-custom-start-command"
+                                                name="app-general-docker-compose-custom-start-command"
                                                 disabled={shouldDisable}
                                                 placeholder="docker compose up -d"
                                                 label="Custom Start Command"
@@ -427,15 +472,29 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                             />
                                         </div>
                                         {general.dockerComposeBuildCommandPreview && (
-                                            <Field readOnly label="Final Build Command (Preview)" value={general.dockerComposeBuildCommandPreview} />
+                                            <Field
+                                                id="app-general-docker-compose-build-command-preview"
+                                                name="app-general-docker-compose-build-command-preview"
+                                                readOnly
+                                                label="Final Build Command (Preview)"
+                                                value={general.dockerComposeBuildCommandPreview}
+                                            />
                                         )}
                                         {general.dockerComposeStartCommandPreview && (
-                                            <Field readOnly label="Final Start Command (Preview)" value={general.dockerComposeStartCommandPreview} />
+                                            <Field
+                                                id="app-general-docker-compose-start-command-preview"
+                                                name="app-general-docker-compose-start-command-preview"
+                                                readOnly
+                                                label="Final Start Command (Preview)"
+                                                value={general.dockerComposeStartCommandPreview}
+                                            />
                                         )}
                                         {general.isGithubBasedPrivateRepo && (
                                             <label className="flex flex-col gap-1 pt-4">
                                                 Watch Paths
                                                 <textarea
+                                                    id="app-general-watch-paths"
+                                                    name="app-general-watch-paths"
                                                     disabled={shouldDisable}
                                                     placeholder="services/api/**"
                                                     value={form.watchPaths}
@@ -448,13 +507,15 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                     <>
                                         {general.couldSetBuildCommands && isNixpacksOrRailpack && (
                                             <div className="flex flex-col gap-2 xl:flex-row">
-                                                <Field disabled={!canUpdate} label="Install Command" value={form.installCommand} onChange={(e) => set('installCommand', e.target.value)} />
-                                                <Field disabled={!canUpdate} label="Build Command" value={form.buildCommand} onChange={(e) => set('buildCommand', e.target.value)} />
-                                                <Field disabled={!canUpdate} label="Start Command" value={form.startCommand} onChange={(e) => set('startCommand', e.target.value)} />
+                                                <Field disabled={!canUpdate} label="Install Command" value={form.installCommand} onChange={(e) => set('installCommand', e.target.value)} id="app-general-install-command" name="app-general-install-command" />
+                                                <Field disabled={!canUpdate} label="Build Command" value={form.buildCommand} onChange={(e) => set('buildCommand', e.target.value)} id="app-general-build-command" name="app-general-build-command" />
+                                                <Field disabled={!canUpdate} label="Start Command" value={form.startCommand} onChange={(e) => set('startCommand', e.target.value)} id="app-general-start-command" name="app-general-start-command" />
                                             </div>
                                         )}
                                         <div className="flex flex-col gap-2 xl:flex-row">
                                             <Field
+                                                id="app-general-base-directory"
+                                                name="app-general-base-directory"
                                                 placeholder="/"
                                                 label="Base Directory"
                                                 helper="Directory to use as root. Useful for monorepos."
@@ -465,6 +526,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                             />
                                             {isDockerfileBuildPack && !hasDockerfileOverride && (
                                                 <Field
+                                                    id="app-general-dockerfile-location"
+                                                    name="app-general-dockerfile-location"
                                                     placeholder="/Dockerfile"
                                                     label="Dockerfile Location"
                                                     disabled={!canUpdate}
@@ -475,6 +538,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                             )}
                                             {isDockerfileBuildPack && (
                                                 <Field
+                                                    id="app-general-dockerfile-target-build"
+                                                    name="app-general-dockerfile-target-build"
                                                     label="Docker Build Stage Target"
                                                     helper="Useful if you have multi-staged dockerfile."
                                                     disabled={!canUpdate}
@@ -484,6 +549,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                             )}
                                             {general.couldSetBuildCommands && (
                                                 <Field
+                                                    id="app-general-publish-directory"
+                                                    name="app-general-publish-directory"
                                                     placeholder={form.isStatic ? '/dist' : '/'}
                                                     label="Publish Directory"
                                                     required={form.isStatic}
@@ -496,10 +563,19 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                         {general.isGithubBasedPrivateRepo && (
                                             <label className="flex flex-col gap-1 pb-4">
                                                 Watch Paths
-                                                <textarea disabled={!canUpdate} placeholder="src/pages/**" value={form.watchPaths} onChange={(e) => set('watchPaths', e.target.value)} />
+                                                <textarea
+                                                    id="app-general-watch-paths"
+                                                    name="app-general-watch-paths"
+                                                    disabled={!canUpdate}
+                                                    placeholder="src/pages/**"
+                                                    value={form.watchPaths}
+                                                    onChange={(e) => set('watchPaths', e.target.value)}
+                                                />
                                             </label>
                                         )}
                                         <Field
+                                            id="app-general-custom-docker-run-options"
+                                            name="app-general-custom-docker-run-options"
                                             label="Custom Docker Options"
                                             placeholder="--cap-add SYS_ADMIN"
                                             disabled={!canUpdate}
@@ -508,6 +584,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                         />
                                         <div className="pt-2 w-full sm:w-96">
                                             <Checkbox
+                                                id="app-general-is-build-server-enabled"
                                                 label="Use a Build Server?"
                                                 helper="Use a build server to build your application."
                                                 checked={form.isBuildServerEnabled}
@@ -527,6 +604,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <MonacoEditor value={general.dockerComposeRaw ?? ''} language="yaml" readOnly height="300px" />
                             <div className="w-full sm:w-96 pt-2">
                                 <Checkbox
+                                    id="app-general-is-container-label-escape-enabled"
                                     label="Escape special characters in labels?"
                                     helper="By default, $ (and other chars) is escaped."
                                     checked={form.isContainerLabelEscapeEnabled}
@@ -563,6 +641,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             )}
                             <div className="flex flex-col gap-2 xl:flex-row">
                                 <Field
+                                    id="app-general-ports-exposes"
+                                    name="app-general-ports-exposes"
                                     placeholder="3000,3001"
                                     label="Ports Exposes"
                                     readOnly={isStaticBuildPack}
@@ -572,6 +652,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                 />
                                 {!general.isSwarm && (
                                     <Field
+                                        id="app-general-ports-mappings"
+                                        name="app-general-ports-mappings"
                                         placeholder="3000:3000"
                                         label="Port Mappings"
                                         disabled={!canUpdate}
@@ -581,6 +663,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                 )}
                                 {!general.isSwarm && (
                                     <Field
+                                        id="app-general-custom-network-aliases"
+                                        name="app-general-custom-network-aliases"
                                         label="Network Aliases"
                                         disabled={!canUpdate}
                                         value={form.customNetworkAliases}
@@ -592,6 +676,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <h3 className="pt-8">HTTP Basic Authentication</h3>
                             <div className="w-full sm:w-96">
                                 <Checkbox
+                                    id="app-general-is-http-basic-auth-enabled"
                                     label="Enable"
                                     helper="This will add the proper proxy labels to the container."
                                     checked={form.isHttpBasicAuthEnabled}
@@ -601,8 +686,10 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             </div>
                             {form.isHttpBasicAuthEnabled && (
                                 <div className="flex gap-2 py-2">
-                                    <Field label="Username" required disabled={!canUpdate} value={form.httpBasicAuthUsername} onChange={(e) => set('httpBasicAuthUsername', e.target.value)} />
+                                    <Field label="Username" required disabled={!canUpdate} value={form.httpBasicAuthUsername} onChange={(e) => set('httpBasicAuthUsername', e.target.value)} id="app-general-http-basic-auth-username" name="app-general-http-basic-auth-username" />
                                     <Field
+                                        id="app-general-http-basic-auth-password"
+                                        name="app-general-http-basic-auth-password"
                                         type="password"
                                         label="Password"
                                         required
@@ -626,6 +713,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             </label>
                             <div className="w-full sm:w-96">
                                 <Checkbox
+                                    id="app-general-is-container-label-readonly-enabled"
                                     label="Readonly labels"
                                     helper="Labels are readonly by default. Coolify autogenerates them; disable to edit directly."
                                     checked={form.isContainerLabelReadonlyEnabled}
@@ -633,6 +721,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                     onChange={(checked) => instantSave({ isContainerLabelReadonlyEnabled: checked })}
                                 />
                                 <Checkbox
+                                    id="app-general-is-container-label-escape-enabled"
                                     label="Escape special characters in labels?"
                                     helper="By default, $ is escaped. Turn off to use env variables inside labels."
                                     checked={form.isContainerLabelEscapeEnabled}
@@ -651,6 +740,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                     <h3 className="pt-8">Pre/Post Deployment Commands</h3>
                     <div className="flex flex-col gap-2 xl:flex-row">
                         <Field
+                            id="app-general-pre-deployment-command"
+                            name="app-general-pre-deployment-command"
                             disabled={shouldDisable}
                             placeholder="php artisan migrate"
                             label="Pre-deployment"
@@ -659,6 +750,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                         />
                         {isComposeBuildPack && (
                             <Field
+                                id="app-general-pre-deployment-command-container"
+                                name="app-general-pre-deployment-command-container"
                                 disabled={shouldDisable}
                                 label="Container Name"
                                 value={form.preDeploymentCommandContainer}
@@ -668,6 +761,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                     </div>
                     <div className="flex flex-col gap-2 xl:flex-row">
                         <Field
+                            id="app-general-post-deployment-command"
+                            name="app-general-post-deployment-command"
                             disabled={shouldDisable}
                             placeholder="php artisan migrate"
                             label="Post-deployment"
@@ -676,6 +771,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                         />
                         {isComposeBuildPack && (
                             <Field
+                                id="app-general-post-deployment-command-container"
+                                name="app-general-post-deployment-command-container"
                                 disabled={shouldDisable}
                                 label="Container Name"
                                 value={form.postDeploymentCommandContainer}

@@ -110,12 +110,20 @@ export default function CloudInitScripts({ scripts, canCreate, storeUrl }) {
                         <form onSubmit={submit} className="flex flex-col gap-2 overflow-y-auto p-6">
                             <label className="flex flex-col gap-1">
                                 Name
-                                <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                                <input
+                                    id="cloud-init-script-name"
+                                    name="cloud-init-script-name"
+                                    required
+                                    value={data.name}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                />
                                 {errors.name && <span className="text-error">{errors.name}</span>}
                             </label>
                             <label className="flex flex-col gap-1">
                                 Script
                                 <textarea
+                                    id="cloud-init-script-content"
+                                    name="cloud-init-script-content"
                                     required
                                     rows={12}
                                     className="font-mono"

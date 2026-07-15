@@ -326,7 +326,12 @@ export default function Index({
                                     <div className="flex flex-col gap-4 p-4 border rounded-lg border-neutral-200 dark:border-coolgray-400">
                                         <label className="flex flex-col gap-1">
                                             Existing SSH Keys
-                                            <select value={selectedPrivateKeyId ?? ''} onChange={(e) => setSelectedPrivateKeyId(Number(e.target.value))}>
+                                            <select
+                                                id="boarding-existing-private-key"
+                                                name="boarding-existing-private-key"
+                                                value={selectedPrivateKeyId ?? ''}
+                                                onChange={(e) => setSelectedPrivateKeyId(Number(e.target.value))}
+                                            >
                                                 {privateKeys.map((key) => (
                                                     <option key={key.id} value={key.id}>
                                                         {key.name}
@@ -462,7 +467,12 @@ export default function Index({
                                         <div className="text-sm text-center dark:text-neutral-400">Or use existing</div>
                                         <label className="flex flex-col gap-1">
                                             Existing Projects
-                                            <select onChange={(e) => selectExistingProject(e.target.value)} defaultValue="">
+                                            <select
+                                                id="boarding-existing-project"
+                                                name="boarding-existing-project"
+                                                onChange={(e) => selectExistingProject(e.target.value)}
+                                                defaultValue=""
+                                            >
                                                 <option value="" disabled>
                                                     Select a project
                                                 </option>
@@ -587,16 +597,36 @@ function ServerDetailsStep({ createServerUrl, privateKeyId, onCreated, error, se
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <label className="flex flex-col gap-1">
                             Server Name
-                            <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., production-app-server" />
+                            <input
+                                id="boarding-server-name"
+                                name="boarding-server-name"
+                                required
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="e.g., production-app-server"
+                            />
                         </label>
                         <label className="flex flex-col gap-1">
                             IP Address/Hostname
-                            <input required value={ip} onChange={(e) => setIp(e.target.value)} placeholder="IP address or hostname" />
+                            <input
+                                id="boarding-server-ip"
+                                name="boarding-server-ip"
+                                required
+                                value={ip}
+                                onChange={(e) => setIp(e.target.value)}
+                                placeholder="IP address or hostname"
+                            />
                         </label>
                     </div>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional: Note what this server hosts" />
+                        <input
+                            id="boarding-server-description"
+                            name="boarding-server-description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Optional: Note what this server hosts"
+                        />
                     </label>
                     <button type="button" onClick={() => setShowAdvanced((v) => !v)} className="text-sm font-medium text-left hover:underline">
                         Advanced Connection Settings
@@ -605,11 +635,24 @@ function ServerDetailsStep({ createServerUrl, privateKeyId, onCreated, error, se
                         <div className="grid grid-cols-1 gap-4 p-4 border rounded-lg lg:grid-cols-2 border-neutral-200 dark:border-coolgray-400">
                             <label className="flex flex-col gap-1">
                                 SSH Port
-                                <input type="number" value={port} onChange={(e) => setPort(e.target.value)} placeholder="Default: 22" />
+                                <input
+                                    id="boarding-server-port"
+                                    name="boarding-server-port"
+                                    type="number"
+                                    value={port}
+                                    onChange={(e) => setPort(e.target.value)}
+                                    placeholder="Default: 22"
+                                />
                             </label>
                             <label className="flex flex-col gap-1">
                                 SSH User
-                                <input value={user} onChange={(e) => setUser(e.target.value)} placeholder="Default: root" />
+                                <input
+                                    id="boarding-server-user"
+                                    name="boarding-server-user"
+                                    value={user}
+                                    onChange={(e) => setUser(e.target.value)}
+                                    placeholder="Default: root"
+                                />
                             </label>
                         </div>
                     )}

@@ -31,6 +31,8 @@ export default function Resources({ destination, resources, showUrl }) {
                 ) : (
                     <>
                         <input
+                            id="destination-resources-search"
+                            name="destination-resources-search"
                             placeholder="Search resources..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}

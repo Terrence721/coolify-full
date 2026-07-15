@@ -80,6 +80,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Name
                             <input
+                                id="storage-name"
+                                name="storage-name"
                                 disabled={!canUpdate}
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
@@ -89,6 +91,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Description
                             <input
+                                id="storage-description"
+                                name="storage-description"
                                 disabled={!canUpdate}
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}
@@ -100,6 +104,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Endpoint
                             <input
+                                id="storage-endpoint"
+                                name="storage-endpoint"
                                 required
                                 disabled={!canUpdate}
                                 value={data.endpoint}
@@ -110,6 +116,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Bucket
                             <input
+                                id="storage-bucket"
+                                name="storage-bucket"
                                 required
                                 disabled={!canUpdate}
                                 value={data.bucket}
@@ -120,6 +128,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Region
                             <input
+                                id="storage-region"
+                                name="storage-region"
                                 required
                                 disabled={!canUpdate}
                                 value={data.region}
@@ -132,6 +142,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Access Key
                             <input
+                                id="storage-key"
+                                name="storage-key"
                                 type="password"
                                 required
                                 disabled={!canUpdate}
@@ -143,6 +155,8 @@ export default function Show({
                         <label className="flex flex-col gap-1 w-full">
                             Secret Key
                             <input
+                                id="storage-secret"
+                                name="storage-secret"
                                 type="password"
                                 required
                                 disabled={!canUpdate}
@@ -182,7 +196,13 @@ export default function Show({
                         </ul>
                         <label className="flex flex-col gap-1 pb-4">
                             Please confirm the execution of the actions by entering the Storage Name below
-                            <input value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={storage.name} />
+                            <input
+                                id="storage-delete-confirm"
+                                name="storage-delete-confirm"
+                                value={confirmation}
+                                onChange={(e) => setConfirmation(e.target.value)}
+                                placeholder={storage.name}
+                            />
                         </label>
                         <div className="flex gap-2 justify-end">
                             <button

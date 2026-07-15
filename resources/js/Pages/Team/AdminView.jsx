@@ -23,8 +23,7 @@ export default function AdminView({ search, users, lotsOfUsers, deleteUserUrl })
             <div className="pb-6">
                 <div className="flex items-end gap-2">
                     <h1>Team</h1>
-                    {/* "+ Add Team" modal (originally <livewire:team.create/>) intentionally omitted for now -
-                        same known-gap pattern as AppLayout's dropped embedded Livewire widgets. */}
+                    {/* "+ Add Team" modal intentionally omitted for now — a real, still-open UI gap. */}
                 </div>
                 <div className="subtitle">Team wide configurations.</div>
                 <div className="navbar-main">
@@ -42,6 +41,8 @@ export default function AdminView({ search, users, lotsOfUsers, deleteUserUrl })
             <div className="subtitle">Manage users of this instance.</div>
             <form onSubmit={submitSearch} className="flex flex-col gap-2 lg:flex-row">
                 <input
+                    id="team-admin-user-search"
+                    name="team-admin-user-search"
                     placeholder="Search for a user"
                     value={data.search}
                     onChange={(e) => setData('search', e.target.value)}

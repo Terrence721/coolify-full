@@ -62,9 +62,27 @@ function AddTaskModal({ containerNames, storeUrl, onClose }) {
     return (
         <Modal title="New Scheduled Task" onClose={onClose}>
             <form className="flex flex-col w-full gap-2" onSubmit={submit}>
-                <Field label="Name" required placeholder="Run cron" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                <Field label="Command" required placeholder="php artisan schedule:run" value={form.command} onChange={(e) => setForm({ ...form, command: e.target.value })} />
                 <Field
+                    id="scheduled-task-add-name"
+                    name="scheduled-task-add-name"
+                    label="Name"
+                    required
+                    placeholder="Run cron"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+                <Field
+                    id="scheduled-task-add-command"
+                    name="scheduled-task-add-command"
+                    label="Command"
+                    required
+                    placeholder="php artisan schedule:run"
+                    value={form.command}
+                    onChange={(e) => setForm({ ...form, command: e.target.value })}
+                />
+                <Field
+                    id="scheduled-task-add-frequency"
+                    name="scheduled-task-add-frequency"
                     label="Frequency"
                     required
                     placeholder="0 0 * * * or daily"
@@ -73,6 +91,8 @@ function AddTaskModal({ containerNames, storeUrl, onClose }) {
                     onChange={(e) => setForm({ ...form, frequency: e.target.value })}
                 />
                 <Field
+                    id="scheduled-task-add-timeout"
+                    name="scheduled-task-add-timeout"
                     label="Timeout (seconds)"
                     type="number"
                     required
@@ -259,8 +279,19 @@ function TaskDetail({ task, executions, isResourceRunning, taskUrls, canUpdate }
                     </div>
                     <h3 className="pt-4">Configuration</h3>
                     <div className="flex flex-col gap-2 w-full md:flex-row">
-                        <Field label="Name" required placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} disabled={!canUpdate} />
                         <Field
+                            id="scheduled-task-detail-name"
+                            name="scheduled-task-detail-name"
+                            label="Name"
+                            required
+                            placeholder="Name"
+                            value={form.name}
+                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                            disabled={!canUpdate}
+                        />
+                        <Field
+                            id="scheduled-task-detail-frequency"
+                            name="scheduled-task-detail-frequency"
                             label="Frequency"
                             required
                             placeholder="0 0 * * * or daily"
@@ -270,6 +301,8 @@ function TaskDetail({ task, executions, isResourceRunning, taskUrls, canUpdate }
                             disabled={!canUpdate}
                         />
                         <Field
+                            id="scheduled-task-detail-timeout"
+                            name="scheduled-task-detail-timeout"
                             label="Timeout (seconds)"
                             type="number"
                             required
@@ -280,6 +313,8 @@ function TaskDetail({ task, executions, isResourceRunning, taskUrls, canUpdate }
                             disabled={!canUpdate}
                         />
                         <Field
+                            id="scheduled-task-detail-container"
+                            name="scheduled-task-detail-container"
                             label="Service name"
                             placeholder="php"
                             helper={CONTAINER_HELPER}
@@ -288,7 +323,16 @@ function TaskDetail({ task, executions, isResourceRunning, taskUrls, canUpdate }
                             disabled={!canUpdate}
                         />
                     </div>
-                    <Field label="Command" required placeholder="php artisan schedule:run" value={form.command} onChange={(e) => setForm({ ...form, command: e.target.value })} disabled={!canUpdate} />
+                    <Field
+                        id="scheduled-task-detail-command"
+                        name="scheduled-task-detail-command"
+                        label="Command"
+                        required
+                        placeholder="php artisan schedule:run"
+                        value={form.command}
+                        onChange={(e) => setForm({ ...form, command: e.target.value })}
+                        disabled={!canUpdate}
+                    />
                 </div>
             </form>
 

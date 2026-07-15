@@ -161,13 +161,13 @@ export default function DatabaseImportTab({ importTab, flash }) {
                     {dumpAll ? (
                         <label className="flex flex-col gap-1">
                             Custom Import Command
-                            <textarea rows={8} readOnly className="font-mono" value={`${restoreCommand}${commands.dumpAllSuffix ?? ''}`} />
+                            <textarea id="db-import-command-readonly" name="db-import-command-readonly" rows={8} readOnly className="font-mono" value={`${restoreCommand}${commands.dumpAllSuffix ?? ''}`} />
                         </label>
                     ) : (
                         <>
                             <label className="flex flex-col gap-1">
                                 Custom Import Command
-                                <input value={restoreCommand} onChange={(e) => setRestoreCommand(e.target.value)} disabled={!canUpdate} />
+                                <input id="db-import-command" name="db-import-command" value={restoreCommand} onChange={(e) => setRestoreCommand(e.target.value)} disabled={!canUpdate} />
                             </label>
                             {importTab.dbType === 'standalone-postgresql' && (
                                 <div className="flex flex-col gap-1 pt-1 text-xs">
@@ -210,7 +210,13 @@ export default function DatabaseImportTab({ importTab, flash }) {
                     <div className="flex gap-2 items-end pt-2">
                         <label className="flex flex-col flex-1 gap-1">
                             Location of the backup file on the server
-                            <input placeholder="e.g. /home/user/backup.sql.gz" value={customLocation} onChange={(e) => setCustomLocation(e.target.value)} />
+                            <input
+                                id="db-import-custom-location"
+                                name="db-import-custom-location"
+                                placeholder="e.g. /home/user/backup.sql.gz"
+                                value={customLocation}
+                                onChange={(e) => setCustomLocation(e.target.value)}
+                            />
                         </label>
                         <button type="button" disabled={!customLocation} onClick={checkFile}>
                             Check File
@@ -219,7 +225,7 @@ export default function DatabaseImportTab({ importTab, flash }) {
                     <div className="pt-2 text-center text-xl font-bold">Or</div>
                     <label className="flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed rounded-sm cursor-pointer border-neutral-300 dark:border-coolgray-300 hover:border-warning/50">
                         <span>Select a backup file to upload.</span>
-                        <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelected} />
+                        <input id="db-import-file" name="db-import-file" ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelected} />
                     </label>
                     {uploadProgress !== null && <progress max="100" value={uploadProgress} className="w-full" />}
                     {uploadError && <div className="pt-2 text-error text-sm">{uploadError}</div>}
@@ -267,6 +273,8 @@ export default function DatabaseImportTab({ importTab, flash }) {
                         <label className="flex flex-col gap-1">
                             <span title="Path to the backup file in your S3 bucket, e.g., /backups/database-2025-01-15.gz">S3 File Path (within bucket)</span>
                             <input
+                                id="db-import-s3-path"
+                                name="db-import-s3-path"
                                 placeholder="/backups/database-backup.gz"
                                 value={s3Path}
                                 onChange={(e) => {

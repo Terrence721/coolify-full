@@ -66,6 +66,7 @@ export default function LogDrains({
                             <div className="w-32">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="log-drain-newrelic-enabled"
                                         type="checkbox"
                                         disabled={isLogDrainAxiomEnabled || isLogDrainCustomEnabled}
                                         checked={isLogDrainNewRelicEnabled}
@@ -90,6 +91,8 @@ export default function LogDrains({
                                     <label className="flex flex-col gap-1">
                                         License Key
                                         <input
+                                            id="log-drain-newrelic-license-key"
+                                            name="log-drain-newrelic-license-key"
                                             type="password"
                                             required
                                             disabled={isLogDrainEnabled}
@@ -103,6 +106,8 @@ export default function LogDrains({
                                     <label className="flex flex-col gap-1">
                                         Endpoint
                                         <input
+                                            id="log-drain-newrelic-base-uri"
+                                            name="log-drain-newrelic-base-uri"
                                             required
                                             disabled={isLogDrainEnabled}
                                             placeholder="https://log-api.eu.newrelic.com/log/v1"
@@ -123,6 +128,7 @@ export default function LogDrains({
                             <div className="w-32">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="log-drain-axiom-enabled"
                                         type="checkbox"
                                         disabled={isLogDrainNewRelicEnabled || isLogDrainCustomEnabled}
                                         checked={isLogDrainAxiomEnabled}
@@ -147,6 +153,8 @@ export default function LogDrains({
                                     <label className="flex flex-col gap-1">
                                         API Key
                                         <input
+                                            id="log-drain-axiom-api-key"
+                                            name="log-drain-axiom-api-key"
                                             type="password"
                                             required
                                             disabled={isLogDrainEnabled}
@@ -158,6 +166,8 @@ export default function LogDrains({
                                     <label className="flex flex-col gap-1">
                                         Dataset Name
                                         <input
+                                            id="log-drain-axiom-dataset-name"
+                                            name="log-drain-axiom-dataset-name"
                                             required
                                             disabled={isLogDrainEnabled}
                                             value={axiom.data.logDrainAxiomDatasetName}
@@ -177,6 +187,7 @@ export default function LogDrains({
                             <div className="w-32">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="log-drain-custom-enabled"
                                         type="checkbox"
                                         disabled={isLogDrainNewRelicEnabled || isLogDrainAxiomEnabled}
                                         checked={isLogDrainCustomEnabled}
@@ -200,6 +211,8 @@ export default function LogDrains({
                                 <label className="flex flex-col gap-1">
                                     Custom FluentBit Configuration
                                     <textarea
+                                        id="log-drain-custom-config"
+                                        name="log-drain-custom-config"
                                         rows={6}
                                         required
                                         disabled={isLogDrainEnabled}
@@ -211,6 +224,8 @@ export default function LogDrains({
                                 <label className="flex flex-col gap-1">
                                     Custom Parser Configuration
                                     <textarea
+                                        id="log-drain-custom-config-parser"
+                                        name="log-drain-custom-config-parser"
                                         disabled={isLogDrainEnabled}
                                         value={custom.data.logDrainCustomConfigParser}
                                         onChange={(e) => custom.setData('logDrainCustomConfigParser', e.target.value)}

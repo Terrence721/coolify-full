@@ -38,24 +38,43 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                     <div className="flex w-full gap-2 flex-wrap sm:flex-nowrap">
                         <label className="flex flex-col gap-1 w-full">
                             Name
-                            <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            <input
+                                id="add-server-name"
+                                name="add-server-name"
+                                required
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                            />
                             {errors.name && <span className="text-error">{errors.name}</span>}
                         </label>
                         <label className="flex flex-col gap-1 w-full">
                             Description
-                            <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                            <input
+                                id="add-server-description"
+                                name="add-server-description"
+                                value={data.description}
+                                onChange={(e) => setData('description', e.target.value)}
+                            />
                             {errors.description && <span className="text-error">{errors.description}</span>}
                         </label>
                     </div>
                     <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                         <label className="flex flex-col gap-1 w-full">
                             IP Address/Domain
-                            <input required value={data.ip} onChange={(e) => setData('ip', e.target.value)} />
+                            <input
+                                id="add-server-ip"
+                                name="add-server-ip"
+                                required
+                                value={data.ip}
+                                onChange={(e) => setData('ip', e.target.value)}
+                            />
                             {errors.ip && <span className="text-error">{errors.ip}</span>}
                         </label>
                         <label className="flex flex-col gap-1">
                             Port
                             <input
+                                id="add-server-port"
+                                name="add-server-port"
                                 type="number"
                                 required
                                 value={data.port}
@@ -66,7 +85,13 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                     </div>
                     <label className="flex flex-col gap-1">
                         User
-                        <input required value={data.user} onChange={(e) => setData('user', e.target.value)} />
+                        <input
+                            id="add-server-user"
+                            name="add-server-user"
+                            required
+                            value={data.user}
+                            onChange={(e) => setData('user', e.target.value)}
+                        />
                         {errors.user && <span className="text-error">{errors.user}</span>}
                     </label>
                     <div className="text-xs dark:text-warning text-coollabs">
@@ -84,6 +109,8 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                     <label className="flex flex-col gap-1">
                         Private Key
                         <select
+                            id="add-server-private-key-id"
+                            name="add-server-private-key-id"
                             required
                             value={data.private_key_id}
                             onChange={(e) => setData('private_key_id', e.target.value)}
@@ -101,6 +128,7 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                     </label>
                     <label className="flex items-center gap-2">
                         <input
+                            id="add-server-is-build-server"
                             type="checkbox"
                             checked={data.is_build_server}
                             onChange={(e) => setData('is_build_server', e.target.checked)}

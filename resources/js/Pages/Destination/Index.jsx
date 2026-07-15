@@ -80,12 +80,14 @@ export default function Index({ destinations, servers, hasServers, canCreate, cr
                             <div className="flex gap-2">
                                 <label className="flex flex-col gap-1 w-full">
                                     Name
-                                    <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                                    <input id="destination-name" name="destination-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
                                     {errors.name && <span className="text-error">{errors.name}</span>}
                                 </label>
                                 <label className="flex flex-col gap-1 w-full">
                                     Network
                                     <input
+                                        id="destination-network"
+                                        name="destination-network"
                                         required
                                         value={data.network}
                                         onChange={(e) => setData('network', e.target.value)}
@@ -96,6 +98,8 @@ export default function Index({ destinations, servers, hasServers, canCreate, cr
                             <label className="flex flex-col gap-1">
                                 Select a server
                                 <select
+                                    id="destination-server-id"
+                                    name="destination-server-id"
                                     required
                                     value={data.server_id}
                                     onChange={(e) => {

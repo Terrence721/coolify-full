@@ -65,13 +65,25 @@ export default function GithubPrivateRepositoryDeployKey({ defaultRepositoryUrl,
                     <form className="flex flex-col gap-2" onSubmit={submit}>
                         <label className="flex flex-col gap-1">
                             Repository URL (https:// or git@)
-                            <input required value={data.repository_url} onChange={(e) => setData('repository_url', e.target.value)} />
+                            <input
+                                id="deploy-key-repository-url"
+                                name="deploy-key-repository-url"
+                                required
+                                value={data.repository_url}
+                                onChange={(e) => setData('repository_url', e.target.value)}
+                            />
                             {errors.repository_url && <span className="text-error">{errors.repository_url}</span>}
                         </label>
                         <GitApplicationFields data={data} setData={setData} errors={errors}>
                             <label className="flex flex-col flex-1 gap-1">
                                 Branch
-                                <input required value={data.git_branch} onChange={(e) => setData('git_branch', e.target.value)} />
+                                <input
+                                    id="deploy-key-git-branch"
+                                    name="deploy-key-git-branch"
+                                    required
+                                    value={data.git_branch}
+                                    onChange={(e) => setData('git_branch', e.target.value)}
+                                />
                                 {errors.git_branch && <span className="text-error">{errors.git_branch}</span>}
                             </label>
                         </GitApplicationFields>

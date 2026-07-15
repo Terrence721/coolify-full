@@ -199,6 +199,8 @@ export default function ContainerLogs({
                         <form onSubmit={submitLines} className="relative flex items-center">
                             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">Lines:</span>
                             <input
+                                id={`${queryPrefix}logs-lines`}
+                                name={`${queryPrefix}logs-lines`}
                                 type="number"
                                 min={1}
                                 max={50000}
@@ -213,6 +215,8 @@ export default function ContainerLogs({
                     </div>
                     <div className="flex flex-wrap items-center justify-end gap-2">
                         <input
+                            id={`${queryPrefix}logs-search`}
+                            name={`${queryPrefix}logs-search`}
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -274,7 +278,7 @@ export default function ContainerLogs({
                                     <div className="py-1">
                                         {Object.keys(LEVEL_COLORS).map((level) => (
                                             <label key={level} className="flex items-center gap-2 px-4 py-1.5 text-sm cursor-pointer select-none">
-                                                <input type="checkbox" checked={logFilters[level]} onChange={() => toggleLogFilter(level)} />
+                                                <input id={`${queryPrefix}logs-filter-${level}`} type="checkbox" checked={logFilters[level]} onChange={() => toggleLogFilter(level)} />
                                                 <span className={`w-2.5 h-2.5 rounded-full ${LEVEL_COLORS[level]}`} />
                                                 {level.charAt(0).toUpperCase() + level.slice(1)}
                                             </label>

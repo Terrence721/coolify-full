@@ -76,6 +76,8 @@ export default function PublicGitRepository({ defaultRepositoryUrl, checkUrl, su
                     <label className="flex flex-col flex-1 gap-1">
                         Repository URL (https://)
                         <input
+                            id="public-git-repository-url"
+                            name="public-git-repository-url"
                             required
                             autoFocus
                             value={data.repository_url}
@@ -110,6 +112,8 @@ export default function PublicGitRepository({ defaultRepositoryUrl, checkUrl, su
                                 <label className="flex flex-col flex-1 gap-1">
                                     Branch
                                     <input
+                                        id="public-git-branch"
+                                        name="public-git-branch"
                                         value={data.git_branch}
                                         disabled={checkResult.isGithub}
                                         onChange={(e) => setData('git_branch', e.target.value)}

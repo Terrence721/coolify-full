@@ -114,6 +114,8 @@ export default function Show({
                         </div>
                         {showCertificate ? (
                             <textarea
+                                id="ca-certificate-content"
+                                name="ca-certificate-content"
                                 className="w-full h-[370px] input"
                                 placeholder="Paste or edit CA certificate content here..."
                                 value={data.certificateContent}

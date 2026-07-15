@@ -65,6 +65,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <div className="md:w-96">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="settings-advanced-is-registration-enabled"
                                         type="checkbox"
                                         checked={data.is_registration_enabled}
                                         onChange={(e) => setData('is_registration_enabled', e.target.checked)}
@@ -83,6 +84,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <div className="md:w-96">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="settings-advanced-do-not-track"
                                     type="checkbox"
                                     checked={data.do_not_track}
                                     onChange={(e) => setData('do_not_track', e.target.checked)}
@@ -95,6 +97,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <div className="md:w-96">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="settings-advanced-is-dns-validation-enabled"
                                     type="checkbox"
                                     checked={data.is_dns_validation_enabled}
                                     onChange={(e) => setData('is_dns_validation_enabled', e.target.checked)}
@@ -105,6 +108,8 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <label className="flex flex-col gap-1">
                             Custom DNS Servers
                             <input
+                                id="settings-advanced-custom-dns-servers"
+                                name="settings-advanced-custom-dns-servers"
                                 placeholder="1.1.1.1,8.8.8.8"
                                 value={data.custom_dns_servers ?? ''}
                                 onChange={(e) => setData('custom_dns_servers', e.target.value)}
@@ -116,6 +121,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <div className="md:w-96">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="settings-advanced-is-api-enabled"
                                     type="checkbox"
                                     checked={data.is_api_enabled}
                                     onChange={(e) => setData('is_api_enabled', e.target.checked)}
@@ -126,6 +132,8 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <label className="flex flex-col gap-1">
                             Allowed IPs for API Access
                             <input
+                                id="settings-advanced-allowed-ips"
+                                name="settings-advanced-allowed-ips"
                                 placeholder="192.168.1.100,10.0.0.0/8,203.0.113.0/24"
                                 value={data.allowed_ips ?? ''}
                                 onChange={(e) => setData('allowed_ips', e.target.value)}
@@ -143,6 +151,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <div className="md:w-96">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="settings-advanced-is-mcp-server-enabled"
                                     type="checkbox"
                                     checked={data.is_mcp_server_enabled}
                                     onChange={(e) => setData('is_mcp_server_enabled', e.target.checked)}
@@ -163,6 +172,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         <div className="md:w-96">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="settings-advanced-is-wire-navigate-enabled"
                                     type="checkbox"
                                     checked={data.is_wire_navigate_enabled}
                                     onChange={(e) => setData('is_wire_navigate_enabled', e.target.checked)}
@@ -179,6 +189,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <div className="pb-4 md:w-96">
                                 <label className="flex items-center gap-2">
                                     <input
+                                        id="settings-advanced-disable-two-step-confirmation"
                                         type="checkbox"
                                         checked={data.disable_two_step_confirmation}
                                         onChange={(e) => setData('disable_two_step_confirmation', e.target.checked)}

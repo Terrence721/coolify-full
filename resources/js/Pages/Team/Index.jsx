@@ -25,8 +25,7 @@ export default function Index({ team, canUpdate, canDelete, deletionBlockedReaso
             <div className="pb-6">
                 <div className="flex items-end gap-2">
                     <h1>Team</h1>
-                    {/* "+ Add Team" modal (originally <livewire:team.create/>) intentionally omitted for now —
-                        same known-gap pattern as AppLayout's dropped embedded Livewire widgets. */}
+                    {/* "+ Add Team" modal intentionally omitted for now — a real, still-open UI gap. */}
                 </div>
                 <div className="subtitle">Team wide configurations.</div>
                 <div className="navbar-main">
@@ -47,12 +46,24 @@ export default function Index({ team, canUpdate, canDelete, deletionBlockedReaso
                 <div className="flex items-end gap-2 pb-6">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input disabled={!canUpdate} value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                        <input
+                            id="team-name"
+                            name="team-name"
+                            disabled={!canUpdate}
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                        />
                         {errors.name && <span className="text-error">{errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input disabled={!canUpdate} value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input
+                            id="team-description"
+                            name="team-description"
+                            disabled={!canUpdate}
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                         {errors.description && <span className="text-error">{errors.description}</span>}
                     </label>
                     {canUpdate && (

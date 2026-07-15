@@ -81,12 +81,12 @@ export default function Index({
                 <div className="flex flex-col gap-2 lg:flex-row items-end">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input value={profile.data.name} onChange={(e) => profile.setData('name', e.target.value)} />
+                        <input id="profile-name" name="profile-name" value={profile.data.name} onChange={(e) => profile.setData('name', e.target.value)} />
                         {profile.errors.name && <span className="text-error">{profile.errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
                         Email
-                        <input value={email} readOnly />
+                        <input id="profile-email" name="profile-email" value={email} readOnly />
                     </label>
                 </div>
             </form>
@@ -98,6 +98,8 @@ export default function Index({
                             <label className="flex flex-col gap-1">
                                 New Email Address
                                 <input
+                                    id="profile-new-email"
+                                    name="profile-new-email"
                                     type="email"
                                     value={emailChange.data.new_email}
                                     onChange={(e) => emailChange.setData('new_email', e.target.value)}
@@ -120,6 +122,8 @@ export default function Index({
                             <label className="flex flex-col gap-1">
                                 Verification Code (6 digits)
                                 <input
+                                    id="profile-email-verification-code"
+                                    name="profile-email-verification-code"
                                     maxLength={6}
                                     value={verify.data.email_verification_code}
                                     onChange={(e) => verify.setData('email_verification_code', e.target.value)}
@@ -157,6 +161,8 @@ export default function Index({
                     <label className="flex flex-col gap-1">
                         Current Password
                         <input
+                            id="profile-current-password"
+                            name="profile-current-password"
                             type="password"
                             value={password.data.current_password}
                             onChange={(e) => password.setData('current_password', e.target.value)}
@@ -167,6 +173,8 @@ export default function Index({
                         <label className="flex flex-col gap-1">
                             New Password
                             <input
+                                id="profile-new-password"
+                                name="profile-new-password"
                                 type="password"
                                 value={password.data.new_password}
                                 onChange={(e) => password.setData('new_password', e.target.value)}
@@ -176,6 +184,8 @@ export default function Index({
                         <label className="flex flex-col gap-1">
                             New Password Again
                             <input
+                                id="profile-new-password-confirmation"
+                                name="profile-new-password-confirmation"
                                 type="password"
                                 value={password.data.new_password_confirmation}
                                 onChange={(e) => password.setData('new_password_confirmation', e.target.value)}

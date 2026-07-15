@@ -60,6 +60,8 @@ export default function GitSourceTab({ source, sourceUrls, canUpdate }) {
                         <label className="flex flex-col gap-1">
                             Repository
                             <input
+                                id="git-source-repository"
+                                name="git-source-repository"
                                 placeholder="coollabsio/coolify-example"
                                 disabled={!canUpdate}
                                 value={form.gitRepository}
@@ -69,6 +71,8 @@ export default function GitSourceTab({ source, sourceUrls, canUpdate }) {
                         <label className="flex flex-col gap-1">
                             Branch
                             <input
+                                id="git-source-branch"
+                                name="git-source-branch"
                                 placeholder="main"
                                 disabled={!canUpdate}
                                 value={form.gitBranch}
@@ -79,6 +83,8 @@ export default function GitSourceTab({ source, sourceUrls, canUpdate }) {
                     <label className="flex flex-col gap-1">
                         Commit SHA
                         <input
+                            id="git-source-commit-sha"
+                            name="git-source-commit-sha"
                             placeholder="HEAD"
                             disabled={!canUpdate}
                             value={form.gitCommitSha}

@@ -329,17 +329,32 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                             <div className="flex flex-col gap-2 w-full lg:flex-row">
                                 <label className="flex flex-col gap-1 w-full">
                                     Name
-                                    <input required disabled={isValidating} value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                                    <input
+                                        id="server-name"
+                                        name="server-name"
+                                        required
+                                        disabled={isValidating}
+                                        value={data.name}
+                                        onChange={(e) => setData('name', e.target.value)}
+                                    />
                                     {errors.name && <span className="text-error">{errors.name}</span>}
                                 </label>
                                 <label className="flex flex-col gap-1 w-full">
                                     Description
-                                    <input disabled={isValidating} value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                                    <input
+                                        id="server-description"
+                                        name="server-description"
+                                        disabled={isValidating}
+                                        value={data.description}
+                                        onChange={(e) => setData('description', e.target.value)}
+                                    />
                                 </label>
                                 {!isBuildServer && (
                                     <label className="flex flex-col gap-1 w-full">
                                         Wildcard Domain
                                         <input
+                                            id="server-wildcard-domain"
+                                            name="server-wildcard-domain"
                                             disabled={isValidating}
                                             placeholder="https://example.com"
                                             value={data.wildcardDomain}
@@ -353,6 +368,8 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 <label className="flex flex-col gap-1 w-full">
                                     IP Address/Domain
                                     <input
+                                        id="server-ip"
+                                        name="server-ip"
                                         type="password"
                                         required
                                         disabled={isValidating}
@@ -363,12 +380,21 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     User
-                                    <input required disabled={isValidating} value={data.user} onChange={(e) => setData('user', e.target.value)} />
+                                    <input
+                                        id="server-user"
+                                        name="server-user"
+                                        required
+                                        disabled={isValidating}
+                                        value={data.user}
+                                        onChange={(e) => setData('user', e.target.value)}
+                                    />
                                     {errors.user && <span className="text-error">{errors.user}</span>}
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     Port
                                     <input
+                                        id="server-port"
+                                        name="server-port"
                                         type="number"
                                         required
                                         disabled={isValidating}
@@ -381,6 +407,8 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                             <label className="flex flex-col gap-1 w-full lg:w-64">
                                 SSH Connection Timeout (s)
                                 <input
+                                    id="server-connection-timeout"
+                                    name="server-connection-timeout"
                                     type="number"
                                     min="1"
                                     max="300"
@@ -393,7 +421,13 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                             </label>
                             <label className="flex flex-col gap-1 w-full lg:w-64">
                                 Server Timezone
-                                <select disabled={isValidating} value={data.serverTimezone} onChange={(e) => setData('serverTimezone', e.target.value)}>
+                                <select
+                                    id="server-timezone"
+                                    name="server-timezone"
+                                    disabled={isValidating}
+                                    value={data.serverTimezone}
+                                    onChange={(e) => setData('serverTimezone', e.target.value)}
+                                >
                                     <option value="">Select Server Timezone</option>
                                     {timezones.map((tz) => (
                                         <option key={tz} value={tz}>
@@ -407,6 +441,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                             {!server.isLocalhost && (
                                 <label className="flex items-center gap-2 w-full sm:w-96">
                                     <input
+                                        id="server-is-build-server"
                                         type="checkbox"
                                         disabled={server.isBuildServerLocked || isValidating}
                                         checked={isBuildServer}
@@ -474,7 +509,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                             <div className="flex flex-wrap gap-4 items-end">
                                 <label className="flex flex-col gap-1 w-72">
                                     Hetzner Token
-                                    <select value={selectedTokenId} onChange={(e) => setSelectedTokenId(e.target.value)}>
+                                    <select id="server-hetzner-token" name="server-hetzner-token" value={selectedTokenId} onChange={(e) => setSelectedTokenId(e.target.value)}>
                                         <option value="">Select a token...</option>
                                         {availableHetznerTokens.map((token) => (
                                             <option key={token.id} value={token.id}>
@@ -486,6 +521,8 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 <label className="flex flex-col gap-1 w-48">
                                     Server ID
                                     <input
+                                        id="server-hetzner-server-id"
+                                        name="server-hetzner-server-id"
                                         placeholder="e.g., 12345678"
                                         value={manualHetznerServerId}
                                         onChange={(e) => setManualHetznerServerId(e.target.value)}

@@ -73,7 +73,12 @@ function TypeStep({ project, environment, environments, services, categories, gi
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                 <h1>New Resource</h1>
                 <div className="w-full lg:w-96">
-                    <select value={environment.uuid} onChange={(e) => switchEnvironment(e.target.value)}>
+                    <select
+                        id="resource-create-environment"
+                        name="resource-create-environment"
+                        value={environment.uuid}
+                        onChange={(e) => switchEnvironment(e.target.value)}
+                    >
                         {environments.map((env) => (
                             <option key={env.uuid} value={env.uuid}>
                                 Environment: {env.name}

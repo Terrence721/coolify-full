@@ -21,12 +21,23 @@ export default function AddProjectModal({ createUrl, onClose }) {
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <label className="flex flex-col gap-1">
                         Name
-                        <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                        <input
+                            id="add-project-name"
+                            name="add-project-name"
+                            required
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                        />
                         {errors.name && <span className="text-error">{errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input
+                            id="add-project-description"
+                            name="add-project-description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                         {errors.description && <span className="text-error">{errors.description}</span>}
                     </label>
                     <button type="submit" disabled={processing}>

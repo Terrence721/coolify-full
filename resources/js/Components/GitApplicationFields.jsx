@@ -50,7 +50,7 @@ export default function GitApplicationFields({ data, setData, errors, children }
                 {children}
                 <label className="flex flex-col flex-1 gap-1">
                     Build Pack
-                    <select required value={data.build_pack} onChange={(e) => setBuildPack(e.target.value)}>
+                    <select id="git-fields-build-pack" name="git-fields-build-pack" required value={data.build_pack} onChange={(e) => setBuildPack(e.target.value)}>
                         <option value="nixpacks">Nixpacks</option>
                         <option value="railpack">Railpack (Beta)</option>
                         <option value="static">Static</option>
@@ -63,6 +63,8 @@ export default function GitApplicationFields({ data, setData, errors, children }
                     <label className="flex flex-col flex-1 gap-1">
                         Publish Directory
                         <input
+                            id="git-fields-publish-directory"
+                            name="git-fields-publish-directory"
                             value={data.publish_directory ?? ''}
                             onChange={(e) => setData({ ...data, publish_directory: e.target.value })}
                             title="If there is a build process involved (like Svelte, React, Next, etc..), specify the output directory for the build assets."
@@ -77,6 +79,8 @@ export default function GitApplicationFields({ data, setData, errors, children }
                     <label className="flex flex-col gap-1">
                         Base Directory
                         <input
+                            id="git-fields-base-directory"
+                            name="git-fields-base-directory"
                             placeholder="/"
                             value={data.base_directory ?? ''}
                             onChange={(e) => setData({ ...data, base_directory: e.target.value })}
@@ -88,6 +92,8 @@ export default function GitApplicationFields({ data, setData, errors, children }
                     <label className="flex flex-col gap-1">
                         Docker Compose Location
                         <input
+                            id="git-fields-docker-compose-location"
+                            name="git-fields-docker-compose-location"
                             placeholder="/docker-compose.yaml"
                             value={data.docker_compose_location ?? ''}
                             onChange={(e) => setData({ ...data, docker_compose_location: e.target.value })}
@@ -105,6 +111,8 @@ export default function GitApplicationFields({ data, setData, errors, children }
                 <label className="flex flex-col gap-1">
                     Base Directory
                     <input
+                        id="git-fields-base-directory"
+                        name="git-fields-base-directory"
                         value={data.base_directory ?? ''}
                         onChange={(e) => setData({ ...data, base_directory: e.target.value })}
                         title="Directory to use as root. Useful for monorepos."
@@ -118,6 +126,8 @@ export default function GitApplicationFields({ data, setData, errors, children }
                     <label className="flex flex-col gap-1">
                         Port
                         <input
+                            id="git-fields-port"
+                            name="git-fields-port"
                             type="number"
                             value={data.port}
                             readOnly={data.is_static || data.build_pack === 'static'}
@@ -128,7 +138,7 @@ export default function GitApplicationFields({ data, setData, errors, children }
                     </label>
                     <div className="w-64">
                         <label className="flex gap-2 items-center">
-                            <input type="checkbox" checked={data.is_static} onChange={(e) => toggleIsStatic(e.target.checked)} />
+                            <input id="git-fields-is-static" type="checkbox" checked={data.is_static} onChange={(e) => toggleIsStatic(e.target.checked)} />
                             Is it a static site?
                         </label>
                     </div>

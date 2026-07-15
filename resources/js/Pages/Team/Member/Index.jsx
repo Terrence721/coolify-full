@@ -101,7 +101,13 @@ function InvitationRow({ invitation }) {
             <td className="px-5 py-4 text-sm whitespace-nowrap">{invitation.role}</td>
             <td className="px-5 py-4 text-sm whitespace-nowrap">
                 <div className="flex gap-2">
-                    <input type={showLink ? 'text' : 'password'} readOnly value={invitation.link} />
+                    <input
+                        id={`invitation-${invitation.id}-link`}
+                        name={`invitation-${invitation.id}-link`}
+                        type={showLink ? 'text' : 'password'}
+                        readOnly
+                        value={invitation.link}
+                    />
                     <button type="button" onClick={() => setShowLink((v) => !v)}>
                         {showLink ? 'Hide' : 'Show'}
                     </button>
@@ -210,6 +216,8 @@ export default function Index({
                             <label className="flex flex-col gap-1 w-full">
                                 Email
                                 <input
+                                    id="team-invite-email"
+                                    name="team-invite-email"
                                     type="email"
                                     required
                                     value={data.email}
@@ -219,7 +227,7 @@ export default function Index({
                             </label>
                             <label className="flex flex-col gap-1">
                                 Role
-                                <select value={data.role} onChange={(e) => setData('role', e.target.value)}>
+                                <select id="team-invite-role" name="team-invite-role" value={data.role} onChange={(e) => setData('role', e.target.value)}>
                                     {currentUserRole === 'owner' && <option value="owner">Owner</option>}
                                     <option value="admin">Admin</option>
                                     <option value="member">Member</option>

@@ -52,7 +52,13 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                             <div className="w-64">
                                 <label className="flex flex-col gap-1">
                                     Provider
-                                    <select disabled value={data.provider} onChange={(e) => setData('provider', e.target.value)}>
+                                    <select
+                                        id="cloud-token-provider"
+                                        name="cloud-token-provider"
+                                        disabled
+                                        value={data.provider}
+                                        onChange={(e) => setData('provider', e.target.value)}
+                                    >
                                         <option value="hetzner">Hetzner</option>
                                         <option value="digitalocean">DigitalOcean</option>
                                     </select>
@@ -62,6 +68,8 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                                 <label className="flex flex-col gap-1">
                                     Token Name
                                     <input
+                                        id="cloud-token-name"
+                                        name="cloud-token-name"
                                         required
                                         placeholder="e.g., Production Hetzner. tip: add Hetzner project name to identify easier"
                                         value={data.name}
@@ -75,6 +83,8 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                             <label className="flex flex-col gap-1">
                                 API Token
                                 <input
+                                    id="cloud-token-value"
+                                    name="cloud-token-value"
                                     required
                                     type="password"
                                     placeholder="Enter your API token"

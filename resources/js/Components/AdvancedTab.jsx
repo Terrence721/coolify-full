@@ -10,10 +10,10 @@ import { useState } from 'react';
  * pattern, not a field-scoped PATCH) — Livewire's `syncData(toModel: true)` behavior this port
  * replicates throughout the migration.
  */
-function Checkbox({ label, helper, checked, onChange, disabled = false }) {
+function Checkbox({ id, label, helper, checked, onChange, disabled = false }) {
     return (
         <label className="flex items-start gap-2">
-            <input type="checkbox" checked={checked} disabled={disabled} onChange={onChange} className="mt-1" />
+            <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={onChange} className="mt-1" />
             <span className="flex flex-col">
                 <span>{label}</span>
                 {helper && <span className="text-xs text-neutral-500" dangerouslySetInnerHTML={{ __html: helper }} />}
@@ -88,6 +88,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                 <div className="flex flex-col gap-1 pt-4">
                     <h3>Build</h3>
                     <Checkbox
+                        id="advanced-disable-build-cache"
                         label="Disable Build Cache"
                         helper="Disable Docker build cache on every deployment."
                         checked={form.disableBuildCache}
@@ -95,6 +96,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         onChange={(e) => instantSave({ disableBuildCache: e.target.checked })}
                     />
                     <Checkbox
+                        id="advanced-inject-build-args-to-dockerfile"
                         label="Inject Build Args to Dockerfile"
                         helper="When enabled, Coolify automatically adds ARG statements to your Dockerfile for build-time variables. Disable this if you manage ARGs manually in your Dockerfile to preserve Docker build cache."
                         checked={form.injectBuildArgsToDockerfile}
@@ -102,6 +104,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         onChange={(e) => instantSave({ injectBuildArgsToDockerfile: e.target.checked })}
                     />
                     <Checkbox
+                        id="advanced-include-source-commit-in-build"
                         label="Include Source Commit in Build"
                         helper="When enabled, SOURCE_COMMIT (git commit hash) is available during Docker build. Disable to preserve cache across different commits - SOURCE_COMMIT will still be available at runtime."
                         checked={form.includeSourceCommitInBuild}
@@ -111,6 +114,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
 
                     <h3 className="pt-4">Container</h3>
                     <Checkbox
+                        id="advanced-is-consistent-container-name-enabled"
                         label="Consistent Container Names"
                         helper="The deployed container will have the same name. <span class='font-bold dark:text-warning'>You will lose the rolling update feature!</span>"
                         checked={form.isConsistentContainerNameEnabled}
@@ -121,7 +125,13 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         <form className="flex items-end gap-2" onSubmit={saveCustomName}>
                             <label className="flex flex-col gap-1">
                                 Custom Container Name
-                                <input disabled={!canUpdate} value={customInternalName} onChange={(e) => setCustomInternalName(e.target.value)} />
+                                <input
+                                    id="advanced-custom-internal-name"
+                                    name="advanced-custom-internal-name"
+                                    disabled={!canUpdate}
+                                    value={customInternalName}
+                                    onChange={(e) => setCustomInternalName(e.target.value)}
+                                />
                                 <span className="text-xs text-neutral-500">
                                     You can add a custom name for your container. The name will be converted to slug format when you save it. You will lose
                                     the rolling update feature!
@@ -135,6 +145,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         <>
                             <h3 className="pt-4">Deployment</h3>
                             <Checkbox
+                                id="advanced-is-auto-deploy-enabled"
                                 label="Auto Deploy"
                                 helper="Automatically deploy new commits based on Git webhooks."
                                 checked={form.isAutoDeployEnabled}
@@ -142,6 +153,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                 onChange={(e) => instantSave({ isAutoDeployEnabled: e.target.checked })}
                             />
                             <Checkbox
+                                id="advanced-is-preview-deployments-enabled"
                                 label="Preview Deployments"
                                 helper="Allow to automatically deploy Preview Deployments for all opened PR's.<br/><br/>Closing a PR will delete Preview Deployments."
                                 checked={form.isPreviewDeploymentsEnabled}
@@ -149,6 +161,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                 onChange={(e) => instantSave({ isPreviewDeploymentsEnabled: e.target.checked })}
                             />
                             <Checkbox
+                                id="advanced-is-pr-deployments-public-enabled"
                                 label="Allow Public PR Deployments"
                                 helper="When enabled, anyone can trigger PR deployments. When disabled, fork PRs are blocked and only repository owners, members, and collaborators can trigger PR deployments."
                                 checked={form.isPrDeploymentsPublicEnabled}
@@ -158,6 +171,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
 
                             <h3 className="pt-4">Git</h3>
                             <Checkbox
+                                id="advanced-is-git-submodules-enabled"
                                 label="Submodules"
                                 helper="Allow Git Submodules during build process."
                                 checked={form.isGitSubmodulesEnabled}
@@ -165,6 +179,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                 onChange={(e) => instantSave({ isGitSubmodulesEnabled: e.target.checked })}
                             />
                             <Checkbox
+                                id="advanced-is-git-lfs-enabled"
                                 label="LFS"
                                 helper="Allow Git LFS during build process."
                                 checked={form.isGitLfsEnabled}
@@ -172,6 +187,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                 onChange={(e) => instantSave({ isGitLfsEnabled: e.target.checked })}
                             />
                             <Checkbox
+                                id="advanced-is-git-shallow-clone-enabled"
                                 label="Shallow Clone"
                                 helper="Use shallow cloning (--depth=1) to speed up deployments by only fetching the latest commit history. This reduces clone time and resource usage, especially for large repositories."
                                 checked={form.isGitShallowCloneEnabled}
@@ -185,6 +201,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         <>
                             <h3 className="pt-4">Docker Compose</h3>
                             <Checkbox
+                                id="advanced-is-raw-compose-deployment-enabled"
                                 label="Raw Compose Deployment"
                                 helper="WARNING: Advanced use cases only. Your docker compose file will be deployed as-is. Nothing is modified by Coolify. You need to configure the proxy parts."
                                 checked={form.isRawComposeDeploymentEnabled}
@@ -192,6 +209,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                 onChange={(e) => instantSave({ isRawComposeDeploymentEnabled: e.target.checked })}
                             />
                             <Checkbox
+                                id="advanced-is-connect-to-docker-network-enabled"
                                 label="Connect To Predefined Network"
                                 helper="By default, you do not reach the Coolify defined networks. Starting a docker compose based resource will have an internal network. If you connect to a Coolify defined network, you maybe need to use different internal DNS names to connect to a resource."
                                 checked={form.isConnectToDockerNetworkEnabled}
@@ -203,6 +221,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
 
                     <h3 className="pt-4">Proxy</h3>
                     <Checkbox
+                        id="advanced-is-force-https-enabled"
                         label="Force Https"
                         helper={
                             advanced.isContainerLabelReadonlyEnabled
@@ -214,6 +233,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         onChange={(e) => instantSave({ isForceHttpsEnabled: e.target.checked })}
                     />
                     <Checkbox
+                        id="advanced-is-gzip-enabled"
                         label="Enable Gzip Compression"
                         helper={
                             advanced.isContainerLabelReadonlyEnabled
@@ -225,6 +245,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                         onChange={(e) => instantSave({ isGzipEnabled: e.target.checked })}
                     />
                     <Checkbox
+                        id="advanced-is-stripprefix-enabled"
                         label="Strip Prefixes"
                         helper={
                             advanced.isContainerLabelReadonlyEnabled
@@ -240,7 +261,14 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                     <form className="flex items-end gap-2" onSubmit={saveStopGracePeriod}>
                         <label className="flex flex-col gap-1">
                             Stop Grace Period (seconds)
-                            <input type="number" disabled={!canUpdate} value={stopGracePeriod} onChange={(e) => setStopGracePeriod(e.target.value)} />
+                            <input
+                                id="advanced-stop-grace-period"
+                                name="advanced-stop-grace-period"
+                                type="number"
+                                disabled={!canUpdate}
+                                value={stopGracePeriod}
+                                onChange={(e) => setStopGracePeriod(e.target.value)}
+                            />
                             <span className="text-xs text-neutral-500">
                                 How long to wait for graceful shutdown during rolling updates, manual stops, and restarts.
                             </span>
@@ -250,7 +278,15 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                     <form className="flex items-end gap-2" onSubmit={saveMaxRestartCount}>
                         <label className="flex flex-col gap-1">
                             Max Restart Count
-                            <input type="number" min={0} disabled={!canUpdate} value={maxRestartCount} onChange={(e) => setMaxRestartCount(e.target.value)} />
+                            <input
+                                id="advanced-max-restart-count"
+                                name="advanced-max-restart-count"
+                                type="number"
+                                min={0}
+                                disabled={!canUpdate}
+                                value={maxRestartCount}
+                                onChange={(e) => setMaxRestartCount(e.target.value)}
+                            />
                             <span className="text-xs text-neutral-500">
                                 Maximum number of crash restarts before Coolify automatically stops the application and sends a notification. Set to 0 to
                                 disable the limit.
@@ -261,6 +297,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
 
                     <h3 className="pt-4">Logs</h3>
                     <Checkbox
+                        id="advanced-is-log-drain-enabled"
                         label="Drain Logs"
                         helper="Drain logs to your configured log drain endpoint in your Server settings."
                         checked={form.isLogDrainEnabled}
@@ -278,6 +315,7 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                     </div>
                     <div className="md:w-96 pb-4">
                         <Checkbox
+                            id="advanced-is-gpu-enabled"
                             label="Enable GPU"
                             helper="Enable GPU usage for this application."
                             checked={form.isGpuEnabled}
@@ -290,11 +328,19 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                             <div className="flex gap-2 items-end">
                                 <label className="flex flex-col gap-1">
                                     GPU Driver
-                                    <input disabled={!canUpdate} value={form.gpuDriver} onChange={(e) => setForm({ ...form, gpuDriver: e.target.value })} />
+                                    <input
+                                        id="advanced-gpu-driver"
+                                        name="advanced-gpu-driver"
+                                        disabled={!canUpdate}
+                                        value={form.gpuDriver}
+                                        onChange={(e) => setForm({ ...form, gpuDriver: e.target.value })}
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     GPU Count
                                     <input
+                                        id="advanced-gpu-count"
+                                        name="advanced-gpu-count"
                                         placeholder="empty means use all GPUs"
                                         disabled={!canUpdate}
                                         value={form.gpuCount}
@@ -305,6 +351,8 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                             <label className="flex flex-col gap-1">
                                 GPU Device Ids
                                 <input
+                                    id="advanced-gpu-device-ids"
+                                    name="advanced-gpu-device-ids"
                                     placeholder="0,2"
                                     disabled={!canUpdate}
                                     value={form.gpuDeviceIds}
@@ -314,7 +362,14 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                             </label>
                             <label className="flex flex-col gap-1">
                                 GPU Options
-                                <textarea rows={10} disabled={!canUpdate} value={form.gpuOptions} onChange={(e) => setForm({ ...form, gpuOptions: e.target.value })} />
+                                <textarea
+                                    id="advanced-gpu-options"
+                                    name="advanced-gpu-options"
+                                    rows={10}
+                                    disabled={!canUpdate}
+                                    value={form.gpuOptions}
+                                    onChange={(e) => setForm({ ...form, gpuOptions: e.target.value })}
+                                />
                             </label>
                         </div>
                     )}

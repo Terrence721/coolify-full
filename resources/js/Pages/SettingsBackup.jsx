@@ -73,15 +73,17 @@ export default function SettingsBackup({
                                 <div className="flex gap-2">
                                     <label className="flex flex-col gap-1">
                                         UUID
-                                        <input readOnly value={database.uuid} />
+                                        <input id="settings-backup-uuid" name="settings-backup-uuid" readOnly value={database.uuid} />
                                     </label>
                                     <label className="flex flex-col gap-1">
                                         Name
-                                        <input readOnly value={identity.data.name} />
+                                        <input id="settings-backup-name" name="settings-backup-name" readOnly value={identity.data.name} />
                                     </label>
                                     <label className="flex flex-col gap-1">
                                         Description
                                         <input
+                                            id="settings-backup-description"
+                                            name="settings-backup-description"
                                             value={identity.data.description ?? ''}
                                             onChange={(e) => identity.setData('description', e.target.value)}
                                         />
@@ -91,11 +93,17 @@ export default function SettingsBackup({
                                 <div className="flex gap-2">
                                     <label className="flex flex-col gap-1">
                                         User
-                                        <input readOnly value={identity.data.postgres_user} />
+                                        <input id="settings-backup-postgres-user" name="settings-backup-postgres-user" readOnly value={identity.data.postgres_user} />
                                     </label>
                                     <label className="flex flex-col gap-1">
                                         Password
-                                        <input type="password" readOnly value={identity.data.postgres_password} />
+                                        <input
+                                            id="settings-backup-postgres-password"
+                                            name="settings-backup-postgres-password"
+                                            type="password"
+                                            readOnly
+                                            value={identity.data.postgres_password}
+                                        />
                                     </label>
                                 </div>
                             </form>

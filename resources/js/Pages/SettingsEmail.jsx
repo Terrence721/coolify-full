@@ -76,6 +76,8 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                         <label className="flex flex-col gap-1">
                             Recipient
                             <input
+                                id="settings-email-test-recipient"
+                                name="settings-email-test-recipient"
                                 type="email"
                                 placeholder="test@example.com"
                                 value={testForm.data.test_email_address}
@@ -94,11 +96,21 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         From Name
-                        <input value={smtp.data.smtp_from_name ?? ''} onChange={(e) => setFromField('smtp_from_name', e.target.value)} />
+                        <input
+                            id="settings-email-from-name"
+                            name="settings-email-from-name"
+                            value={smtp.data.smtp_from_name ?? ''}
+                            onChange={(e) => setFromField('smtp_from_name', e.target.value)}
+                        />
                     </label>
                     <label className="flex flex-col gap-1">
                         From Address
-                        <input value={smtp.data.smtp_from_address ?? ''} onChange={(e) => setFromField('smtp_from_address', e.target.value)} />
+                        <input
+                            id="settings-email-from-address"
+                            name="settings-email-from-address"
+                            value={smtp.data.smtp_from_address ?? ''}
+                            onChange={(e) => setFromField('smtp_from_address', e.target.value)}
+                        />
                     </label>
                 </div>
             </div>
@@ -114,6 +126,7 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                     <div className="w-32">
                         <label className="flex items-center gap-2">
                             <input
+                                id="settings-email-smtp-enabled"
                                 type="checkbox"
                                 checked={smtp.data.smtp_enabled}
                                 onChange={(e) => smtp.setData('smtp_enabled', e.target.checked)}
@@ -125,15 +138,33 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                         <div className="flex flex-col w-full gap-2 xl:flex-row">
                             <label className="flex flex-col gap-1">
                                 Host
-                                <input placeholder="smtp.mailgun.org" value={smtp.data.smtp_host ?? ''} onChange={(e) => smtp.setData('smtp_host', e.target.value)} />
+                                <input
+                                    id="settings-email-smtp-host"
+                                    name="settings-email-smtp-host"
+                                    placeholder="smtp.mailgun.org"
+                                    value={smtp.data.smtp_host ?? ''}
+                                    onChange={(e) => smtp.setData('smtp_host', e.target.value)}
+                                />
                             </label>
                             <label className="flex flex-col gap-1">
                                 Port
-                                <input type="number" placeholder="587" value={smtp.data.smtp_port ?? ''} onChange={(e) => smtp.setData('smtp_port', e.target.value)} />
+                                <input
+                                    id="settings-email-smtp-port"
+                                    name="settings-email-smtp-port"
+                                    type="number"
+                                    placeholder="587"
+                                    value={smtp.data.smtp_port ?? ''}
+                                    onChange={(e) => smtp.setData('smtp_port', e.target.value)}
+                                />
                             </label>
                             <label className="flex flex-col gap-1">
                                 Encryption
-                                <select value={smtp.data.smtp_encryption} onChange={(e) => smtp.setData('smtp_encryption', e.target.value)}>
+                                <select
+                                    id="settings-email-smtp-encryption"
+                                    name="settings-email-smtp-encryption"
+                                    value={smtp.data.smtp_encryption}
+                                    onChange={(e) => smtp.setData('smtp_encryption', e.target.value)}
+                                >
                                     <option value="starttls">StartTLS</option>
                                     <option value="tls">TLS/SSL</option>
                                     <option value="none">None</option>
@@ -143,15 +174,33 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                         <div className="flex flex-col w-full gap-2 xl:flex-row">
                             <label className="flex flex-col gap-1">
                                 SMTP Username
-                                <input value={smtp.data.smtp_username ?? ''} onChange={(e) => smtp.setData('smtp_username', e.target.value)} />
+                                <input
+                                    id="settings-email-smtp-username"
+                                    name="settings-email-smtp-username"
+                                    value={smtp.data.smtp_username ?? ''}
+                                    onChange={(e) => smtp.setData('smtp_username', e.target.value)}
+                                />
                             </label>
                             <label className="flex flex-col gap-1">
                                 SMTP Password
-                                <input type="password" autoComplete="new-password" value={smtp.data.smtp_password ?? ''} onChange={(e) => smtp.setData('smtp_password', e.target.value)} />
+                                <input
+                                    id="settings-email-smtp-password"
+                                    name="settings-email-smtp-password"
+                                    type="password"
+                                    autoComplete="new-password"
+                                    value={smtp.data.smtp_password ?? ''}
+                                    onChange={(e) => smtp.setData('smtp_password', e.target.value)}
+                                />
                             </label>
                             <label className="flex flex-col gap-1">
                                 Timeout
-                                <input type="number" value={smtp.data.smtp_timeout ?? ''} onChange={(e) => smtp.setData('smtp_timeout', e.target.value)} />
+                                <input
+                                    id="settings-email-smtp-timeout"
+                                    name="settings-email-smtp-timeout"
+                                    type="number"
+                                    value={smtp.data.smtp_timeout ?? ''}
+                                    onChange={(e) => smtp.setData('smtp_timeout', e.target.value)}
+                                />
                             </label>
                         </div>
                     </div>
@@ -174,6 +223,7 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                     <div className="w-32">
                         <label className="flex items-center gap-2">
                             <input
+                                id="settings-email-resend-enabled"
                                 type="checkbox"
                                 checked={resend.data.resend_enabled}
                                 onChange={(e) => resend.setData('resend_enabled', e.target.checked)}
@@ -184,6 +234,8 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                     <label className="flex flex-col gap-1">
                         API Key
                         <input
+                            id="settings-email-resend-api-key"
+                            name="settings-email-resend-api-key"
                             type="password"
                             autoComplete="new-password"
                             placeholder="API key"

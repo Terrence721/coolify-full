@@ -43,12 +43,14 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                     <div className="flex gap-2">
                         <label className="flex flex-col flex-1 gap-1">
                             Name
-                            <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            <input id="github-app-create-name" name="github-app-create-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
                             {errors.name && <span className="text-error">{errors.name}</span>}
                         </label>
                         <label className="flex flex-col flex-1 gap-1">
                             Organization (on GitHub)
                             <input
+                                id="github-app-create-organization"
+                                name="github-app-create-organization"
                                 placeholder="If empty, your GitHub user will be used."
                                 value={data.organization}
                                 onChange={(e) => setData('organization', e.target.value)}
@@ -60,6 +62,7 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                         <div>
                             <label className="flex gap-2 items-center w-48">
                                 <input
+                                    id="github-app-create-is-system-wide"
                                     type="checkbox"
                                     checked={data.isSystemWide}
                                     onChange={(e) => setData('isSystemWide', e.target.checked)}
@@ -93,24 +96,26 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                                 <div className="flex gap-2">
                                     <label className="flex flex-col flex-1 gap-1">
                                         HTML Url
-                                        <input required value={data.htmlUrl} onChange={(e) => setData('htmlUrl', e.target.value)} />
+                                        <input id="github-app-create-html-url" name="github-app-create-html-url" required value={data.htmlUrl} onChange={(e) => setData('htmlUrl', e.target.value)} />
                                         {errors.htmlUrl && <span className="text-error">{errors.htmlUrl}</span>}
                                     </label>
                                     <label className="flex flex-col flex-1 gap-1">
                                         API Url
-                                        <input required value={data.apiUrl} onChange={(e) => setData('apiUrl', e.target.value)} />
+                                        <input id="github-app-create-api-url" name="github-app-create-api-url" required value={data.apiUrl} onChange={(e) => setData('apiUrl', e.target.value)} />
                                         {errors.apiUrl && <span className="text-error">{errors.apiUrl}</span>}
                                     </label>
                                 </div>
                                 <div className="flex gap-2">
                                     <label className="flex flex-col flex-1 gap-1">
                                         Custom Git User
-                                        <input required value={data.customUser} onChange={(e) => setData('customUser', e.target.value)} />
+                                        <input id="github-app-create-custom-user" name="github-app-create-custom-user" required value={data.customUser} onChange={(e) => setData('customUser', e.target.value)} />
                                         {errors.customUser && <span className="text-error">{errors.customUser}</span>}
                                     </label>
                                     <label className="flex flex-col flex-1 gap-1">
                                         Custom Git Port
                                         <input
+                                            id="github-app-create-custom-port"
+                                            name="github-app-create-custom-port"
                                             required
                                             type="number"
                                             value={data.customPort}

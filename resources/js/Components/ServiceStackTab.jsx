@@ -60,6 +60,8 @@ function EditComposeModal({ stackForm, form, generalUrls, canUpdate, onSaveRaw, 
                 collision. To see the actual volume names, check the Deployable Compose file, or go to Storage menu.
             </div>
             <textarea
+                id="service-stack-compose-raw"
+                name="service-stack-compose-raw"
                 rows={18}
                 className="font-mono"
                 readOnly={showDeployable || !canUpdate}
@@ -129,6 +131,8 @@ function EditDomainModal({ resource, onClose }) {
                 }}
             >
                 <Field
+                    id={`service-resource-${resource.id}-domain`}
+                    name={`service-resource-${resource.id}-domain`}
                     label="Domains"
                     placeholder="https://app.coolify.io"
                     value={fqdn}
@@ -321,6 +325,8 @@ export default function ServiceStackTab({ stackForm, resources, resourceDetails,
                 </div>
                 <div className="flex flex-col gap-2 md:flex-row">
                     <Field
+                        id="service-stack-name"
+                        name="service-stack-name"
                         label="Service Name"
                         required
                         placeholder="My super WordPress site"
@@ -329,6 +335,8 @@ export default function ServiceStackTab({ stackForm, resources, resourceDetails,
                         disabled={!canUpdate}
                     />
                     <Field
+                        id="service-stack-description"
+                        name="service-stack-description"
                         label="Description"
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}

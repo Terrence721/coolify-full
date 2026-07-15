@@ -64,6 +64,8 @@ export default function DatabaseHealthcheckTab({ healthcheck, healthcheckUrls, c
                 )}
                 <div className="flex flex-col gap-2 md:flex-row">
                     <Field
+                        id="db-healthcheck-interval"
+                        name="db-healthcheck-interval"
                         label="Interval (s)"
                         type="number"
                         min={1}
@@ -74,6 +76,8 @@ export default function DatabaseHealthcheckTab({ healthcheck, healthcheckUrls, c
                         disabled={!canUpdate}
                     />
                     <Field
+                        id="db-healthcheck-timeout"
+                        name="db-healthcheck-timeout"
                         label="Timeout (s)"
                         type="number"
                         min={1}
@@ -84,6 +88,8 @@ export default function DatabaseHealthcheckTab({ healthcheck, healthcheckUrls, c
                         disabled={!canUpdate}
                     />
                     <Field
+                        id="db-healthcheck-retries"
+                        name="db-healthcheck-retries"
                         label="Retries"
                         type="number"
                         min={1}
@@ -94,6 +100,8 @@ export default function DatabaseHealthcheckTab({ healthcheck, healthcheckUrls, c
                         disabled={!canUpdate}
                     />
                     <Field
+                        id="db-healthcheck-start-period"
+                        name="db-healthcheck-start-period"
                         label="Start Period (s)"
                         type="number"
                         min={0}

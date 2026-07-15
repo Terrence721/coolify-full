@@ -30,7 +30,7 @@ export default function CloneMe({ project, environment, destinations, resources,
 
             <label className="flex flex-col gap-1">
                 New Name
-                <input required value={name} onChange={(e) => setName(e.target.value)} />
+                <input id="clone-name" name="clone-name" required value={name} onChange={(e) => setName(e.target.value)} />
                 {errors.name && <span className="text-error">{errors.name}</span>}
             </label>
 
@@ -101,6 +101,7 @@ export default function CloneMe({ project, environment, destinations, resources,
 
             <label className="flex items-center gap-2 pt-4">
                 <input
+                    id="clone-volume-data"
                     type="checkbox"
                     checked={cloneVolumeData}
                     onChange={(e) => setCloneVolumeData(e.target.checked)}

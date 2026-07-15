@@ -37,6 +37,8 @@ export function TagsTab({ tags, availableTags, tagsStoreUrl, canUpdate }) {
                     <label className="flex flex-col gap-1 w-64">
                         Create new or assign existing tags
                         <input
+                            id="resource-tags-add"
+                            name="resource-tags-add"
                             placeholder="example: prod app1 user"
                             value={data.tags}
                             onChange={(e) => setData('tags', e.target.value)}
@@ -149,7 +151,7 @@ export function WebhooksTab({ deployWebhook, manualWebhooks }) {
             <h2>Webhooks</h2>
             <label className="flex flex-col gap-1">
                 Deploy Webhook (auth required)
-                <input readOnly value={deployWebhook} />
+                <input id="resource-deploy-webhook" name="resource-deploy-webhook" readOnly value={deployWebhook} />
             </label>
             {manualWebhooks && (
                 <div>
@@ -162,11 +164,18 @@ export function WebhooksTab({ deployWebhook, manualWebhooks }) {
                                 <div key={provider} className="flex items-end gap-2">
                                     <label className="flex flex-1 flex-col gap-1">
                                         {label}
-                                        <input readOnly value={manualWebhooks.providers[provider].url ?? ''} />
+                                        <input
+                                            id={`resource-webhook-${provider}-url`}
+                                            name={`resource-webhook-${provider}-url`}
+                                            readOnly
+                                            value={manualWebhooks.providers[provider].url ?? ''}
+                                        />
                                     </label>
                                     <label className="flex flex-1 flex-col gap-1">
                                         {label} Webhook Secret
                                         <input
+                                            id={`resource-webhook-${provider}-secret`}
+                                            name={`resource-webhook-${provider}-secret`}
                                             type="password"
                                             disabled={!manualWebhooks.canUpdate}
                                             value={data[`${provider}ManualWebhookSecret`] ?? ''}
@@ -213,6 +222,8 @@ export function ResourceLimitsTab({ limits, limitsUpdateUrl, canUpdate }) {
         <label className="flex flex-col flex-1 gap-1">
             {label}
             <input
+                id={key}
+                name={key}
                 disabled={!canUpdate}
                 value={data[key] ?? ''}
                 onChange={(e) => setData(key, e.target.value)}
@@ -294,6 +305,8 @@ export function ResourceOperationsTab({ servers, projects, currentProjectId, cur
                 <label className="flex flex-col flex-1 gap-1">
                     Select Server
                     <select
+                        id="resource-clone-server"
+                        name="resource-clone-server"
                         value={cloneServer}
                         onChange={(e) => {
                             setCloneServer(e.target.value);
@@ -310,7 +323,13 @@ export function ResourceOperationsTab({ servers, projects, currentProjectId, cur
                 </label>
                 <label className="flex flex-col flex-1 gap-1">
                     Select Network Destination
-                    <select value={cloneDestination} disabled={!cloneServer} onChange={(e) => setCloneDestination(e.target.value)}>
+                    <select
+                        id="resource-clone-destination"
+                        name="resource-clone-destination"
+                        value={cloneDestination}
+                        disabled={!cloneServer}
+                        onChange={(e) => setCloneDestination(e.target.value)}
+                    >
                         <option value="">Choose a destination...</option>
                         {availableDestinations.map((destination) => (
                             <option key={destination.id} value={destination.id}>
@@ -332,6 +351,8 @@ export function ResourceOperationsTab({ servers, projects, currentProjectId, cur
                 <label className="flex flex-col flex-1 gap-1">
                     Select Target Project
                     <select
+                        id="resource-move-project"
+                        name="resource-move-project"
                         value={moveProject}
                         onChange={(e) => {
                             setMoveProject(e.target.value);
@@ -349,7 +370,13 @@ export function ResourceOperationsTab({ servers, projects, currentProjectId, cur
                 </label>
                 <label className="flex flex-col flex-1 gap-1">
                     Select Target Environment (current is excluded)
-                    <select value={moveEnvironment} disabled={!moveProject || availableEnvironments.length === 0} onChange={(e) => setMoveEnvironment(e.target.value)}>
+                    <select
+                        id="resource-move-environment"
+                        name="resource-move-environment"
+                        value={moveEnvironment}
+                        disabled={!moveProject || availableEnvironments.length === 0}
+                        onChange={(e) => setMoveEnvironment(e.target.value)}
+                    >
                         <option value="">
                             {availableEnvironments.length === 0 && String(currentProjectId) === String(moveProject)
                                 ? 'No other environments available'

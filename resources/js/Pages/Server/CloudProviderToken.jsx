@@ -124,6 +124,8 @@ export default function CloudProviderToken({
                             <label className="flex flex-col gap-1">
                                 Token Name
                                 <input
+                                    id="server-cloud-token-name"
+                                    name="server-cloud-token-name"
                                     required
                                     placeholder="e.g., Production Hetzner"
                                     value={data.name}
@@ -134,6 +136,8 @@ export default function CloudProviderToken({
                             <label className="flex flex-col gap-1">
                                 API Token
                                 <input
+                                    id="server-cloud-token-value"
+                                    name="server-cloud-token-value"
                                     type="password"
                                     required
                                     placeholder="Enter your API token"

@@ -97,6 +97,7 @@ export default function Pushover({ settings, updateUrl, sendTestUrl }) {
                 <div className="w-32">
                     <label className="flex items-center gap-2">
                         <input
+                            id="pushover_enabled"
                             type="checkbox"
                             checked={data.pushover_enabled}
                             onChange={(e) => setData('pushover_enabled', e.target.checked)}
@@ -108,6 +109,8 @@ export default function Pushover({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex flex-col gap-1">
                         User Key
                         <input
+                            id="pushover_user_key"
+                            name="pushover_user_key"
                             type="password"
                             value={data.pushover_user_key ?? ''}
                             onChange={(e) => setData('pushover_user_key', e.target.value)}
@@ -122,6 +125,8 @@ export default function Pushover({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex flex-col gap-1">
                         API Token
                         <input
+                            id="pushover_api_token"
+                            name="pushover_api_token"
                             type="password"
                             value={data.pushover_api_token ?? ''}
                             onChange={(e) => setData('pushover_api_token', e.target.value)}
@@ -146,6 +151,7 @@ export default function Pushover({ settings, updateUrl, sendTestUrl }) {
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
                                     <input
+                                        id={field}
                                         type="checkbox"
                                         checked={data[field]}
                                         onChange={(e) => setData(field, e.target.checked)}

@@ -128,6 +128,7 @@ export default function Sentinel({
                                 <div className="w-full sm:w-96">
                                     <label className="flex items-center gap-2">
                                         <input
+                                            id="sentinel-debug-enabled"
                                             type="checkbox"
                                             disabled={!canUpdate}
                                             checked={isSentinelDebugEnabled}
@@ -144,6 +145,8 @@ export default function Sentinel({
                                         <label className="flex flex-col gap-1 w-full">
                                             Coolify URL
                                             <input
+                                                id="sentinel-custom-url"
+                                                name="sentinel-custom-url"
                                                 disabled={!canUpdate}
                                                 required
                                                 value={sentinelCustomUrl}
@@ -154,6 +157,8 @@ export default function Sentinel({
                                         <label className="flex flex-col gap-1 w-full">
                                             Sentinel token
                                             <input
+                                                id="sentinel-token"
+                                                name="sentinel-token"
                                                 type="password"
                                                 disabled={!canUpdate}
                                                 required
@@ -173,6 +178,8 @@ export default function Sentinel({
                                         <label className="flex flex-col gap-1 w-full">
                                             Metrics rate (seconds)
                                             <input
+                                                id="sentinel-metrics-refresh-rate-seconds"
+                                                name="sentinel-metrics-refresh-rate-seconds"
                                                 type="number"
                                                 min="1"
                                                 disabled={!canUpdate}
@@ -187,6 +194,8 @@ export default function Sentinel({
                                         <label className="flex flex-col gap-1 w-full">
                                             Metrics history (days)
                                             <input
+                                                id="sentinel-metrics-history-days"
+                                                name="sentinel-metrics-history-days"
                                                 type="number"
                                                 min="1"
                                                 disabled={!canUpdate}
@@ -201,6 +210,8 @@ export default function Sentinel({
                                         <label className="flex flex-col gap-1 w-full">
                                             Push interval (seconds)
                                             <input
+                                                id="sentinel-push-interval-seconds"
+                                                name="sentinel-push-interval-seconds"
                                                 type="number"
                                                 min="10"
                                                 disabled={!canUpdate}

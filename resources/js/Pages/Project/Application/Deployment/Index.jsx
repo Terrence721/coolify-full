@@ -113,6 +113,8 @@ export default function Index({
                     <label className="flex flex-col gap-1">
                         Pull Request Id
                         <input
+                            id="deployment-filter-pull-request-id"
+                            name="deployment-filter-pull-request-id"
                             type="number"
                             min="1"
                             value={data.pull_request_id}

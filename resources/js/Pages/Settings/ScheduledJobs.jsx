@@ -92,6 +92,8 @@ export default function ScheduledJobs({
                             <label className="flex flex-col gap-1 text-sm font-medium">
                                 Type
                                 <select
+                                    id="scheduled-jobs-filter-type"
+                                    name="scheduled-jobs-filter-type"
                                     className="w-40"
                                     value={filterType}
                                     onChange={(e) => reload({ filterType: e.target.value, filterDate, skipPage: 0 })}
@@ -105,6 +107,8 @@ export default function ScheduledJobs({
                             <label className="flex flex-col gap-1 text-sm font-medium">
                                 Time Range
                                 <select
+                                    id="scheduled-jobs-filter-date"
+                                    name="scheduled-jobs-filter-date"
                                     className="w-40"
                                     value={filterDate}
                                     onChange={(e) => reload({ filterType, filterDate: e.target.value, skipPage: 0 })}

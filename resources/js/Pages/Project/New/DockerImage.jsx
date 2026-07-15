@@ -30,6 +30,8 @@ export default function DockerImage({ submitUrl }) {
             <label className="flex flex-col gap-1">
                 Image Name
                 <input
+                    id="docker-image-name"
+                    name="docker-image-name"
                     required
                     autoFocus
                     placeholder="nginx"
@@ -42,13 +44,15 @@ export default function DockerImage({ submitUrl }) {
             <div className="flex gap-2 pt-2">
                 <label className="flex flex-col flex-1 gap-1">
                     Tag
-                    <input placeholder="latest" value={data.imageTag} onChange={(e) => setData('imageTag', e.target.value)} />
+                    <input id="docker-image-tag" name="docker-image-tag" placeholder="latest" value={data.imageTag} onChange={(e) => setData('imageTag', e.target.value)} />
                     {errors.imageTag && <span className="text-error">{errors.imageTag}</span>}
                 </label>
                 <div className="flex items-center pt-6">OR</div>
                 <label className="flex flex-col flex-1 gap-1">
                     SHA256 Digest
                     <input
+                        id="docker-image-sha256"
+                        name="docker-image-sha256"
                         placeholder="sha256:..."
                         value={data.imageSha256}
                         onChange={(e) => setData('imageSha256', e.target.value)}

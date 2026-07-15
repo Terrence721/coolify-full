@@ -97,6 +97,7 @@ export default function Webhook({ settings, updateUrl, sendTestUrl }) {
                 <div className="w-48">
                     <label>
                         <input
+                            id="webhook_enabled"
                             type="checkbox"
                             checked={data.webhook_enabled}
                             onChange={(e) => setData('webhook_enabled', e.target.checked)}
@@ -108,6 +109,8 @@ export default function Webhook({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex flex-col gap-1">
                         Webhook URL (POST)
                         <input
+                            id="webhook_url"
+                            name="webhook_url"
                             type="password"
                             value={data.webhook_url ?? ''}
                             onChange={(e) => setData('webhook_url', e.target.value)}
@@ -130,6 +133,7 @@ export default function Webhook({ settings, updateUrl, sendTestUrl }) {
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
                                     <input
+                                        id={field}
                                         type="checkbox"
                                         checked={data[field]}
                                         onChange={(e) => setData(field, e.target.checked)}

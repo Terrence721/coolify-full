@@ -41,7 +41,13 @@ export default function Index({
                 {name} ({email})
             </div>
             <form onSubmit={submitSearch} className="flex flex-col gap-2 lg:flex-row">
-                <input placeholder="Search for a user" value={search} onChange={(e) => setSearch(e.target.value)} />
+                <input
+                    id="admin-user-search"
+                    name="admin-user-search"
+                    placeholder="Search for a user"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
                 <button type="submit">Search</button>
             </form>
             {initialSearch && (

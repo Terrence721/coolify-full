@@ -55,6 +55,8 @@ function VolumeCard({ volume, canUpdate }) {
             )}
             <div className="flex flex-col gap-2 items-end w-full md:flex-row">
                 <Field
+                    id={`volume-${volume.id}-name`}
+                    name={`volume-${volume.id}-name`}
                     label={volume.isFirst ? 'Volume Name' : undefined}
                     required
                     disabled={!editable}
@@ -62,12 +64,16 @@ function VolumeCard({ volume, canUpdate }) {
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                 />
                 <Field
+                    id={`volume-${volume.id}-host-path`}
+                    name={`volume-${volume.id}-host-path`}
                     label={volume.isFirst ? 'Source Path (host)' : undefined}
                     disabled={!editable}
                     value={form.host_path}
                     onChange={(e) => setForm({ ...form, host_path: e.target.value })}
                 />
                 <Field
+                    id={`volume-${volume.id}-mount-path`}
+                    name={`volume-${volume.id}-mount-path`}
                     label={volume.isFirst ? 'Destination Path (container)' : undefined}
                     required
                     disabled={!editable}
@@ -133,8 +139,8 @@ function FileCard({ file, canUpdate }) {
                 </div>
             )}
             <div className="flex flex-col gap-2 md:flex-row">
-                <Field label="Source Path" readOnly value={file.fsPath} />
-                <Field label="Destination Path" readOnly value={file.mountPath} />
+                <Field id={`file-${file.id}-fs-path`} name={`file-${file.id}-fs-path`} label="Source Path" readOnly value={file.fsPath} />
+                <Field id={`file-${file.id}-mount-path`} name={`file-${file.id}-mount-path`} label="Destination Path" readOnly value={file.mountPath} />
             </div>
             {canUpdate && (
                 <div className="flex flex-wrap gap-2">
@@ -154,6 +160,8 @@ function FileCard({ file, canUpdate }) {
             {convertConfirmation !== null && (
                 <div className="flex items-center gap-2">
                     <input
+                        id={`file-${file.id}-convert-confirm`}
+                        name={`file-${file.id}-convert-confirm`}
                         placeholder={`Type "${file.fsPath}" to confirm conversion`}
                         className="flex-1"
                         value={convertConfirmation}
@@ -172,6 +180,8 @@ function FileCard({ file, canUpdate }) {
                     <label className="flex flex-col gap-1">
                         Content
                         <textarea
+                            id={`file-${file.id}-content`}
+                            name={`file-${file.id}-content`}
                             rows={12}
                             className="font-mono"
                             title="The content shown may be outdated. Click 'Load from server' to fetch the latest version."
@@ -250,9 +260,32 @@ function AddDropdown({ storageUrls, sourceDirPlaceholder }) {
                 <Modal title="Add Volume Mount" onClose={() => setModal(null)}>
                     <form className="flex flex-col gap-2" onSubmit={(e) => submit(e, storageUrls.volumeStore, volume)}>
                         <div>Docker Volumes mounted to the container.</div>
-                        <Field label="Name" required placeholder="pv-name" value={volume.name} onChange={(e) => setVolume({ ...volume, name: e.target.value })} />
-                        <Field label="Source Path (host)" placeholder="/root" value={volume.host_path} onChange={(e) => setVolume({ ...volume, host_path: e.target.value })} />
-                        <Field label="Destination Path (container)" required placeholder="/tmp/root" value={volume.mount_path} onChange={(e) => setVolume({ ...volume, mount_path: e.target.value })} />
+                        <Field
+                            id="storage-add-volume-name"
+                            name="storage-add-volume-name"
+                            label="Name"
+                            required
+                            placeholder="pv-name"
+                            value={volume.name}
+                            onChange={(e) => setVolume({ ...volume, name: e.target.value })}
+                        />
+                        <Field
+                            id="storage-add-volume-host-path"
+                            name="storage-add-volume-host-path"
+                            label="Source Path (host)"
+                            placeholder="/root"
+                            value={volume.host_path}
+                            onChange={(e) => setVolume({ ...volume, host_path: e.target.value })}
+                        />
+                        <Field
+                            id="storage-add-volume-mount-path"
+                            name="storage-add-volume-mount-path"
+                            label="Destination Path (container)"
+                            required
+                            placeholder="/tmp/root"
+                            value={volume.mount_path}
+                            onChange={(e) => setVolume({ ...volume, mount_path: e.target.value })}
+                        />
                         <button type="submit">Add</button>
                     </form>
                 </Modal>
@@ -262,6 +295,8 @@ function AddDropdown({ storageUrls, sourceDirPlaceholder }) {
                     <form className="flex flex-col gap-2" onSubmit={(e) => submit(e, storageUrls.fileStore, file)}>
                         <div>Actual file mounted from the host system to the container.</div>
                         <Field
+                            id="storage-add-file-path"
+                            name="storage-add-file-path"
                             label="Destination Path (inside the container)"
                             required
                             placeholder="/etc/nginx/nginx.conf"
@@ -270,7 +305,14 @@ function AddDropdown({ storageUrls, sourceDirPlaceholder }) {
                         />
                         <label className="flex flex-col gap-1">
                             Content
-                            <textarea rows={8} className="font-mono" value={file.file_storage_content} onChange={(e) => setFile({ ...file, file_storage_content: e.target.value })} />
+                            <textarea
+                                id="storage-add-file-content"
+                                name="storage-add-file-content"
+                                rows={8}
+                                className="font-mono"
+                                value={file.file_storage_content}
+                                onChange={(e) => setFile({ ...file, file_storage_content: e.target.value })}
+                            />
                         </label>
                         <button type="submit">Add</button>
                     </form>
@@ -280,8 +322,24 @@ function AddDropdown({ storageUrls, sourceDirPlaceholder }) {
                 <Modal title="Add Directory Mount" onClose={() => setModal(null)}>
                     <form className="flex flex-col gap-2" onSubmit={(e) => submit(e, storageUrls.directoryStore, directory)}>
                         <div>Directory mounted from the host system to the container.</div>
-                        <Field label="Source Directory (host)" required placeholder={sourceDirPlaceholder ?? '/etc/nginx'} value={directory.source} onChange={(e) => setDirectory({ ...directory, source: e.target.value })} />
-                        <Field label="Destination Directory (container)" required placeholder="/etc/nginx" value={directory.destination} onChange={(e) => setDirectory({ ...directory, destination: e.target.value })} />
+                        <Field
+                            id="storage-add-directory-source"
+                            name="storage-add-directory-source"
+                            label="Source Directory (host)"
+                            required
+                            placeholder={sourceDirPlaceholder ?? '/etc/nginx'}
+                            value={directory.source}
+                            onChange={(e) => setDirectory({ ...directory, source: e.target.value })}
+                        />
+                        <Field
+                            id="storage-add-directory-destination"
+                            name="storage-add-directory-destination"
+                            label="Destination Directory (container)"
+                            required
+                            placeholder="/etc/nginx"
+                            value={directory.destination}
+                            onChange={(e) => setDirectory({ ...directory, destination: e.target.value })}
+                        />
                         <button type="submit">Add</button>
                     </form>
                 </Modal>

@@ -123,7 +123,14 @@ export default function WhatsNewButton({ unreadCount: initialUnreadCount, curren
                         </div>
 
                         <div className="pb-4 border-b dark:border-coolgray-200 flex-shrink-0">
-                            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search updates..." className="input" />
+                            <input
+                                id="whats-new-search"
+                                name="whats-new-search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search updates..."
+                                className="input"
+                            />
                         </div>
 
                         <div className="py-4 flex-1 overflow-y-auto scrollbar">

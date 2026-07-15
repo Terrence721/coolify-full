@@ -47,6 +47,8 @@ export default function Advanced({
                                 <input
                                     placeholder="0 23 * * *"
                                     required
+                                    id="serverDiskUsageCheckFrequency"
+                                    name="serverDiskUsageCheckFrequency"
                                     value={data.serverDiskUsageCheckFrequency}
                                     onChange={(e) => setData('serverDiskUsageCheckFrequency', e.target.value)}
                                 />
@@ -61,6 +63,8 @@ export default function Advanced({
                                     min="1"
                                     max="99"
                                     required
+                                    id="serverDiskUsageNotificationThreshold"
+                                    name="serverDiskUsageNotificationThreshold"
                                     value={data.serverDiskUsageNotificationThreshold}
                                     onChange={(e) => setData('serverDiskUsageNotificationThreshold', e.target.value)}
                                 />
@@ -79,6 +83,8 @@ export default function Advanced({
                                         type="number"
                                         min="1"
                                         required
+                                        id="concurrentBuilds"
+                                        name="concurrentBuilds"
                                         value={data.concurrentBuilds}
                                         onChange={(e) => setData('concurrentBuilds', e.target.value)}
                                     />
@@ -90,6 +96,8 @@ export default function Advanced({
                                         type="number"
                                         min="1"
                                         required
+                                        id="dynamicTimeout"
+                                        name="dynamicTimeout"
                                         value={data.dynamicTimeout}
                                         onChange={(e) => setData('dynamicTimeout', e.target.value)}
                                     />
@@ -101,6 +109,8 @@ export default function Advanced({
                                         type="number"
                                         min="1"
                                         required
+                                        id="deploymentQueueLimit"
+                                        name="deploymentQueueLimit"
                                         value={data.deploymentQueueLimit}
                                         onChange={(e) => setData('deploymentQueueLimit', e.target.value)}
                                     />

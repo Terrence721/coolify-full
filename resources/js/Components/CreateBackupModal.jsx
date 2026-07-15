@@ -41,6 +41,8 @@ export default function CreateBackupModal({ open, onClose, storeUrl, s3Storages 
                     <label className="flex flex-col gap-1">
                         Frequency
                         <input
+                            id="create-backup-frequency"
+                            name="create-backup-frequency"
                             placeholder="e.g. 0 0 * * * or 'every night'"
                             required
                             value={data.frequency}
@@ -50,6 +52,7 @@ export default function CreateBackupModal({ open, onClose, storeUrl, s3Storages 
                     </label>
                     <label className="flex items-center gap-2">
                         <input
+                            id="create-backup-save-to-s3"
                             type="checkbox"
                             checked={data.save_to_s3}
                             onChange={(e) => setData('save_to_s3', e.target.checked)}
@@ -59,7 +62,12 @@ export default function CreateBackupModal({ open, onClose, storeUrl, s3Storages 
                     {data.save_to_s3 && (
                         <label className="flex flex-col gap-1">
                             S3 Storage
-                            <select value={data.s3_storage_id ?? ''} onChange={(e) => setData('s3_storage_id', e.target.value ? Number(e.target.value) : null)}>
+                            <select
+                                id="create-backup-s3-storage-id"
+                                name="create-backup-s3-storage-id"
+                                value={data.s3_storage_id ?? ''}
+                                onChange={(e) => setData('s3_storage_id', e.target.value ? Number(e.target.value) : null)}
+                            >
                                 <option value="">Choose an S3 storage...</option>
                                 {s3Storages.map((s3) => (
                                     <option key={s3.id} value={s3.id}>

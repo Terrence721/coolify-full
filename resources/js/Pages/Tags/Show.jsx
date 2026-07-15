@@ -53,7 +53,7 @@ export default function Show({ tags, tag, applications, services, deploymentsPer
                     <div className="flex items-end gap-2">
                         <label className="flex flex-col gap-1 w-[500px]">
                             Deploy Webhook URL
-                            <input readOnly value={tag.webhook} />
+                            <input id="tag-webhook" name="tag-webhook" readOnly value={tag.webhook} />
                         </label>
                         <button type="button" onClick={redeployAll}>
                             Redeploy All

@@ -218,7 +218,13 @@ export default function Index({
                 )
             ) : (
                 <div>
-                    <input placeholder="Search for name, fqdn..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                    <input
+                        id="resource-index-search"
+                        name="resource-index-search"
+                        placeholder="Search for name, fqdn..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
 
                     {!hasAnyResults && (
                         <div className="flex flex-col items-center justify-center p-8 text-center">

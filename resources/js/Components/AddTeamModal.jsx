@@ -1,9 +1,9 @@
 import { useForm } from '@inertiajs/react';
 
 /**
- * React port of App\Livewire\Team\Create — creating a brand new team (distinct from Team/Index.jsx,
- * which edits the current one). Only reachable via GlobalSearch's "new team" quick action; the
- * Livewire version stays in place for GlobalSearch's own not-yet-converted consumers.
+ * React port of the former App\Livewire\Team\Create — creating a brand new team (distinct from
+ * Team/Index.jsx, which edits the current one). Only reachable via GlobalSearch's "new team"
+ * quick action.
  */
 export default function AddTeamModal({ createUrl, onClose }) {
     const { data, setData, post, processing, errors } = useForm({ name: '', description: '' });
@@ -26,12 +26,23 @@ export default function AddTeamModal({ createUrl, onClose }) {
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <label className="flex flex-col gap-1">
                         Name
-                        <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                        <input
+                            id="add-team-name"
+                            name="add-team-name"
+                            required
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                        />
                         {errors.name && <span className="text-error">{errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input
+                            id="add-team-description"
+                            name="add-team-description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                         {errors.description && <span className="text-error">{errors.description}</span>}
                     </label>
                     <button type="submit" disabled={processing}>

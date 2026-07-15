@@ -77,7 +77,13 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         Type
-                        <select disabled={!canUpdate} value={form.healthCheckType} onChange={(e) => setForm({ ...form, healthCheckType: e.target.value })}>
+                        <select
+                            id="healthcheck-type"
+                            name="healthcheck-type"
+                            disabled={!canUpdate}
+                            value={form.healthCheckType}
+                            onChange={(e) => setForm({ ...form, healthCheckType: e.target.value })}
+                        >
                             <option value="http">HTTP</option>
                             <option value="cmd">CMD</option>
                         </select>
@@ -90,6 +96,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                             <label className="flex flex-col gap-1">
                                 Method
                                 <select
+                                    id="healthcheck-method"
+                                    name="healthcheck-method"
                                     disabled={!canUpdate}
                                     value={form.healthCheckMethod}
                                     onChange={(e) => setForm({ ...form, healthCheckMethod: e.target.value })}
@@ -101,6 +109,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                             <label className="flex flex-col gap-1">
                                 Scheme
                                 <select
+                                    id="healthcheck-scheme"
+                                    name="healthcheck-scheme"
                                     disabled={!canUpdate}
                                     value={form.healthCheckScheme}
                                     onChange={(e) => setForm({ ...form, healthCheckScheme: e.target.value })}
@@ -110,6 +120,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                                 </select>
                             </label>
                             <Field
+                                id="healthCheckHost"
+                                name="healthCheckHost"
                                 label="Host"
                                 placeholder="localhost"
                                 disabled={!canUpdate}
@@ -117,6 +129,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                                 onChange={(e) => setForm({ ...form, healthCheckHost: e.target.value })}
                             />
                             <Field
+                                id="healthCheckPort"
+                                name="healthCheckPort"
                                 label="Port"
                                 type="number"
                                 placeholder="80"
@@ -125,6 +139,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                                 onChange={(e) => setForm({ ...form, healthCheckPort: e.target.value })}
                             />
                             <Field
+                                id="healthCheckPath"
+                                name="healthCheckPath"
                                 label="Path"
                                 placeholder="/health"
                                 disabled={!canUpdate}
@@ -134,6 +150,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                         </div>
                         <div className="flex gap-2">
                             <Field
+                                id="healthCheckReturnCode"
+                                name="healthCheckReturnCode"
                                 label="Return Code"
                                 type="number"
                                 placeholder="200"
@@ -142,6 +160,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                                 onChange={(e) => setForm({ ...form, healthCheckReturnCode: e.target.value })}
                             />
                             <Field
+                                id="healthCheckResponseText"
+                                name="healthCheckResponseText"
                                 label="Response Text"
                                 placeholder="OK"
                                 disabled={!canUpdate}
@@ -157,6 +177,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                             &gt;, &lt;) are not allowed.
                         </div>
                         <Field
+                            id="healthCheckCommand"
+                            name="healthCheckCommand"
                             label="Command"
                             placeholder="pg_isready -U postgres"
                             disabled={!canUpdate}
@@ -168,6 +190,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
 
                 <div className="flex flex-col gap-2 md:flex-row">
                     <Field
+                        id="healthCheckInterval"
+                        name="healthCheckInterval"
                         label="Interval (s)"
                         type="number"
                         min={1}
@@ -178,6 +202,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                         onChange={(e) => setForm({ ...form, healthCheckInterval: e.target.value })}
                     />
                     <Field
+                        id="healthCheckTimeout"
+                        name="healthCheckTimeout"
                         label="Timeout (s)"
                         type="number"
                         min={1}
@@ -188,6 +214,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                         onChange={(e) => setForm({ ...form, healthCheckTimeout: e.target.value })}
                     />
                     <Field
+                        id="healthCheckRetries"
+                        name="healthCheckRetries"
                         label="Retries"
                         type="number"
                         min={1}
@@ -198,6 +226,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                         onChange={(e) => setForm({ ...form, healthCheckRetries: e.target.value })}
                     />
                     <Field
+                        id="healthCheckStartPeriod"
+                        name="healthCheckStartPeriod"
                         label="Start Period (s)"
                         type="number"
                         min={0}

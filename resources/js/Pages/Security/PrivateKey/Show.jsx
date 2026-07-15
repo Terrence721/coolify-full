@@ -59,6 +59,8 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                         <label className="flex flex-col gap-1">
                             Name
                             <input
+                                id="private-key-name"
+                                name="private-key-name"
                                 disabled={!canUpdate}
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
@@ -68,6 +70,8 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                         <label className="flex flex-col gap-1">
                             Description
                             <input
+                                id="private-key-description"
+                                name="private-key-description"
                                 disabled={!canUpdate}
                                 value={data.description}
                                 onChange={(e) => setData('description', e.target.value)}
@@ -79,7 +83,7 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                         <div className="flex items-end gap-2 py-2">
                             <div className="pl-1">Public Key</div>
                         </div>
-                        <input readOnly value={privateKey.publicKey} />
+                        <input id="private-key-public-key" name="private-key-public-key" readOnly value={privateKey.publicKey} />
                         <div className="flex items-end gap-2 py-2">
                             <div className="pl-1">
                                 Private Key <span className="text-helper">*</span>
@@ -91,13 +95,15 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                         {data.isGitRelated && (
                             <div className="w-48">
                                 <label className="flex items-center gap-2">
-                                    <input type="checkbox" checked={data.isGitRelated} disabled />
+                                    <input id="private-key-is-git-related" type="checkbox" checked={data.isGitRelated} disabled />
                                     Is used by a Git App?
                                 </label>
                             </div>
                         )}
                         {showPrivateKey ? (
                             <textarea
+                                id="private-key-value"
+                                name="private-key-value"
                                 disabled={!canUpdate}
                                 rows={10}
                                 className="font-mono"
@@ -105,7 +111,7 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                                 onChange={(e) => setData('privateKeyValue', e.target.value)}
                             />
                         ) : (
-                            <textarea disabled rows={10} value="••••••••••••••••••••••••" readOnly />
+                            <textarea id="private-key-value-hidden" name="private-key-value-hidden" disabled rows={10} value="••••••••••••••••••••••••" readOnly />
                         )}
                         {errors.privateKeyValue && <span className="text-error">{errors.privateKeyValue}</span>}
                     </div>

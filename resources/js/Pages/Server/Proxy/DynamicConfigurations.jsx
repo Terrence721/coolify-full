@@ -35,7 +35,13 @@ function DynamicConfigurationModal({ initialFileName, initialValue, newFile, sto
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <label className="flex flex-col gap-1">
                         Filename
-                        <input required value={data.fileName} onChange={(e) => setData('fileName', e.target.value)} />
+                        <input
+                            id="dynamic-configuration-filename"
+                            name="dynamic-configuration-filename"
+                            required
+                            value={data.fileName}
+                            onChange={(e) => setData('fileName', e.target.value)}
+                        />
                         {errors.fileName && <span className="text-error">{errors.fileName}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
@@ -98,7 +104,14 @@ export default function DynamicConfigurations({ serverNavbar, sidebar, isFunctio
                                         {RESERVED_DISPLAY_NAMES.includes(item.fileName) ? (
                                             <>
                                                 <h3 className="dark:text-white">File: {item.fileName}</h3>
-                                                <textarea disabled rows={5} value={item.value} readOnly />
+                                                <textarea
+                                                    id={`dynamic-configuration-${item.fileName}`}
+                                                    name={`dynamic-configuration-${item.fileName}`}
+                                                    disabled
+                                                    rows={5}
+                                                    value={item.value}
+                                                    readOnly
+                                                />
                                             </>
                                         ) : (
                                             <>

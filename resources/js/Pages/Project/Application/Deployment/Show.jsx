@@ -181,6 +181,8 @@ export default function Show({ application, heading, configurationChecker, deplo
                             </div>
                             <div className="flex flex-wrap items-center justify-end gap-2">
                                 <input
+                                    id="deployment-log-search"
+                                    name="deployment-log-search"
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}

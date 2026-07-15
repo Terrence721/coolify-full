@@ -57,6 +57,8 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                             <label className="flex flex-col gap-1">
                                 Update Check Frequency
                                 <input
+                                    id="update_check_frequency"
+                                    name="update_check_frequency"
                                     required
                                     placeholder="0 * * * *"
                                     value={data.update_check_frequency}
@@ -78,6 +80,7 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                             <label className="flex items-center gap-2 justify-end">
                                 Enabled
                                 <input
+                                    id="is_auto_update_enabled"
                                     type="checkbox"
                                     checked={data.is_auto_update_enabled}
                                     onChange={(e) => setData('is_auto_update_enabled', e.target.checked)}
@@ -88,6 +91,8 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                             <label className="flex flex-col gap-1">
                                 Frequency (cron expression)
                                 <input
+                                    id="auto_update_frequency"
+                                    name="auto_update_frequency"
                                     required
                                     placeholder="0 0 * * *"
                                     value={data.auto_update_frequency}
@@ -97,7 +102,7 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                         ) : (
                             <label className="flex flex-col gap-1">
                                 Frequency (cron expression)
-                                <input disabled placeholder="disabled" />
+                                <input id="auto_update_frequency_disabled" name="auto_update_frequency_disabled" disabled placeholder="disabled" />
                             </label>
                         )}
                         {errors.auto_update_frequency && <span className="text-error">{errors.auto_update_frequency}</span>}

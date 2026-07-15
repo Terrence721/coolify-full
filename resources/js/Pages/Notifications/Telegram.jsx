@@ -97,6 +97,7 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                 <div className="w-32">
                     <label className="flex items-center gap-2">
                         <input
+                            id="telegram_enabled"
                             type="checkbox"
                             checked={data.telegram_enabled}
                             onChange={(e) => setData('telegram_enabled', e.target.checked)}
@@ -108,6 +109,8 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex flex-col gap-1">
                         Bot API Token
                         <input
+                            id="telegram_token"
+                            name="telegram_token"
                             type="password"
                             autoComplete="new-password"
                             value={data.telegram_token ?? ''}
@@ -124,6 +127,8 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex flex-col gap-1">
                         Chat ID
                         <input
+                            id="telegram_chat_id"
+                            name="telegram_chat_id"
                             type="password"
                             autoComplete="new-password"
                             value={data.telegram_chat_id ?? ''}
@@ -146,6 +151,7 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                                     <div className="w-full sm:w-96">
                                         <label className="flex items-center gap-2">
                                             <input
+                                                id={toggleField}
                                                 type="checkbox"
                                                 checked={data[toggleField]}
                                                 onChange={(e) => setData(toggleField, e.target.checked)}
@@ -154,6 +160,8 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                                         </label>
                                     </div>
                                     <input
+                                        id={threadField}
+                                        name={threadField}
                                         type="password"
                                         placeholder="Custom Telegram Thread ID"
                                         value={data[threadField] ?? ''}

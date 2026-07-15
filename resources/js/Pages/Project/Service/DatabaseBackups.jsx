@@ -98,7 +98,12 @@ function SetTypeForm({ setTypeUrl }) {
             <form onSubmit={submit} className="flex gap-2 items-end">
                 <label className="flex flex-col gap-1 w-96">
                     Type
-                    <select value={data.custom_type} onChange={(e) => setData('custom_type', e.target.value)}>
+                    <select
+                        id="database-backups-set-type"
+                        name="database-backups-set-type"
+                        value={data.custom_type}
+                        onChange={(e) => setData('custom_type', e.target.value)}
+                    >
                         <option value="mysql">MySQL</option>
                         <option value="mariadb">MariaDB</option>
                         <option value="postgresql">PostgreSQL</option>

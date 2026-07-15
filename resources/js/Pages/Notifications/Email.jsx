@@ -147,6 +147,8 @@ export default function Email({
                         <label className="flex flex-col gap-1">
                             Recipient
                             <input
+                                id="email-test-recipient"
+                                name="email-test-recipient"
                                 type="email"
                                 placeholder="test@example.com"
                                 value={testForm.data.test_email_address}
@@ -166,6 +168,7 @@ export default function Email({
                     <div className="w-full sm:w-96">
                         <label className="flex items-center gap-2">
                             <input
+                                id="email-use-instance-settings"
                                 type="checkbox"
                                 checked={main.data.use_instance_email_settings}
                                 onChange={(e) => main.setData('use_instance_email_settings', e.target.checked)}
@@ -181,6 +184,8 @@ export default function Email({
                             <label className="flex flex-col gap-1">
                                 From Name
                                 <input
+                                    id="email-smtp-from-name"
+                                    name="email-smtp-from-name"
                                     value={main.data.smtp_from_name ?? ''}
                                     onChange={(e) => main.setData('smtp_from_name', e.target.value)}
                                 />
@@ -188,6 +193,8 @@ export default function Email({
                             <label className="flex flex-col gap-1">
                                 From Address
                                 <input
+                                    id="email-smtp-from-address"
+                                    name="email-smtp-from-address"
                                     value={main.data.smtp_from_address ?? ''}
                                     onChange={(e) => main.setData('smtp_from_address', e.target.value)}
                                 />
@@ -206,6 +213,7 @@ export default function Email({
                 <div className="w-64 py-4">
                     <label className="flex items-center gap-2">
                         <input
+                            id="email-use-instance-settings"
                             type="checkbox"
                             checked={main.data.use_instance_email_settings}
                             onChange={(e) => {
@@ -230,6 +238,7 @@ export default function Email({
                         <div className="w-32">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="email-smtp-enabled"
                                     type="checkbox"
                                     checked={smtp.data.smtp_enabled}
                                     onChange={(e) => smtp.setData('smtp_enabled', e.target.checked)}
@@ -241,15 +250,33 @@ export default function Email({
                             <div className="flex flex-col w-full gap-2 xl:flex-row">
                                 <label className="flex flex-col gap-1">
                                     Host
-                                    <input placeholder="smtp.mailgun.org" value={smtp.data.smtp_host ?? ''} onChange={(e) => smtp.setData('smtp_host', e.target.value)} />
+                                    <input
+                                        id="email-smtp-host"
+                                        name="email-smtp-host"
+                                        placeholder="smtp.mailgun.org"
+                                        value={smtp.data.smtp_host ?? ''}
+                                        onChange={(e) => smtp.setData('smtp_host', e.target.value)}
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     Port
-                                    <input type="number" placeholder="587" value={smtp.data.smtp_port ?? ''} onChange={(e) => smtp.setData('smtp_port', e.target.value)} />
+                                    <input
+                                        id="email-smtp-port"
+                                        name="email-smtp-port"
+                                        type="number"
+                                        placeholder="587"
+                                        value={smtp.data.smtp_port ?? ''}
+                                        onChange={(e) => smtp.setData('smtp_port', e.target.value)}
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     Encryption
-                                    <select value={smtp.data.smtp_encryption} onChange={(e) => smtp.setData('smtp_encryption', e.target.value)}>
+                                    <select
+                                        id="email-smtp-encryption"
+                                        name="email-smtp-encryption"
+                                        value={smtp.data.smtp_encryption}
+                                        onChange={(e) => smtp.setData('smtp_encryption', e.target.value)}
+                                    >
                                         <option value="starttls">StartTLS</option>
                                         <option value="tls">TLS/SSL</option>
                                         <option value="none">None</option>
@@ -259,15 +286,32 @@ export default function Email({
                             <div className="flex flex-col w-full gap-2 xl:flex-row">
                                 <label className="flex flex-col gap-1">
                                     SMTP Username
-                                    <input value={smtp.data.smtp_username ?? ''} onChange={(e) => smtp.setData('smtp_username', e.target.value)} />
+                                    <input
+                                        id="email-smtp-username"
+                                        name="email-smtp-username"
+                                        value={smtp.data.smtp_username ?? ''}
+                                        onChange={(e) => smtp.setData('smtp_username', e.target.value)}
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     SMTP Password
-                                    <input type="password" value={smtp.data.smtp_password ?? ''} onChange={(e) => smtp.setData('smtp_password', e.target.value)} />
+                                    <input
+                                        id="email-smtp-password"
+                                        name="email-smtp-password"
+                                        type="password"
+                                        value={smtp.data.smtp_password ?? ''}
+                                        onChange={(e) => smtp.setData('smtp_password', e.target.value)}
+                                    />
                                 </label>
                                 <label className="flex flex-col gap-1">
                                     Timeout
-                                    <input type="number" value={smtp.data.smtp_timeout ?? ''} onChange={(e) => smtp.setData('smtp_timeout', e.target.value)} />
+                                    <input
+                                        id="email-smtp-timeout"
+                                        name="email-smtp-timeout"
+                                        type="number"
+                                        value={smtp.data.smtp_timeout ?? ''}
+                                        onChange={(e) => smtp.setData('smtp_timeout', e.target.value)}
+                                    />
                                 </label>
                             </div>
                         </div>
@@ -290,6 +334,7 @@ export default function Email({
                         <div className="w-32">
                             <label className="flex items-center gap-2">
                                 <input
+                                    id="email-resend-enabled"
                                     type="checkbox"
                                     checked={resend.data.resend_enabled}
                                     onChange={(e) => resend.setData('resend_enabled', e.target.checked)}
@@ -299,7 +344,14 @@ export default function Email({
                         </div>
                         <label className="flex flex-col gap-1">
                             API Key
-                            <input type="password" placeholder="API key" value={resend.data.resend_api_key ?? ''} onChange={(e) => resend.setData('resend_api_key', e.target.value)} />
+                            <input
+                                id="email-resend-api-key"
+                                name="email-resend-api-key"
+                                type="password"
+                                placeholder="API key"
+                                value={resend.data.resend_api_key ?? ''}
+                                onChange={(e) => resend.setData('resend_api_key', e.target.value)}
+                            />
                         </label>
                         {Object.keys(resend.errors).length > 0 && (
                             <ul className="text-error text-sm">
@@ -322,6 +374,7 @@ export default function Email({
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
                                     <input
+                                        id={field}
                                         type="checkbox"
                                         checked={main.data[field]}
                                         onChange={(e) => {

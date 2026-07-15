@@ -177,17 +177,19 @@ export default function Proxy({
                             <h3>Advanced</h3>
                             <div className="pb-6 w-full sm:w-96">
                                 <label className="flex items-center gap-2">
-                                    <input type="checkbox" disabled={!canUpdate} checked={generateExactLabels} onChange={toggleGenerateExactLabels} />
+                                    <input id="proxy-generate-exact-labels" type="checkbox" disabled={!canUpdate} checked={generateExactLabels} onChange={toggleGenerateExactLabels} />
                                     Generate labels only for {isTraefik ? 'Traefik' : 'Caddy'}
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input type="checkbox" disabled={!canUpdate} checked={redirectEnabled} onChange={toggleRedirectEnabled} />
+                                    <input id="proxy-redirect-enabled" type="checkbox" disabled={!canUpdate} checked={redirectEnabled} onChange={toggleRedirectEnabled} />
                                     Override default request handler
                                 </label>
                                 {redirectEnabled && (
                                     <label className="flex flex-col gap-1 pt-2">
                                         Redirect to (optional)
                                         <input
+                                            id="proxy-redirect-url"
+                                            name="proxy-redirect-url"
                                             disabled={!canUpdate}
                                             placeholder="https://app.coolify.io"
                                             value={redirectUrl}
@@ -350,7 +352,13 @@ export default function Proxy({
                         </ul>
                         <label className="flex flex-col gap-1 pb-4">
                             Please confirm by entering the server name below
-                            <input value={resetConfirmation} onChange={(e) => setResetConfirmation(e.target.value)} placeholder={serverNavbar.server.name} />
+                            <input
+                                id="proxy-reset-confirm"
+                                name="proxy-reset-confirm"
+                                value={resetConfirmation}
+                                onChange={(e) => setResetConfirmation(e.target.value)}
+                                placeholder={serverNavbar.server.name}
+                            />
                         </label>
                         <div className="flex gap-2 justify-end">
                             <button

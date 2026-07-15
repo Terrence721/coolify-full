@@ -97,6 +97,7 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                 <div className="w-48">
                     <label className="flex items-center gap-2">
                         <input
+                            id="discord_enabled"
                             type="checkbox"
                             checked={data.discord_enabled}
                             onChange={(e) => setData('discord_enabled', e.target.checked)}
@@ -105,6 +106,7 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                     </label>
                     <label className="flex items-center gap-2">
                         <input
+                            id="discord_ping_enabled"
                             type="checkbox"
                             checked={data.discord_ping_enabled}
                             onChange={(e) => setData('discord_ping_enabled', e.target.checked)}
@@ -118,6 +120,8 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                 <label className="flex flex-col gap-1">
                     Webhook
                     <input
+                        id="discord_webhook_url"
+                        name="discord_webhook_url"
                         type="password"
                         value={data.discord_webhook_url ?? ''}
                         onChange={(e) => setData('discord_webhook_url', e.target.value)}
@@ -147,6 +151,7 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
                                     <input
+                                        id={field}
                                         type="checkbox"
                                         checked={data[field]}
                                         onChange={(e) => setData(field, e.target.checked)}

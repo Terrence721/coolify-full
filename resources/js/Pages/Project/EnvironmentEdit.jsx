@@ -58,6 +58,8 @@ export default function EnvironmentEdit({
                     <label className="flex flex-col gap-1">
                         Name
                         <input
+                            id="environment-edit-name"
+                            name="environment-edit-name"
                             disabled={!canUpdate}
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
@@ -67,6 +69,8 @@ export default function EnvironmentEdit({
                     <label className="flex flex-col gap-1">
                         Description
                         <input
+                            id="environment-edit-description"
+                            name="environment-edit-description"
                             disabled={!canUpdate}
                             value={data.description}
                             onChange={(e) => setData('description', e.target.value)}

@@ -54,11 +54,12 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
 
             <div className="w-64 pb-2 flex flex-col gap-1">
                 <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={data.enabled} onChange={(e) => setData('enabled', e.target.checked)} />
+                    <input id="backup-enabled" type="checkbox" checked={data.enabled} onChange={(e) => setData('enabled', e.target.checked)} />
                     Backup Enabled
                 </label>
                 <label className="flex items-center gap-2">
                     <input
+                        id="backup-save-s3"
                         type="checkbox"
                         checked={data.save_s3}
                         disabled={s3Storages.length === 0}
@@ -69,6 +70,7 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                 </label>
                 <label className="flex items-center gap-2">
                     <input
+                        id="backup-disable-local-backup"
                         type="checkbox"
                         checked={data.disable_local_backup}
                         disabled={!data.save_s3}
@@ -81,7 +83,12 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
             {data.save_s3 && (
                 <label className="flex flex-col gap-1 pb-4">
                     S3 Storage
-                    <select value={data.s3_storage_id ?? ''} onChange={(e) => setData('s3_storage_id', e.target.value ? Number(e.target.value) : null)}>
+                    <select
+                        id="backup-s3-storage-id"
+                        name="backup-s3-storage-id"
+                        value={data.s3_storage_id ?? ''}
+                        onChange={(e) => setData('s3_storage_id', e.target.value ? Number(e.target.value) : null)}
+                    >
                         <option value="">Select a S3 storage</option>
                         {s3Storages.map((s3) => (
                             <option key={s3.id} value={s3.id}>
@@ -98,13 +105,15 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                 {isMysqlFamily && (
                     <>
                         <label className="flex items-center gap-2 w-48">
-                            <input type="checkbox" checked={data.dump_all} onChange={(e) => setData('dump_all', e.target.checked)} />
+                            <input id="backup-dump-all" type="checkbox" checked={data.dump_all} onChange={(e) => setData('dump_all', e.target.checked)} />
                             Backup All Databases
                         </label>
                         {!data.dump_all && (
                             <label className="flex flex-col gap-1">
                                 Databases To Backup
                                 <input
+                                    id="backup-databases-to-backup"
+                                    name="backup-databases-to-backup"
                                     value={data.databases_to_backup}
                                     onChange={(e) => setData('databases_to_backup', e.target.value)}
                                     placeholder="Comma separated list of databases to backup. Empty will include the default one."
@@ -116,7 +125,12 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                 {isMongo && (
                     <label className="flex flex-col gap-1">
                         Databases To Include
-                        <input value={data.databases_to_backup} onChange={(e) => setData('databases_to_backup', e.target.value)} />
+                        <input
+                            id="backup-databases-to-backup"
+                            name="backup-databases-to-backup"
+                            value={data.databases_to_backup}
+                            onChange={(e) => setData('databases_to_backup', e.target.value)}
+                        />
                     </label>
                 )}
                 {errors.databases_to_backup && <span className="text-error">{errors.databases_to_backup}</span>}
@@ -125,16 +139,30 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
             <div className="flex gap-2">
                 <label className="flex flex-col gap-1">
                     Frequency
-                    <input required value={data.frequency} onChange={(e) => setData('frequency', e.target.value)} />
+                    <input
+                        id="backup-frequency"
+                        name="backup-frequency"
+                        required
+                        value={data.frequency}
+                        onChange={(e) => setData('frequency', e.target.value)}
+                    />
                     {errors.frequency && <span className="text-error">{errors.frequency}</span>}
                 </label>
                 <label className="flex flex-col gap-1">
                     Timezone
-                    <input disabled value={backup.timezone} title="The timezone of the server where the backup is scheduled to run" />
+                    <input
+                        id="backup-timezone"
+                        name="backup-timezone"
+                        disabled
+                        value={backup.timezone}
+                        title="The timezone of the server where the backup is scheduled to run"
+                    />
                 </label>
                 <label className="flex flex-col gap-1">
                     Timeout
                     <input
+                        id="backup-timeout"
+                        name="backup-timeout"
                         type="number"
                         min={60}
                         required
@@ -157,6 +185,8 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                         <label className="flex flex-col gap-1">
                             Number of backups to keep
                             <input
+                                id="database_backup_retention_amount_locally"
+                                name="database_backup_retention_amount_locally"
                                 type="number"
                                 min={0}
                                 value={data.database_backup_retention_amount_locally}
@@ -166,6 +196,8 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                         <label className="flex flex-col gap-1">
                             Days to keep backups
                             <input
+                                id="database_backup_retention_days_locally"
+                                name="database_backup_retention_days_locally"
                                 type="number"
                                 min={0}
                                 value={data.database_backup_retention_days_locally}
@@ -175,6 +207,8 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                         <label className="flex flex-col gap-1">
                             Maximum storage (GB)
                             <input
+                                id="database_backup_retention_max_storage_locally"
+                                name="database_backup_retention_max_storage_locally"
                                 type="number"
                                 min={0}
                                 step="any"
@@ -192,6 +226,8 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                             <label className="flex flex-col gap-1">
                                 Number of backups to keep
                                 <input
+                                    id="database_backup_retention_amount_s3"
+                                    name="database_backup_retention_amount_s3"
                                     type="number"
                                     min={0}
                                     value={data.database_backup_retention_amount_s3}
@@ -201,6 +237,8 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                             <label className="flex flex-col gap-1">
                                 Days to keep backups
                                 <input
+                                    id="database_backup_retention_days_s3"
+                                    name="database_backup_retention_days_s3"
                                     type="number"
                                     min={0}
                                     value={data.database_backup_retention_days_s3}
@@ -210,6 +248,8 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                             <label className="flex flex-col gap-1">
                                 Maximum storage (GB)
                                 <input
+                                    id="database_backup_retention_max_storage_s3"
+                                    name="database_backup_retention_max_storage_s3"
                                     type="number"
                                     min={0}
                                     step="any"

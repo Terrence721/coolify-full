@@ -50,6 +50,8 @@ export default function Resources({ storage, backups, allStorages, canUpdate, sh
 
             <div className="pt-4">
                 <input
+                    id="storage-resources-search"
+                    name="storage-resources-search"
                     placeholder="Search resources..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -98,6 +100,8 @@ export default function Resources({ storage, backups, allStorages, canUpdate, sh
                                                 <td className="px-5 py-4 text-sm whitespace-nowrap">
                                                     <div className="flex items-center gap-2">
                                                         <select
+                                                            id={`storage-resources-backup-${backup.id}`}
+                                                            name={`storage-resources-backup-${backup.id}`}
                                                             className="w-full input"
                                                             disabled={!canUpdate}
                                                             value={selected[backup.id] ?? ''}

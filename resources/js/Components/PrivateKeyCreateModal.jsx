@@ -85,18 +85,20 @@ export default function PrivateKeyCreateModal({ open, onClose, createKeyUrl, gen
                     <div className="flex gap-2">
                         <label className="flex flex-col gap-1 w-full">
                             Name
-                            <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            <input id="private-key-create-name" name="private-key-create-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
                             {errors.name && <span className="text-error">{errors.name}</span>}
                         </label>
                         <label className="flex flex-col gap-1 w-full">
                             Description
-                            <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                            <input id="private-key-create-description" name="private-key-create-description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                             {errors.description && <span className="text-error">{errors.description}</span>}
                         </label>
                     </div>
                     <label className="flex flex-col gap-1">
                         Private Key
                         <textarea
+                            id="private-key-create-value"
+                            name="private-key-create-value"
                             rows="10"
                             className="font-mono"
                             placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -109,7 +111,7 @@ export default function PrivateKeyCreateModal({ open, onClose, createKeyUrl, gen
                     {publicKey && (
                         <label className="flex flex-col gap-1">
                             Public Key
-                            <input readOnly value={publicKey} />
+                            <input id="private-key-create-public-key" name="private-key-create-public-key" readOnly value={publicKey} />
                         </label>
                     )}
                     {publicKey && (

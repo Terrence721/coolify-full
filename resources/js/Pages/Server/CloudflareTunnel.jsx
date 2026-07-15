@@ -123,6 +123,8 @@ export default function CloudflareTunnel({
                                         <label className="flex flex-col gap-1">
                                             Cloudflare Token
                                             <input
+                                                id="cloudflare-tunnel-token"
+                                                name="cloudflare-tunnel-token"
                                                 type="password"
                                                 required
                                                 value={data.cloudflare_token}
@@ -133,6 +135,8 @@ export default function CloudflareTunnel({
                                         <label className="flex flex-col gap-1">
                                             Configured SSH Domain
                                             <input
+                                                id="cloudflare-tunnel-ssh-domain"
+                                                name="cloudflare-tunnel-ssh-domain"
                                                 required
                                                 value={data.ssh_domain}
                                                 onChange={(e) => setData('ssh_domain', e.target.value)}

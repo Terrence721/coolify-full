@@ -56,6 +56,8 @@ export default function Show({ destination, canUpdate, canDelete, resourcesUrl, 
                     <label className="flex flex-col gap-1">
                         Name
                         <input
+                            id="destination-show-name"
+                            name="destination-show-name"
                             disabled={!canUpdate}
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
@@ -64,12 +66,12 @@ export default function Show({ destination, canUpdate, canDelete, resourcesUrl, 
                     </label>
                     <label className="flex flex-col gap-1">
                         Server IP
-                        <input readOnly value={destination.serverIp} />
+                        <input id="destination-show-server-ip" name="destination-show-server-ip" readOnly value={destination.serverIp} />
                     </label>
                     {destination.isStandaloneDocker && (
                         <label className="flex flex-col gap-1">
                             Docker Network
-                            <input readOnly value={destination.network} />
+                            <input id="destination-show-network" name="destination-show-network" readOnly value={destination.network} />
                         </label>
                     )}
                 </div>

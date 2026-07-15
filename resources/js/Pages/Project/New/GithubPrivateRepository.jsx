@@ -164,12 +164,20 @@ export default function GithubPrivateRepository({ githubApps, githubAppStoreUrl,
                         <div className="flex flex-col gap-2 pb-6">
                             <div className="flex gap-2">
                                 <input
+                                    id="github-private-repo-filter"
+                                    name="github-private-repo-filter"
                                     className="flex-1"
                                     placeholder="Search repositories..."
                                     value={repositoryFilter}
                                     onChange={(e) => setRepositoryFilter(e.target.value)}
                                 />
-                                <select className="flex-1" value={selectedRepositoryId} onChange={(e) => setSelectedRepositoryId(e.target.value)}>
+                                <select
+                                    id="github-private-repo-select"
+                                    name="github-private-repo-select"
+                                    className="flex-1"
+                                    value={selectedRepositoryId}
+                                    onChange={(e) => setSelectedRepositoryId(e.target.value)}
+                                >
                                     {filteredRepositories.map((repository) => (
                                         <option key={repository.id} value={repository.id}>
                                             {repository.name}
@@ -191,7 +199,12 @@ export default function GithubPrivateRepository({ githubApps, githubAppStoreUrl,
                                     <GitApplicationFields data={data} setData={setData} errors={errors}>
                                         <label className="flex flex-col flex-1 gap-1">
                                             Branch
-                                            <select value={data.git_branch} onChange={(e) => setData('git_branch', e.target.value)}>
+                                            <select
+                                                id="github-private-repo-branch"
+                                                name="github-private-repo-branch"
+                                                value={data.git_branch}
+                                                onChange={(e) => setData('git_branch', e.target.value)}
+                                            >
                                                 {branches.map((branch) => (
                                                     <option key={branch.name} value={branch.name}>
                                                         {branch.name}
