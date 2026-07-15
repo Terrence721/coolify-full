@@ -10,6 +10,7 @@ use App\Actions\Application\StopApplication;
 use App\Enums\BuildPackTypes;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceEnvs;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
+use App\Http\Controllers\Api\Concerns\RedactsApiSensitiveFields;
 use App\Http\Controllers\Controller;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
@@ -38,33 +39,29 @@ class ApplicationsController extends Controller
 {
     use ManagesApiResourceEnvs;
     use ManagesApiResourceStorages;
+    use RedactsApiSensitiveFields;
 
     private function removeSensitiveData(mixed $application): mixed
     {
-        $application->makeHidden([
+        return $this->redactApiFields($application, [
             'id',
             'resourceable',
             'resourceable_id',
             'resourceable_type',
+        ], [
+            'custom_labels',
+            'dockerfile',
+            'docker_compose',
+            'docker_compose_raw',
+            'manual_webhook_secret_bitbucket',
+            'manual_webhook_secret_gitea',
+            'manual_webhook_secret_github',
+            'manual_webhook_secret_gitlab',
+            'private_key_id',
+            'value',
+            'real_value',
+            'http_basic_auth_password',
         ]);
-        if (request()->attributes->get('can_read_sensitive', false) === false) {
-            $application->makeHidden([
-                'custom_labels',
-                'dockerfile',
-                'docker_compose',
-                'docker_compose_raw',
-                'manual_webhook_secret_bitbucket',
-                'manual_webhook_secret_gitea',
-                'manual_webhook_secret_github',
-                'manual_webhook_secret_gitlab',
-                'private_key_id',
-                'value',
-                'real_value',
-                'http_basic_auth_password',
-            ]);
-        }
-
-        return serializeApiResponse($application);
     }
 
     #[OA\Get(

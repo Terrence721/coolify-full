@@ -9,6 +9,7 @@ use App\Actions\Service\StartService;
 use App\Actions\Service\StopService;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceEnvs;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
+use App\Http\Controllers\Api\Concerns\RedactsApiSensitiveFields;
 use App\Http\Controllers\Controller;
 use App\Jobs\DeleteResourceJob;
 use App\Models\EnvironmentVariable;
@@ -25,25 +26,21 @@ class ServicesController extends Controller
 {
     use ManagesApiResourceEnvs;
     use ManagesApiResourceStorages;
+    use RedactsApiSensitiveFields;
 
     private function removeSensitiveData(mixed $service): mixed
     {
-        $service->makeHidden([
+        return $this->redactApiFields($service, [
             'id',
             'resourceable',
             'resourceable_id',
             'resourceable_type',
+        ], [
+            'docker_compose_raw',
+            'docker_compose',
+            'value',
+            'real_value',
         ]);
-        if (request()->attributes->get('can_read_sensitive', false) === false) {
-            $service->makeHidden([
-                'docker_compose_raw',
-                'docker_compose',
-                'value',
-                'real_value',
-            ]);
-        }
-
-        return serializeApiResponse($service);
     }
 
     /**

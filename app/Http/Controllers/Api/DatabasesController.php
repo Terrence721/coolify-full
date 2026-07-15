@@ -12,6 +12,7 @@ use App\Actions\Database\StopDatabaseProxy;
 use App\Enums\NewDatabaseTypes;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceEnvs;
 use App\Http\Controllers\Api\Concerns\ManagesApiResourceStorages;
+use App\Http\Controllers\Api\Concerns\RedactsApiSensitiveFields;
 use App\Http\Controllers\Controller;
 use App\Jobs\DatabaseBackupJob;
 use App\Jobs\DeleteResourceJob;
@@ -31,27 +32,23 @@ class DatabasesController extends Controller
 {
     use ManagesApiResourceEnvs;
     use ManagesApiResourceStorages;
+    use RedactsApiSensitiveFields;
 
     private function removeSensitiveData(mixed $database): mixed
     {
-        $database->makeHidden([
+        return $this->redactApiFields($database, [
             'id',
             'laravel_through_key',
+        ], [
+            'internal_db_url',
+            'external_db_url',
+            'postgres_password',
+            'dragonfly_password',
+            'redis_password',
+            'mongo_initdb_root_password',
+            'keydb_password',
+            'clickhouse_admin_password',
         ]);
-        if (request()->attributes->get('can_read_sensitive', false) === false) {
-            $database->makeHidden([
-                'internal_db_url',
-                'external_db_url',
-                'postgres_password',
-                'dragonfly_password',
-                'redis_password',
-                'mongo_initdb_root_password',
-                'keydb_password',
-                'clickhouse_admin_password',
-            ]);
-        }
-
-        return serializeApiResponse($database);
     }
 
     /**
@@ -2803,20 +2800,15 @@ class DatabasesController extends Controller
 
     private function removeSensitiveEnvData(mixed $env): mixed
     {
-        $env->makeHidden([
+        return $this->redactApiFields($env, [
             'id',
             'resourceable',
             'resourceable_id',
             'resourceable_type',
+        ], [
+            'value',
+            'real_value',
         ]);
-        if (request()->attributes->get('can_read_sensitive', false) === false) {
-            $env->makeHidden([
-                'value',
-                'real_value',
-            ]);
-        }
-
-        return serializeApiResponse($env);
     }
 
     #[OA\Get(
