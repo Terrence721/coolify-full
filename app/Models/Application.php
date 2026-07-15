@@ -641,6 +641,10 @@ class Application extends BaseModel
                     $value = explode(',', $value);
                 }
 
+                if (! is_array($value)) {
+                    $value = [];
+                }
+
                 $value = collect($value)
                     ->map(function ($alias) {
                         if (is_string($alias)) {
@@ -823,8 +827,8 @@ class Application extends BaseModel
     public function stoppedAfterRestartLimit(): bool
     {
         return str($this->status)->startsWith('exited')
-            && ($this->restart_count ?? 0) > 0
-            && ($this->max_restart_count ?? 0) > 0
+            && $this->restart_count > 0
+            && $this->max_restart_count > 0
             && $this->restart_count >= $this->max_restart_count
             && $this->last_restart_type === 'crash';
     }
@@ -869,9 +873,9 @@ class Application extends BaseModel
     {
         return Attribute::make(
             get: function () {
-                $base_dir = $this->base_directory ?? '/';
+                $base_dir = $this->base_directory;
                 $sourceHtmlUrl = data_get($this, 'source.html_url');
-                if (! is_null($sourceHtmlUrl) && ! is_null($this->git_repository) && ! is_null($this->git_branch)) {
+                if (! is_null($sourceHtmlUrl)) {
                     if (str($this->git_repository)->contains('bitbucket')) {
                         return "{$sourceHtmlUrl}/{$this->git_repository}/src/{$this->git_branch}{$base_dir}";
                     }
@@ -899,7 +903,7 @@ class Application extends BaseModel
         return Attribute::make(
             get: function () {
                 $sourceHtmlUrl = data_get($this, 'source.html_url');
-                if (! is_null($sourceHtmlUrl) && ! is_null($this->git_repository) && ! is_null($this->git_branch)) {
+                if (! is_null($sourceHtmlUrl)) {
                     return "{$sourceHtmlUrl}/{$this->git_repository}/settings/hooks";
                 }
                 // Convert the SSH URL to HTTPS URL
@@ -919,7 +923,7 @@ class Application extends BaseModel
         return Attribute::make(
             get: function () {
                 $sourceHtmlUrl = data_get($this, 'source.html_url');
-                if (! is_null($sourceHtmlUrl) && ! is_null($this->git_repository) && ! is_null($this->git_branch)) {
+                if (! is_null($sourceHtmlUrl)) {
                     return "{$sourceHtmlUrl}/{$this->git_repository}/commits/{$this->git_branch}";
                 }
                 // Convert the SSH URL to HTTPS URL
@@ -937,7 +941,7 @@ class Application extends BaseModel
     public function gitCommitLink(string $link): string
     {
         $sourceHtmlUrl = data_get($this, 'source.html_url');
-        if (! is_null($sourceHtmlUrl) && ! is_null(data_get($this, 'git_repository')) && ! is_null(data_get($this, 'git_branch'))) {
+        if (! is_null($sourceHtmlUrl)) {
             if (str($sourceHtmlUrl)->contains('bitbucket')) {
                 return "{$sourceHtmlUrl}/{$this->git_repository}/commits/{$link}";
             }
@@ -954,10 +958,6 @@ class Application extends BaseModel
         }
         if (strpos($this->git_repository, 'git@') === 0) {
             $git_repository = str_replace(['git@', ':', '.git'], ['', '/', ''], $this->git_repository);
-            if ($sourceHtmlUrl) {
-                return "{$sourceHtmlUrl}/{$git_repository}/commit/{$link}";
-            }
-
             return "{$git_repository}/commit/{$link}";
         }
 
@@ -1065,10 +1065,10 @@ class Application extends BaseModel
                 if ($additionalServers->count() === 0) {
                     if (str($value)->contains('(')) {
                         $status = str($value)->before('(')->trim()->value();
-                        $health = str($value)->after('(')->before(')')->trim()->value() ?? 'unhealthy';
+                        $health = str($value)->after('(')->before(')')->trim()->value();
                     } elseif (str($value)->contains(':')) {
                         $status = str($value)->before(':')->trim()->value();
-                        $health = str($value)->after(':')->trim()->value() ?? 'unhealthy';
+                        $health = str($value)->after(':')->trim()->value();
                     } else {
                         $status = $value;
                         $health = 'unhealthy';
@@ -1078,10 +1078,10 @@ class Application extends BaseModel
                 } else {
                     if (str($value)->contains('(')) {
                         $status = str($value)->before('(')->trim()->value();
-                        $health = str($value)->after('(')->before(')')->trim()->value() ?? 'unhealthy';
+                        $health = str($value)->after('(')->before(')')->trim()->value();
                     } elseif (str($value)->contains(':')) {
                         $status = str($value)->before(':')->trim()->value();
-                        $health = str($value)->after(':')->trim()->value() ?? 'unhealthy';
+                        $health = str($value)->after(':')->trim()->value();
                     } else {
                         $status = $value;
                         $health = 'unhealthy';
@@ -1096,10 +1096,10 @@ class Application extends BaseModel
                     // running (healthy)
                     if (str($value)->contains('(')) {
                         $status = str($value)->before('(')->trim()->value();
-                        $health = str($value)->after('(')->before(')')->trim()->value() ?? 'unhealthy';
+                        $health = str($value)->after('(')->before(')')->trim()->value();
                     } elseif (str($value)->contains(':')) {
                         $status = str($value)->before(':')->trim()->value();
-                        $health = str($value)->after(':')->trim()->value() ?? 'unhealthy';
+                        $health = str($value)->after(':')->trim()->value();
                     } else {
                         $status = $value;
                         $health = 'unhealthy';
@@ -1110,11 +1110,11 @@ class Application extends BaseModel
                     $complex_status = null;
                     $complex_health = null;
                     $complex_status = $main_server_status = str($value)->before(':')->value();
-                    $complex_health = $main_server_health = str($value)->after(':')->value() ?? 'unhealthy';
+                    $complex_health = $main_server_health = str($value)->after(':')->value();
                     $additional_servers_status = $additionalServers->pluck('pivot.status');
                     foreach ($additional_servers_status as $status) {
                         $server_status = str($status)->before(':')->value();
-                        $server_health = str($status)->after(':')->value() ?? 'unhealthy';
+                        $server_health = str($status)->after(':')->value();
                         if ($main_server_status !== $server_status) {
                             $complex_status = 'degraded';
                         }
@@ -1600,7 +1600,8 @@ class Application extends BaseModel
                     $normalized->put($normalizedKey, $value);
                 }
                 $json = $normalized;
-                $services = collect(data_get($parsedServices, 'services', []));
+                $servicesData = data_get($parsedServices, 'services', []);
+                $services = collect(is_array($servicesData) ? $servicesData : []);
                 foreach ($services as $name => $service) {
                     if (str($name)->contains('-') || str($name)->contains('.')) {
                         $replacedName = str($name)->replace('-', '_')->replace('.', '_');
@@ -1608,7 +1609,7 @@ class Application extends BaseModel
                         $services->forget((string) $name);
                     }
                 }
-                $names = collect($services)->keys()->toArray();
+                $names = $services->keys()->toArray();
                 $jsonNames = $json->keys()->toArray();
                 $diff = array_diff($jsonNames, $names);
                 $json = $json->filter(function ($value, $key) use ($diff) {

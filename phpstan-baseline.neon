@@ -1387,12 +1387,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Call to function is_null\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 6
-			path: app/Models/Application.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Application\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1413,7 +1407,7 @@ parameters:
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
-			count: 10
+			count: 2
 			path: app/Models/Application.php
 
 		-
@@ -1629,13 +1623,13 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 6
+			count: 4
 			path: app/Models/Application.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 6
+			count: 4
 			path: app/Models/Application.php
 
 		-
