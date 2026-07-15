@@ -235,7 +235,7 @@ trait ManagesResourceEnvironmentVariables
         }
 
         // Delete removed variables unless docker-compose still references them
-        $variablesToDelete = $envRelation->whereNotIn('key', array_keys($variables))->get();
+        $variablesToDelete = (clone $envRelation)->whereNotIn('key', array_keys($variables))->get();
         foreach ($variablesToDelete as $envVar) {
             if ($this->usesDockerCompose($resource)) {
                 [$isUsed] = $this->isEnvironmentVariableUsedInDockerCompose($envVar->key, $this->dockerComposeContent($resource));
@@ -244,7 +244,7 @@ trait ManagesResourceEnvironmentVariables
                 }
             }
         }
-        $envRelation->whereNotIn('key', array_keys($variables))->delete();
+        (clone $envRelation)->whereNotIn('key', array_keys($variables))->delete();
 
         foreach ($variables as $key => $data) {
             if (str($key)->startsWith(self::MAGIC_ENV_PREFIXES)) {
@@ -253,7 +253,7 @@ trait ManagesResourceEnvironmentVariables
             $value = is_array($data) ? ($data['value'] ?? '') : $data;
             $comment = is_array($data) ? ($data['comment'] ?? null) : null;
 
-            $found = $envRelation->where('key', $key)->first();
+            $found = (clone $envRelation)->where('key', $key)->first();
             if ($found) {
                 if (! $found->is_shown_once && ! $found->is_multiline) {
                     if ($found->value !== $value) {
@@ -280,7 +280,7 @@ trait ManagesResourceEnvironmentVariables
         // Persist the textarea ordering (original updateOrder)
         $order = 1;
         foreach (array_keys($variables) as $key) {
-            $env = $envRelation->where('key', $key)->first();
+            $env = (clone $envRelation)->where('key', $key)->first();
             if ($env) {
                 $env->order = $order;
                 $env->save();
@@ -405,6 +405,12 @@ trait ManagesResourceEnvironmentVariables
 
     private function resourceTypeValue(Model $resource): ?string
     {
+        if (method_exists($resource, 'type')) {
+            $type = $resource->type();
+
+            return is_string($type) ? $type : null;
+        }
+
         $type = data_get($resource, 'type');
 
         return is_string($type) ? $type : null;

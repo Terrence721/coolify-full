@@ -32,7 +32,7 @@ trait ManagesApiResourceStorages
     /**
      * @return Collection<int, mixed>
      */
-    private function ensureCollection(mixed $value): Collection
+    private function ensureStorageCollection(mixed $value): Collection
     {
         if ($value instanceof Collection) {
             return $value;
@@ -80,8 +80,8 @@ trait ManagesApiResourceStorages
         }
 
         return [
-            'persistent_storages' => $this->ensureCollection(data_get($resource, 'persistentStorages'))->sortBy('id')->values(),
-            'file_storages' => $this->ensureCollection(data_get($resource, 'fileStorages'))->sortBy('id')->values(),
+            'persistent_storages' => $this->ensureStorageCollection(data_get($resource, 'persistentStorages'))->sortBy('id')->values(),
+            'file_storages' => $this->ensureStorageCollection(data_get($resource, 'fileStorages'))->sortBy('id')->values(),
         ];
     }
 
@@ -128,7 +128,7 @@ trait ManagesApiResourceStorages
                 ? data_get($resource, 'persistentStorages', collect())
                 : data_get($resource, 'fileStorages', collect());
 
-            return $this->ensureCollection($storages)->where($lookupField, $lookupValue)->first();
+            return $this->ensureStorageCollection($storages)->where($lookupField, $lookupValue)->first();
         }
 
         foreach ($resource->applications as $app) {
@@ -158,8 +158,8 @@ trait ManagesApiResourceStorages
     private function findApiStorageByUuid(Model $resource, string $storageUuid): LocalPersistentVolume|LocalFileVolume|null
     {
         if (! $resource instanceof Service) {
-            return $this->ensureCollection(data_get($resource, 'persistentStorages'))->where('uuid', $storageUuid)->first()
-                ?? $this->ensureCollection(data_get($resource, 'fileStorages'))->where('uuid', $storageUuid)->first();
+            return $this->ensureStorageCollection(data_get($resource, 'persistentStorages'))->where('uuid', $storageUuid)->first()
+                ?? $this->ensureStorageCollection(data_get($resource, 'fileStorages'))->where('uuid', $storageUuid)->first();
         }
 
         foreach ($resource->applications as $app) {
