@@ -25,6 +25,22 @@ trait ManagesApiResourceEnvs
     /**
      * @return Collection<int, mixed>
      */
+    private function ensureCollection(mixed $value): Collection
+    {
+        if ($value instanceof Collection) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return collect($value);
+        }
+
+        return collect();
+    }
+
+    /**
+     * @return Collection<int, mixed>
+     */
     private function apiResourceEnvs(Model $resource): Collection
     {
         if ($resource instanceof Application) {
@@ -32,10 +48,9 @@ trait ManagesApiResourceEnvs
                 ->merge($resource->environment_variables_preview->sortBy('id'));
         }
 
-        // Database accesses this as a plain property, Service via an explicit ->get() call
-        // in the original controllers — both resolve to the same relation data through
-        // Eloquent's magic property access, so one form covers both here.
-        return $resource->environment_variables;
+        // For non-Application resources, avoid direct property access on generic Model.
+        // data_get still resolves Eloquent relation data while keeping static analysis strict.
+        return $this->ensureCollection(data_get($resource, 'environment_variables'));
     }
 
     /**

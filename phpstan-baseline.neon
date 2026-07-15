@@ -175,33 +175,9 @@ parameters:
 			path: app/Console/Commands/CleanupStuckedResources.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment_variables\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/ApplicationsController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fileStorages\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/ApplicationsController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/ApplicationsController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$persistentStorages\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/ApplicationsController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Api/ApplicationsController.php
 
 		-
@@ -211,33 +187,9 @@ parameters:
 			path: app/Http/Controllers/Api/ApplicationsController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment_variables\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fileStorages\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$persistentStorages\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Api/DatabasesController.php
 
 		-
@@ -247,33 +199,9 @@ parameters:
 			path: app/Http/Controllers/Api/DatabasesController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment_variables\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/ServicesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$fileStorages\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/ServicesController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/ServicesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$persistentStorages\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/Api/ServicesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Api/ServicesController.php
 
 		-

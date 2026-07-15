@@ -30,6 +30,22 @@ use Illuminate\Support\Collection;
 trait ManagesApiResourceStorages
 {
     /**
+     * @return Collection<int, mixed>
+     */
+    private function ensureCollection(mixed $value): Collection
+    {
+        if ($value instanceof Collection) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return collect($value);
+        }
+
+        return collect();
+    }
+
+    /**
      * @return array{persistent_storages: Collection<int, mixed>, file_storages: Collection<int, mixed>}
      */
     private function apiStoragesPayload(Model $resource): array
@@ -64,8 +80,8 @@ trait ManagesApiResourceStorages
         }
 
         return [
-            'persistent_storages' => $resource->persistentStorages->sortBy('id')->values(),
-            'file_storages' => $resource->fileStorages->sortBy('id')->values(),
+            'persistent_storages' => $this->ensureCollection(data_get($resource, 'persistentStorages'))->sortBy('id')->values(),
+            'file_storages' => $this->ensureCollection(data_get($resource, 'fileStorages'))->sortBy('id')->values(),
         ];
     }
 
@@ -108,9 +124,11 @@ trait ManagesApiResourceStorages
     private function findApiStorageByLookup(Model $resource, string $type, string $lookupField, mixed $lookupValue): LocalPersistentVolume|LocalFileVolume|null
     {
         if (! $resource instanceof Service) {
-            return $type === 'persistent'
-                ? $resource->persistentStorages->where($lookupField, $lookupValue)->first()
-                : $resource->fileStorages->where($lookupField, $lookupValue)->first();
+            $storages = $type === 'persistent'
+                ? data_get($resource, 'persistentStorages', collect())
+                : data_get($resource, 'fileStorages', collect());
+
+            return $this->ensureCollection($storages)->where($lookupField, $lookupValue)->first();
         }
 
         foreach ($resource->applications as $app) {
@@ -140,8 +158,8 @@ trait ManagesApiResourceStorages
     private function findApiStorageByUuid(Model $resource, string $storageUuid): LocalPersistentVolume|LocalFileVolume|null
     {
         if (! $resource instanceof Service) {
-            return $resource->persistentStorages->where('uuid', $storageUuid)->first()
-                ?? $resource->fileStorages->where('uuid', $storageUuid)->first();
+            return $this->ensureCollection(data_get($resource, 'persistentStorages'))->where('uuid', $storageUuid)->first()
+                ?? $this->ensureCollection(data_get($resource, 'fileStorages'))->where('uuid', $storageUuid)->first();
         }
 
         foreach ($resource->applications as $app) {
@@ -275,11 +293,14 @@ trait ManagesApiResourceStorages
                 ], 422);
             }
 
+            $ownerUuid = (string) data_get($owner, 'uuid');
+            $ownerId = (int) data_get($owner, 'id');
+
             $storage = LocalPersistentVolume::create([
-                'name' => $owner->uuid.'-'.$request->name,
+                'name' => $ownerUuid.'-'.$request->name,
                 'mount_path' => $request->mount_path,
                 'host_path' => $request->host_path,
-                'resource_id' => $owner->id,
+                'resource_id' => $ownerId,
                 'resource_type' => $owner->getMorphClass(),
             ]);
 
@@ -323,14 +344,16 @@ trait ManagesApiResourceStorages
 
             validateShellSafePath($mountPath, 'file storage path');
 
-            $fsPath = $this->apiStorageConfigurationDir($topLevelResource).'/'.$topLevelResource->uuid.$mountPath;
+            $topLevelResourceUuid = (string) data_get($topLevelResource, 'uuid');
+            $ownerId = (int) data_get($owner, 'id');
+            $fsPath = $this->apiStorageConfigurationDir($topLevelResource).'/'.$topLevelResourceUuid.$mountPath;
 
             $storage = LocalFileVolume::create([
                 'fs_path' => $fsPath,
                 'mount_path' => $mountPath,
                 'content' => $request->content,
                 'is_directory' => false,
-                'resource_id' => $owner->id,
+                'resource_id' => $ownerId,
                 'resource_type' => $owner->getMorphClass(),
             ]);
         }
