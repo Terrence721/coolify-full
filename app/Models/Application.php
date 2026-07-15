@@ -18,6 +18,7 @@ use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasWatchPaths;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,16 +43,16 @@ use Visus\Cuid2\Cuid2;
  * @property-read ApplicationSetting $settings
  * @property-read Environment $environment
  * @property-read StandaloneDocker|SwarmDocker|null $destination
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Server> $additional_servers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, StandaloneDocker> $additional_networks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, LocalPersistentVolume> $persistentStorages
- * @property-read \Illuminate\Database\Eloquent\Collection<int, LocalFileVolume> $fileStorages
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $environment_variables
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $environment_variables_preview
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $runtime_environment_variables
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $runtime_environment_variables_preview
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $nixpacks_environment_variables
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $nixpacks_environment_variables_preview
+ * @property-read Collection<int, Server> $additional_servers
+ * @property-read Collection<int, StandaloneDocker> $additional_networks
+ * @property-read Collection<int, LocalPersistentVolume> $persistentStorages
+ * @property-read Collection<int, LocalFileVolume> $fileStorages
+ * @property-read Collection<int, EnvironmentVariable> $environment_variables
+ * @property-read Collection<int, EnvironmentVariable> $environment_variables_preview
+ * @property-read Collection<int, EnvironmentVariable> $runtime_environment_variables
+ * @property-read Collection<int, EnvironmentVariable> $runtime_environment_variables_preview
+ * @property-read Collection<int, EnvironmentVariable> $nixpacks_environment_variables
+ * @property-read Collection<int, EnvironmentVariable> $nixpacks_environment_variables_preview
  * @property-read array<int, string> $ports_mappings_array
  * @property int $id
  * @property int|null $repository_project_id
@@ -145,7 +146,7 @@ use Visus\Cuid2\Cuid2;
  * @property-read int|null $additional_networks_count
  * @property-read int|null $additional_servers_count
  * @property-read mixed $custom_network_aliases_array
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ApplicationDeploymentQueue> $deployment_queue
+ * @property-read Collection<int, ApplicationDeploymentQueue> $deployment_queue
  * @property-read int|null $deployment_queue_count
  * @property-read int|null $environment_variables_count
  * @property-read int|null $environment_variables_preview_count
@@ -159,21 +160,21 @@ use Visus\Cuid2\Cuid2;
  * @property-read int|null $nixpacks_environment_variables_preview_count
  * @property-read int|null $persistent_storages_count
  * @property-read mixed $ports_exposes_array
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ApplicationPreview> $previews
+ * @property-read Collection<int, ApplicationPreview> $previews
  * @property-read int|null $previews_count
  * @property-read PrivateKey|null $private_key
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $railpack_environment_variables
+ * @property-read Collection<int, EnvironmentVariable> $railpack_environment_variables
  * @property-read int|null $railpack_environment_variables_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, EnvironmentVariable> $railpack_environment_variables_preview
+ * @property-read Collection<int, EnvironmentVariable> $railpack_environment_variables_preview
  * @property-read int|null $railpack_environment_variables_preview_count
  * @property-read int|null $runtime_environment_variables_count
  * @property-read int|null $runtime_environment_variables_preview_count
  * @property-read mixed $sanitized_name
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ScheduledTask> $scheduled_tasks
+ * @property-read Collection<int, ScheduledTask> $scheduled_tasks
  * @property-read int|null $scheduled_tasks_count
  * @property-read mixed $server_status
  * @property-read Model|\Eloquent|null $source
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Tag> $tags
+ * @property-read Collection<int, Tag> $tags
  * @property-read int|null $tags_count
  *
  * @method static \Database\Factories\ApplicationFactory factory($count = null, $state = [])
@@ -709,7 +710,7 @@ class Application extends BaseModel
     /**
      * @return Builder<self>
      */
-    public static function ownedByCurrentTeamAPI(int $teamId): Builder
+    public static function ownedByCurrentTeamAPI(int|string $teamId): Builder
     {
         return Application::whereRelation('environment.project.team', 'id', $teamId)->orderBy('name');
     }

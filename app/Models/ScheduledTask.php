@@ -94,7 +94,7 @@ class ScheduledTask extends BaseModel
     /**
      * @return Builder<self>
      */
-    public static function ownedByCurrentTeamAPI(int $teamId): Builder
+    public static function ownedByCurrentTeamAPI(int|string $teamId): Builder
     {
         return static::where('team_id', $teamId)->orderBy('created_at', 'desc');
     }

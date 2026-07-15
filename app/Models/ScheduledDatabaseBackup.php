@@ -116,7 +116,7 @@ class ScheduledDatabaseBackup extends BaseModel
     /**
      * @return Builder<self>
      */
-    public static function ownedByCurrentTeamAPI(int $teamId): Builder
+    public static function ownedByCurrentTeamAPI(int|string $teamId): Builder
     {
         return ScheduledDatabaseBackup::whereRelation('team', 'id', $teamId)->orderBy('created_at', 'desc');
     }

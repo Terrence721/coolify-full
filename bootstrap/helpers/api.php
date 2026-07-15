@@ -182,6 +182,8 @@ function validateIncomingRequest(Request $request): ?JsonResponse
             'error' => 'Empty JSON.',
         ], 400);
     }
+
+    return null;
 }
 
 function removeUnnecessaryFieldsFromRequest(Request $request): void

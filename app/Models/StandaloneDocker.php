@@ -153,7 +153,7 @@ class StandaloneDocker extends BaseModel
         return static::whereHas('server', fn ($q) => $q->whereTeamId($team->id));
     }
 
-    public static function ownedByCurrentTeamAPI(int $teamId)
+    public static function ownedByCurrentTeamAPI(int|string $teamId)
     {
         return static::whereHas('server', fn ($q) => $q->whereTeamId($teamId));
     }

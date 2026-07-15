@@ -127,7 +127,7 @@ class ServiceDatabase extends BaseModel
     /**
      * @return Builder<self>
      */
-    public static function ownedByCurrentTeamAPI(int $teamId): Builder
+    public static function ownedByCurrentTeamAPI(int|string $teamId): Builder
     {
         return ServiceDatabase::whereRelation('service.environment.project.team', 'id', $teamId)->orderBy('name');
     }

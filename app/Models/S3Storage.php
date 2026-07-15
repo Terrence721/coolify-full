@@ -134,7 +134,7 @@ class S3Storage extends BaseModel
      * @param  array<int, string>  $select
      * @return Builder<self>
      */
-    public static function ownedByCurrentTeamAPI(int $teamId, array $select = ['*']): Builder
+    public static function ownedByCurrentTeamAPI(int|string $teamId, array $select = ['*']): Builder
     {
         $selectArray = collect($select)->concat(['id']);
 
