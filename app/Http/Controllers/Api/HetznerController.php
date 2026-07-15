@@ -11,7 +11,6 @@ use App\Http\Controllers\Controller;
 use App\Models\CloudProviderToken;
 use App\Models\PrivateKey;
 use App\Models\Server;
-use App\Models\Team;
 use App\Rules\ValidCloudInitYaml;
 use App\Rules\ValidHostname;
 use App\Services\HetznerService;
@@ -565,12 +564,6 @@ class HetznerController extends Controller
                 'message' => 'Validation failed.',
                 'errors' => $errors,
             ], 422);
-        }
-
-        // Check server limit
-        $team = Team::find($teamId);
-        if (Team::serverLimitReached($team)) {
-            return response()->json(['message' => 'Server limit reached for your team.'], 400);
         }
 
         // Set defaults

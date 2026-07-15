@@ -19,7 +19,7 @@
                             </div>
                         </div>
                     </x-slot:content>
-                    <livewire:server.new.by-hetzner :private_keys="$private_keys" :limit_reached="$limit_reached" />
+                    <livewire:server.new.by-hetzner :private_keys="$private_keys" />
                 </x-modal-input>
             </div>
 
@@ -28,7 +28,7 @@
 
         <div>
             <h3 class="pb-2">Add Server by IP Address</h3>
-            <livewire:server.new.by-ip :private_keys="$private_keys" :limit_reached="$limit_reached" />
+            <livewire:server.new.by-ip :private_keys="$private_keys" />
         </div>
     </div>
 </div>

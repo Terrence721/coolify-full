@@ -1,8 +1,5 @@
 <div class="w-full">
-    @if ($limit_reached)
-        <x-limit-reached name="servers" />
-    @else
-        @if ($current_step === 1)
+    @if ($current_step === 1)
             <div class="flex flex-col w-full gap-4">
                 @if ($available_tokens->count() > 0)
                     <div class="flex gap-2">
@@ -200,5 +197,4 @@
                 </form>
             @endif
         @endif
-    @endif
 </div>

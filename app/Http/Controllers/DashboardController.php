@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
-use App\Models\Team;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,11 +17,6 @@ class DashboardController extends Controller
         $projects = Project::ownedByCurrentTeam()->with('environments')->get();
         $servers = Server::ownedByCurrentTeamCached();
         $privateKeys = PrivateKey::ownedByCurrentTeamCached();
-
-        $limitReached = false;
-        if (isCloud()) {
-            $limitReached = Team::serverLimitReached();
-        }
 
         return Inertia::render('Dashboard', [
             'projects' => $projects->map(fn (Project $project) => [
@@ -54,7 +48,6 @@ class DashboardController extends Controller
             ]),
             'canCreateProject' => auth()->user()?->can('createAnyResource') ?? false,
             'canCreateServer' => auth()->user()?->can('createAnyResource') ?? false,
-            'limitReached' => $limitReached,
             'defaultServerName' => generate_random_name(),
             'defaultPrivateKeyId' => $privateKeys->first()?->id,
             'createProjectUrl' => route('project.store'),

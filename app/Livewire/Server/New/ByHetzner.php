@@ -9,7 +9,6 @@ use App\Models\CloudInitScript;
 use App\Models\CloudProviderToken;
 use App\Models\PrivateKey;
 use App\Models\Server;
-use App\Models\Team;
 use App\Rules\ValidCloudInitYaml;
 use App\Rules\ValidHostname;
 use App\Services\HetznerService;
@@ -34,9 +33,6 @@ class ByHetzner extends Component
 
     #[Locked]
     public $private_keys;
-
-    #[Locked]
-    public $limit_reached;
 
     // Step 1: Token selection
     public ?int $selected_token_id = null;
@@ -475,10 +471,6 @@ class ByHetzner extends Component
 
         try {
             $this->authorize('create', Server::class);
-
-            if (Team::serverLimitReached()) {
-                return $this->dispatch('error', 'You have reached the server limit for your team.');
-            }
 
             // Save cloud-init script if requested
             if ($this->save_cloud_init_script && ! empty($this->cloud_init_script) && ! empty($this->cloud_init_script_name)) {

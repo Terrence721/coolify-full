@@ -5,7 +5,7 @@ import { useForm } from '@inertiajs/react';
  * scope-reduction (see Phase 33 of the migration doc). Still reachable via GlobalSearch's
  * own unconverted Add Server modal.
  */
-export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defaultName, limitReached, storeUrl, onClose }) {
+export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defaultName, storeUrl, onClose }) {
     const { data, setData, post, processing, errors } = useForm({
         name: defaultName,
         description: '',
@@ -34,87 +34,83 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                         ✕
                     </button>
                 </div>
-                {limitReached ? (
-                    <div className="text-error">You have reached the server limit for your team.</div>
-                ) : (
-                    <form className="flex flex-col gap-2" onSubmit={submit}>
-                        <div className="flex w-full gap-2 flex-wrap sm:flex-nowrap">
-                            <label className="flex flex-col gap-1 w-full">
-                                Name
-                                <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
-                                {errors.name && <span className="text-error">{errors.name}</span>}
-                            </label>
-                            <label className="flex flex-col gap-1 w-full">
-                                Description
-                                <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
-                                {errors.description && <span className="text-error">{errors.description}</span>}
-                            </label>
-                        </div>
-                        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
-                            <label className="flex flex-col gap-1 w-full">
-                                IP Address/Domain
-                                <input required value={data.ip} onChange={(e) => setData('ip', e.target.value)} />
-                                {errors.ip && <span className="text-error">{errors.ip}</span>}
-                            </label>
-                            <label className="flex flex-col gap-1">
-                                Port
-                                <input
-                                    type="number"
-                                    required
-                                    value={data.port}
-                                    onChange={(e) => setData('port', e.target.value)}
-                                />
-                                {errors.port && <span className="text-error">{errors.port}</span>}
-                            </label>
-                        </div>
-                        <label className="flex flex-col gap-1">
-                            User
-                            <input required value={data.user} onChange={(e) => setData('user', e.target.value)} />
-                            {errors.user && <span className="text-error">{errors.user}</span>}
+                <form className="flex flex-col gap-2" onSubmit={submit}>
+                    <div className="flex w-full gap-2 flex-wrap sm:flex-nowrap">
+                        <label className="flex flex-col gap-1 w-full">
+                            Name
+                            <input required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            {errors.name && <span className="text-error">{errors.name}</span>}
                         </label>
-                        <div className="text-xs dark:text-warning text-coollabs">
-                            Non-root user is experimental:{' '}
-                            <a
-                                className="font-bold underline"
-                                target="_blank"
-                                rel="noreferrer"
-                                href="https://coolify.io/docs/knowledge-base/server/non-root-user"
-                            >
-                                docs
-                            </a>
-                            .
-                        </div>
-                        <label className="flex flex-col gap-1">
-                            Private Key
-                            <select
-                                required
-                                value={data.private_key_id}
-                                onChange={(e) => setData('private_key_id', e.target.value)}
-                            >
-                                <option disabled value="">
-                                    Select a private key
-                                </option>
-                                {privateKeys.map((key) => (
-                                    <option key={key.id} value={key.id}>
-                                        {key.name}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.private_key_id && <span className="text-error">{errors.private_key_id}</span>}
+                        <label className="flex flex-col gap-1 w-full">
+                            Description
+                            <input value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                            {errors.description && <span className="text-error">{errors.description}</span>}
                         </label>
-                        <label className="flex items-center gap-2">
+                    </div>
+                    <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+                        <label className="flex flex-col gap-1 w-full">
+                            IP Address/Domain
+                            <input required value={data.ip} onChange={(e) => setData('ip', e.target.value)} />
+                            {errors.ip && <span className="text-error">{errors.ip}</span>}
+                        </label>
+                        <label className="flex flex-col gap-1">
+                            Port
                             <input
-                                type="checkbox"
-                                checked={data.is_build_server}
-                                onChange={(e) => setData('is_build_server', e.target.checked)}
+                                type="number"
+                                required
+                                value={data.port}
+                                onChange={(e) => setData('port', e.target.value)}
                             />
-                            Use it as a build server?
+                            {errors.port && <span className="text-error">{errors.port}</span>}
                         </label>
-                        <button type="submit" disabled={processing}>
-                            Continue
-                        </button>
-                    </form>
-                )}
+                    </div>
+                    <label className="flex flex-col gap-1">
+                        User
+                        <input required value={data.user} onChange={(e) => setData('user', e.target.value)} />
+                        {errors.user && <span className="text-error">{errors.user}</span>}
+                    </label>
+                    <div className="text-xs dark:text-warning text-coollabs">
+                        Non-root user is experimental:{' '}
+                        <a
+                            className="font-bold underline"
+                            target="_blank"
+                            rel="noreferrer"
+                            href="https://coolify.io/docs/knowledge-base/server/non-root-user"
+                        >
+                            docs
+                        </a>
+                        .
+                    </div>
+                    <label className="flex flex-col gap-1">
+                        Private Key
+                        <select
+                            required
+                            value={data.private_key_id}
+                            onChange={(e) => setData('private_key_id', e.target.value)}
+                        >
+                            <option disabled value="">
+                                Select a private key
+                            </option>
+                            {privateKeys.map((key) => (
+                                <option key={key.id} value={key.id}>
+                                    {key.name}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.private_key_id && <span className="text-error">{errors.private_key_id}</span>}
+                    </label>
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={data.is_build_server}
+                            onChange={(e) => setData('is_build_server', e.target.checked)}
+                        />
+                        Use it as a build server?
+                    </label>
+                    <button type="submit" disabled={processing}>
+                        Continue
+                    </button>
+                </form>
             </div>
         </div>
     );

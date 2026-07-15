@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AddServerModal from '../../Components/AddServerModal';
 
-export default function Index({ servers, canCreate, limitReached, privateKeys, defaultPrivateKeyId, defaultName, storeUrl }) {
+export default function Index({ servers, canCreate, privateKeys, defaultPrivateKeyId, defaultName, storeUrl }) {
     const [showAddModal, setShowAddModal] = useState(false);
 
     return (
@@ -47,7 +47,6 @@ export default function Index({ servers, canCreate, limitReached, privateKeys, d
                     privateKeys={privateKeys}
                     defaultPrivateKeyId={defaultPrivateKeyId}
                     defaultName={defaultName}
-                    limitReached={limitReached}
                     storeUrl={storeUrl}
                     onClose={() => setShowAddModal(false)}
                 />

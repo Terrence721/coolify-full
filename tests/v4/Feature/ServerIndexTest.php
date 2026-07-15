@@ -63,7 +63,6 @@ it('renders the server index Inertia page', function () {
         ->has('servers', 1)
         ->where('servers.0.name', 'my-server')
         ->where('canCreate', true)
-        ->where('limitReached', false)
     );
 });
 

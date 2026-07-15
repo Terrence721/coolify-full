@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Enums\ProxyTypes;
 use App\Models\PrivateKey;
 use App\Models\Server;
-use App\Models\Team;
 use App\Rules\ValidServerIp;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -26,11 +25,6 @@ class ServerController extends Controller
         $servers = Server::ownedByCurrentTeamCached();
         $privateKeys = PrivateKey::ownedByCurrentTeamCached();
 
-        $limitReached = false;
-        if (isCloud()) {
-            $limitReached = Team::serverLimitReached();
-        }
-
         return Inertia::render('Server/Index', [
             'servers' => $servers->map(fn (Server $server) => [
                 'uuid' => $server->uuid,
@@ -42,7 +36,6 @@ class ServerController extends Controller
                 'showUrl' => route('server.show', ['server_uuid' => $server->uuid]),
             ]),
             'canCreate' => auth()->user()?->can('createAnyResource') ?? false,
-            'limitReached' => $limitReached,
             'privateKeys' => $privateKeys->map(fn (PrivateKey $key) => [
                 'id' => $key->id,
                 'name' => $key->name,
@@ -78,10 +71,6 @@ class ServerController extends Controller
 
         if (is_null($validated['private_key_id'])) {
             return back()->with('error', 'You must select a private key');
-        }
-
-        if (Team::serverLimitReached()) {
-            return back()->with('error', 'You have reached the server limit for your team.');
         }
 
         $payload = [

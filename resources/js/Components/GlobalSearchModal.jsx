@@ -652,7 +652,6 @@ export default function GlobalSearchModal() {
                     privateKeys={serverCreateData.privateKeys}
                     defaultPrivateKeyId={serverCreateData.defaultPrivateKeyId}
                     defaultName={serverCreateData.defaultName}
-                    limitReached={serverCreateData.limitReached}
                     storeUrl={serverCreateData.storeUrl}
                     onClose={() => setActiveModal(null)}
                 />

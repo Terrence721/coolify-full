@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
-use App\Models\Team;
 use App\Services\GlobalSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,9 +14,9 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * JSON endpoints behind the React GlobalSearchModal.jsx — a parallel port of
- * App\Livewire\GlobalSearch, which stays alive unchanged for Boarding\Index/Server\Show, the two
- * pages still rendered through layouts/app.blade.php. Both sides share their actual search/
- * creatable-item logic via GlobalSearchService rather than duplicating it.
+ * App\Livewire\GlobalSearch, which stays alive unchanged for auth/verify-email.blade.php, the
+ * last page still rendered through layouts/app.blade.php (Phase 78). Both sides share their
+ * actual search/creatable-item logic via GlobalSearchService rather than duplicating it.
  */
 class GlobalSearchController extends Controller
 {
@@ -44,11 +43,6 @@ class GlobalSearchController extends Controller
     {
         $privateKeys = PrivateKey::ownedByCurrentTeamCached();
 
-        $limitReached = false;
-        if (isCloud()) {
-            $limitReached = Team::serverLimitReached();
-        }
-
         return response()->json([
             'privateKeys' => $privateKeys->map(fn (PrivateKey $key) => [
                 'id' => $key->id,
@@ -56,7 +50,6 @@ class GlobalSearchController extends Controller
             ]),
             'defaultPrivateKeyId' => $privateKeys->first()?->id,
             'defaultName' => generate_random_name(),
-            'limitReached' => $limitReached,
             'storeUrl' => route('server.store'),
         ]);
     }

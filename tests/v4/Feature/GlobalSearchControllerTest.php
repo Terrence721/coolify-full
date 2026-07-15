@@ -62,7 +62,7 @@ it('returns server-creation form data', function () {
     $response = $this->getJson(route('search.server-create-data'));
 
     $response->assertOk();
-    $response->assertJsonStructure(['privateKeys', 'defaultPrivateKeyId', 'defaultName', 'limitReached', 'storeUrl']);
+    $response->assertJsonStructure(['privateKeys', 'defaultPrivateKeyId', 'defaultName', 'storeUrl']);
     expect(collect($response->json('privateKeys'))->pluck('name'))->toContain('Deploy Key');
 });
 

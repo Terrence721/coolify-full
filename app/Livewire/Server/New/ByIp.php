@@ -6,7 +6,6 @@ namespace App\Livewire\Server\New;
 
 use App\Enums\ProxyTypes;
 use App\Models\Server;
-use App\Models\Team;
 use App\Rules\ValidServerIp;
 use App\Support\ValidationPatterns;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -19,9 +18,6 @@ class ByIp extends Component
 
     #[Locked]
     public $private_keys;
-
-    #[Locked]
-    public $limit_reached;
 
     public ?int $private_key_id = null;
 
@@ -112,9 +108,6 @@ class ByIp extends Component
 
             if (is_null($this->private_key_id)) {
                 return $this->dispatch('error', 'You must select a private key');
-            }
-            if (Team::serverLimitReached()) {
-                return $this->dispatch('error', 'You have reached the server limit for your team.');
             }
             $payload = [
                 'name' => $this->name,

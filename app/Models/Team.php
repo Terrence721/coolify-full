@@ -11,7 +11,6 @@ use App\Notifications\Channels\SendsPushover;
 use App\Notifications\Channels\SendsSlack;
 use App\Traits\HasNotificationSettings;
 use App\Traits\HasSafeStringAttribute;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +27,6 @@ use OpenApi\Attributes as OA;
 /**
  * @property-read Collection<int, User> $members
  * @property-read Collection<int, Server> $servers
- * @property-read int $limits
  * @property-read TeamUserPivot|null $pivot
  * @property int $id
  * @property string $name
@@ -37,7 +35,6 @@ use OpenApi\Attributes as OA;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property bool $show_boarding
- * @property int|null $custom_server_limit
  * @property-read Collection<int, Application> $applications
  * @property-read int|null $applications_count
  * @property-read Collection<int, CloudProviderToken> $cloudProviderTokens
@@ -68,7 +65,6 @@ use OpenApi\Attributes as OA;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereCustomServerLimit($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Team whereName($value)
@@ -89,7 +85,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'created_at', type: 'string', description: 'The date and time the team was created.'),
         new OA\Property(property: 'updated_at', type: 'string', description: 'The date and time the team was last updated.'),
         new OA\Property(property: 'show_boarding', type: 'boolean', description: 'Whether to show the boarding screen or not.'),
-        new OA\Property(property: 'custom_server_limit', type: 'string', description: 'The custom server limit.'),
         'members' => new OA\Property(
             property: 'members',
             type: 'array',
@@ -107,7 +102,6 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         'description',
         'personal_team',
         'show_boarding',
-        'custom_server_limit',
     ];
 
     protected $casts = [
@@ -165,48 +159,6 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
                 $s3->delete();
             }
         });
-    }
-
-    public static function serverLimitReached(?Team $team = null)
-    {
-        $team = $team ?? currentTeam();
-        if (! $team) {
-            return true;
-        }
-        $serverLimit = Team::serverLimit($team);
-        $servers = $team->servers->count();
-
-        return $servers >= $serverLimit;
-    }
-
-    public static function serverLimit(?Team $team = null)
-    {
-        $team = $team ?? currentTeam();
-        if (! $team) {
-            return 0;
-        }
-        if ($team->id === 0 && isDev()) {
-            return 9999999;
-        }
-        $team = Team::find($team->id);
-        if (! $team) {
-            return 0;
-        }
-
-        return data_get($team, 'limits', 0);
-    }
-
-    public function limits(): Attribute
-    {
-        return Attribute::make(
-            get: function () {
-                if (config('constants.coolify.self_hosted') || $this->id === 0) {
-                    return 999999999999;
-                }
-
-                return $this->custom_server_limit ?? 2;
-            }
-        );
     }
 
     public function routeNotificationForDiscord(): ?string

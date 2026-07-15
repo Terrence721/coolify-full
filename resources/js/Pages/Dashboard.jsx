@@ -9,7 +9,6 @@ export default function Dashboard({
     privateKeys,
     canCreateProject,
     canCreateServer,
-    limitReached,
     defaultServerName,
     defaultPrivateKeyId,
     createProjectUrl,
@@ -150,7 +149,6 @@ export default function Dashboard({
                     privateKeys={privateKeys}
                     defaultPrivateKeyId={defaultPrivateKeyId}
                     defaultName={defaultServerName}
-                    limitReached={limitReached}
                     storeUrl={createServerUrl}
                     onClose={() => setShowAddServerModal(false)}
                 />
