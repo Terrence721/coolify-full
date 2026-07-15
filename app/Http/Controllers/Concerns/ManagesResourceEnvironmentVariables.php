@@ -55,10 +55,20 @@ trait ManagesResourceEnvironmentVariables
      */
     private function environmentVariablesTabProps(Model $resource, array $parameters, string $routePrefix): array
     {
-        $envs = $resource->environment_variables()
-            ->orderByRaw("CASE WHEN is_required = true AND (value IS NULL OR value = '') THEN 0 ELSE 1 END")
-            ->orderBy('order')
-            ->get();
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        if ($envRelation !== null) {
+            $envs = $envRelation
+                ->orderByRaw("CASE WHEN is_required = true AND (value IS NULL OR value = '') THEN 0 ELSE 1 END")
+                ->orderBy('order')
+                ->get();
+        } else {
+            $envs = $this->resourceEnvironmentVariablesCollection($resource)
+                ->sortBy(fn ($env) => [
+                    ((bool) data_get($env, 'is_required')) && blank(data_get($env, 'value')) ? 0 : 1,
+                    (int) data_get($env, 'order', 0),
+                ])
+                ->values();
+        }
 
         return [
             'envs' => $envs->map(fn (EnvironmentVariable $env) => $this->envProps($env, $resource, $parameters, $routePrefix))->values(),
@@ -77,6 +87,10 @@ trait ManagesResourceEnvironmentVariables
     private function envStore(Request $request, Model $resource): RedirectResponse
     {
         $this->authorize('manageEnvironment', $resource);
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        if ($envRelation === null) {
+            return back()->with('error', 'Environment variables are not available for this resource.');
+        }
 
         $validated = Validator::make($request->all(), [
             'key' => ValidationPatterns::environmentVariableKeyRules(),
@@ -89,11 +103,11 @@ trait ManagesResourceEnvironmentVariables
         ], ValidationPatterns::environmentVariableKeyMessages('key'))->validate();
 
         $key = ValidationPatterns::validatedEnvironmentVariableKey($validated['key']);
-        if ($resource->environment_variables()->where('key', $key)->exists()) {
+        if ($envRelation->where('key', $key)->exists()) {
             return back()->with('error', 'Environment variable already exists.');
         }
 
-        $maxOrder = $resource->environment_variables()->max('order') ?? 0;
+        $maxOrder = $envRelation->max('order') ?? 0;
         $environment = new EnvironmentVariable;
         $environment->key = $key;
         $environment->value = $validated['value'] ?? '';
@@ -103,7 +117,7 @@ trait ManagesResourceEnvironmentVariables
         $environment->is_runtime = (bool) $validated['is_runtime'];
         $environment->is_buildtime = (bool) $validated['is_buildtime'];
         $environment->is_preview = false;
-        $environment->resourceable_id = $resource->id;
+        $environment->resourceable_id = (int) data_get($resource, 'id');
         $environment->resourceable_type = $resource->getMorphClass();
         $environment->order = $maxOrder + 1;
         $environment->save();
@@ -113,7 +127,11 @@ trait ManagesResourceEnvironmentVariables
 
     private function envUpdate(Request $request, Model $resource, string $env_id): RedirectResponse
     {
-        $env = $resource->environment_variables()->findOrFail($env_id);
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        if ($envRelation === null) {
+            abort(404);
+        }
+        $env = $envRelation->findOrFail($env_id);
         $this->authorize('update', $env);
 
         $isMagic = str($env->key)->startsWith(self::MAGIC_ENV_PREFIXES);
@@ -140,7 +158,7 @@ trait ManagesResourceEnvironmentVariables
             return back()->with('error', 'Required environment variables cannot be empty.');
         }
 
-        $isRedisCredential = $resource->type() === 'standalone-redis'
+        $isRedisCredential = $this->resourceTypeValue($resource) === 'standalone-redis'
             && in_array($env->key, ['REDIS_PASSWORD', 'REDIS_USERNAME'], true);
         if (! $isRedisCredential) {
             $env->key = ValidationPatterns::normalizeEnvironmentVariableKey($validated['key']);
@@ -161,7 +179,11 @@ trait ManagesResourceEnvironmentVariables
 
     private function envLock(Model $resource, string $env_id): RedirectResponse
     {
-        $env = $resource->environment_variables()->findOrFail($env_id);
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        if ($envRelation === null) {
+            abort(404);
+        }
+        $env = $envRelation->findOrFail($env_id);
         $this->authorize('update', $env);
 
         $env->is_shown_once = true;
@@ -172,7 +194,11 @@ trait ManagesResourceEnvironmentVariables
 
     private function envDestroy(Model $resource, string $env_id): RedirectResponse
     {
-        $env = $resource->environment_variables()->findOrFail($env_id);
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        if ($envRelation === null) {
+            abort(404);
+        }
+        $env = $envRelation->findOrFail($env_id);
         $this->authorize('delete', $env);
 
         if ($this->usesDockerCompose($resource)) {
@@ -190,6 +216,10 @@ trait ManagesResourceEnvironmentVariables
     private function envBulkUpdate(Request $request, Model $resource): RedirectResponse
     {
         $this->authorize('manageEnvironment', $resource);
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        if ($envRelation === null) {
+            return back()->with('error', 'Environment variables are not available for this resource.');
+        }
 
         $validated = Validator::make($request->all(), [
             'variables' => 'nullable|string',
@@ -205,7 +235,7 @@ trait ManagesResourceEnvironmentVariables
         }
 
         // Delete removed variables unless docker-compose still references them
-        $variablesToDelete = $resource->environment_variables()->whereNotIn('key', array_keys($variables))->get();
+        $variablesToDelete = $envRelation->whereNotIn('key', array_keys($variables))->get();
         foreach ($variablesToDelete as $envVar) {
             if ($this->usesDockerCompose($resource)) {
                 [$isUsed] = $this->isEnvironmentVariableUsedInDockerCompose($envVar->key, $this->dockerComposeContent($resource));
@@ -214,7 +244,7 @@ trait ManagesResourceEnvironmentVariables
                 }
             }
         }
-        $resource->environment_variables()->whereNotIn('key', array_keys($variables))->delete();
+        $envRelation->whereNotIn('key', array_keys($variables))->delete();
 
         foreach ($variables as $key => $data) {
             if (str($key)->startsWith(self::MAGIC_ENV_PREFIXES)) {
@@ -223,7 +253,7 @@ trait ManagesResourceEnvironmentVariables
             $value = is_array($data) ? ($data['value'] ?? '') : $data;
             $comment = is_array($data) ? ($data['comment'] ?? null) : null;
 
-            $found = $resource->environment_variables()->where('key', $key)->first();
+            $found = $envRelation->where('key', $key)->first();
             if ($found) {
                 if (! $found->is_shown_once && ! $found->is_multiline) {
                     if ($found->value !== $value) {
@@ -241,7 +271,7 @@ trait ManagesResourceEnvironmentVariables
                 $environment->comment = $comment;
                 $environment->is_multiline = false;
                 $environment->is_preview = false;
-                $environment->resourceable_id = $resource->id;
+                $environment->resourceable_id = (int) data_get($resource, 'id');
                 $environment->resourceable_type = $resource->getMorphClass();
                 $environment->save();
             }
@@ -250,7 +280,7 @@ trait ManagesResourceEnvironmentVariables
         // Persist the textarea ordering (original updateOrder)
         $order = 1;
         foreach (array_keys($variables) as $key) {
-            $env = $resource->environment_variables()->where('key', $key)->first();
+            $env = $envRelation->where('key', $key)->first();
             if ($env) {
                 $env->order = $order;
                 $env->save();
@@ -288,7 +318,7 @@ trait ManagesResourceEnvironmentVariables
             'isReallyRequired' => (bool) ($env->is_really_required ?? false),
             'isLocked' => $isLocked,
             'isMagic' => $isMagic,
-            'isRedisCredential' => $resource->type() === 'standalone-redis'
+            'isRedisCredential' => $this->resourceTypeValue($resource) === 'standalone-redis'
                 && in_array($env->key, ['REDIS_PASSWORD', 'REDIS_USERNAME'], true),
             'urls' => [
                 'update' => route("{$routePrefix}.envs.update", $envParams),
@@ -311,7 +341,8 @@ trait ManagesResourceEnvironmentVariables
             return [];
         }
 
-        $managedKeys = $resource->environment_variables()->where('is_preview', false)->pluck('key')->toArray();
+        $envRelation = $this->resourceEnvironmentVariablesRelation($resource);
+        $managedKeys = $envRelation ? $envRelation->where('is_preview', false)->pluck('key')->toArray() : [];
 
         return extractHardcodedEnvironmentVariables($dockerComposeRaw)
             ->filter(fn ($var) => ! str($var['key'])->startsWith(['SERVICE_FQDN_', 'SERVICE_URL_', 'SERVICE_NAME_']))
@@ -328,7 +359,7 @@ trait ManagesResourceEnvironmentVariables
      */
     private function usesDockerCompose(Model $resource): bool
     {
-        return $resource->type() === 'service' || data_get($resource, 'build_pack') === 'dockercompose';
+        return $this->resourceTypeValue($resource) === 'service' || data_get($resource, 'build_pack') === 'dockercompose';
     }
 
     /**
@@ -340,9 +371,43 @@ trait ManagesResourceEnvironmentVariables
      */
     private function dockerComposeContent(Model $resource): ?string
     {
-        return $resource->type() === 'service'
+        return $this->resourceTypeValue($resource) === 'service'
             ? data_get($resource, 'docker_compose')
             : data_get($resource, 'docker_compose_raw');
+    }
+
+    private function resourceEnvironmentVariablesRelation(Model $resource): mixed
+    {
+        return method_exists($resource, 'environment_variables') ? $resource->environment_variables() : null;
+    }
+
+    /**
+     * @return Collection<int, EnvironmentVariable>
+     */
+    private function resourceEnvironmentVariablesCollection(Model $resource): Collection
+    {
+        $value = data_get($resource, 'environment_variables', []);
+
+        if ($value instanceof Collection) {
+            /** @var Collection<int, EnvironmentVariable> $value */
+            return $value;
+        }
+
+        if (is_array($value)) {
+            /** @var Collection<int, EnvironmentVariable> $collection */
+            $collection = collect($value);
+
+            return $collection;
+        }
+
+        return collect();
+    }
+
+    private function resourceTypeValue(Model $resource): ?string
+    {
+        $type = data_get($resource, 'type');
+
+        return is_string($type) ? $type : null;
     }
 
     /**

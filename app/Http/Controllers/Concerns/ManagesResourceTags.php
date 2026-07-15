@@ -8,6 +8,7 @@ use App\Models\Tag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -26,14 +27,16 @@ trait ManagesResourceTags
      */
     private function tagsTabProps(Model $resource, array $parameters, string $routePrefix): array
     {
+        $resourceTags = $this->resourceTagsCollection($resource);
+
         return [
-            'tags' => $resource->tags->map(fn (Tag $tag) => [
+            'tags' => $resourceTags->map(fn (Tag $tag) => [
                 'id' => $tag->id,
                 'name' => $tag->name,
                 'destroyUrl' => route("{$routePrefix}.tags.destroy", [...$parameters, 'tag_id' => $tag->id]),
             ])->values(),
             'availableTags' => Tag::ownedByCurrentTeam()->get()
-                ->reject(fn (Tag $tag) => $resource->tags->contains($tag))
+                ->reject(fn (Tag $tag) => $resourceTags->contains($tag))
                 ->map(fn (Tag $tag) => ['id' => $tag->id, 'name' => $tag->name])
                 ->values(),
             'tagsStoreUrl' => route("{$routePrefix}.tags.store", $parameters),
@@ -43,6 +46,10 @@ trait ManagesResourceTags
     private function storeResourceTag(Request $request, Model $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
+        $tagsRelation = $this->resourceTagsRelation($resource);
+        if ($tagsRelation === null) {
+            return back()->with('error', 'Tags are not available for this resource.');
+        }
 
         $validated = Validator::make($request->all(), [
             'tags' => 'required_without:tag_id|nullable|string|min:2',
@@ -51,10 +58,10 @@ trait ManagesResourceTags
 
         if (filled($validated['tag_id'] ?? null)) {
             $tag = Tag::ownedByCurrentTeam()->findOrFail((int) $validated['tag_id']);
-            if ($resource->tags()->where('id', $tag->id)->exists()) {
+            if ($tagsRelation->where('id', $tag->id)->exists()) {
                 return back()->with('error', "Tag {$tag->name} already added.");
             }
-            $resource->tags()->attach($tag->id);
+            $tagsRelation->attach($tag->id);
 
             return back()->with('success', 'Tag added.');
         }
@@ -67,14 +74,14 @@ trait ManagesResourceTags
 
                 continue;
             }
-            if ($resource->tags()->where('name', $name)->exists()) {
+            if ($tagsRelation->where('name', $name)->exists()) {
                 $skipped[] = "Tag {$name} already added.";
 
                 continue;
             }
             $tag = Tag::ownedByCurrentTeam()->where('name', $name)->first()
                 ?? Tag::create(['name' => $name, 'team_id' => currentTeam()->id]);
-            $resource->tags()->attach($tag->id);
+            $tagsRelation->attach($tag->id);
         }
 
         if ($skipped !== []) {
@@ -87,13 +94,44 @@ trait ManagesResourceTags
     private function destroyResourceTag(Model $resource, string $tagId): RedirectResponse
     {
         $this->authorize('update', $resource);
+        $tagsRelation = $this->resourceTagsRelation($resource);
+        if ($tagsRelation === null) {
+            return back()->with('error', 'Tags are not available for this resource.');
+        }
 
-        $resource->tags()->detach($tagId);
+        $tagsRelation->detach($tagId);
         $tag = Tag::ownedByCurrentTeam()->find($tagId);
         if ($tag && $tag->applications()->count() == 0 && $tag->services()->count() == 0) {
             $tag->delete();
         }
 
         return back()->with('success', 'Tag deleted.');
+    }
+
+    private function resourceTagsRelation(Model $resource): mixed
+    {
+        return method_exists($resource, 'tags') ? $resource->tags() : null;
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    private function resourceTagsCollection(Model $resource): Collection
+    {
+        $value = data_get($resource, 'tags', []);
+
+        if ($value instanceof Collection) {
+            /** @var Collection<int, Tag> $value */
+            return $value;
+        }
+
+        if (is_array($value)) {
+            /** @var Collection<int, Tag> $collection */
+            $collection = collect($value);
+
+            return $collection;
+        }
+
+        return collect();
     }
 }
