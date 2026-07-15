@@ -115,6 +115,12 @@ parameters:
 			path: app/Actions/Docker/GetContainersStatus.php
 
 		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: app/Actions/Docker/GetContainersStatus.php
+
+		-
 			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -301,12 +307,6 @@ parameters:
 			path: app/Http/Controllers/ExecuteContainerCommandController.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\StandaloneDocker\:\:\$pivot\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 2
@@ -409,31 +409,7 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectApplicationConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
 			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Parameter \#1 \$source of function githubApi expects App\\Models\\GithubApp\|App\\Models\\GitlabApp\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Parameter \$source of function githubApi expects App\\Models\\GithubApp\|App\\Models\\GitlabApp\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
@@ -441,24 +417,12 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 3
+			count: 2
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 3
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Using nullsafe property access on non\-nullable type App\\Models\\Environment\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 4
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Using nullsafe property access on non\-nullable type App\\Models\\Project\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 2
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
@@ -571,45 +535,9 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_enabled\.$#'
-			identifier: property.notFound
-			count: 5
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_interval\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_retries\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_start_period\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_timeout\.$#'
-			identifier: property.notFound
-			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -645,7 +573,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -680,36 +608,6 @@ parameters:
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$external_db_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_enabled\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_interval\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_retries\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_start_period\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$health_check_timeout\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
@@ -865,12 +763,6 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -909,17 +801,11 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
 			identifier: method.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:realStatus\(\)\.$#'
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
 			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
@@ -949,33 +835,9 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:generalFormTabProps\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:statusInfoProps\(\) has parameter \$spec with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Parameter \#1 \$database of method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:redisFormExtras\(\) expects App\\Models\\StandaloneRedis, Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -1087,6 +949,12 @@ parameters:
 			path: app/Http/Controllers/ProjectMetricsController.php
 
 		-
+			message: '#^Parameter \#5 \$destinations of method App\\Http\\Controllers\\ProjectResourceCreateController\:\:renderDestinationsStep\(\) expects Illuminate\\Support\\Collection\<int, App\\Models\\StandaloneDocker\|App\\Models\\SwarmDocker\>, Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\StandaloneDocker\>\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\SwarmDocker\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Http/Controllers/ProjectResourceCreateController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 2
@@ -1144,18 +1012,6 @@ parameters:
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
 			identifier: method.notFound
 			count: 4
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:formatDevEnvs\(\) has parameter \$envs with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\ProjectServiceConfigurationController\:\:isEnvironmentVariableUsedInDockerCompose\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
@@ -1651,6 +1507,12 @@ parameters:
 			path: app/Jobs/PushServerUpdateJob.php
 
 		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: app/Jobs/ServerCheckJob.php
+
+		-
 			message: '#^Access to an undefined property App\\Models\\Team\:\:\$limits\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1666,12 +1528,6 @@ parameters:
 			message: '#^Call to function is_null\(\) with string will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 6
-			path: app/Models/Application.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
 			path: app/Models/Application.php
 
 		-
@@ -1695,7 +1551,7 @@ parameters:
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
-			count: 11
+			count: 10
 			path: app/Models/Application.php
 
 		-
@@ -1753,56 +1609,14 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:customNginxConfiguration\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:customRepository\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:deploymentConfigurationSnapshot\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:deploymentType\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:deployment_queue\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:deployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:dirOnServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -1819,74 +1633,14 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:fqdns\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:generateBaseDir\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:generateGitImportCommands\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:generateGitLsRemoteCommands\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:getConfigurationAsArray\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:getContainersToStop\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:getFilesFromServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:getGitRemoteStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:getLimits\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:get_deployment\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:get_last_days_deployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:get_last_successful_deployment\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -1909,62 +1663,8 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:isDeploymentInprogress\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:isForceHttpsEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:isGzipEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:isJson\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:isStripprefixEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:isWatchPathsTriggered\(\) has parameter \$modified_files with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:loadComposeFile\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:loadComposeFile\(\) has parameter \$isInit with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:main_port\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -2005,42 +1705,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:oldRawParser\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:parse\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:parseContainerLabels\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:parseHealthcheckFromDockerfile\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:portsExposesArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -2053,32 +1717,8 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:previews\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:private_key\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:project\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:publishDirectory\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -2089,44 +1729,8 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:serviceType\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:setConfig\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:setGitImportSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:source\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:type\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -2134,18 +1738,6 @@ parameters:
 			message: '#^Method App\\Models\\Application\:\:watchPaths\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Parameter \#1 \$something of function parseDockerfileInterval expects string, Illuminate\\Support\\Stringable given\.$#'
-			identifier: argument.type
-			count: 3
 			path: app/Models/Application.php
 
 		-
@@ -2863,228 +2455,6 @@ parameters:
 			path: app/Models/PrivateKey.php
 
 		-
-			message: '#^Method App\\Models\\PrivateKey\:\:applications\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:cleanupUnusedKeys\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:createAndStore\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:createAndStore\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:deleteFromStorage\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:ensureStorageDirectoryExists\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:extractPublicKeyFromPrivate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:extractPublicKeyFromPrivate\(\) has parameter \$privateKey with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:fingerprintExists\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:fingerprintExists\(\) has parameter \$excludeId with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:fingerprintExists\(\) has parameter \$fingerprint with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:generateFingerprint\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:generateFingerprint\(\) has parameter \$privateKey with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:generateMd5Fingerprint\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:generateMd5Fingerprint\(\) has parameter \$privateKey with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:generateNewKeyPair\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:generateNewKeyPair\(\) has parameter \$type with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:getKeyLocation\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:getPublicKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:getPublicKeyAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:githubApps\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:gitlabApps\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:isInUse\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:ownedAndOnlySShKeys\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:ownedAndOnlySShKeys\(\) has parameter \$select with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:ownedByCurrentTeam\(\) has parameter \$select with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:safeDelete\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:servers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:storeInFileSystem\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:updatePrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:updatePrivateKey\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:validateAndExtractPublicKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:validateAndExtractPublicKey\(\) has parameter \$privateKey with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:validatePrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:validatePrivateKey\(\) has parameter \$privateKey with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -3385,73 +2755,7 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:buildServers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:changeProxy\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:checkSentinel\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:createWithPrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:createWithPrivateKey\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:destinations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:dockerCleanupExecutions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:dockerComposeBasedApplications\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:dockerComposeBasedPreviewDeployments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:forceDisableServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:forceEnableServer\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Server.php
@@ -3469,20 +2773,8 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:getContainers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:getIp\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:hasDefinedResources\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Server.php
 
@@ -3493,116 +2785,8 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:isBuildServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:isCoolifyHost\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isEmpty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isForceDisabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isFunctional\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isLocalhost\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isMetricsEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isNonRoot\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isProxyShouldRun\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isReachable\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isReachableChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isSentinelEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isServerApiEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isSwarm\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isSwarmManager\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isSwarmWorker\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isTerminalEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isUsable\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Server.php
 
@@ -3619,30 +2803,6 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:muxFilename\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:ownedByCurrentTeam\(\) has parameter \$select with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:port\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3650,30 +2810,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Server\:\:previews\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:proxyPath\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:proxySet\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:proxyType\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:restartSentinel\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Server.php
@@ -3697,134 +2833,8 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:sendReachableNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:sendUnreachableNotification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:sentinelHeartbeat\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:setupDefaultRedirect\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:setupDynamicProxyConfiguration\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:skipServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:type\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:updateWithPrivateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:updateWithPrivateKey\(\) has parameter \$data with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:url\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateConnection\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateCoolifyNetwork\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateCoolifyNetwork\(\) has parameter \$isBuildServer with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateCoolifyNetwork\(\) has parameter \$isSwarm with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateDockerCompose\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateDockerCompose\(\) has parameter \$throwError with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateDockerEngine\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateDockerEngine\(\) has parameter \$throwError with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateDockerEngineVersion\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:validateDockerSwarm\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Server.php
 

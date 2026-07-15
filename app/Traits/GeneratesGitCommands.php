@@ -16,12 +16,15 @@ use Symfony\Component\Yaml\Yaml;
  */
 trait GeneratesGitCommands
 {
+    /**
+     * @return array{repository: string, port: int}
+     */
     public function customRepository(): array
     {
         return convertGitUrl($this->git_repository, $this->deploymentType(), $this->source);
     }
 
-    public function setGitImportSettings(string $deployment_uuid, string $git_clone_command, bool $public = false, ?string $commit = null, ?string $gitSshCommand = null, ?string $git_ssh_command = null, ?string $gitConfigOptions = null)
+    public function setGitImportSettings(string $deployment_uuid, string $git_clone_command, bool $public = false, ?string $commit = null, ?string $gitSshCommand = null, ?string $git_ssh_command = null, ?string $gitConfigOptions = null): string
     {
         $baseDir = $this->generateBaseDir($deployment_uuid);
         $escapedBaseDir = escapeshellarg($baseDir);
@@ -66,7 +69,10 @@ trait GeneratesGitCommands
         return $git_clone_command;
     }
 
-    public function getGitRemoteStatus(string $deployment_uuid)
+    /**
+     * @return array{is_accessible: bool, error: ?string}
+     */
+    public function getGitRemoteStatus(string $deployment_uuid): array
     {
         try {
             ['commands' => $lsRemoteCommand] = $this->generateGitLsRemoteCommands(deployment_uuid: $deployment_uuid, exec_in_docker: false);
@@ -85,7 +91,10 @@ trait GeneratesGitCommands
         }
     }
 
-    public function generateGitLsRemoteCommands(string $deployment_uuid, bool $exec_in_docker = true)
+    /**
+     * @return array{commands: string, branch: string, fullRepoUrl: string}
+     */
+    public function generateGitLsRemoteCommands(string $deployment_uuid, bool $exec_in_docker = true): array
     {
         $branch = $this->git_branch;
         ['repository' => $customRepository, 'port' => $customPort] = $this->customRepository();
@@ -251,6 +260,8 @@ trait GeneratesGitCommands
                 'fullRepoUrl' => $fullRepoUrl,
             ];
         }
+
+        throw new RuntimeException('Unsupported deployment type for git ls-remote command generation.');
     }
 
     private function withGitHttpTransportConfig(?string $gitConfigOptions = null): string
@@ -275,7 +286,10 @@ trait GeneratesGitCommands
         return $configuredCommand ?: $gitCloneCommand;
     }
 
-    public function generateGitImportCommands(string $deployment_uuid, int $pull_request_id = 0, ?string $git_type = null, bool $exec_in_docker = true, bool $only_checkout = false, ?string $custom_base_dir = null, ?string $commit = null)
+    /**
+     * @return array{commands: string, branch: string, fullRepoUrl: string}
+     */
+    public function generateGitImportCommands(string $deployment_uuid, int $pull_request_id = 0, ?string $git_type = null, bool $exec_in_docker = true, bool $only_checkout = false, ?string $custom_base_dir = null, ?string $commit = null): array
     {
         $branch = $this->git_branch;
         ['repository' => $customRepository, 'port' => $customPort] = $this->customRepository();
@@ -578,9 +592,11 @@ trait GeneratesGitCommands
                 'fullRepoUrl' => $fullRepoUrl,
             ];
         }
+
+        throw new RuntimeException('Unsupported deployment type for git import command generation.');
     }
 
-    public function oldRawParser()
+    public function oldRawParser(): void
     {
         try {
             $yaml = Yaml::parse($this->docker_compose_raw);

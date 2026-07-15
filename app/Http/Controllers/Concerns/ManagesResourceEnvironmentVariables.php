@@ -14,6 +14,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -344,7 +345,10 @@ trait ManagesResourceEnvironmentVariables
             : data_get($resource, 'docker_compose_raw');
     }
 
-    private function formatDevEnvs($envs): string
+    /**
+     * @param  Collection<int, EnvironmentVariable>  $envs
+     */
+    private function formatDevEnvs(Collection $envs): string
     {
         return $envs->map(function (EnvironmentVariable $item) {
             if ($item->is_shown_once) {

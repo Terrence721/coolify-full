@@ -964,7 +964,7 @@ class ProjectApplicationConfigurationController extends Controller
 
         try {
             ['repository' => $customRepository] = $application->customRepository();
-            $repository = githubApi($application->source, "repos/{$customRepository}");
+            $repository = githubApi($source, "repos/{$customRepository}");
             $repositoryProjectId = data_get($repository, 'data.id');
             if (isset($repositoryProjectId) && $application->repository_project_id !== $repositoryProjectId) {
                 $application->repository_project_id = $repositoryProjectId;
@@ -1118,7 +1118,12 @@ class ProjectApplicationConfigurationController extends Controller
         $this->authorize('update', $application);
 
         try {
-            ['rate_limit_remaining' => $rateLimitRemaining, 'data' => $data] = githubApi(source: $application->source, endpoint: "/repos/{$application->git_repository}/pulls");
+            $source = $application->source;
+            if (! $source instanceof GithubApp && ! $source instanceof GitlabApp) {
+                return back()->with('error', 'Unsupported source provider for pull request loading.');
+            }
+
+            ['rate_limit_remaining' => $rateLimitRemaining, 'data' => $data] = githubApi(source: $source, endpoint: "/repos/{$application->git_repository}/pulls");
 
             return back()->with([
                 'pullRequests' => $data->sortBy('number')->values()->map(fn ($pr) => [
@@ -1415,7 +1420,8 @@ class ProjectApplicationConfigurationController extends Controller
         ])->validate();
         $serviceName = $validated['serviceName'];
 
-        $applicationDomains = collect(json_decode((string) $application->docker_compose_domains, true) ?: []);
+        $applicationDomainsDecoded = json_decode((string) $application->docker_compose_domains, true);
+        $applicationDomains = collect(is_array($applicationDomainsDecoded) ? $applicationDomainsDecoded : []);
         $domainString = data_get($applicationDomains->get($serviceName), 'domain');
 
         if (blank($domainString)) {
@@ -1474,7 +1480,8 @@ class ProjectApplicationConfigurationController extends Controller
             } else {
                 $containers = getCurrentApplicationContainerStatus($server, $application->id, (int) $pull_request_id)->toArray();
                 $timeout = $application->settings->stopGracePeriodSeconds();
-                foreach (collect($containers)->pluck('Names')->toArray() as $containerName) {
+                $containerList = $containers;
+                foreach (collect($containerList)->pluck('Names')->filter()->values()->toArray() as $containerName) {
                     instant_remote_process(command: [
                         "docker stop --time=$timeout $containerName",
                         "docker rm -f $containerName",
@@ -1506,6 +1513,7 @@ class ProjectApplicationConfigurationController extends Controller
         }
 
         $preview->delete();
+        /** @var ApplicationPreview $preview */
         DeleteResourceJob::dispatch($preview);
 
         return back()->with('success', 'Preview deletion started. It may take a few moments to complete.');
@@ -2148,7 +2156,7 @@ class ProjectApplicationConfigurationController extends Controller
                 'isContainerLabelReadonlyEnabled' => (bool) $application->settings->is_container_label_readonly_enabled,
                 'isRawComposeDeploymentEnabled' => (bool) $application->settings->is_raw_compose_deployment_enabled,
                 'couldSetBuildCommands' => $application->could_set_build_commands(),
-                'isSwarm' => (bool) $server?->isSwarm(),
+                'isSwarm' => (bool) $server->isSwarm(),
                 'additionalServersCount' => $application->additional_servers->count(),
                 'isGithubBasedPrivateRepo' => $application->is_github_based() && ! $application->is_public_repository(),
                 'composeParsingVersion' => isDev() ? $application->compose_parsing_version : null,
@@ -2160,8 +2168,8 @@ class ProjectApplicationConfigurationController extends Controller
             ],
             'resourceDetails' => [
                 'resource' => ['name' => $application->name, 'uuid' => $application->uuid],
-                'environment' => ['name' => $environment?->name, 'uuid' => $environment?->uuid],
-                'project' => ['name' => $environment?->project?->name, 'uuid' => $environment?->project?->uuid],
+                'environment' => ['name' => $environment->name, 'uuid' => $environment->uuid],
+                'project' => ['name' => $environment->project->name, 'uuid' => $environment->project->uuid],
                 'server' => $server ? ['name' => $server->name, 'uuid' => $server->uuid] : null,
             ],
             'generalUrls' => [
@@ -2267,10 +2275,11 @@ class ProjectApplicationConfigurationController extends Controller
             ->values();
 
         $sources = currentTeam()->sources()
+            ->filter(fn ($source) => $source instanceof GithubApp || $source instanceof GitlabApp)
             ->filter(fn ($source) => filled($source->app_id))
             ->reject(fn ($source) => $source->id === $application->source_id)
             ->sortBy('name')
-            ->map(fn ($source) => [
+            ->map(fn (GithubApp|GitlabApp $source) => [
                 'id' => $source->id,
                 'name' => $source->name,
                 'type' => $source->getMorphClass(),
@@ -2318,8 +2327,8 @@ class ProjectApplicationConfigurationController extends Controller
             'serverId' => $network->server->id,
             'serverName' => $network->server->name,
             'network' => $network->network,
-            'status' => $network->pivot->status,
-            'isRunning' => str($network->pivot->status)->startsWith('running'),
+            'status' => data_get($network, 'pivot.status'),
+            'isRunning' => str((string) data_get($network, 'pivot.status', ''))->startsWith('running'),
         ])->values()->toArray();
 
         $hasPersistentStorage = $application->persistentStorages()->count() > 0;

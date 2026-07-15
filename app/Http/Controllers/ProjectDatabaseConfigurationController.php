@@ -67,7 +67,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function show(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): Response|RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
         $this->authorize('view', $database);
@@ -91,9 +91,9 @@ class ProjectDatabaseConfigurationController extends Controller
                 'isExited' => str($database->status)->startsWith('exited'),
             ],
             'configurationChecker' => [
-                'isConfigurationChanged' => $database->isConfigurationChanged(),
+                'isConfigurationChanged' => method_exists($database, 'isConfigurationChanged') ? (bool) $database->isConfigurationChanged() : false,
                 'isExited' => str($database->status)->startsWith('exited'),
-                'configHash' => $database->config_hash,
+                'configHash' => data_get($database, 'config_hash'),
                 'diff' => [],
             ],
             'canUpdate' => auth()->user()->can('update', $database),
@@ -112,7 +112,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storeTag(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -122,7 +122,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function destroyTag(string $project_uuid, string $environment_uuid, string $database_uuid, string $tag_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -132,7 +132,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function updateResourceLimits(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -142,7 +142,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function move(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -152,7 +152,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function clone(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
         $this->authorize('update', $database);
@@ -249,7 +249,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function destroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -259,7 +259,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storeEnv(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -269,7 +269,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function updateEnv(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $env_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -279,7 +279,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function lockEnv(string $project_uuid, string $environment_uuid, string $database_uuid, string $env_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -289,7 +289,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function destroyEnv(string $project_uuid, string $environment_uuid, string $database_uuid, string $env_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -299,7 +299,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function bulkUpdateEnvs(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -309,7 +309,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesVolumeStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -319,7 +319,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesFileStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -329,7 +329,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesDirectoryStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -339,7 +339,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesVolumeUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $volume_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -349,7 +349,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesVolumeDestroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $volume_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -359,7 +359,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesFileUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -369,7 +369,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesFileLoad(string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -379,7 +379,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesFileConvert(string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -389,7 +389,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function storagesFileDestroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $file_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -399,7 +399,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function importCheckFileEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -409,7 +409,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function importRunEndpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -419,7 +419,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function importCheckS3Endpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -429,7 +429,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function importRestoreS3Endpoint(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -443,7 +443,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function updateHealthcheck(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
         $this->authorize('update', $database);
@@ -456,12 +456,13 @@ class ProjectDatabaseConfigurationController extends Controller
             'startPeriod' => 'required|integer|min:0',
         ])->validate();
 
-        $database->health_check_enabled = $request->boolean('enabled', (bool) $database->health_check_enabled);
-        $database->health_check_interval = (int) $validated['interval'];
-        $database->health_check_timeout = (int) $validated['timeout'];
-        $database->health_check_retries = (int) $validated['retries'];
-        $database->health_check_start_period = (int) $validated['startPeriod'];
-        $database->save();
+        $database->forceFill([
+            'health_check_enabled' => $request->boolean('enabled', (bool) data_get($database, 'health_check_enabled')),
+            'health_check_interval' => (int) $validated['interval'],
+            'health_check_timeout' => (int) $validated['timeout'],
+            'health_check_retries' => (int) $validated['retries'],
+            'health_check_start_period' => (int) $validated['startPeriod'],
+        ])->save();
 
         $this->markHealthcheckConfigurationChanged($database);
 
@@ -472,22 +473,25 @@ class ProjectDatabaseConfigurationController extends Controller
     public function toggleHealthcheck(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
         $this->authorize('update', $database);
 
-        $database->health_check_enabled = ! $database->health_check_enabled;
-        $database->save();
+        $healthcheckEnabled = ! (bool) data_get($database, 'health_check_enabled');
+        $database->forceFill(['health_check_enabled' => $healthcheckEnabled])->save();
 
         $this->markHealthcheckConfigurationChanged($database);
 
-        return back()->with('success', 'Health check '.($database->health_check_enabled ? 'enabled' : 'disabled').'. Restart the database to apply the changes.');
+        return back()->with('success', 'Health check '.($healthcheckEnabled ? 'enabled' : 'disabled').'. Restart the database to apply the changes.');
     }
 
+    /**
+     * @param Model&\App\Contracts\StandaloneDatabaseInstance $database
+     */
     private function markHealthcheckConfigurationChanged(Model $database): void
     {
-        if (is_null($database->config_hash)) {
+        if (is_null(data_get($database, 'config_hash')) && method_exists($database, 'isConfigurationChanged')) {
             $database->isConfigurationChanged(true);
         }
     }
@@ -495,7 +499,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -505,7 +509,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalProxyUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -515,7 +519,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalAdvancedUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -525,7 +529,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalSslUpdate(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -535,7 +539,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalSslRegenerate(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
 
@@ -545,7 +549,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalInitScriptStore(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
         if (! $database instanceof StandalonePostgresql) {
@@ -558,7 +562,7 @@ class ProjectDatabaseConfigurationController extends Controller
     public function generalInitScriptDestroy(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if ($database instanceof RedirectResponse) {
             return $database;
         }
         if (! $database instanceof StandalonePostgresql) {
@@ -569,7 +573,8 @@ class ProjectDatabaseConfigurationController extends Controller
     }
 
     /**
-     * @param  array<string, string>  $parameters
+    * @param  Model&\App\Contracts\StandaloneDatabaseInstance  $database
+    * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
     private function tabProps(string $tab, Model $database, array $parameters): array
@@ -581,11 +586,11 @@ class ProjectDatabaseConfigurationController extends Controller
             'import-backup' => $this->importTabProps($database, 'project.database', $parameters),
             'healthcheck' => [
                 'healthcheck' => [
-                    'enabled' => (bool) $database->health_check_enabled,
-                    'interval' => $database->health_check_interval,
-                    'timeout' => $database->health_check_timeout,
-                    'retries' => $database->health_check_retries,
-                    'startPeriod' => $database->health_check_start_period,
+                    'enabled' => (bool) data_get($database, 'health_check_enabled'),
+                    'interval' => (int) data_get($database, 'health_check_interval'),
+                    'timeout' => (int) data_get($database, 'health_check_timeout'),
+                    'retries' => (int) data_get($database, 'health_check_retries'),
+                    'startPeriod' => (int) data_get($database, 'health_check_start_period'),
                 ],
                 'healthcheckUrls' => [
                     'update' => route('project.database.healthcheck.update', $parameters),
@@ -601,7 +606,7 @@ class ProjectDatabaseConfigurationController extends Controller
                 'primaryServer' => [
                     'name' => data_get($database, 'destination.server.name'),
                     'network' => data_get($database, 'destination.network'),
-                    'status' => $database->realStatus(),
+                    'status' => method_exists($database, 'realStatus') ? $database->realStatus() : data_get($database, 'status'),
                 ],
             ],
             default => [],

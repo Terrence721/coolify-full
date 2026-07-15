@@ -55,7 +55,10 @@ trait HasDockerContainers
         return instant_remote_process(['docker start '.escapeshellarg($id)], $this);
     }
 
-    public function getContainers()
+    /**
+     * @return array{containers: Collection<int, mixed>, containerReplicates: Collection<int, mixed>}
+     */
+    public function getContainers(): array
     {
         $containers = collect([]);
         $containerReplicates = collect([]);
@@ -130,7 +133,7 @@ trait HasDockerContainers
         }
     }
 
-    public function hasDefinedResources()
+    public function hasDefinedResources(): bool
     {
         $applications = $this->applications()->count() > 0;
         $databases = $this->databases()->count() > 0;
@@ -203,14 +206,20 @@ trait HasDockerContainers
         return $applications;
     }
 
-    public function dockerComposeBasedApplications()
+    /**
+     * @return Collection<int, Application>
+     */
+    public function dockerComposeBasedApplications(): Collection
     {
         return $this->applications()->filter(function ($application) {
             return data_get($application, 'build_pack') === 'dockercompose';
         });
     }
 
-    public function dockerComposeBasedPreviewDeployments()
+    /**
+     * @return Collection<int, mixed>
+     */
+    public function dockerComposeBasedPreviewDeployments(): Collection
     {
         return $this->previews()->filter(function ($preview) {
             $applicationId = data_get($preview, 'application_id');

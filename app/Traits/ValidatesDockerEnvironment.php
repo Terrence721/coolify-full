@@ -36,7 +36,7 @@ trait ValidatesDockerEnvironment
         return InstallPrerequisites::run($this);
     }
 
-    public function validateDockerEngine($throwError = false)
+    public function validateDockerEngine(bool $throwError = false): bool
     {
         $dockerBinary = instant_remote_process(['command -v docker'], $this, false, no_sudo: true);
         if (is_null($dockerBinary)) {
@@ -68,7 +68,7 @@ trait ValidatesDockerEnvironment
         return true;
     }
 
-    public function validateDockerCompose($throwError = false)
+    public function validateDockerCompose(bool $throwError = false): bool
     {
         $dockerCompose = instant_remote_process(['docker compose version'], $this, false);
         if (is_null($dockerCompose)) {
@@ -86,7 +86,7 @@ trait ValidatesDockerEnvironment
         return true;
     }
 
-    public function validateDockerSwarm()
+    public function validateDockerSwarm(): bool
     {
         $swarmStatus = instant_remote_process(['docker info|grep -i swarm'], $this, false);
         $swarmStatus = str($swarmStatus)->trim()->after(':')->trim()->value();
@@ -100,7 +100,7 @@ trait ValidatesDockerEnvironment
         return true;
     }
 
-    public function validateDockerEngineVersion()
+    public function validateDockerEngineVersion(): bool
     {
         $dockerVersionRaw = instant_remote_process(['docker version --format json'], $this, false);
         $dockerVersionJson = json_decode($dockerVersionRaw, true);
@@ -120,10 +120,10 @@ trait ValidatesDockerEnvironment
         return true;
     }
 
-    public function validateCoolifyNetwork($isSwarm = false, $isBuildServer = false)
+    public function validateCoolifyNetwork(bool $isSwarm = false, bool $isBuildServer = false): ?string
     {
         if ($isBuildServer) {
-            return;
+            return null;
         }
         if ($isSwarm) {
             return instant_remote_process(['docker network create --attachable --driver overlay coolify-overlay >/dev/null 2>&1 || true'], $this, false);
@@ -132,13 +132,13 @@ trait ValidatesDockerEnvironment
         }
     }
 
-    public function isNonRoot()
+    public function isNonRoot(): bool
     {
         return $this->user !== 'root';
     }
 
-    public function isBuildServer()
+    public function isBuildServer(): bool
     {
-        return $this->settings->is_build_server;
+        return (bool) $this->settings->is_build_server;
     }
 }

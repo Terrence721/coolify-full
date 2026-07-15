@@ -374,7 +374,7 @@ class Server extends BaseModel
             : null;
     }
 
-    public function type()
+    public function type(): string
     {
         return 'server';
     }
@@ -388,7 +388,10 @@ class Server extends BaseModel
         );
     }
 
-    public static function isReachable()
+    /**
+     * @return Builder<Server>
+     */
+    public static function isReachable(): Builder
     {
         return Server::ownedByCurrentTeam()->whereRelation('settings', 'is_reachable', true);
     }
@@ -397,7 +400,11 @@ class Server extends BaseModel
      * Get query builder for servers owned by current team.
      * If you need all servers without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam(array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<Server>
+     */
+    public static function ownedByCurrentTeam(array $select = ['*']): Builder
     {
         $team = currentTeam();
         $selectArray = collect($select)->concat(['id']);
@@ -416,14 +423,20 @@ class Server extends BaseModel
     /**
      * Get all servers owned by current team (cached for request duration).
      */
-    public static function ownedByCurrentTeamCached()
+    /**
+     * @return Collection<int, Server>
+     */
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return Server::ownedByCurrentTeam()->get();
         });
     }
 
-    public static function isUsable()
+    /**
+     * @return Builder<Server>
+     */
+    public static function isUsable(): Builder
     {
         return Server::ownedByCurrentTeam()->whereRelation('settings', 'is_reachable', true)->whereRelation('settings', 'is_usable', true)->whereRelation('settings', 'is_swarm_worker', false)->whereRelation('settings', 'is_build_server', false)->whereRelation('settings', 'force_disabled', false);
     }
@@ -436,7 +449,10 @@ class Server extends BaseModel
         return $this->hasOne(ServerSetting::class);
     }
 
-    public function dockerCleanupExecutions()
+    /**
+     * @return HasMany<DockerCleanupExecution, $this>
+     */
+    public function dockerCleanupExecutions(): HasMany
     {
         return $this->hasMany(DockerCleanupExecution::class);
     }
@@ -451,28 +467,31 @@ class Server extends BaseModel
         return $query->where('proxy->type', $proxyType);
     }
 
-    public function isLocalhost()
+    public function isLocalhost(): bool
     {
         return $this->ip === 'host.docker.internal' || $this->id === 0;
     }
 
-    public static function buildServers(int $teamId)
+    /**
+     * @return Builder<Server>
+     */
+    public static function buildServers(int $teamId): Builder
     {
         return Server::whereTeamId($teamId)->whereRelation('settings', 'is_reachable', true)->whereRelation('settings', 'is_build_server', true);
     }
 
-    public function isForceDisabled()
+    public function isForceDisabled(): bool
     {
         return $this->settings->force_disabled;
     }
 
-    public function forceEnableServer()
+    public function forceEnableServer(): void
     {
         $this->settings->force_disabled = false;
         $this->settings->save();
     }
 
-    public function forceDisableServer()
+    public function forceDisableServer(): void
     {
         $this->settings->force_disabled = true;
         $this->settings->save();
@@ -590,12 +609,15 @@ class Server extends BaseModel
         return $this->belongsTo(CloudProviderToken::class);
     }
 
-    public function sslCertificates()
+    /**
+     * @return HasMany<SslCertificate, $this>
+     */
+    public function sslCertificates(): HasMany
     {
         return $this->hasMany(SslCertificate::class);
     }
 
-    public function muxFilename()
+    public function muxFilename(): string
     {
         return 'mux_'.$this->uuid;
     }
@@ -627,12 +649,15 @@ class Server extends BaseModel
         return $attributes;
     }
 
-    public function environment_variables()
+    /**
+     * @return HasMany<SharedEnvironmentVariable, $this>
+     */
+    public function environment_variables(): HasMany
     {
         return $this->hasMany(SharedEnvironmentVariable::class)->where('type', 'server');
     }
 
-    public function isProxyShouldRun()
+    public function isProxyShouldRun(): bool
     {
         // TODO: Do we need "|| $this->proxy->force_stop" here?
         if ($this->proxyType() === ProxyTypes::NONE->value || $this->isBuildServer()) {
@@ -642,7 +667,7 @@ class Server extends BaseModel
         return true;
     }
 
-    public function skipServer()
+    public function skipServer(): bool
     {
         if ($this->ip === '1.2.3.4') {
             return true;
@@ -654,7 +679,7 @@ class Server extends BaseModel
         return false;
     }
 
-    public function isFunctional()
+    public function isFunctional(): bool
     {
         $isFunctional = data_get($this->settings, 'is_reachable') && data_get($this->settings, 'is_usable') && data_get($this->settings, 'force_disabled') === false && $this->ip !== '1.2.3.4';
 
@@ -665,7 +690,7 @@ class Server extends BaseModel
         return $isFunctional;
     }
 
-    public function isLogDrainEnabled()
+    public function isLogDrainEnabled(): bool
     {
         return $this->settings->is_logdrain_newrelic_enabled || $this->settings->is_logdrain_highlight_enabled || $this->settings->is_logdrain_axiom_enabled || $this->settings->is_logdrain_custom_enabled;
     }
@@ -694,24 +719,24 @@ class Server extends BaseModel
         }
     }
 
-    public function isTerminalEnabled()
+    public function isTerminalEnabled(): bool
     {
         return $this->settings->is_terminal_enabled ?? false;
     }
 
-    public function isSwarm()
+    public function isSwarm(): bool
     {
-        return data_get($this, 'settings.is_swarm_manager') || data_get($this, 'settings.is_swarm_worker');
+        return (bool) data_get($this, 'settings.is_swarm_manager') || (bool) data_get($this, 'settings.is_swarm_worker');
     }
 
-    public function isSwarmManager()
+    public function isSwarmManager(): bool
     {
-        return data_get($this, 'settings.is_swarm_manager');
+        return (bool) data_get($this, 'settings.is_swarm_manager');
     }
 
-    public function isSwarmWorker()
+    public function isSwarmWorker(): bool
     {
-        return data_get($this, 'settings.is_swarm_worker');
+        return (bool) data_get($this, 'settings.is_swarm_worker');
     }
 
     public function serverStatus(): bool
@@ -757,7 +782,7 @@ class Server extends BaseModel
         return true;
     }
 
-    public function isReachableChanged()
+    public function isReachableChanged(): void
     {
         $this->refresh();
         $unreachableNotificationSent = (bool) $this->unreachable_notification_sent;
@@ -776,7 +801,7 @@ class Server extends BaseModel
         }
     }
 
-    public function sendReachableNotification()
+    public function sendReachableNotification(): void
     {
         $this->unreachable_notification_sent = false;
         $this->save();
@@ -784,7 +809,7 @@ class Server extends BaseModel
         $this->team->notify(new Reachable($this));
     }
 
-    public function sendUnreachableNotification()
+    public function sendUnreachableNotification(): void
     {
         $this->unreachable_notification_sent = true;
         $this->save();
@@ -792,7 +817,10 @@ class Server extends BaseModel
         $this->team->notify(new Unreachable($this));
     }
 
-    public function validateConnection(bool $justCheckingNewKey = false)
+    /**
+     * @return array{uptime: bool, error: ?string}
+     */
+    public function validateConnection(bool $justCheckingNewKey = false): array
     {
         $this->disableSshMux();
 
@@ -824,7 +852,10 @@ class Server extends BaseModel
         }
     }
 
-    public static function createWithPrivateKey(array $data, PrivateKey $privateKey)
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function createWithPrivateKey(array $data, PrivateKey $privateKey): self
     {
         $server = new self($data);
         $server->privateKey()->associate($privateKey);
@@ -833,7 +864,10 @@ class Server extends BaseModel
         return $server;
     }
 
-    public function updateWithPrivateKey(array $data, ?PrivateKey $privateKey = null)
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function updateWithPrivateKey(array $data, ?PrivateKey $privateKey = null): self
     {
         $this->update($data);
         if ($privateKey) {
@@ -858,7 +892,7 @@ class Server extends BaseModel
         return str($this->ip)->contains(':');
     }
 
-    public function url()
+    public function url(): string
     {
         return base_url().'/server/'.$this->uuid;
     }
@@ -868,7 +902,7 @@ class Server extends BaseModel
         return instant_remote_process(['docker restart '.escapeshellarg($containerName)], $this, false);
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         return $this->applications()->count() == 0 &&
             $this->databases()->count() == 0 &&

@@ -20,11 +20,11 @@ trait EnvironmentVariableProtection
     }
 
     /**
-     * Check if an environment variable is used in Docker Compose
+     * Check if an environment variable is used in Docker Compose.
      *
      * @param  string  $key  The environment variable key to check
      * @param  string|null  $dockerCompose  The Docker Compose YAML content
-     * @return array [bool $isUsed, string $reason] Whether the variable is used and the reason if it is
+     * @return array{0: bool, 1: string} Whether the variable is used and the reason if it is
      */
     protected function isEnvironmentVariableUsedInDockerCompose(string $key, ?string $dockerCompose): array
     {

@@ -48,7 +48,10 @@ use Illuminate\Support\Facades\Validator;
  */
 trait ManagesDatabaseGeneralForm
 {
-    /** @return array<string, mixed> */
+    /**
+     * @param  array<string, string>  $parameters
+     * @return array<string, mixed>
+     */
     private function generalFormTabProps(Model $database, array $parameters, string $routePrefix): array
     {
         $spec = $this->engineFormSpec($database);
@@ -96,7 +99,9 @@ trait ManagesDatabaseGeneralForm
                 'canUpdate' => auth()->user()->can('update', $database),
                 'credentials' => $credentials,
                 'configField' => $configField,
-                'redis' => $spec['engine'] === 'redis' ? $this->redisFormExtras($database) : null,
+                'redis' => $spec['engine'] === 'redis' && $database instanceof StandaloneRedis
+                    ? $this->redisFormExtras($database)
+                    : null,
                 'statusInfo' => $this->statusInfoProps($database, $spec, $isExited),
                 'initScripts' => $spec['engine'] === 'postgresql' ? ($database->init_scripts ?? []) : null,
             ],
@@ -132,7 +137,10 @@ trait ManagesDatabaseGeneralForm
         ];
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * @param  array<string, mixed>  $spec
+     * @return array<string, mixed>
+     */
     private function statusInfoProps(Model $database, array $spec, bool $isExited): array
     {
         $sslMode = $spec['sslModeOptions'] !== null ? $database->ssl_mode : null;

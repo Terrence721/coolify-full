@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -128,12 +130,12 @@ class PrivateKey extends BaseModel
         });
     }
 
-    public function getPublicKeyAttribute()
+    public function getPublicKeyAttribute(): string
     {
         return self::extractPublicKeyFromPrivate($this->private_key) ?? 'Error loading private key';
     }
 
-    public function getPublicKey()
+    public function getPublicKey(): string
     {
         return self::extractPublicKeyFromPrivate($this->private_key) ?? 'Error loading private key';
     }
@@ -142,7 +144,11 @@ class PrivateKey extends BaseModel
      * Get query builder for private keys owned by current team.
      * If you need all private keys without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam(array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<PrivateKey>
+     */
+    public static function ownedByCurrentTeam(array $select = ['*']): Builder
     {
         $teamId = currentTeam()->id;
         $selectArray = collect($select)->concat(['id']);
@@ -153,14 +159,21 @@ class PrivateKey extends BaseModel
     /**
      * Get all private keys owned by current team (cached for request duration).
      */
-    public static function ownedByCurrentTeamCached()
+    /**
+     * @return Collection<int, PrivateKey>
+     */
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return PrivateKey::ownedByCurrentTeam()->get();
         });
     }
 
-    public static function ownedAndOnlySShKeys(array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<PrivateKey>
+     */
+    public static function ownedAndOnlySShKeys(array $select = ['*']): Builder
     {
         $teamId = currentTeam()->id;
         $selectArray = collect($select)->concat(['id']);
@@ -170,7 +183,7 @@ class PrivateKey extends BaseModel
             ->select($selectArray->all());
     }
 
-    public static function validatePrivateKey($privateKey)
+    public static function validatePrivateKey(string $privateKey): bool
     {
         try {
             PublicKeyLoader::load($privateKey);
@@ -183,7 +196,10 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function createAndStore(array $data)
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function createAndStore(array $data): self
     {
         return DB::transaction(function () use ($data) {
             $privateKey = new self($data);
@@ -199,7 +215,10 @@ class PrivateKey extends BaseModel
         });
     }
 
-    public static function generateNewKeyPair($type = 'rsa')
+    /**
+     * @return array{name: string, description: string, private_key: string, public_key: string}
+     */
+    public static function generateNewKeyPair(string $type = 'rsa'): array
     {
         try {
             $key = 'private-key-generate:'.request()->ip();
@@ -224,7 +243,7 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function extractPublicKeyFromPrivate($privateKey)
+    public static function extractPublicKeyFromPrivate(string $privateKey): ?string
     {
         try {
             $key = PublicKeyLoader::load($privateKey);
@@ -237,7 +256,10 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function validateAndExtractPublicKey($privateKey)
+    /**
+     * @return array{isValid: bool, publicKey: string}
+     */
+    public static function validateAndExtractPublicKey(string $privateKey): array
     {
         $isValid = self::validatePrivateKey($privateKey);
         $publicKey = $isValid ? self::extractPublicKeyFromPrivate($privateKey) : '';
@@ -248,7 +270,7 @@ class PrivateKey extends BaseModel
         ];
     }
 
-    public function storeInFileSystem()
+    public function storeInFileSystem(): string
     {
         $filename = "ssh_key@{$this->uuid}";
         $disk = Storage::disk('ssh-keys');
@@ -302,7 +324,7 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function deleteFromStorage(self $privateKey)
+    public static function deleteFromStorage(self $privateKey): void
     {
         $filename = "ssh_key@{$privateKey->uuid}";
         $disk = Storage::disk('ssh-keys');
@@ -312,7 +334,7 @@ class PrivateKey extends BaseModel
         }
     }
 
-    protected function ensureStorageDirectoryExists()
+    protected function ensureStorageDirectoryExists(): void
     {
         // storeInFileSystem() locks and writes the key with raw fopen()/flock() calls against
         // this real OS path (not the Storage facade), so the directory must be guaranteed to
@@ -338,12 +360,15 @@ class PrivateKey extends BaseModel
         $disk->delete($testFilename);
     }
 
-    public function getKeyLocation()
+    public function getKeyLocation(): string
     {
         return storage_path("app/ssh/keys/ssh_key@{$this->uuid}");
     }
 
-    public function updatePrivateKey(array $data)
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function updatePrivateKey(array $data): self
     {
         return DB::transaction(function () use ($data) {
             $this->update($data);
@@ -352,27 +377,39 @@ class PrivateKey extends BaseModel
         });
     }
 
-    public function servers()
+    /**
+     * @return HasMany<Server, $this>
+     */
+    public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
     }
 
-    public function applications()
+    /**
+     * @return HasMany<Application, $this>
+     */
+    public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
     }
 
-    public function githubApps()
+    /**
+     * @return HasMany<GithubApp, $this>
+     */
+    public function githubApps(): HasMany
     {
         return $this->hasMany(GithubApp::class);
     }
 
-    public function gitlabApps()
+    /**
+     * @return HasMany<GitlabApp, $this>
+     */
+    public function gitlabApps(): HasMany
     {
         return $this->hasMany(GitlabApp::class);
     }
 
-    public function isInUse()
+    public function isInUse(): bool
     {
         return $this->servers()->exists()
             || $this->applications()->exists()
@@ -380,7 +417,7 @@ class PrivateKey extends BaseModel
             || $this->gitlabApps()->exists();
     }
 
-    public function safeDelete()
+    public function safeDelete(): bool
     {
         if (! $this->isInUse()) {
             $this->delete();
@@ -391,7 +428,7 @@ class PrivateKey extends BaseModel
         return false;
     }
 
-    public static function generateFingerprint($privateKey)
+    public static function generateFingerprint(string $privateKey): ?string
     {
         try {
             $key = PublicKeyLoader::load($privateKey);
@@ -404,7 +441,7 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function generateMd5Fingerprint($privateKey)
+    public static function generateMd5Fingerprint(string $privateKey): ?string
     {
         try {
             $key = PublicKeyLoader::load($privateKey);
@@ -417,7 +454,7 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function fingerprintExists($fingerprint, $excludeId = null)
+    public static function fingerprintExists(string $fingerprint, ?int $excludeId = null): bool
     {
         $query = self::query()
             ->where('fingerprint', $fingerprint)
@@ -430,7 +467,7 @@ class PrivateKey extends BaseModel
         return $query->exists();
     }
 
-    public static function cleanupUnusedKeys()
+    public static function cleanupUnusedKeys(): void
     {
         self::ownedByCurrentTeam()->each(function ($privateKey) {
             $privateKey->safeDelete();

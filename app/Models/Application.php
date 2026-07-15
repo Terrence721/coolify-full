@@ -697,11 +697,8 @@ class Application extends BaseModel
     /**
      * Check if a string is a valid JSON
      */
-    private function isJson(string $string)
+    private function isJson(string $string): bool
     {
-        if (! is_string($string)) {
-            return false;
-        }
         json_decode($string);
 
         return json_last_error() === JSON_ERROR_NONE;
@@ -735,7 +732,10 @@ class Application extends BaseModel
     /**
      * Get all applications owned by current team (cached for request duration).
      */
-    public static function ownedByCurrentTeamCached()
+    /**
+     * @return Collection<int, Application>
+     */
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return Application::ownedByCurrentTeam()->get();
@@ -751,9 +751,9 @@ class Application extends BaseModel
         return $containers->pluck('Names')->toArray();
     }
 
-    public function deleteVolumes()
+    public function deleteVolumes(): void
     {
-        $persistentStorages = $this->persistentStorages()->get() ?? collect();
+        $persistentStorages = $this->persistentStorages()->get();
         if ($this->build_pack === 'dockercompose') {
             $server = data_get($this, 'destination.server');
             instant_remote_process(["cd {$this->dirOnServer()} && docker compose down -v"], $server, false);
@@ -805,19 +805,19 @@ class Application extends BaseModel
         return false;
     }
 
-    public function isForceHttpsEnabled()
+    public function isForceHttpsEnabled(): bool
     {
-        return data_get($this, 'settings.is_force_https_enabled', false);
+        return (bool) data_get($this, 'settings.is_force_https_enabled', false);
     }
 
-    public function isStripprefixEnabled()
+    public function isStripprefixEnabled(): bool
     {
-        return data_get($this, 'settings.is_stripprefix_enabled', true);
+        return (bool) data_get($this, 'settings.is_stripprefix_enabled', true);
     }
 
-    public function isGzipEnabled()
+    public function isGzipEnabled(): bool
     {
-        return data_get($this, 'settings.is_gzip_enabled', true);
+        return (bool) data_get($this, 'settings.is_gzip_enabled', true);
     }
 
     public function stoppedAfterRestartLimit(): bool
@@ -853,7 +853,7 @@ class Application extends BaseModel
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
 
-    public function type()
+    public function type(): string
     {
         return 'application';
     }
@@ -1022,7 +1022,7 @@ class Application extends BaseModel
         );
     }
 
-    public function realStatus()
+    public function realStatus(): mixed
     {
         return $this->getRawOriginal('status');
     }
@@ -1054,6 +1054,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function status(): Attribute
     {
         return Attribute::make(
@@ -1126,6 +1129,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<?string, ?string>
+     */
     public function customNginxConfiguration(): Attribute
     {
         return Attribute::make(
@@ -1134,6 +1140,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<array<int, string>, never>
+     */
     public function portsExposesArray(): Attribute
     {
         return Attribute::make(
@@ -1151,30 +1160,33 @@ class Application extends BaseModel
         return $this->morphToMany(Tag::class, 'taggable');
     }
 
-    public function project()
+    public function project(): ?Project
     {
         return data_get($this, 'environment.project');
     }
 
-    public function team()
+    public function team(): ?Team
     {
         return data_get($this, 'environment.project.team');
     }
 
-    public function serviceType()
+    public function serviceType(): ?string
     {
         $image = (string) data_get($this, 'image', '');
-        $found = str(collect(SPECIFIC_SERVICES)->filter(function ($service) use ($image) {
+        $found = collect(SPECIFIC_SERVICES)->filter(function ($service) use ($image) {
             return str($image)->before(':')->value() === $service;
-        })->first());
-        if ($found->isNotEmpty()) {
+        })->first();
+        if (is_string($found) && $found !== '') {
             return $found;
         }
 
         return null;
     }
 
-    public function main_port()
+    /**
+     * @return array<int, int|string>
+     */
+    public function main_port(): array
     {
         $isStatic = (bool) data_get($this, 'settings.is_static', false);
         $portsExposes = data_get($this, 'ports_exposes');
@@ -1294,7 +1306,10 @@ class Application extends BaseModel
         return $this->hasMany(ScheduledTask::class)->orderBy('name', 'asc');
     }
 
-    public function private_key()
+    /**
+     * @return BelongsTo<PrivateKey, $this>
+     */
+    public function private_key(): BelongsTo
     {
         return $this->belongsTo(PrivateKey::class);
     }
@@ -1307,12 +1322,18 @@ class Application extends BaseModel
         return $this->belongsTo(Environment::class);
     }
 
-    public function previews()
+    /**
+     * @return HasMany<ApplicationPreview, $this>
+     */
+    public function previews(): HasMany
     {
         return $this->hasMany(ApplicationPreview::class)->orderBy('pull_request_id', 'desc');
     }
 
-    public function deployment_queue()
+    /**
+     * @return HasMany<ApplicationDeploymentQueue, $this>
+     */
+    public function deployment_queue(): HasMany
     {
         return $this->hasMany(ApplicationDeploymentQueue::class);
     }
@@ -1327,7 +1348,7 @@ class Application extends BaseModel
         return $this->morphTo();
     }
 
-    public function isDeploymentInprogress()
+    public function isDeploymentInprogress(): bool
     {
         $deployments = ApplicationDeploymentQueue::where('application_id', $this->id)->whereIn('status', [ApplicationDeploymentStatus::IN_PROGRESS, ApplicationDeploymentStatus::QUEUED])->count();
         if ($deployments > 0) {
@@ -1337,17 +1358,23 @@ class Application extends BaseModel
         return false;
     }
 
-    public function get_last_successful_deployment()
+    public function get_last_successful_deployment(): ?ApplicationDeploymentQueue
     {
         return ApplicationDeploymentQueue::where('application_id', $this->id)->where('status', ApplicationDeploymentStatus::FINISHED->value)->where('pull_request_id', 0)->orderBy('created_at', 'desc')->first();
     }
 
-    public function get_last_days_deployments()
+    /**
+     * @return Collection<int, ApplicationDeploymentQueue>
+     */
+    public function get_last_days_deployments(): Collection
     {
         return ApplicationDeploymentQueue::where('application_id', $this->id)->where('created_at', '>=', now()->subDays(7))->orderBy('created_at', 'desc')->get();
     }
 
-    public function deployments(int $skip = 0, int $take = 10, ?string $pullRequestId = null)
+    /**
+     * @return array{count: int, deployments: Collection<int, ApplicationDeploymentQueue>}
+     */
+    public function deployments(int $skip = 0, int $take = 10, ?string $pullRequestId = null): array
     {
         $deployments = ApplicationDeploymentQueue::where('application_id', $this->id)->orderBy('created_at', 'desc');
 
@@ -1364,7 +1391,7 @@ class Application extends BaseModel
         ];
     }
 
-    public function get_deployment(string $deployment_uuid)
+    public function get_deployment(string $deployment_uuid): ?Activity
     {
         return Activity::where('subject_id', $this->id)->where('properties->type_uuid', '=', $deployment_uuid)->first();
     }
@@ -1387,7 +1414,7 @@ class Application extends BaseModel
         return false;
     }
 
-    public function deploymentType()
+    public function deploymentType(): string
     {
         $privateKeyId = data_get($this, 'private_key_id');
 
@@ -1439,27 +1466,27 @@ class Application extends BaseModel
         return false;
     }
 
-    public function workdir()
+    public function workdir(): string
     {
         return application_configuration_dir()."/{$this->uuid}";
     }
 
-    public function isLogDrainEnabled()
+    public function isLogDrainEnabled(): bool
     {
-        return data_get($this, 'settings.is_log_drain_enabled', false);
+        return (bool) data_get($this, 'settings.is_log_drain_enabled', false);
     }
 
-    public function generateBaseDir(string $uuid)
+    public function generateBaseDir(string $uuid): string
     {
         return "/artifacts/{$uuid}";
     }
 
-    public function dirOnServer()
+    public function dirOnServer(): string
     {
         return application_configuration_dir()."/{$this->uuid}";
     }
 
-    public function parse(int $pull_request_id = 0, ?int $preview_id = null, ?string $commit = null)
+    public function parse(int $pull_request_id = 0, ?int $preview_id = null, ?string $commit = null): mixed
     {
         if ((int) $this->compose_parsing_version >= 3) {
             return applicationParser($this, $pull_request_id, $preview_id, $commit);
@@ -1470,13 +1497,16 @@ class Application extends BaseModel
         }
     }
 
-    public function loadComposeFile($isInit = false, ?string $restoreBaseDirectory = null, ?string $restoreDockerComposeLocation = null)
+    /**
+     * @return array{parsedServices: mixed, initialDockerComposeLocation: ?string}|null
+     */
+    public function loadComposeFile(bool $isInit = false, ?string $restoreBaseDirectory = null, ?string $restoreDockerComposeLocation = null): ?array
     {
         // Use provided restore values or capture current values as fallback
         $initialDockerComposeLocation = $restoreDockerComposeLocation ?? $this->docker_compose_location;
         $initialBaseDirectory = $restoreBaseDirectory ?? $this->base_directory;
         if ($isInit && $this->docker_compose_raw) {
-            return;
+            return null;
         }
         $uuid = (string) new Cuid2;
         ['commands' => $cloneCommand] = $this->generateGitImportCommands(deployment_uuid: $uuid, only_checkout: true, exec_in_docker: false, custom_base_dir: 'checkout');
@@ -1606,11 +1636,11 @@ class Application extends BaseModel
         }
     }
 
-    public function parseContainerLabels(?ApplicationPreview $preview = null)
+    public function parseContainerLabels(?ApplicationPreview $preview = null): ?string
     {
         $customLabels = data_get($this, 'custom_labels');
         if (! $customLabels) {
-            return;
+            return null;
         }
         $decoded = base64_decode($customLabels, true);
         if ($decoded === false || base64_encode($decoded) !== $customLabels) {
@@ -1627,6 +1657,9 @@ class Application extends BaseModel
         return $customLabels;
     }
 
+    /**
+     * @return Attribute<array<int, string>, never>
+     */
     public function fqdns(): Attribute
     {
         return Attribute::make(
@@ -1636,12 +1669,12 @@ class Application extends BaseModel
         );
     }
 
-    public function getFilesFromServer(bool $isInit = false)
+    public function getFilesFromServer(bool $isInit = false): void
     {
         getFilesystemVolumesFromServer($this, $isInit);
     }
 
-    public function parseHealthcheckFromDockerfile(string $dockerfile, bool $isInit = false)
+    public function parseHealthcheckFromDockerfile(string $dockerfile, bool $isInit = false): void
     {
         $hasHealthcheck = str($dockerfile)->contains('HEALTHCHECK');
         $dockerfile = str($dockerfile)->trim()->explode("\n");
@@ -1684,13 +1717,13 @@ class Application extends BaseModel
                 $retries = str($healthcheckCommand)->match('/--retries=(\d+)/');
 
                 if ($interval->isNotEmpty()) {
-                    $this->health_check_interval = parseDockerfileInterval($interval);
+                    $this->health_check_interval = parseDockerfileInterval($interval->toString());
                 }
                 if ($timeout->isNotEmpty()) {
-                    $this->health_check_timeout = parseDockerfileInterval($timeout);
+                    $this->health_check_timeout = parseDockerfileInterval($timeout->toString());
                 }
                 if ($start_period->isNotEmpty()) {
-                    $this->health_check_start_period = parseDockerfileInterval($start_period);
+                    $this->health_check_start_period = parseDockerfileInterval($start_period->toString());
                 }
                 if ($retries->isNotEmpty()) {
                     $this->health_check_retries = $retries->toInteger();
@@ -1730,7 +1763,7 @@ class Application extends BaseModel
         return $generator->toArray();
     }
 
-    public function setConfig(string $config)
+    public function setConfig(string $config): void
     {
         $validator = Validator::make(['config' => $config], [
             'config' => 'required|json',

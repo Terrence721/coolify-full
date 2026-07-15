@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
  */
 trait HasSentinel
 {
-    public function sentinelHeartbeat(bool $isReset = false)
+    public function sentinelHeartbeat(bool $isReset = false): void
     {
         $this->sentinel_updated_at = $isReset ? now()->subMinutes(6000) : now();
         $this->save();
@@ -41,22 +41,22 @@ trait HasSentinel
         return Carbon::parse($this->sentinel_updated_at)->isAfter(now()->subSeconds($this->waitBeforeDoingSshCheck()));
     }
 
-    public function isSentinelEnabled()
+    public function isSentinelEnabled(): bool
     {
         return ($this->isMetricsEnabled() || $this->isServerApiEnabled()) && ! $this->isBuildServer();
     }
 
-    public function isMetricsEnabled()
+    public function isMetricsEnabled(): bool
     {
-        return $this->settings->is_metrics_enabled;
+        return (bool) $this->settings->is_metrics_enabled;
     }
 
-    public function isServerApiEnabled()
+    public function isServerApiEnabled(): bool
     {
-        return $this->settings->is_sentinel_enabled;
+        return (bool) $this->settings->is_sentinel_enabled;
     }
 
-    public function checkSentinel()
+    public function checkSentinel(): void
     {
         CheckAndStartSentinelJob::dispatch($this);
     }
@@ -110,7 +110,7 @@ trait HasSentinel
         }
     }
 
-    public function restartSentinel(?string $customImage = null, bool $async = true)
+    public function restartSentinel(?string $customImage = null, bool $async = true): mixed
     {
         try {
             if ($async) {
@@ -123,5 +123,7 @@ trait HasSentinel
 
             return handleError($e);
         }
+
+        return null;
     }
 }

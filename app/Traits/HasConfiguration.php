@@ -37,6 +37,9 @@ trait HasConfiguration
         return (new ConfigurationGenerator($this))->toYaml();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfigurationAsArray(): array
     {
         return (new ConfigurationGenerator($this))->toArray();
