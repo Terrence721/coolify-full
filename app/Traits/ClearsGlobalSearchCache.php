@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 trait ClearsGlobalSearchCache
 {
-    protected static function bootClearsGlobalSearchCache()
+    protected static function bootClearsGlobalSearchCache(): void
     {
         static::saving(function ($model) {
             try {
@@ -103,7 +103,7 @@ trait ClearsGlobalSearchCache
         }
     }
 
-    private function getTeamIdForCache()
+    private function getTeamIdForCache(): mixed
     {
         try {
             // For Project models (has direct team_id)

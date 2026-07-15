@@ -20,12 +20,12 @@ namespace App\Traits;
  */
 trait HasResourceStatus
 {
-    public function isRunning()
+    public function isRunning(): bool
     {
         return (bool) str($this->status)->contains('running');
     }
 
-    public function isExited()
+    public function isExited(): bool
     {
         return (bool) str($this->status)->contains('exited');
     }

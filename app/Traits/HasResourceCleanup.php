@@ -11,7 +11,7 @@ namespace App\Traits;
  */
 trait HasResourceCleanup
 {
-    public function deleteConfigurations()
+    public function deleteConfigurations(): void
     {
         $server = data_get($this, 'destination.server');
         $workdir = $this->workdir();
@@ -20,7 +20,7 @@ trait HasResourceCleanup
         }
     }
 
-    public function deleteConnectedNetworks()
+    public function deleteConnectedNetworks(): void
     {
         $server = data_get($this, 'destination.server');
         instant_remote_process(["docker network disconnect {$this->uuid} coolify-proxy"], $server, false);

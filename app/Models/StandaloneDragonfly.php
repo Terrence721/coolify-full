@@ -245,7 +245,7 @@ class StandaloneDragonfly extends BaseModel implements StandaloneDatabaseInstanc
         );
     }
 
-    public function isBackupSolutionAvailable()
+    public function isBackupSolutionAvailable(): bool
     {
         return false;
     }

@@ -253,7 +253,7 @@ class StandaloneKeydb extends BaseModel implements StandaloneDatabaseInstance
         );
     }
 
-    public function isBackupSolutionAvailable()
+    public function isBackupSolutionAvailable(): bool
     {
         return false;
     }

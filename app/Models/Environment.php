@@ -192,7 +192,7 @@ class Environment extends BaseModel
         return $this->hasMany(Service::class);
     }
 
-    protected function customizeName($value)
+    protected function customizeName(string $value): string
     {
         return str($value)->lower()->trim()->replace('/', '-')->toString();
     }

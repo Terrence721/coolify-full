@@ -44,7 +44,7 @@ class Tag extends BaseModel
         'team_id',
     ];
 
-    protected function customizeName($value)
+    protected function customizeName(string $value): string
     {
         return strtolower($value);
     }

@@ -17,7 +17,7 @@ trait HasResourceLinks
 {
     abstract protected function resourceTypeSlug(): string;
 
-    public function link()
+    public function link(): ?string
     {
         if (data_get($this, 'environment.project.uuid')) {
             $slug = $this->resourceTypeSlug();
@@ -32,7 +32,7 @@ trait HasResourceLinks
         return null;
     }
 
-    public function taskLink(string $task_uuid)
+    public function taskLink(string $task_uuid): ?string
     {
         if (data_get($this, 'environment.project.uuid')) {
             $slug = $this->resourceTypeSlug();

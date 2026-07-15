@@ -239,7 +239,7 @@ class StandaloneClickhouse extends BaseModel implements StandaloneDatabaseInstan
         );
     }
 
-    public function isBackupSolutionAvailable()
+    public function isBackupSolutionAvailable(): bool
     {
         return false;
     }

@@ -163,6 +163,12 @@ parameters:
 			path: app/Actions/Shared/ComplexStatusCheck.php
 
 		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 4
+			path: app/Console/Commands/CleanupStuckedResources.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment_variables\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1981,12 +1987,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:customNetworkAliases\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -2007,30 +2007,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Application\:\:customRepository\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:deleteConnectedNetworks\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -2161,12 +2137,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:get_deployment\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2209,12 +2179,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:isForceHttpsEnabled\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2239,12 +2203,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:isStripprefixEnabled\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2253,12 +2211,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Application\:\:isWatchPathsTriggered\(\) has parameter \$modified_files with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -2413,32 +2365,8 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Method App\\Models\\Application\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Method App\\Models\\Application\:\:setGitImportSettings\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Application.php
 
@@ -2451,12 +2379,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Application\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:taskLink\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Application.php
 
@@ -2785,26 +2707,8 @@ parameters:
 			path: app/Models/Environment.php
 
 		-
-			message: '#^Method App\\Models\\Environment\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
 			message: '#^Method App\\Models\\Environment\:\:clickhouses\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Environment.php
 
@@ -2816,12 +2720,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Environment\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:getTeamIdForCache\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Environment.php
@@ -2877,30 +2775,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Environment\:\:services\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Method App\\Models\\Environment\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Environment.php
 
@@ -3277,18 +3151,6 @@ parameters:
 			path: app/Models/PrivateKey.php
 
 		-
-			message: '#^Method App\\Models\\PrivateKey\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
 			message: '#^Method App\\Models\\PrivateKey\:\:deleteFromStorage\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3445,30 +3307,6 @@ parameters:
 			path: app/Models/PrivateKey.php
 
 		-
-			message: '#^Method App\\Models\\PrivateKey\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
-			message: '#^Method App\\Models\\PrivateKey\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/PrivateKey.php
-
-		-
 			message: '#^Method App\\Models\\PrivateKey\:\:storeInFileSystem\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3541,26 +3379,8 @@ parameters:
 			path: app/Models/Project.php
 
 		-
-			message: '#^Method App\\Models\\Project\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
 			message: '#^Method App\\Models\\Project\:\:clickhouses\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Project.php
 
@@ -3578,12 +3398,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Project\:\:environments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:getTeamIdForCache\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Project.php
@@ -3649,30 +3463,6 @@ parameters:
 			path: app/Models/Project.php
 
 		-
-			message: '#^Method App\\Models\\Project\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Project.php
-
-		-
 			message: '#^Method App\\Models\\Project\:\:settings\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3715,18 +3505,6 @@ parameters:
 			path: app/Models/S3Storage.php
 
 		-
-			message: '#^Method App\\Models\\S3Storage\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/S3Storage.php
-
-		-
-			message: '#^Method App\\Models\\S3Storage\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/S3Storage.php
-
-		-
 			message: '#^Method App\\Models\\S3Storage\:\:endpoint\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3753,30 +3531,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\S3Storage\:\:scheduledBackups\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/S3Storage.php
-
-		-
-			message: '#^Method App\\Models\\S3Storage\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/S3Storage.php
-
-		-
-			message: '#^Method App\\Models\\S3Storage\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/S3Storage.php
-
-		-
-			message: '#^Method App\\Models\\S3Storage\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/S3Storage.php
-
-		-
-			message: '#^Method App\\Models\\S3Storage\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/S3Storage.php
 
@@ -3831,42 +3585,6 @@ parameters:
 		-
 			message: '#^Class App\\Models\\ScheduledTask uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Method App\\Models\\ScheduledTask\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Method App\\Models\\ScheduledTask\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Method App\\Models\\ScheduledTask\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Method App\\Models\\ScheduledTask\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Method App\\Models\\ScheduledTask\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Method App\\Models\\ScheduledTask\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/ScheduledTask.php
 
@@ -3931,12 +3649,6 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:buildServers\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3963,18 +3675,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Server\:\:createWithPrivateKey\(\) has parameter \$data with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Server.php
 
@@ -4059,12 +3759,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Server\:\:getMetrics\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Server.php
 
@@ -4299,30 +3993,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Server\:\:sentinelHeartbeat\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Server.php
 
@@ -4573,12 +4243,6 @@ parameters:
 			path: app/Models/Service.php
 
 		-
-			message: '#^Method App\\Models\\Service\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Method App\\Models\\Service\:\:byName\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -4586,30 +4250,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\Service\:\:byUuid\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:deleteConnectedNetworks\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/Service.php
@@ -4639,12 +4279,6 @@ parameters:
 			path: app/Models/Service.php
 
 		-
-			message: '#^Method App\\Models\\Service\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Method App\\Models\\Service\:\:isConfigurationChanged\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -4653,24 +4287,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Service\:\:isDeployable\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Service.php
 
@@ -4729,36 +4345,6 @@ parameters:
 			path: app/Models/Service.php
 
 		-
-			message: '#^Method App\\Models\\Service\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:taskLink\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Method App\\Models\\Service\:\:team\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -4802,12 +4388,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\ServiceApplication\:\:getFilesFromServer\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ServiceApplication.php
-
-		-
-			message: '#^Method App\\Models\\ServiceApplication\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/ServiceApplication.php
@@ -4898,12 +4478,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\ServiceDatabase\:\:getServiceDatabaseUrl\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ServiceDatabase.php
-
-		-
-			message: '#^Method App\\Models\\ServiceDatabase\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/ServiceDatabase.php
@@ -5071,62 +4645,20 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneClickhouse\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
@@ -5149,68 +4681,20 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
@@ -5227,74 +4711,14 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
 
@@ -5337,18 +4761,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\StandaloneDocker\:\:clickhouses\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDocker\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDocker\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/StandaloneDocker.php
 
@@ -5425,30 +4837,6 @@ parameters:
 			path: app/Models/StandaloneDocker.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDocker\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDocker\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDocker\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDocker\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Server\:\:\$getIp\.$#'
 			identifier: property.notFound
 			count: 1
@@ -5485,62 +4873,20 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneDragonfly\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
@@ -5563,68 +4909,20 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
@@ -5641,74 +4939,14 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
@@ -5767,62 +5005,20 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneKeydb\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
@@ -5845,68 +5041,20 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
@@ -5923,74 +5071,14 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
@@ -6037,62 +5125,20 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMariadb\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -6115,68 +5161,20 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -6193,74 +5191,14 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -6313,62 +5251,20 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMongodb\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
@@ -6391,50 +5287,8 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
@@ -6445,20 +5299,14 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
@@ -6475,74 +5323,14 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
@@ -6595,62 +5383,20 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMysql\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
@@ -6673,68 +5419,20 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
@@ -6751,74 +5449,14 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
@@ -6871,62 +5509,20 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandalonePostgresql\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
 		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
@@ -6949,68 +5545,20 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
@@ -7027,74 +5575,14 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
@@ -7153,62 +5641,20 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:bootClearsGlobalSearchCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:deleteConfigurations\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:deleteVolumes\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:destination\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneRedis\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
 		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:fileStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
@@ -7237,68 +5683,20 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:getTeamIdForCache\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:isBackupSolutionAvailable\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:isConfigurationChanged\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:isExited\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:isLogDrainEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:link\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
@@ -7315,12 +5713,6 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:realStatus\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:redisPassword\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -7333,68 +5725,14 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:runtime_environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:scheduledBackups\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:sslCertificates\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:workdir\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
@@ -7513,18 +5851,6 @@ parameters:
 			path: app/Models/Tag.php
 
 		-
-			message: '#^Method App\\Models\\Tag\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Tag.php
-
-		-
 			message: '#^Method App\\Models\\Tag\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -7533,30 +5859,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Tag\:\:services\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Tag.php
 
@@ -7581,18 +5883,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Team\:\:cloudProviderTokens\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:customizeName\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:customizeName\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Team.php
 
@@ -7641,30 +5931,6 @@ parameters:
 		-
 			message: '#^Method App\\Models\\Team\:\:s3s\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:setDescriptionAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:setDescriptionAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:setNameAttribute\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:setNameAttribute\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Team.php
 

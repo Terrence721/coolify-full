@@ -270,7 +270,7 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
         return $image_parts[1] ?? '0.0';
     }
 
-    public function isBackupSolutionAvailable()
+    public function isBackupSolutionAvailable(): bool
     {
         return false;
     }

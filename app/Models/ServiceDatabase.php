@@ -280,7 +280,7 @@ class ServiceDatabase extends BaseModel
         return $this->morphMany(ScheduledDatabaseBackup::class, 'database');
     }
 
-    public function isBackupSolutionAvailable()
+    public function isBackupSolutionAvailable(): bool
     {
         return str($this->databaseType())->contains('mysql') ||
             str($this->databaseType())->contains('postgres') ||

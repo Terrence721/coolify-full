@@ -11,9 +11,13 @@ use App\Models\LocalPersistentVolume;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\SslCertificate;
 use App\Models\Tag;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Collection;
 
 /**
  * Shared behavior for the 8 Standalone* database models (Postgresql, Mysql, Mariadb,
@@ -47,7 +51,7 @@ trait HasStandaloneDatabaseCommon
      * Get query builder for databases of this type owned by the current team.
      * If you need all databases without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    public static function ownedByCurrentTeam(): Builder
     {
         $team = currentTeam();
 
@@ -61,7 +65,7 @@ trait HasStandaloneDatabaseCommon
     /**
      * Get all databases of this type owned by the current team (cached for request duration).
      */
-    public static function ownedByCurrentTeamCached()
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return static::ownedByCurrentTeam()->get();
@@ -87,11 +91,11 @@ trait HasStandaloneDatabaseCommon
         return '';
     }
 
-    public function isConfigurationChanged(bool $save = false)
+    public function isConfigurationChanged(bool $save = false): bool
     {
         $newConfigHash = $this->image.$this->ports_mappings.$this->configHashExtra();
         $newConfigHash .= $this->healthCheckConfigurationHash();
-        $newConfigHash .= json_encode($this->environment_variables()->get('value')->sort());
+        $newConfigHash .= json_encode($this->environment_variables()->get(['value'])->sort());
         $newConfigHash = md5($newConfigHash);
         $oldConfigHash = data_get($this, 'config_hash');
         if ($oldConfigHash === null) {
@@ -114,22 +118,22 @@ trait HasStandaloneDatabaseCommon
         }
     }
 
-    public function isRunning()
+    public function isRunning(): bool
     {
         return (bool) str($this->status)->contains('running');
     }
 
-    public function isExited()
+    public function isExited(): bool
     {
         return (bool) str($this->status)->startsWith('exited');
     }
 
-    public function workdir()
+    public function workdir(): string
     {
         return database_configuration_dir()."/{$this->uuid}";
     }
 
-    public function deleteConfigurations()
+    public function deleteConfigurations(): void
     {
         $server = data_get($this, 'destination.server');
         $workdir = $this->workdir();
@@ -138,9 +142,9 @@ trait HasStandaloneDatabaseCommon
         }
     }
 
-    public function deleteVolumes()
+    public function deleteVolumes(): void
     {
-        $persistentStorages = $this->persistentStorages()->get() ?? collect();
+        $persistentStorages = $this->persistentStorages()->get();
         if ($persistentStorages->count() === 0) {
             return;
         }
@@ -150,7 +154,7 @@ trait HasStandaloneDatabaseCommon
         }
     }
 
-    public function realStatus()
+    public function realStatus(): mixed
     {
         return $this->getRawOriginal('status');
     }
@@ -202,12 +206,12 @@ trait HasStandaloneDatabaseCommon
         return data_get($this, 'environment.project');
     }
 
-    public function team()
+    public function team(): mixed
     {
         return data_get($this, 'environment.project.team');
     }
 
-    public function link()
+    public function link(): ?string
     {
         if (data_get($this, 'environment.project.uuid')) {
             return route('project.database.configuration', [
@@ -220,7 +224,7 @@ trait HasStandaloneDatabaseCommon
         return null;
     }
 
-    public function isLogDrainEnabled()
+    public function isLogDrainEnabled(): bool
     {
         return data_get($this, 'is_log_drain_enabled', false);
     }
@@ -256,42 +260,60 @@ trait HasStandaloneDatabaseCommon
         return $this->belongsTo(Environment::class);
     }
 
-    public function persistentStorages()
+    /**
+     * @return MorphMany<LocalPersistentVolume, $this>
+     */
+    public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
-    public function fileStorages()
+    /**
+     * @return MorphMany<LocalFileVolume, $this>
+     */
+    public function fileStorages(): MorphMany
     {
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
 
-    public function sslCertificates()
+    /**
+     * @return MorphMany<SslCertificate, $this>
+     */
+    public function sslCertificates(): MorphMany
     {
         return $this->morphMany(SslCertificate::class, 'resource');
     }
 
-    public function destination()
+    public function destination(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function runtime_environment_variables()
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
+    public function runtime_environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable');
     }
 
-    public function environment_variables()
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
+    public function environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable');
     }
 
-    public function scheduledBackups()
+    /**
+     * @return MorphMany<ScheduledDatabaseBackup, $this>
+     */
+    public function scheduledBackups(): MorphMany
     {
         return $this->morphMany(ScheduledDatabaseBackup::class, 'database');
     }
 
-    public function isBackupSolutionAvailable()
+    public function isBackupSolutionAvailable(): bool
     {
         return true;
     }
