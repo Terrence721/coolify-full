@@ -68,3 +68,48 @@ A commit-history rewrite introduced repository instability that required an imme
 - Use a structured recovery checklist: rollback -> restore runtime -> validate -> remove temporary guards -> commit.
 - Add regression coverage for terminal edge cases and key-dependent credential paths.
 
+---
+
+# Incident Report: Terminal WebSocket Teardown Follow-up
+
+## Incident Details
+
+- Incident Window: 2026-07-15
+- Severity: Low
+- Status: Resolved
+- Related Prior Fix: `ae564038` (Terminal reconnect loop outliving page navigation)
+
+## Overview
+
+A follow-up terminal lifecycle bug was observed: WebSocket connections could remain open after the terminal session was no longer needed (for example after `pty-exited` or `unprocessable` terminal states). The earlier reconnect-loop fix in `ae564038` prevented stale reconnect chains after unmount/navigation, but this new case required intentional session-end teardown behavior.
+
+## User-Visible Impact
+
+- Potential lingering WebSocket connection after terminal session termination.
+- Extra background socket activity beyond expected terminal lifecycle.
+
+## Root Cause
+
+- Session-end events updated UI state but did not always close the socket explicitly.
+- Reconnect pathways (heartbeat/visibility/retry) were not gated by an explicit "reconnect allowed" lifecycle flag.
+
+## Remediation Actions
+
+- Added explicit reconnect gating with a `reconnectAllowed` lifecycle flag.
+- Added a dedicated `disconnectSocket()` helper to centralize close + handler detach + timer cleanup + state update.
+- On terminal session end (`pty-exited`) and rejected session (`unprocessable`), now intentionally disconnect socket with reconnect disabled.
+- Guarded reconnect entry points (`scheduleReconnect`, connection error/close handlers, keepalive/visibility resume) behind lifecycle checks.
+- Allowed reconnection only when a new terminal command/session is requested.
+
+## Validation Evidence
+
+- Diagnostics: no editor errors in `resources/js/terminalSession.js`.
+- Frontend compile: `vite build` passed.
+- Feature tests: `tests/v4/Feature/TerminalIndexTest.php` passed.
+
+## Final Outcome
+
+- Terminal WebSocket now disconnects when session is no longer needed.
+- Reconnect logic remains available for active sessions but blocked for intentionally ended sessions.
+- Follow-up incident resolved.
+

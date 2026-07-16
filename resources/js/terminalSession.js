@@ -68,6 +68,7 @@ export class TerminalSession {
         this._onWindowResize = null;
         this._visibilityHandler = null;
         this.destroyed = false;
+        this.reconnectAllowed = true;
     }
 
     emitState() {
@@ -120,16 +121,21 @@ export class TerminalSession {
     }
 
     sendCommandWhenReady(command) {
+        this.reconnectAllowed = true;
         const message = { command };
         if (this.isWebSocketReady()) {
             this.sendMessage(message);
         } else {
             this.pendingCommand = message;
+            if (!this.destroyed && (!this.socket || this.socket.readyState === WebSocket.CLOSED || this.connectionState === 'disconnected')) {
+                this.initializeWebSocket();
+            }
         }
     }
 
     cleanup() {
         this.checkIfProcessIsRunningAndKillIt();
+        this.reconnectAllowed = false;
         this.clearAllTimers();
         this.connectionState = 'disconnected';
         this.pendingCommand = null;
@@ -171,6 +177,27 @@ export class TerminalSession {
         this.pingTimeoutId = null;
         this.resizeTimeout = null;
         this.terminalSessionCountdownInterval = null;
+    }
+
+    disconnectSocket({ code = 1000, reason = 'Client disconnect', allowReconnect = false } = {}) {
+        this.reconnectAllowed = allowReconnect;
+        this.clearAllTimers();
+
+        if (this.socket) {
+            this.socket.onopen = null;
+            this.socket.onmessage = null;
+            this.socket.onerror = null;
+            this.socket.onclose = null;
+            try {
+                this.socket.close(code, reason);
+            } catch (_) {
+                // Ignore close errors; socket can already be closing/closed.
+            }
+            this.socket = null;
+        }
+
+        this.connectionState = 'disconnected';
+        this.emitState();
     }
 
     resetTerminalSessionCountdown() {
@@ -249,6 +276,9 @@ export class TerminalSession {
 
     initializeWebSocket() {
         if (this.destroyed) {
+            return;
+        }
+        if (!this.reconnectAllowed) {
             return;
         }
         if (this.socket && this.socket.readyState !== WebSocket.CLOSED) {
@@ -347,9 +377,14 @@ export class TerminalSession {
         logTerminal('log', '[Terminal] Connection attempt:', this.reconnectAttempts + 1);
 
         this.connectionState = 'disconnected';
+        this.socket = null;
         this.clearAllTimers();
         this.resetTerminalSessionCountdown();
         this.emitState();
+
+        if (this.destroyed || !this.reconnectAllowed) {
+            return;
+        }
 
         if (event.code !== 1000) {
             if (this.reconnectAttempts > 0) {
@@ -365,7 +400,12 @@ export class TerminalSession {
     handleConnectionError(reason) {
         logTerminal('error', `[Terminal] Connection error: ${reason} (attempt ${this.reconnectAttempts + 1})`);
         this.connectionState = 'disconnected';
+        this.socket = null;
         this.emitState();
+
+        if (this.destroyed || !this.reconnectAllowed) {
+            return;
+        }
 
         if (this.reconnectAttempts >= 2) {
             this.onError(`Terminal connection error: ${reason}`);
@@ -375,7 +415,7 @@ export class TerminalSession {
     }
 
     scheduleReconnect() {
-        if (this.destroyed) {
+        if (this.destroyed || !this.reconnectAllowed) {
             return;
         }
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
@@ -461,6 +501,8 @@ export class TerminalSession {
             this.message = '(sorry, something went wrong, please try again)';
             this.emitState();
 
+            this.disconnectSocket({ code: 1000, reason: 'Terminal session rejected', allowReconnect: false });
+
             this.onTerminalDisconnected();
         } else if (event.data === 'pty-exited') {
             this.fullscreen = false;
@@ -471,6 +513,8 @@ export class TerminalSession {
             this.commandBuffer = '';
             this.lastSentCommand = null;
             this.emitState();
+
+            this.disconnectSocket({ code: 1000, reason: 'Terminal session ended', allowReconnect: false });
 
             this.onTerminalDisconnected();
         } else if (
@@ -602,7 +646,7 @@ export class TerminalSession {
     keepAlive() {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.sendMessage({ ping: true });
-        } else if (this.connectionState === 'disconnected') {
+        } else if (this.connectionState === 'disconnected' && this.reconnectAllowed) {
             this.initializeWebSocket();
         }
     }
@@ -635,7 +679,7 @@ export class TerminalSession {
                         // ignore — close handler will run on its own
                     }
                 }, 5000);
-            } else if (this.wasConnectedBeforeHidden && this.connectionState !== 'connected') {
+            } else if (this.wasConnectedBeforeHidden && this.connectionState !== 'connected' && this.reconnectAllowed) {
                 this.reconnectAttempts = 0;
                 this.initializeWebSocket();
             }
