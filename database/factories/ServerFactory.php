@@ -11,7 +11,10 @@ class ServerFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->name(),
+            // Faker's name() occasionally includes an apostrophe (e.g. "O'Connell"), which
+            // App\Support\ValidationPatterns::NAME_PATTERN rejects - strip it so tests that
+            // round-trip this name through name-validated endpoints don't flake.
+            'name' => str_replace("'", '', fake()->unique()->name()),
             'ip' => fake()->unique()->ipv4(),
             'port' => 22,
             'user' => 'root',

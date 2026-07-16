@@ -11,7 +11,10 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->company(),
+            // Faker's company() occasionally includes an apostrophe (e.g. "O'Conner Group"), which
+            // App\Support\ValidationPatterns::NAME_PATTERN rejects - strip it so tests that
+            // round-trip this name through name-validated endpoints don't flake.
+            'name' => str_replace("'", '', fake()->unique()->company()),
             'team_id' => 1,
         ];
     }
