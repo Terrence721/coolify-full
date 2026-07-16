@@ -100,6 +100,9 @@ trait HasDockerContainers
         ];
     }
 
+    /**
+     * @return Collection<int, mixed>
+     */
     public function loadAllContainers(): Collection
     {
         if ($this->isFunctional()) {
@@ -112,6 +115,9 @@ trait HasDockerContainers
         return collect([]);
     }
 
+    /**
+     * @return Collection<int, mixed>
+     */
     public function loadUnmanagedContainers(): Collection
     {
         if ($this->isFunctional()) {

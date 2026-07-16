@@ -310,15 +310,15 @@ class Server extends BaseModel
             return null;
         }
 
-        if (static::$identityMapCache === null) {
-            static::$identityMapCache = [];
+        if (self::$identityMapCache === null) {
+            self::$identityMapCache = [];
         }
 
-        if (! isset(static::$identityMapCache[$id])) {
-            static::$identityMapCache[$id] = static::query()->find($id);
+        if (! isset(self::$identityMapCache[$id])) {
+            self::$identityMapCache[$id] = static::query()->find($id);
         }
 
-        return static::$identityMapCache[$id];
+        return self::$identityMapCache[$id];
     }
 
     /**
@@ -327,7 +327,7 @@ class Server extends BaseModel
      */
     public static function flushIdentityMap(): void
     {
-        static::$identityMapCache = null;
+        self::$identityMapCache = null;
     }
 
     protected $casts = [
@@ -379,6 +379,9 @@ class Server extends BaseModel
         return 'server';
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isCoolifyHost(): Attribute
     {
         return Attribute::make(
@@ -457,11 +460,18 @@ class Server extends BaseModel
         return $this->hasMany(DockerCleanupExecution::class);
     }
 
+    /**
+     * @return Builder<Server>
+     */
     public function scopeWithProxy(): Builder
     {
         return $this->proxy->modelScope();
     }
 
+    /**
+     * @param  Builder<Server>  $query
+     * @return Builder<Server>
+     */
     public function scopeWhereProxyType(Builder $query, string $proxyType): Builder
     {
         return $query->where('proxy->type', $proxyType);
@@ -508,6 +518,9 @@ class Server extends BaseModel
         return $this->hasMany(Service::class);
     }
 
+    /**
+     * @return Attribute<int, int>
+     */
     public function port(): Attribute
     {
         return Attribute::make(
@@ -520,6 +533,9 @@ class Server extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     public function user(): Attribute
     {
         return Attribute::make(
@@ -532,6 +548,9 @@ class Server extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     public function ip(): Attribute
     {
         return Attribute::make(
@@ -544,6 +563,9 @@ class Server extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     public function getIp(): Attribute
     {
         return Attribute::make(

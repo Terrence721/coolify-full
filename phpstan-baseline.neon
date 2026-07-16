@@ -2341,68 +2341,8 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Method App\\Models\\Server\:\:getIp\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:ip\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:isCoolifyHost\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:loadAllContainers\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:loadUnmanagedContainers\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:port\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:previews\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:scopeWhereProxyType\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:scopeWhereProxyType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:scopeWithProxy\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Method App\\Models\\Server\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/Server.php
 
@@ -2446,12 +2386,6 @@ parameters:
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Unsafe access to private property App\\Models\\Server\:\:\$identityMapCache through static\:\:\.$#'
-			identifier: staticClassAccess.privateProperty
-			count: 6
 			path: app/Models/Server.php
 
 		-
