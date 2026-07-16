@@ -6,10 +6,12 @@ namespace Tests\Unit\Actions\Docker;
 
 use App\Actions\Database\StopDatabaseProxy;
 use App\Actions\Docker\GetContainersStatus;
+use App\Events\ServiceChecked;
 use App\Models\Server;
 use App\Models\StandaloneMysql;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -62,6 +64,8 @@ final class GetContainersStatusTest extends TestCase
             ]),
             'containerReplicates' => null,
         ]);
+
+        Event::fake([ServiceChecked::class]);
 
         StopDatabaseProxy::shouldRun()
             ->once()
