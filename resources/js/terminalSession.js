@@ -87,9 +87,9 @@ export class TerminalSession {
         this.terminalEl = terminalEl;
 
         this.setupTerminal();
-        setTimeout(() => {
-            this.initializeWebSocket();
-        }, 100);
+        // Do NOT call initializeWebSocket() here — the WebSocket should only be established
+        // once the user explicitly requests a connection via sendCommandWhenReady(), which
+        // already calls initializeWebSocket() itself when the socket isn't ready.
         this.setupTerminalEventListeners();
 
         this._onWindowResize = () => this.resizeTerminal();
