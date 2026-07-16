@@ -623,6 +623,9 @@ class Application extends BaseModel
         });
     }
 
+    /**
+     * @return Attribute<Collection<int, mixed>, never>
+     */
     public function customNetworkAliases(): Attribute
     {
         return Attribute::make(
@@ -679,6 +682,7 @@ class Application extends BaseModel
 
     /**
      * Get custom_network_aliases as an array
+     * @return Attribute<array<int, string>, never>
      */
     public function customNetworkAliasesArray(): Attribute
     {
@@ -862,6 +866,9 @@ class Application extends BaseModel
         return 'application';
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     public function publishDirectory(): Attribute
     {
         return Attribute::make(
@@ -869,6 +876,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     public function gitBranchLocation(): Attribute
     {
         return Attribute::make(
@@ -898,6 +908,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     public function gitWebhook(): Attribute
     {
         return Attribute::make(
@@ -918,6 +931,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<array<int, mixed>, never>
+     */
     public function gitCommits(): Attribute
     {
         return Attribute::make(
@@ -964,6 +980,9 @@ class Application extends BaseModel
         return $this->git_repository;
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     public function dockerfileLocation(): Attribute
     {
         return Attribute::make(
@@ -981,6 +1000,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     public function dockerComposeLocation(): Attribute
     {
         return Attribute::make(
@@ -998,6 +1020,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function baseDirectory(): Attribute
     {
         return Attribute::make(
@@ -1005,6 +1030,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     public function portsMappings(): Attribute
     {
         return Attribute::make(
@@ -1012,6 +1040,9 @@ class Application extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<array<int, string>, never>
+     */
     public function portsMappingsArray(): Attribute
     {
         return Attribute::make(
@@ -1338,11 +1369,17 @@ class Application extends BaseModel
         return $this->hasMany(ApplicationDeploymentQueue::class);
     }
 
+    /**
+     * @return MorphTo<StandaloneDocker|SwarmDocker, Application>
+     */
     public function destination(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /**
+     * @return MorphTo<GithubApp|GitlabApp, Application>
+     */
     public function source(): MorphTo
     {
         return $this->morphTo();

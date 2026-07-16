@@ -38,6 +38,7 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Phase 16 — Type SwarmDocker relations/scopes and log baseline progress
 - Phase 17 — Clean up the container-status action and remove another chunk of suppressions
 - Phase 18 — Fake ServiceChecked broadcast in GetContainersStatusTest to fix CI network isolation
+- Phase 19 — Type Application.php Attribute and MorphTo methods with full generic annotations
 
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
 
