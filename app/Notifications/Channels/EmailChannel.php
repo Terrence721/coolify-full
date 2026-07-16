@@ -100,7 +100,7 @@ class EmailChannel
                     'html' => (string) $mailMessage->render(),
                 ]);
             } elseif ($isSmtpEnabled) {
-                $encryption = match (strtolower($settings->smtp_encryption)) {
+                $encryption = match (strtolower($settings->smtp_encryption ?? '')) {
                     'starttls' => null,
                     'tls' => true,
                     'none' => null,

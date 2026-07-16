@@ -72,7 +72,7 @@ class StartDatabaseProxy
     }
     stream {
        server {
-              listen $publicPort;
+            listen $publicPort;
             proxy_pass $containerName:$internalPort;
             $timeoutConfig
        }
