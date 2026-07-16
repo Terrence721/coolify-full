@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\BuildsTerminalCommand;
 use App\Models\Server;
+use Throwable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -55,6 +56,7 @@ class TerminalController extends Controller
         }
 
         $result = $this->resolveTerminalCommand($server, $isContainer ? $identifier : null);
+
         if (isset($result['error'])) {
             return response()->json(array_diff_key($result, ['status' => true]), $result['status']);
         }
@@ -73,21 +75,27 @@ class TerminalController extends Controller
                 return [];
             }
 
-            return $server->loadAllContainers()->map(function ($container) use ($server) {
-                $state = data_get_str($container, 'State')->lower();
-                if ($state->contains('running')) {
-                    return [
-                        'name' => data_get($container, 'Names'),
-                        'connection_name' => data_get($container, 'Names'),
-                        'uuid' => data_get($container, 'Names'),
-                        'status' => data_get_str($container, 'State')->lower(),
-                        'server_name' => $server->name,
-                        'server_uuid' => $server->uuid,
-                    ];
-                }
+            try {
+                return $server->loadAllContainers()->map(function ($container) use ($server) {
+                    $state = data_get_str($container, 'State')->lower();
+                    if ($state->contains('running')) {
+                        return [
+                            'name' => data_get($container, 'Names'),
+                            'connection_name' => data_get($container, 'Names'),
+                            'uuid' => data_get($container, 'Names'),
+                            'status' => data_get_str($container, 'State')->lower(),
+                            'server_name' => $server->name,
+                            'server_uuid' => $server->uuid,
+                        ];
+                    }
 
-                return null;
-            })->filter();
+                    return null;
+                })->filter();
+            } catch (Throwable $exception) {
+                report($exception);
+
+                return [];
+            }
         })->sortBy('name')->values();
     }
 }

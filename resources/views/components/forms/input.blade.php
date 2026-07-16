@@ -3,7 +3,7 @@
     'w-full' => !$isMultiline,
 ])>
     @if ($label)
-        <label class="flex gap-1 items-center mb-1 text-sm font-medium">{{ $label }}
+        <label for="{{ $htmlId }}" class="flex gap-1 items-center mb-1 text-sm font-medium">{{ $label }}
             @if ($required)
                 <x-highlighted text="*" />
             @endif
@@ -51,7 +51,7 @@
             type="{{ $type }}" @disabled($disabled) min="{{ $attributes->get('min') }}"
             max="{{ $attributes->get('max') }}" minlength="{{ $attributes->get('minlength') }}"
             maxlength="{{ $attributes->get('maxlength') }}"
-            @if ($htmlId !== 'null') id={{ $htmlId }} @endif name="{{ $name }}"
+            id="{{ $htmlId }}" name="{{ $name }}"
             placeholder="{{ $attributes->get('placeholder') }}"
             @if ($autofocus) x-ref="autofocusInput" @endif>
     @endif

@@ -8,7 +8,7 @@ use Pdo\Pgsql;
 $parseDatabaseHosts = function (mixed $hosts, mixed $fallback = 'coolify-db'): array {
     $parsedHosts = array_values(array_filter(
         array_map('trim', explode(',', (string) $hosts)),
-        'strlen',
+        static fn (string $host): bool => $host !== '',
     ));
 
     if ($parsedHosts !== []) {
@@ -17,11 +17,23 @@ $parseDatabaseHosts = function (mixed $hosts, mixed $fallback = 'coolify-db'): a
 
     $fallbackHosts = array_values(array_filter(
         array_map('trim', explode(',', (string) $fallback)),
-        'strlen',
+        static fn (string $host): bool => $host !== '',
     ));
 
     return $fallbackHosts === [] ? ['coolify-db'] : $fallbackHosts;
 };
+
+$disablePreparesOption = null;
+if (defined('Pdo\\Pgsql::ATTR_DISABLE_PREPARES')) {
+    $disablePreparesOption = Pgsql::ATTR_DISABLE_PREPARES;
+} elseif (defined('PDO::PGSQL_ATTR_DISABLE_PREPARES')) {
+    $disablePreparesOption = PDO::PGSQL_ATTR_DISABLE_PREPARES;
+}
+
+$pgsqlOptions = [];
+if (! is_null($disablePreparesOption)) {
+    $pgsqlOptions[$disablePreparesOption] = env('DB_DISABLE_PREPARES', false);
+}
 
 $pgsql = [
     'driver' => 'pgsql',
@@ -36,9 +48,7 @@ $pgsql = [
     'prefix_indexes' => true,
     'search_path' => 'public',
     'sslmode' => 'prefer',
-    'options' => [
-        (defined('Pdo\Pgsql::ATTR_DISABLE_PREPARES') ? Pgsql::ATTR_DISABLE_PREPARES : PDO::PGSQL_ATTR_DISABLE_PREPARES) => env('DB_DISABLE_PREPARES', false),
-    ],
+    'options' => $pgsqlOptions,
 ];
 
 /*

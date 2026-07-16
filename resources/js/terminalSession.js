@@ -718,7 +718,9 @@ export class TerminalSession {
                     this.sendMessage({ resize: { cols, rows } });
                 }
             } else {
-                logTerminal('warn', '[Terminal] Invalid calculated dimensions:', { rows, cols, height, width, charSize });
+                // During first paint/fullscreen transitions dimensions can briefly be zero.
+                // Retry instead of warning to avoid noisy console output for transient states.
+                setTimeout(() => this.resizeTerminal(), 100);
             }
         } catch (error) {
             logTerminal('error', '[Terminal] Resize error:', error);
