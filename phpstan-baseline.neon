@@ -1,34 +1,10 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/RestartDatabase.php
-
-		-
 			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartClickhouse\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Actions/Database/StartClickhouse.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/StartDatabase.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$public_port\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/StartDatabase.php
-
-		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$database_type\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/StartDatabaseProxy.php
 
 		-
 			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartDragonfly\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
@@ -71,54 +47,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: app/Actions/Database/StartRedis.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Actions/Database/StopDatabase.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/StopDatabase.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/StopDatabase.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Database/StopDatabase.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
 
 		-
 			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'

@@ -23,18 +23,20 @@ class StartDatabaseProxy
 
     public function handle((Model&StandaloneDatabaseInstance)|ServiceDatabase $database): void
     {
-        $databaseType = $database->database_type;
+        $databaseType = (string) data_get($database, 'database_type');
         $network = data_get($database, 'destination.network');
         $server = data_get($database, 'destination.server');
-        $containerName = data_get($database, 'uuid');
-        $proxyContainerName = "{$database->uuid}-proxy";
-        $isSSLEnabled = $database->enable_ssl ?? false;
+        $uuid = (string) data_get($database, 'uuid');
+        $name = (string) data_get($database, 'name', $uuid);
+        $containerName = $uuid;
+        $proxyContainerName = "{$uuid}-proxy";
+        $isSSLEnabled = (bool) data_get($database, 'enable_ssl', false);
 
         if ($database->getMorphClass() === ServiceDatabase::class) {
             $databaseType = $database->databaseType();
             $network = $database->service->uuid;
             $server = data_get($database, 'service.destination.server');
-            $containerName = "{$database->name}-{$database->service->uuid}";
+            $containerName = "{$name}-{$database->service->uuid}";
         }
         $internalPort = match ($databaseType) {
             'standalone-mariadb', 'standalone-mysql' => 3306,
@@ -51,11 +53,12 @@ class StartDatabaseProxy
             };
         }
 
-        $configuration_dir = database_proxy_dir($database->uuid);
+        $configuration_dir = database_proxy_dir($uuid);
         $host_configuration_dir = $configuration_dir;
         if (isDev()) {
-            $host_configuration_dir = '/var/lib/docker/volumes/coolify_dev_coolify_data/_data/databases/'.$database->uuid.'/proxy';
+            $host_configuration_dir = '/var/lib/docker/volumes/coolify_dev_coolify_data/_data/databases/'.$uuid.'/proxy';
         }
+        $publicPort = data_get($database, 'public_port');
         $timeout = data_get($database, 'public_port_timeout');
         $timeoutConfig = $this->buildProxyTimeoutConfig(is_int($timeout) ? $timeout : null);
         $nginxconf = <<<EOF
@@ -69,7 +72,7 @@ class StartDatabaseProxy
     }
     stream {
        server {
-            listen $database->public_port;
+              listen $publicPort;
             proxy_pass $containerName:$internalPort;
             $timeoutConfig
        }
@@ -82,7 +85,7 @@ class StartDatabaseProxy
                     'container_name' => $proxyContainerName,
                     'restart' => RESTART_MODE,
                     'ports' => [
-                        "$database->public_port:$database->public_port",
+                        "$publicPort:$publicPort",
                     ],
                     'networks' => [
                         $network,

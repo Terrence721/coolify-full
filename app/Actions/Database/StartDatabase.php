@@ -35,7 +35,9 @@ class StartDatabase
         $startActionClass = $engine->startActionClass;
         $activity = $startActionClass::run($database);
 
-        if ($database->is_public && $database->public_port) {
+        $isPublic = (bool) data_get($database, 'is_public', false);
+        $publicPort = data_get($database, 'public_port');
+        if ($isPublic && $publicPort) {
             StartDatabaseProxy::dispatch($database);
         }
 

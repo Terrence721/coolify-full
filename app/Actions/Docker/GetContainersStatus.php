@@ -79,30 +79,24 @@ class GetContainersStatus
             ['containers' => $this->containers, 'containerReplicates' => $this->containerReplicates] = $this->server->getContainers();
         }
 
-        if (is_null($this->containers)) {
-            return null;
-        }
-
-        if ($this->containerReplicates) {
-            foreach ($this->containerReplicates as $containerReplica) {
-                $name = data_get($containerReplica, 'Name');
-                $this->containers = $this->containers->map(function ($container) use ($name, $containerReplica) {
-                    if (data_get($container, 'Spec.Name') === $name) {
-                        $replicas = data_get($containerReplica, 'Replicas');
-                        $running = str($replicas)->explode('/')[0];
-                        $total = str($replicas)->explode('/')[1];
-                        if ($running === $total) {
-                            data_set($container, 'State.Status', 'running');
-                            data_set($container, 'State.Health.Status', 'healthy');
-                        } else {
-                            data_set($container, 'State.Status', 'starting');
-                            data_set($container, 'State.Health.Status', 'unhealthy');
-                        }
+        foreach ($this->containerReplicates ?? [] as $containerReplica) {
+            $name = data_get($containerReplica, 'Name');
+            $this->containers = $this->containers->map(function ($container) use ($name, $containerReplica) {
+                if (data_get($container, 'Spec.Name') === $name) {
+                    $replicas = data_get($containerReplica, 'Replicas');
+                    $running = str($replicas)->explode('/')[0];
+                    $total = str($replicas)->explode('/')[1];
+                    if ($running === $total) {
+                        data_set($container, 'State.Status', 'running');
+                        data_set($container, 'State.Health.Status', 'healthy');
+                    } else {
+                        data_set($container, 'State.Status', 'starting');
+                        data_set($container, 'State.Health.Status', 'unhealthy');
                     }
+                }
 
-                    return $container;
-                });
-            }
+                return $container;
+            });
         }
         $databases = $this->server->databases();
         $services = $this->server->services()->get();
@@ -228,9 +222,9 @@ class GetContainersStatus
                     } else {
                         $database = $databases->where('uuid', $uuid)->first();
                         if ($database) {
-                            $isPublic = data_get($database, 'is_public');
-                            $foundDatabases[] = $database->id;
-                            $statusFromDb = $database->status;
+                            $isPublic = (bool) data_get($database, 'is_public', false);
+                            $foundDatabases[] = data_get($database, 'id');
+                            $statusFromDb = data_get($database, 'status');
 
                             // Track restart count for databases (single-container)
                             $restartCount = data_get($container, 'RestartCount', 0);
@@ -425,7 +419,7 @@ class GetContainersStatus
         $notRunningDatabases = $databases->pluck('id')->diff($foundDatabases);
         foreach ($notRunningDatabases as $database) {
             $database = $databases->where('id', $database)->first();
-            if (str($database->status)->startsWith('exited')) {
+            if (str(data_get($database, 'status'))->startsWith('exited')) {
                 continue;
             }
 
@@ -443,7 +437,7 @@ class GetContainersStatus
             ]);
 
             // Stop proxy if database was public
-            if ($database->is_public) {
+            if ((bool) data_get($database, 'is_public', false)) {
                 StopDatabaseProxy::run($database);
             }
 

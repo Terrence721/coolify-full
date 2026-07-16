@@ -19,7 +19,7 @@ class StopDatabaseProxy
     public function handle((Model&StandaloneDatabaseInstance)|ServiceDatabase $database): void
     {
         $server = data_get($database, 'destination.server');
-        $uuid = $database->uuid;
+        $uuid = (string) data_get($database, 'uuid');
         if ($database->getMorphClass() === ServiceDatabase::class) {
             $server = data_get($database, 'service.server');
         }

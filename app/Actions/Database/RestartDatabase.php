@@ -14,7 +14,7 @@ class RestartDatabase
 
     public function handle(Model&StandaloneDatabaseInstance $database): mixed
     {
-        $server = $database->destination->server;
+        $server = data_get($database, 'destination.server');
         if (! $server->isFunctional()) {
             return 'Server is not functional';
         }

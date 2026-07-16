@@ -17,12 +17,13 @@ class StopDatabase
     public function handle(Model&StandaloneDatabaseInstance $database, bool $dockerCleanup = true): string
     {
         try {
-            $server = $database->destination->server;
+            $server = data_get($database, 'destination.server');
             if (! $server->isFunctional()) {
                 return 'Server is not functional';
             }
 
-            $this->stopContainer($database, $database->uuid, 30);
+            $uuid = (string) data_get($database, 'uuid');
+            $this->stopContainer($database, $uuid, 30);
 
             // Reset restart tracking when database is manually stopped
             $database->update([
@@ -35,7 +36,7 @@ class StopDatabase
                 CleanupDocker::dispatch($server, false, false);
             }
 
-            if ($database->is_public) {
+            if ((bool) data_get($database, 'is_public', false)) {
                 StopDatabaseProxy::run($database);
             }
 
@@ -43,14 +44,15 @@ class StopDatabase
         } catch (\Exception $e) {
             return 'Database stop failed: '.$e->getMessage();
         } finally {
-            ServiceStatusChanged::dispatch($database->environment->project->team->id);
+            $teamId = data_get($database, 'environment.project.team.id');
+            ServiceStatusChanged::dispatch($teamId);
         }
 
     }
 
     private function stopContainer(Model&StandaloneDatabaseInstance $database, string $containerName, int $timeout = 30): void
     {
-        $server = $database->destination->server;
+        $server = data_get($database, 'destination.server');
         instant_remote_process(command: [
             "docker stop -t $timeout $containerName",
             "docker rm -f $containerName",
