@@ -18,6 +18,25 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Removed the `stripe/stripe-php` Composer dependency.
 - Removed two Hetzner Cloud affiliate-link blocks ("Coolify's affiliate link... supports us (€10) and gives you €20") — one in the shared `Security\CloudProviderTokenForm` Livewire component, one already carried over into the converted `Security\CloudTokens.jsx` page.
 
+### PHPStan baseline reductions
+
+- Phase 1 — Shrink the PHPStan baseline after fixing a wave of flagged errors
+- Phase 2 — Fix TerminalController routing; document the Terminal conversion; shrink PHPStan baseline
+- Phase 3 — Drop stale PHPStan baseline entry for the fixed $port TypeError
+- Phase 4 — Fix CI: remove app/Livewire from phpstan.neon.dist's analysis paths
+- Phase 5 — Extract the storages() family into a shared ManagesApiResourceStorages trait
+- Phase 6 — Chip away at the PHPStan baseline: add return/param types to shared traits
+- Phase 7 — Chip away at the PHPStan baseline: type the metrics and env-analyzer traits
+- Phase 8 — Chip away at the PHPStan baseline: fix camelCase Attribute-accessor property access
+- Phase 9 — fix: reduce phpstan baseline to 1062 in app config controller batch
+- Phase 10 — fix: reduce phpstan baseline to 1029 via api concern typing
+- Phase 11 — fix: reduce phpstan baseline to 957 via shared env/tag concerns
+- Phase 12 — Tighten LocalFileVolume typing and prune stale PHPStan ignores
+- Phase 13 — Type LocalPersistentVolume relations and trim baseline
+- Phase 14 — Reduce Application baseline noise and update progress log
+- Phase 15 — Reduce Application-related baseline counts and refresh todo
+- Phase 16 — Type SwarmDocker relations/scopes and log baseline progress
+
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
 
 > **Milestone (2026-07-14, Phase 79) — MIGRATION COMPLETE:** `auth/verify-email.blade.php`, the last page anywhere in the app still using `<x-layout>`/`layouts/app.blade.php`, is **converted to React** (`Pages/VerifyEmail.jsx`, bare layout matching `ForcePasswordReset.jsx`'s precedent). This was the last thread holding up a whole cascade of old chrome — converting it let `layouts/app.blade.php`, `components/navbar.blade.php`, and 9 Livewire classes (`GlobalSearch`, `LayoutPopups`, `DeploymentsIndicator`, `SwitchTeam`, `Server\Create`, `Server\New\ByHetzner`, `Server\New\ByIp`, `VerifyEmail`) all get deleted together, each re-confirmed to have zero remaining consumers immediately before deletion. One dangling PHP-only reference (not a template tag, so the usual greps couldn't catch it) was caught by PHPStan: `ClearGlobalSearchCache` console command repointed from the deleted `GlobalSearch::clearTeamCache()` to the underlying `GlobalSearchService::clearTeamCache()` directly. Permanent, confirmed-with-the-user consequence: Hetzner Cloud server creation is now fully unreachable from the UI, with no Livewire fallback left — narrowed phase by phase since Phase 76, this phase closes that loop for good. See Section 146 of the migration doc. **There is no more "still routed to Livewire" list — every full-page route and every piece of navigation/chrome infrastructure is React.**
