@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 13, 2026**
+**Last Updated: July 16, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -15,7 +15,7 @@ Container names (from `docker-compose.dev.yml`, confirmed via `docker ps`):
 
 | Container | Role |
 | --- | --- |
-| `coolify` | Laravel app (PHP-FPM + web server) — serves both Livewire and Inertia/React pages |
+| `coolify` | Laravel app (PHP-FPM + web server) — serves the Inertia/React app plus a handful of plain Blade guest/auth/error pages |
 | `coolify-vite` | Node/Vite dev server (hot module reload for JS/CSS/JSX) |
 | `coolify-db` | PostgreSQL |
 | `coolify-redis` | Redis (cache, queues, broadcasting) |
@@ -23,19 +23,19 @@ Container names (from `docker-compose.dev.yml`, confirmed via `docker ps`):
 
 ## Starting/stopping the whole dev environment
 
-This single stack runs **both** the Livewire app and the React/Inertia app — they're the same Laravel backend and the same `coolify` container. There's nothing separate to start for "the React app"; `coolify-vite` just compiles/serves the JS (Livewire's Alpine/JS assets and the React/Inertia bundle both go through the same Vite pipeline).
+This is one Laravel backend running in one `coolify` container — `coolify-vite` compiles/serves the React/Inertia JS bundle (and the near-empty `app.js` entrypoint the few remaining plain-Blade pages use) through the same Vite pipeline.
 
 ```bash
-spin up                          # start everything (or: docker compose -f docker-compose.dev.yml up -d)
+spin up                          # start everything (or: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d)
 spin down                        # stop everything
-docker compose -f docker-compose.dev.yml ps        # check container status
-docker compose -f docker-compose.dev.yml logs -f coolify        # tail app logs
-docker compose -f docker-compose.dev.yml logs -f coolify-vite   # tail Vite dev server logs
+docker compose -f docker-compose.yml -f docker-compose.dev.yml ps        # check container status
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify        # tail app logs
+docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify-vite   # tail Vite dev server logs
 ```
 
 App: `http://localhost:8000` · Vite dev server: `http://localhost:5173` · Mailpit UI: `http://localhost:8025` · MinIO console: `http://localhost:9001`
 
-## Frontend (Vite / React / Livewire assets)
+## Frontend (Vite / React assets)
 
 The `coolify-vite` container already runs `yarn dev` automatically on `spin up` (see its `command:` in `docker-compose.dev.yml`) — you generally don't need to start it manually. Use these when you need to run Yarn commands directly (e.g. installing a new package, or a one-off production build to verify compilation):
 
@@ -47,7 +47,7 @@ docker exec coolify-vite yarn add <package>         # add a runtime dependency
 docker exec coolify-vite yarn add -D <package>      # add a dev dependency
 ```
 
-If a frontend change isn't showing up in the browser, first check `coolify-vite` is actually running (`docker compose -f docker-compose.dev.yml ps`) before assuming a build is needed — the dev server hot-reloads automatically.
+If a frontend change isn't showing up in the browser, first check `coolify-vite` is actually running (`docker compose -f docker-compose.yml -f docker-compose.dev.yml ps`) before assuming a build is needed — the dev server hot-reloads automatically.
 
 ### RESOLVED: `docker exec coolify-vite yarn build` was extremely slow on Windows — fixed 2026-07-12 by moving the repo into WSL2
 

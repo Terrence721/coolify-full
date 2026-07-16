@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Vercel). It manages servers, applications, databases, and services via SSH. Built with Laravel 12 (using Laravel 10 file structure) and Tailwind CSS v4. The UI is mid-migration from Livewire 3 to Inertia.js + React — React/Inertia pages are now the majority; see `docs/livewire-to-react-migration.md` for the phase-by-phase ledger and conversion recipe.
+Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Vercel). It manages servers, applications, databases, and services via SSH. Built with Laravel 12 (using Laravel 10 file structure) and Tailwind CSS v4. The UI's migration from Livewire 3 to Inertia.js + React is **complete** — every full-page route and every piece of navigation/chrome infrastructure is React; `livewire/livewire` and Alpine.js have both been removed from `composer.json`/`package.json`, and `app/Livewire/`/`resources/views/livewire/` no longer exist. See `docs/livewire-to-react-migration.md` for the full phase-by-phase history.
 
 ## Design Reference
 
@@ -45,8 +45,7 @@ yarn build                      # production build
 ## Architecture
 
 ### Backend Structure (app/)
-- **Actions/** — Domain actions organized by area (Application, Database, Docker, Proxy, Server, Service, Shared, Stripe, User, CoolifyTask, Fortify). Uses `lorisleiva/laravel-actions` with `AsAction` trait — actions can be called as objects, dispatched as jobs, or used as controllers.
-- **Livewire/** — The not-yet-converted remainder of the UI (Livewire 3), shrinking as the React migration progresses — mainly Boarding, the three big Configuration tab routers (Application/Database/Service) and their nested children, `Server\Show`, and chrome (GlobalSearch, SettingsDropdown). Components listen to private team channels for real-time status updates via Soketi. Converted pages live as Inertia controllers in `Http/Controllers/` + React pages in `resources/js/Pages/`.
+- **Actions/** — Domain actions organized by area (Application, Database, Docker, Proxy, Server, Service, Shared, User, CoolifyTask, Fortify). Uses `lorisleiva/laravel-actions` with `AsAction` trait — actions can be called as objects, dispatched as jobs, or used as controllers. (Note: this fork has no `Stripe/` actions — the billing subsystem was fully removed; see de-commercialization notes in `todo.md`.)
 - **Jobs/** — Queue jobs for deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, server management, proxy configuration. Uses Redis queue with Horizon for monitoring.
 - **Models/** — Eloquent models extending `BaseModel` which provides auto-CUID2 UUID generation. Key models: `Server`, `Application`, `Service`, `Project`, `Environment`, `Team`, plus standalone database models (`StandalonePostgresql`, `StandaloneMysql`, etc.). Common traits: `HasConfiguration`, `HasMetrics`, `HasSafeStringAttribute`, `ClearsGlobalSearchCache`.
 - **Services/** — Business logic services (ConfigurationGenerator, DockerImageParser, ContainerStatusAggregator, HetznerService, etc.). Use Services for complex orchestration; use Actions for single-purpose domain operations.
@@ -63,7 +62,7 @@ yarn build                      # production build
 - Response serialization via `serializeApiResponse()` helper
 
 ### Authorization
-- Policy-based authorization with ~15 model-to-policy mappings in `AuthServiceProvider`
+- Policy-based authorization with ~24 static model-to-policy mappings in `AuthServiceProvider`, plus 8 more registered dynamically at boot (one per standalone database engine, all sharing `DatabasePolicy`)
 - Custom gates: `createAnyResource`, `canAccessTerminal`
 - Role hierarchy: `Role::MEMBER` (1) < `Role::ADMIN` (2) < `Role::OWNER` (3) with `lt()`/`gt()` comparison methods
 - Multi-tenancy via Teams — team auto-initializes notification settings on creation
@@ -71,7 +70,7 @@ yarn build                      # production build
 ### Event Broadcasting
 - Soketi WebSocket server for real-time updates (ports 6001-6002 in dev)
 - Status change events: `ApplicationStatusChanged`, `ServiceStatusChanged`, `DatabaseStatusChanged`, `ProxyStatusChanged`
-- Livewire components subscribe to private team channels via `getListeners()`
+- React pages subscribe to private team channels via Laravel Echo (`useTeamChannel`) — there are no Livewire components left to listen via `getListeners()`
 
 ### Key Domain Concepts
 - **Server** — A managed host connected via SSH. Has settings, proxy config, and destinations.
@@ -82,11 +81,11 @@ yarn build                      # production build
 - **Proxy** — Traefik reverse proxy managed per server.
 
 ### Frontend
-- **Inertia.js + React 19** (the majority): page components in `resources/js/Pages/` (path mirrors the old Livewire namespace), shared components in `resources/js/Components/`, persistent layouts in `resources/js/Layouts/`; served by plain Laravel controllers via `Inertia::render()`
-- **Livewire 3 + Alpine.js** (the shrinking remainder): Blade templates in `resources/views/livewire/`
-- Real-time updates on converted pages use Laravel Echo (`useTeamChannel`) against the same Soketi broadcasts Livewire pages listen to
+- **Inertia.js + React 19** (the entire application): page components in `resources/js/Pages/` (path mirrors the old Livewire namespace, kept for continuity), shared components in `resources/js/Components/`, persistent layouts in `resources/js/Layouts/`; served by plain Laravel controllers via `Inertia::render()`
+- No Livewire or Alpine.js remain — both were fully removed from `composer.json`/`package.json` once the migration completed (2026-07-14). A handful of plain Blade-only pages (guest/auth screens, error pages) still exist and use `resources/js/app.js`, now a near-empty entrypoint (Livewire's runtime and FOUC workaround were stripped out of it).
+- Real-time updates use Laravel Echo (`useTeamChannel`) against Soketi broadcasts
 - Tailwind CSS v4 with `@tailwindcss/forms` and `@tailwindcss/typography`
-- Vite for asset bundling (two entrypoints: `app.js` for Livewire/Alpine, `inertia-app.jsx` for React)
+- Vite for asset bundling (two entrypoints: `app.js` for the remaining plain-Blade pages, `inertia-app.jsx` for React)
 
 ### Laravel 10 Structure (NOT Laravel 11+ slim structure)
 - Middleware in `app/Http/Middleware/` — custom middleware includes `CheckForcePasswordReset`, `DecideWhatToDoWithUser`, `ApiAbility`, `ApiSensitiveData`
@@ -99,16 +98,14 @@ yarn build                      # production build
 - Use `php artisan make:*` commands with `--no-interaction` to create files
 - Use Eloquent relationships, avoid `DB::` facade — prefer `Model::query()`
 - PHP 8.4: constructor property promotion, explicit return types, type hints
-- Validation uses inline `Validator` facade in controllers/Livewire components and custom rules in `app/Rules/` — not Form Request classes
+- Validation uses inline `Validator` facade in controllers and custom rules in `app/Rules/` — not Form Request classes
 - Run `vendor/bin/pint --dirty --format agent` before finalizing changes
 - Every change must have tests — write or update tests, then run them. For bug fixes, follow TDD: write a failing test first, then fix the bug (see Test Enforcement below)
 - Check sibling files for conventions before creating new files
 
 ## Git Workflow
 
-- Main branch: `v4.x`
-- Development branch: `next`
-- PRs should target `v4.x`
+This fork works directly on a single `main` branch (verify with `git branch -vv` if unsure) — commit and push there rather than targeting `v4.x`/`next`, which are upstream `coollabsio/coolify` branch names that don't exist in this repo. (`CONTRIBUTING.md` documents the upstream workflow for reference, not this fork's actual process.)
 
 <laravel-boost-guidelines>
 === foundation rules ===
@@ -121,7 +118,7 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.5
+- php - 8.4 (composer.json pins `^8.4`; the `coolify` app container runs 8.4.23 — a separately installed 8.5 CLI binary may show up on the host, but it's only there for editor-extension detection, not the app's actual runtime)
 - laravel/fortify (FORTIFY) - v1
 - laravel/framework (LARAVEL) - v12
 - laravel/horizon (HORIZON) - v5
@@ -130,7 +127,6 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/prompts (PROMPTS) - v0
 - laravel/sanctum (SANCTUM) - v4
 - laravel/socialite (SOCIALITE) - v5
-- livewire/livewire (LIVEWIRE) - v3
 - laravel/boost (BOOST) - v2
 - laravel/dusk (DUSK) - v8
 - laravel/mcp (MCP) - v0
@@ -150,7 +146,6 @@ This project has domain-specific skills available. You MUST activate the relevan
 - `laravel-best-practices` — Apply this skill whenever writing, reviewing, or refactoring Laravel PHP code. This includes creating or modifying controllers, models, migrations, form requests, policies, jobs, scheduled commands, service classes, and Eloquent queries. Triggers for N+1 and query performance issues, caching strategies, authorization and security patterns, validation, error handling, queue and job configuration, route definitions, and architectural decisions. Also use for Laravel code reviews and refactoring existing Laravel code to follow best practices. Covers any task involving Laravel backend PHP code patterns.
 - `configuring-horizon` — Use this skill whenever the user mentions Horizon by name in a Laravel context. Covers the full Horizon lifecycle: installing Horizon (horizon:install, Sail setup), configuring config/horizon.php (supervisor blocks, queue assignments, balancing strategies, minProcesses/maxProcesses), fixing the dashboard (authorization via Gate::define viewHorizon, blank metrics, horizon:snapshot scheduling), and troubleshooting production issues (worker crashes, timeout chain ordering, LongWaitDetected notifications, waits config). Also covers job tagging and silencing. Do not use for generic Laravel queues without Horizon, SQS or database drivers, standalone Redis setup, Linux supervisord, Telescope, or job batching.
 - `socialite-development` — Manages OAuth social authentication with Laravel Socialite. Activate when adding social login providers; configuring OAuth redirect/callback flows; retrieving authenticated user details; customizing scopes or parameters; setting up community providers; testing with Socialite fakes; or when the user mentions social login, OAuth, Socialite, or third-party authentication.
-- `livewire-development` — Use for any task or question involving Livewire. Activate if user mentions Livewire, wire: directives, or Livewire-specific concepts like wire:model, wire:click, invoke this skill. Covers building new components, debugging reactivity issues, real-time form validation, loading states, migrating from Livewire 2 to 3, converting component formats (SFC/MFC/class-based), and performance optimization. Do not use for non-Livewire reactive UI (React, Vue, Alpine-only, Inertia.js) or standard Laravel forms without Livewire.
 - `pest-testing` — Use this skill for Pest PHP testing in Laravel projects only. Trigger whenever any test is being written, edited, fixed, or refactored — including fixing tests that broke after a code change, adding assertions, converting PHPUnit to Pest, adding datasets, and TDD workflows. Always activate when the user asks how to write something in Pest, mentions test files or directories (tests/Feature, tests/Unit, tests/Browser), or needs browser testing, smoke testing multiple pages for JS errors, or architecture tests. Covers: it()/expect() syntax, datasets, mocking, browser testing (visit/click/fill), smoke testing, arch(), Livewire component tests, RefreshDatabase, and all Pest 4 features. Do not use for factories, seeders, migrations, controllers, models, or non-test PHP code.
 - `tailwindcss-development` — Always invoke when the user's message includes 'tailwind' in any form. Also invoke for: building responsive grid layouts (multi-column card grids, product grids), flex/grid page structures (dashboards with sidebars, fixed topbars, mobile-toggle navs), styling UI components (cards, tables, navbars, pricing sections, forms, inputs, badges), adding dark mode variants, fixing spacing or typography, and Tailwind v3/v4 work. The core use case: writing or fixing Tailwind utility classes in HTML templates (Blade, JSX, Vue). Skip for backend PHP logic, database queries, API routes, JavaScript with no HTML/CSS component, CSS file audits, build tool configuration, and vanilla CSS.
 - `fortify-development` — ACTIVATE when the user works on authentication in Laravel. This includes login, registration, password reset, email verification, two-factor authentication (2FA/TOTP/QR codes/recovery codes), profile updates, password confirmation, or any auth-related routes and controllers. Activate when the user mentions Fortify, auth, authentication, login, register, signup, forgot password, verify email, 2FA, or references app/Actions/Fortify/, CreateNewUser, UpdateUserProfileInformation, FortifyServiceProvider, config/fortify.php, or auth guards. Fortify is the frontend-agnostic authentication backend for Laravel that registers all auth routes and controllers. Also activate when building SPA or headless authentication, customizing login redirects, overriding response contracts like LoginResponse, or configuring login throttling. Do NOT activate for Laravel Passport (OAuth2 API tokens), Socialite (OAuth social login), or non-auth Laravel features.
@@ -296,14 +291,6 @@ This project has domain-specific skills available. You MUST activate the relevan
 ### Models
 
 - Casts can and likely should be set in a `casts()` method on a model rather than the `$casts` property. Follow existing conventions from other models.
-
-=== livewire/core rules ===
-
-# Livewire
-
-- Livewire allow to build dynamic, reactive interfaces in PHP without writing JavaScript.
-- You can use Alpine.js for client-side interactions instead of JavaScript frameworks.
-- Keep state server-side so the UI reflects it. Validate and authorize in actions as you would in HTTP requests.
 
 === pint/core rules ===
 

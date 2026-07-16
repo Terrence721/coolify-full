@@ -43,8 +43,7 @@ There is no `agents/` directory and no separate agent codebase in this repositor
 ## 3. Backend (`app/`)
 
 - **`Actions/`** — domain actions using `lorisleiva/laravel-actions`, organized by area: `Application/`, `Database/`, `Docker/`, `Proxy/`, `Server/`, `Service/`, `Shared/`, `CoolifyTask/`, `Fortify/`, `User/`. `CoolifyTask/RunRemoteProcess.php` is the action that actually runs commands on remote servers over SSH (via the `instant_remote_process()` / `SshMultiplexingHelper` helpers in `bootstrap/helpers/remoteProcess.php`) — this is the real "remote execution" layer, not a separate agent process. There is no `Stripe/` subfolder — this fork removed the Stripe/subscription billing subsystem entirely (see [todo.md](../todo.md)).
-- **`Http/Controllers/`** — REST API controllers (`Api/`) plus the growing set of Inertia page controllers created during the React migration (see the migration doc).
-- **`Livewire/`** — the UI layer for pages not yet migrated to Inertia/React. As of the latest phase, more full-page components have been converted to Inertia/React than remain on Livewire — see [livewire-to-react-migration.md](livewire-to-react-migration.md) for the exact running count.
+- **`Http/Controllers/`** — REST API controllers (`Api/`) plus the full set of Inertia page controllers created during the React migration (see the migration doc). There is no `Livewire/` directory — the migration completed 2026-07-14 and `app/Livewire/` was deleted once empty; every full-page route is now Inertia/React.
 - **`Models/`** — Eloquent models (`Server`, `Application`, `Service`, `Project`, `Team`, standalone database models, etc.).
 - **`Jobs/`** — queued work: deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, and periodic checks like `CheckAndStartSentinelJob`, `CheckForUpdatesJob`. Runs on Redis-backed queues via Horizon.
 - **`Services/`** — orchestration/business logic (`ConfigurationGenerator`, `DockerImageParser`, `ContainerStatusAggregator`, `HetznerService`, etc.).
@@ -58,16 +57,16 @@ resources/
 ├── fonts/
 ├── js/
 │   ├── Layouts/     # React persistent layouts (Inertia)
-│   ├── Pages/       # React page components (Inertia), path mirrors the converted Livewire namespace
-│   ├── app.js       # Livewire/Alpine entrypoint
-│   └── inertia-app.jsx  # Inertia/React entrypoint
-└── views/           # Blade templates — both Livewire component views and the Inertia root view
+│   ├── Pages/       # React page components (Inertia), path mirrors the old Livewire namespace (kept for continuity)
+│   ├── app.js       # Near-empty entrypoint for the few remaining plain-Blade pages (guest/auth, errors)
+│   └── inertia-app.jsx  # Inertia/React entrypoint (everything else)
+└── views/           # Blade templates — the Inertia root view plus a handful of plain guest/auth/error pages
 ```
 
-Two frontend stacks coexist in the same app during the migration:
+The migration to a single frontend stack completed 2026-07-14:
 
-- **Livewire 3 + Alpine.js + Blade** — the remaining not-yet-converted pages, now the minority.
-- **Inertia.js + React 19** — the majority of full-page components at this point in the migration; see [livewire-to-react-migration.md](livewire-to-react-migration.md) for the exact running count, the reasoning for choosing Inertia over a plain SPA + API (the short version: Inertia was chosen specifically so we *don't* have to build and version a separate REST API for a full SPA), and the conversion recipe used for each page.
+- **Inertia.js + React 19** — every full-page route and all navigation/chrome infrastructure. See [livewire-to-react-migration.md](livewire-to-react-migration.md) for the full phase-by-phase log, the reasoning for choosing Inertia over a plain SPA + API (the short version: Inertia was chosen specifically so we *don't* have to build and version a separate REST API for a full SPA), and the conversion recipe used for each page.
+- Livewire and Alpine.js are both fully removed from `composer.json`/`package.json` — no Livewire components remain anywhere in the app.
 
 Tailwind CSS v4, Monaco Editor (code editor), and XTerm.js (terminal) round out the frontend dependencies — see [TECH_STACK.md](../TECH_STACK.md) for the full list.
 
@@ -78,7 +77,7 @@ A deployment does not go through a separate agent service — it's a Laravel job
 1. A deployment is triggered (push webhook, manual redeploy, or scheduled).
 2. `ApplicationDeploymentJob` is queued (Redis + Horizon).
 3. The job builds and runs shell commands on the target server via `instant_remote_process()` (SSH, with connection multiplexing to avoid re-authenticating per command).
-4. Container/build status updates are broadcast over Soketi (WebSockets) so Livewire/Inertia pages update in real time via `ApplicationStatusChanged`/`ServiceStatusChanged`/`ProxyStatusChanged` events.
+4. Container/build status updates are broadcast over Soketi (WebSockets) so Inertia/React pages update in real time via `ApplicationStatusChanged`/`ServiceStatusChanged`/`ProxyStatusChanged` events.
 5. Server-side metrics (CPU/memory/disk) come from the optional Sentinel binary installed on the remote server, polled/displayed via `Server\Sentinel\*`.
 
 ## 6. Docker & environments

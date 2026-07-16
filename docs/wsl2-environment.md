@@ -1,8 +1,8 @@
-# 🧾 TODO — Coolify-Full Migration Ledger  
-**Last Updated: July 13, 2026**
+# 🖥 WSL2 Dev Environment (archived showcase)
 
-A living, audited record of what’s done and what remains in this self-hosted-only fork of Coolify.  
-This document tracks modernization progress, de-commercialization work, environment corrections, and all verified engineering changes.
+**Last Updated: July 16, 2026**
+
+> **Archival note:** this file is a historical snapshot, not a maintained doc. A GitHub web edit briefly replaced the entire `todo.md` ledger with this WSL2 dev-environment showcase content; the ledger was restored to `todo.md` and this showcase was moved here verbatim (2026-07-13) rather than discarded. Its title used to read "TODO — Coolify-Full Migration Ledger," left over from that accident — fixed here. For the actual up-to-date, authoritative WSL2 migration write-up (including the full root-cause "RESOLVED" section and setup steps), see `docs/command.md`'s "WSL2 migration" section and `DEVELOPING_IN_CONTAINERS_WINDOWS.md` — this file predates and duplicates parts of both, kept only for its performance-comparison tables below.
 
 ---
 
@@ -64,10 +64,6 @@ WSL2 eliminates all of these issues.
 
 ---
 
-# 🛠 WSL2 Setup Guide (Reviewer-Friendly)
+# 🛠 WSL2 Setup Guide
 
-If developing this fork on Windows, follow these steps:
-
-### 1. Install WSL2 + Ubuntu
-```bash
-wsl --install -d Ubuntu
+This section was cut off mid-step in the original web edit and was never completed — rather than guess at the missing steps, see `DEVELOPING_IN_CONTAINERS_WINDOWS.md` for the actual, complete, verified setup guide (install WSL2 + Ubuntu, clone into the Linux filesystem, connect VS Code via Remote - WSL, run the dev stack from there).

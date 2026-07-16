@@ -114,17 +114,23 @@ written as an explicit `class ... extends TestCase` instead (like
 `ApplicationConfigurationSnapshotTest`), which is why those files always
 declare their own class rather than relying on this `uses()` binding.
 
-### 2. Global test hooks
+### 2. Global test hooks — moved to `TestCase::setUp()`, not here anymore
+This used to be a plain `beforeEach()` in this file:
 ```php
 beforeEach(function () {
     Once::flush();
     Server::flushIdentityMap();
 });
 ```
-This runs before **every single test in the whole suite**, clearing two
-in-memory caches so that a value memoized in one test can't leak into and
-affect the next one. Without this, tests could pass or fail depending on
-what ran before them — a classic source of flaky, order-dependent tests.
+It's gone now — `Pest.php` itself documents why (see the comment where it
+used to live): a test file's own local `beforeEach()` silently **shadows**
+a global one in Pest instead of composing with it, so this was never
+actually running for most of the suite (every file with its own
+`beforeEach(fn () => InstanceSettings::forceCreate(...))`, which is most of
+`tests/v4/Feature/`). It's now in `Tests\TestCase::setUp()` instead, which
+runs unconditionally for every test regardless of what `beforeEach()`
+closures a file declares — clearing the same two in-memory caches so a
+value memoized in one test can't leak into and affect the next one.
 
 ### 3. Custom expectations
 ```php

@@ -1,7 +1,7 @@
 # Coolify Technology Stack
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 13, 2026**
+**Last Updated: July 16, 2026**
 
 ## Development Environment
 
@@ -11,9 +11,8 @@
 
 ## Frontend
 
--   Livewire and Alpine.js
--   Inertia.js and React (in progress — a page-by-page migration off Livewire; see [docs/livewire-to-react-migration.md](docs/livewire-to-react-migration.md))
--   Blade (PHP templating engine)
+-   Inertia.js and React (Livewire and Alpine.js were fully migrated off and removed as of 2026-07-14; see [docs/livewire-to-react-migration.md](docs/livewire-to-react-migration.md) for the phase-by-phase history)
+-   Blade (PHP templating engine — a handful of plain guest/auth/error pages remain, unrelated to the former Livewire usage)
 -   Tailwind CSS
 -   Monaco Editor (Code editor component)
 -   XTerm.js (Terminal component)

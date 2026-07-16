@@ -1,13 +1,13 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 14, 2026**
+**Last Updated: July 16, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
 It showcases real-world engineering work including:
 
-- Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page, with every phase documented and verified
+- Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
@@ -21,7 +21,7 @@ This project is not affiliated with the Coolify team and is intended solely as a
 Rewriting a UI from scratch is easy when there's no existing app to keep working. This project demonstrates the harder, more common real-world task: modernizing a live, actively-used Laravel application's frontend **without a big-bang rewrite** — converting one page at a time, verifying each conversion automatically, and keeping a running audit trail a reviewer can actually check.
 
 **Incremental modernization, not a rewrite**  
-The original Coolify UI is built on Blade, Livewire, and Alpine.js. Rather than discarding that and building a separate SPA, this fork adopts **Inertia.js**: converted pages become React components rendered through the same Laravel routes, while unconverted pages stay on Livewire. Both stacks coexist in the same app throughout the migration — see [`docs/livewire-to-react-migration.md`](docs/livewire-to-react-migration.md) for the full, phase-by-phase log (page inventory, conversion recipes, what was verified and how).
+The original Coolify UI was built on Blade, Livewire, and Alpine.js. Rather than discarding that and building a separate SPA, this fork adopted **Inertia.js**: pages became React components rendered through the same Laravel routes, migrated incrementally rather than in one big-bang rewrite. As of 2026-07-14 the migration is complete — every full-page route and all navigation/chrome infrastructure is React, and `livewire/livewire`/Alpine.js have both been removed from the app entirely. See [`docs/livewire-to-react-migration.md`](docs/livewire-to-react-migration.md) for the full, phase-by-phase log (page inventory, conversion recipes, what was verified and how).
 
 **Why Inertia over a decoupled SPA + API**  
 A plain React SPA would require designing and versioning a whole new API surface before a single page could move. Inertia avoids that: each migrated page stays a normal Laravel route/controller returning props, so migrated and not-yet-migrated pages coexist under the same app, and Laravel's existing routing, auth, CSRF, and session handling keep working unchanged.
@@ -32,7 +32,7 @@ This fork also strips the SaaS/billing surface area from upstream Coolify (Strip
 **Full-stack engineering depth**  
 This project demonstrates hands-on experience across:
 
-- Frontend modernization (Livewire → Inertia.js/React)
+- Frontend modernization (Livewire → Inertia.js/React, now complete)
 - Backend refactoring (Laravel controllers, policies, validation)
 - Containerized development environments (Docker Compose, multiple coordinated services)
 - Test-driven verification (Pest 4 feature tests written alongside every converted page)
@@ -71,8 +71,8 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 ```text
 ┌───────────────────────────────────────────────┐
 │                 Laravel app                   │  (nginx + PHP-FPM, one container)
-│   Inertia/React pages (81 of 84) + remaining  │  ← page-by-page migration,
-│   Livewire/Blade pages — same routes/auth     │     one big router left
+│   Inertia/React pages (94 .jsx pages) — all   │  ← migration complete,
+│   full-page routes, same Laravel routes/auth  │     no Livewire remains
 │   Horizon queue workers (deploys, backups)    │
 └──────┬──────────┬─────────────┬───────────────┘
        ▼          ▼             ▼
