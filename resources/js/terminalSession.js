@@ -703,7 +703,9 @@ export class TerminalSession {
     }
 
     checkIfProcessIsRunningAndKillIt() {
-        this.sendMessage({ checkActive: 'force' });
+        if (this.isWebSocketReady()) {
+            this.sendMessage({ checkActive: 'force' });
+        }
     }
 
     makeFullscreen() {
