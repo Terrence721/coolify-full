@@ -56,9 +56,11 @@ class EmailChannel
                 $recipients = $notifiable->getRecipients();
             }
 
-            // Validate team membership for all recipients
+            // Nothing to send to (e.g. a team with no members) - matches DiscordChannel/SlackChannel's
+            // convention of silently skipping when a channel isn't configured, rather than throwing
+            // and burning through 5 queued retries for a condition retrying can't fix.
             if (count($recipients) === 0) {
-                throw new Exception('No email recipients found');
+                return;
             }
 
             // Skip team membership validation for test notifications
