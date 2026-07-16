@@ -64,7 +64,7 @@ class RunRemoteProcess
             $decoded = json_decode(
                 data_get($activity, 'description'),
                 associative: true,
-                flags: JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE
+                flags: JSON_THROW_ON_ERROR
             );
         } catch (\JsonException $exception) {
             return '';
@@ -158,7 +158,7 @@ class RunRemoteProcess
 
     public function encodeOutput(string $type, string $output): string
     {
-        $outputStack = json_decode($this->activity->description, associative: true, flags: JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        $outputStack = json_decode($this->activity->description, associative: true, flags: JSON_THROW_ON_ERROR);
         $outputStack[] = [
             'type' => $type,
             'output' => $output,
@@ -172,7 +172,7 @@ class RunRemoteProcess
 
     protected function getLatestCounter(): int
     {
-        $description = json_decode($this->activity->description, associative: true, flags: JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        $description = json_decode($this->activity->description, associative: true, flags: JSON_THROW_ON_ERROR);
         if ($description === null || count($description) === 0) {
             return 1;
         }

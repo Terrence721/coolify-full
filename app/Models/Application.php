@@ -624,7 +624,7 @@ class Application extends BaseModel
     }
 
     /**
-     * @return Attribute<Collection<int, mixed>, never>
+     * @return Attribute<string|null, mixed>
      */
     public function customNetworkAliases(): Attribute
     {
@@ -1370,7 +1370,7 @@ class Application extends BaseModel
     }
 
     /**
-     * @return MorphTo<StandaloneDocker|SwarmDocker, Application>
+     * @return MorphTo<Model, $this>
      */
     public function destination(): MorphTo
     {
@@ -1378,7 +1378,7 @@ class Application extends BaseModel
     }
 
     /**
-     * @return MorphTo<GithubApp|GitlabApp, Application>
+     * @return MorphTo<Model, $this>
      */
     public function source(): MorphTo
     {

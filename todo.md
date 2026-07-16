@@ -39,6 +39,7 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Phase 17 — Clean up the container-status action and remove another chunk of suppressions
 - Phase 18 — Fake ServiceChecked broadcast in GetContainersStatusTest to fix CI network isolation
 - Phase 19 — Type Application.php Attribute and MorphTo methods with full generic annotations
+- Phase 20 — Fix Application.php generics regressions, remove a dead `instanceof Collection` branch in `ExecuteRemoteCommand`, and prune 19 now-stale baseline ignores across `Application`/`Environment`/`Project`/`Server`/`Service`/`ApplicationDeploymentJob`/the API controllers that Larastan flagged as unmatched (baseline 866 → 833); verified clean with `[OK] No errors` plus the affected Pest suites (270 passed)
 
 **Livewire → React/Inertia migration** (see `docs/livewire-to-react-migration.md` for the full ledger)
 

@@ -9,7 +9,6 @@ use App\Exceptions\DeploymentException;
 use App\Helpers\SshMultiplexingHelper;
 use App\Models\Server;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Process;
 
 trait ExecuteRemoteCommand
@@ -63,11 +62,7 @@ trait ExecuteRemoteCommand
     public function execute_remote_command(...$commands)
     {
         static::$batch_counter++;
-        if ($commands instanceof Collection) {
-            $commandsText = $commands;
-        } else {
-            $commandsText = collect($commands);
-        }
+        $commandsText = collect($commands);
         if ($this->server instanceof Server === false) {
             throw new \RuntimeException('Server is not set or is not an instance of Server model');
         }

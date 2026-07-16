@@ -109,20 +109,8 @@ parameters:
 			path: app/Http/Controllers/Api/ApplicationsController.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Http/Controllers/Api/ApplicationsController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Http/Controllers/Api/DatabasesController.php
 
@@ -1147,12 +1135,6 @@ parameters:
 			path: app/Jobs/ApplicationDeploymentJob.php
 
 		-
-			message: '#^Instanceof between array\<int\|string, mixed\> and Illuminate\\Support\\Collection will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Jobs/ApplicationDeploymentJob.php
-
-		-
 			message: '#^Method App\\Jobs\\ApplicationDeploymentJob\:\:addRetryLogEntry\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -1345,52 +1327,12 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Project will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Service will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Left side of \|\| is always true\.$#'
 			identifier: booleanOr.leftAlwaysTrue
 			count: 1
 			path: app/Models/Application.php
 
-		-
-			message: '#^Method App\\Models\\Application\:\:baseDirectory\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
 
-		-
-			message: '#^Method App\\Models\\Application\:\:customNetworkAliases\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:customNetworkAliasesArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
 
 		-
 			message: '#^Method App\\Models\\Application\:\:deploymentConfigurationSnapshot\(\) return type has no value type specified in iterable type array\.$#'
@@ -1398,23 +1340,6 @@ parameters:
 			count: 1
 			path: app/Models/Application.php
 
-		-
-			message: '#^Method App\\Models\\Application\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:dockerComposeLocation\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:dockerfileLocation\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
 
 		-
 			message: '#^Method App\\Models\\Application\:\:getContainersToStop\(\) return type has no value type specified in iterable type array\.$#'
@@ -1428,23 +1353,6 @@ parameters:
 			count: 1
 			path: app/Models/Application.php
 
-		-
-			message: '#^Method App\\Models\\Application\:\:gitBranchLocation\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:gitCommits\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:gitWebhook\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
 
 		-
 			message: '#^Method App\\Models\\Application\:\:isWatchPathsTriggered\(\) has parameter \$modified_files with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
@@ -1488,23 +1396,6 @@ parameters:
 			count: 1
 			path: app/Models/Application.php
 
-		-
-			message: '#^Method App\\Models\\Application\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:publishDirectory\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
 
 		-
 			message: '#^Method App\\Models\\Application\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
@@ -1512,11 +1403,6 @@ parameters:
 			count: 1
 			path: app/Models/Application.php
 
-		-
-			message: '#^Method App\\Models\\Application\:\:source\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
 
 		-
 			message: '#^Method App\\Models\\Application\:\:watchPaths\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
@@ -1533,12 +1419,6 @@ parameters:
 		-
 			message: '#^Parameter \#3 \$source of function convertGitUrl expects App\\Models\\GithubApp\|App\\Models\\GitlabApp\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
 			identifier: argument.type
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Result of \|\| is always false\.$#'
-			identifier: booleanOr.alwaysFalse
 			count: 1
 			path: app/Models/Application.php
 
@@ -1795,20 +1675,8 @@ parameters:
 			path: app/Models/EmailNotificationSettings.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/Environment.php
-
-		-
 			message: '#^Class App\\Models\\Environment uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Environment.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
 			count: 1
 			path: app/Models/Environment.php
 
@@ -2122,18 +1990,6 @@ parameters:
 			path: app/Models/Project.php
 
 		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 2
-			path: app/Models/Project.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Project.php
-
-		-
 			message: '#^Method App\\Models\\Project\:\:applications\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2392,24 +2248,6 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Project will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Service will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Method App\\Models\\Server\:\:destinations\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -2518,12 +2356,6 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Result of \|\| is always false\.$#'
-			identifier: booleanOr.alwaysFalse
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2598,18 +2430,6 @@ parameters:
 		-
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and App\\Models\\Project will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
 			count: 1
 			path: app/Models/Service.php
 
@@ -2748,12 +2568,6 @@ parameters:
 		-
 			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Result of \|\| is always false\.$#'
-			identifier: booleanOr.alwaysFalse
 			count: 1
 			path: app/Models/Service.php
 
