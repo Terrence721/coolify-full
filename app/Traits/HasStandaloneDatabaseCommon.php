@@ -13,6 +13,7 @@ use App\Models\SslCertificate;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -50,6 +51,7 @@ trait HasStandaloneDatabaseCommon
     /**
      * Get query builder for databases of this type owned by the current team.
      * If you need all databases without further query chaining, use ownedByCurrentTeamCached() instead.
+     *
      */
     public static function ownedByCurrentTeam(): Builder
     {
@@ -64,6 +66,7 @@ trait HasStandaloneDatabaseCommon
 
     /**
      * Get all databases of this type owned by the current team (cached for request duration).
+     *
      */
     public static function ownedByCurrentTeamCached(): Collection
     {
@@ -72,6 +75,9 @@ trait HasStandaloneDatabaseCommon
         });
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function serverStatus(): Attribute
     {
         return Attribute::make(
@@ -159,6 +165,9 @@ trait HasStandaloneDatabaseCommon
         return $this->getRawOriginal('status');
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function status(): Attribute
     {
         return Attribute::make(
@@ -229,6 +238,9 @@ trait HasStandaloneDatabaseCommon
         return data_get($this, 'is_log_drain_enabled', false);
     }
 
+    /**
+     * @return Attribute<mixed, mixed>
+     */
     public function portsMappings(): Attribute
     {
         return Attribute::make(
@@ -236,6 +248,9 @@ trait HasStandaloneDatabaseCommon
         );
     }
 
+    /**
+     * @return Attribute<array<int, string>, never>
+     */
     public function portsMappingsArray(): Attribute
     {
         return Attribute::make(
@@ -245,6 +260,9 @@ trait HasStandaloneDatabaseCommon
         );
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     public function databaseType(): Attribute
     {
         return new Attribute(
@@ -284,6 +302,9 @@ trait HasStandaloneDatabaseCommon
         return $this->morphMany(SslCertificate::class, 'resource');
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function destination(): MorphTo
     {
         return $this->morphTo();

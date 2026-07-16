@@ -2935,18 +2935,6 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -2966,30 +2954,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
@@ -3139,18 +3103,6 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3170,30 +3122,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
@@ -3247,18 +3175,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3278,30 +3194,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneKeydb.php
@@ -3343,18 +3235,6 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3374,30 +3254,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
@@ -3445,18 +3301,6 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3482,30 +3326,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMongodb.php
@@ -3553,18 +3373,6 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3584,30 +3392,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
@@ -3655,18 +3439,6 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3686,30 +3458,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandalonePostgresql.php
@@ -3763,18 +3511,6 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:databaseType\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:destination\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\MorphTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3805,18 +3541,6 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:portsMappings\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:portsMappingsArray\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:redisPassword\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
@@ -3824,18 +3548,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Models\\StandaloneRedis\:\:redisUsername\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:status\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneRedis.php
