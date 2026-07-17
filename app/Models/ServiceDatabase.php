@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Stringable;
 
 /**
  * @property-read Service $service
@@ -106,9 +107,23 @@ class ServiceDatabase extends BaseModel
         'public_port_timeout',
     ];
 
-    protected $casts = [
-        'public_port_timeout' => 'integer',
-    ];
+    /**
+     * is_gzip_enabled/is_stripprefix_enabled/is_log_drain_enabled feed their respective
+     * isGzipEnabled()/isStripprefixEnabled()/isLogDrainEnabled(): bool accessors — without
+     * the casts, SQLite (the test database) returns raw ints that fatal under
+     * declare(strict_types=1); PostgreSQL happened to return real booleans, masking it.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'public_port_timeout' => 'integer',
+            'is_gzip_enabled' => 'boolean',
+            'is_stripprefix_enabled' => 'boolean',
+            'is_log_drain_enabled' => 'boolean',
+        ];
+    }
 
     protected static function booted()
     {
@@ -152,56 +167,58 @@ class ServiceDatabase extends BaseModel
 
     /**
      * Get all service databases owned by current team (cached for request duration).
+     *
+     * @return Collection<int, ServiceDatabase>
      */
-    public static function ownedByCurrentTeamCached()
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return ServiceDatabase::ownedByCurrentTeam()->get();
         });
     }
 
-    public function restart()
+    public function restart(): void
     {
         $container_id = $this->name.'-'.$this->service->uuid;
         remote_process(["docker restart {$container_id}"], $this->service->server);
     }
 
-    public function isRunning()
+    public function isRunning(): bool
     {
         return str($this->status)->contains('running');
     }
 
-    public function isExited()
+    public function isExited(): bool
     {
         return str($this->status)->contains('exited');
     }
 
-    public function isLogDrainEnabled()
+    public function isLogDrainEnabled(): bool
     {
         return data_get($this, 'is_log_drain_enabled', false);
     }
 
-    public function isStripprefixEnabled()
+    public function isStripprefixEnabled(): bool
     {
         return data_get($this, 'is_stripprefix_enabled', true);
     }
 
-    public function isGzipEnabled()
+    public function isGzipEnabled(): bool
     {
         return data_get($this, 'is_gzip_enabled', true);
     }
 
-    public function type()
+    public function type(): string
     {
         return 'service';
     }
 
-    public function serviceType()
+    public function serviceType(): ?Stringable
     {
         return null;
     }
 
-    public function databaseType()
+    public function databaseType(): string
     {
         if (filled($this->custom_type)) {
             return 'standalone-'.$this->custom_type;
@@ -222,7 +239,7 @@ class ServiceDatabase extends BaseModel
         return "standalone-$finalImage";
     }
 
-    public function getServiceDatabaseUrl()
+    public function getServiceDatabaseUrl(): string
     {
         $port = $this->public_port;
         $realIp = $this->service->server->ip;
@@ -233,12 +250,12 @@ class ServiceDatabase extends BaseModel
         return "{$realIp}:{$port}";
     }
 
-    public function team()
+    public function team(): mixed
     {
         return data_get($this, 'service.environment.project.team');
     }
 
-    public function workdir()
+    public function workdir(): string
     {
         return service_configuration_dir()."/{$this->service->uuid}";
     }
@@ -267,7 +284,7 @@ class ServiceDatabase extends BaseModel
         return $this->morphMany(LocalFileVolume::class, 'resource');
     }
 
-    public function getFilesFromServer(bool $isInit = false)
+    public function getFilesFromServer(bool $isInit = false): void
     {
         getFilesystemVolumesFromServer($this, $isInit);
     }

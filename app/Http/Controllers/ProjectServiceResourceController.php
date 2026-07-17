@@ -342,7 +342,7 @@ class ProjectServiceResourceController extends Controller
         $parameters = compact('project_uuid', 'environment_uuid', 'service_uuid', 'stack_service_uuid');
         $serviceParameters = compact('project_uuid', 'environment_uuid', 'service_uuid');
         $requiredPort = $serviceApplication->getRequiredPort();
-        $isKnownServiceType = (bool) $serviceApplication->serviceType()?->contains(str($serviceApplication->image)->before(':'));
+        $isKnownServiceType = (bool) $serviceApplication->serviceType()?->contains(str($serviceApplication->image)->before(':')->value());
 
         return Inertia::render('Project/Service/Resource', [
             'resourceType' => 'application',
