@@ -72,9 +72,18 @@ trait HasStandaloneDatabaseCommon
      */
     public static function ownedByCurrentTeamCached(): Collection
     {
-        return once(function () {
+        // once()'s TReturnType generic gets cross-contaminated between the 8 classes consuming
+        // this trait when analyzed in the same PHPStan run (a PHPStan-only quirk — Onceable's
+        // own hashFromTrace() resolves the real called class at runtime, so there's no actual
+        // cross-class caching bug); the ignore annotation below suppresses the resulting false
+        // positive on the closure's return statement.
+        /** @var Collection<int, static> $result */
+        $result = once(function () {
+            // @phpstan-ignore return.type
             return static::ownedByCurrentTeam()->get();
         });
+
+        return $result;
     }
 
     /**

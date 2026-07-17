@@ -2329,12 +2329,6 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneKeydb\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneKeydb\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -2353,12 +2347,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneKeydb\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2369,12 +2357,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneMariadb\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneMariadb.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
@@ -2395,12 +2377,6 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneMariadb\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2411,12 +2387,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneMongodb\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneMongodb.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMongodb\) and ''team'' will always evaluate to true\.$#'
@@ -2437,12 +2407,6 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneMongodb\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2453,12 +2417,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneMysql\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneMysql.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMysql\) and ''team'' will always evaluate to true\.$#'
@@ -2479,12 +2437,6 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneMysql\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2495,12 +2447,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandalonePostgresql\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandalonePostgresql.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandalonePostgresql\) and ''team'' will always evaluate to true\.$#'
@@ -2521,12 +2467,6 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandalonePostgresql\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2537,12 +2477,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneRedis\)\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Models/StandaloneRedis.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneRedis\) and ''team'' will always evaluate to true\.$#'
@@ -2559,12 +2493,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneRedis\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
