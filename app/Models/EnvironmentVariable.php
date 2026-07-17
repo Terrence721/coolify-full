@@ -9,6 +9,8 @@ use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 
@@ -177,11 +179,18 @@ class EnvironmentVariable extends BaseModel
         });
     }
 
-    public function service()
+    /**
+     * @return BelongsTo<Service, $this>
+     */
+    public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
     }
 
+    /**
+     * @param  Builder<EnvironmentVariable>  $query
+     * @return Builder<EnvironmentVariable>
+     */
     public function scopeWithoutBuildpackControlVariables(Builder $query): Builder
     {
         foreach (self::BUILDPACK_CONTROL_VARIABLE_PREFIXES as $prefix) {
@@ -206,6 +215,9 @@ class EnvironmentVariable extends BaseModel
         return false;
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     protected function value(): Attribute
     {
         return Attribute::make(
@@ -216,17 +228,22 @@ class EnvironmentVariable extends BaseModel
 
     /**
      * Get the parent resourceable model.
+     *
+     * @return MorphTo<Model, $this>
      */
-    public function resourceable()
+    public function resourceable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function resource()
+    public function resource(): ?Model
     {
         return $this->resourceable()->getResults();
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     public function realValue(): Attribute
     {
         return Attribute::make(
@@ -236,9 +253,6 @@ class EnvironmentVariable extends BaseModel
                 }
                 $resource = $this->resourceable()->getResults();
                 if (! $resource) {
-                    return null;
-                }
-                if (! $resource instanceof Model) {
                     return null;
                 }
 
@@ -271,6 +285,9 @@ class EnvironmentVariable extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isReallyRequired(): Attribute
     {
         return Attribute::make(
@@ -278,6 +295,9 @@ class EnvironmentVariable extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isBuildpackControl(): Attribute
     {
         return Attribute::make(
@@ -285,6 +305,9 @@ class EnvironmentVariable extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isCoolify(): Attribute
     {
         return Attribute::make(
@@ -298,6 +321,9 @@ class EnvironmentVariable extends BaseModel
         );
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isShared(): Attribute
     {
         return Attribute::make(
@@ -313,21 +339,18 @@ class EnvironmentVariable extends BaseModel
         );
     }
 
-    public function get_real_environment_variables_with_server(?string $environment_variable = null, $resource = null, $server = null)
+    public function get_real_environment_variables_with_server(?string $environment_variable = null, ?Model $resource = null, ?Server $server = null): ?string
     {
         return $this->get_real_environment_variables_internal($environment_variable, $resource, $server);
     }
 
-    public function getResolvedValueWithServer($server = null)
+    public function getResolvedValueWithServer(?Server $server = null): ?string
     {
         if (! $this->relationLoaded('resourceable')) {
             $this->load('resourceable');
         }
         $resource = $this->resourceable()->getResults();
         if (! $resource) {
-            return null;
-        }
-        if (! $resource instanceof Model) {
             return null;
         }
 
@@ -358,12 +381,12 @@ class EnvironmentVariable extends BaseModel
         return $real_value;
     }
 
-    private function get_real_environment_variables(?string $environment_variable = null, $resource = null)
+    private function get_real_environment_variables(?string $environment_variable = null, ?Model $resource = null): ?string
     {
         return $this->get_real_environment_variables_internal($environment_variable, $resource);
     }
 
-    private function get_real_environment_variables_internal(?string $environment_variable = null, $resource = null, $serverOverride = null)
+    private function get_real_environment_variables_internal(?string $environment_variable = null, ?Model $resource = null, ?Server $serverOverride = null): ?string
     {
         if (is_null($environment_variable) || $environment_variable === '' || is_null($resource)) {
             return $environment_variable;
@@ -381,9 +404,9 @@ class EnvironmentVariable extends BaseModel
             $variable = str($sharedEnv)->trim()->match('/\.(.*)/');
             $id = null;
             if ($type->value() === 'environment') {
-                $id = $resource->environment->id;
+                $id = data_get($resource, 'environment.id');
             } elseif ($type->value() === 'project') {
-                $id = $resource->environment->project->id;
+                $id = data_get($resource, 'environment.project.id');
             } elseif ($type->value() === 'team') {
                 $id = data_get($resource, 'team.id');
             } elseif ($type->value() === 'server') {
@@ -434,6 +457,9 @@ class EnvironmentVariable extends BaseModel
         return encrypt($environment_variable);
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     protected function key(): Attribute
     {
         return Attribute::make(

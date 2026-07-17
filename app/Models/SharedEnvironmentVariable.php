@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -80,6 +81,9 @@ class SharedEnvironmentVariable extends Model
         'value' => 'encrypted',
     ];
 
+    /**
+     * @return Attribute<string, string>
+     */
     protected function key(): Attribute
     {
         return Attribute::make(
@@ -87,22 +91,34 @@ class SharedEnvironmentVariable extends Model
         );
     }
 
-    public function team()
+    /**
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function project()
+    /**
+     * @return BelongsTo<Project, $this>
+     */
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function environment()
+    /**
+     * @return BelongsTo<Environment, $this>
+     */
+    public function environment(): BelongsTo
     {
         return $this->belongsTo(Environment::class);
     }
 
-    public function server()
+    /**
+     * @return BelongsTo<Server, $this>
+     */
+    public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
