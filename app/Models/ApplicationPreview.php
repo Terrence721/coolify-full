@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\Url\Url;
@@ -81,7 +83,7 @@ class ApplicationPreview extends BaseModel
 
     protected static function booted()
     {
-        static::forceDeleting(function ($preview) {
+        static::forceDeleting(function (ApplicationPreview $preview) {
             $server = $preview->application->destination->server;
             $application = $preview->application;
 
@@ -108,7 +110,7 @@ class ApplicationPreview extends BaseModel
                 });
             } else {
                 // Regular application volume cleanup
-                $persistentStorages = $preview->persistentStorages()->get() ?? collect();
+                $persistentStorages = $preview->persistentStorages()->get();
                 if ($persistentStorages->count() > 0) {
                     foreach ($persistentStorages as $storage) {
                         instant_remote_process(['docker volume rm -f '.escapeshellarg($storage->name)], $server, false);
@@ -119,34 +121,40 @@ class ApplicationPreview extends BaseModel
             // Clean up persistent storage records
             $preview->persistentStorages()->delete();
         });
-        static::saving(function ($preview) {
+        static::saving(function (ApplicationPreview $preview) {
             if ($preview->isDirty('status')) {
-                $preview->last_online_at = now();
+                $preview->last_online_at = (string) now();
             }
         });
     }
 
-    public static function findPreviewByApplicationAndPullId(int $application_id, int $pull_request_id)
+    public static function findPreviewByApplicationAndPullId(int $application_id, int $pull_request_id): self
     {
         return self::where('application_id', $application_id)->where('pull_request_id', $pull_request_id)->firstOrFail();
     }
 
-    public function isRunning()
+    public function isRunning(): bool
     {
         return (bool) str($this->status)->startsWith('running');
     }
 
-    public function application()
+    /**
+     * @return BelongsTo<Application, $this>
+     */
+    public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }
 
-    public function persistentStorages()
+    /**
+     * @return MorphMany<LocalPersistentVolume, $this>
+     */
+    public function persistentStorages(): MorphMany
     {
         return $this->morphMany(LocalPersistentVolume::class, 'resource');
     }
 
-    public function generate_preview_fqdn()
+    public function generate_preview_fqdn(): self
     {
         if ($this->application->fqdn) {
             if (str($this->application->fqdn)->contains(',')) {
@@ -173,9 +181,9 @@ class ApplicationPreview extends BaseModel
         return $this;
     }
 
-    public function generate_preview_fqdn_compose()
+    public function generate_preview_fqdn_compose(): void
     {
-        $services = collect(json_decode($this->application->docker_compose_domains)) ?? collect();
+        $services = collect(json_decode($this->application->docker_compose_domains));
         $docker_compose_domains = data_get($this, 'docker_compose_domains');
         $docker_compose_domains = json_decode($docker_compose_domains, true) ?? [];
 

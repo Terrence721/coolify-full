@@ -1555,48 +1555,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationPreview\:\:application\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationPreview\:\:findPreviewByApplicationAndPullId\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationPreview\:\:generate_preview_fqdn\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationPreview\:\:generate_preview_fqdn_compose\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationPreview\:\:isRunning\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationPreview\:\:persistentStorages\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationPreview.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 4
