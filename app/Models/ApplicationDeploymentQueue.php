@@ -156,7 +156,7 @@ class ApplicationDeploymentQueue extends Model
      * in-app diff modal (which redacts per role) and must never be serialized by the
      * API, so hide them globally as defense in depth.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'configuration_snapshot',
@@ -182,6 +182,9 @@ class ApplicationDeploymentQueue extends Model
         return $this->belongsTo(Application::class);
     }
 
+    /**
+     * @return Attribute<Server|null, never>
+     */
     public function server(): Attribute
     {
         return Attribute::make(
@@ -189,7 +192,7 @@ class ApplicationDeploymentQueue extends Model
         );
     }
 
-    public function setStatus(string $status)
+    public function setStatus(string $status): void
     {
         $this->update([
             'status' => $status,
@@ -202,7 +205,18 @@ class ApplicationDeploymentQueue extends Model
             return null;
         }
 
-        return collect(json_decode($this->logs))->where('name', $name)->first()->output ?? null;
+        /** @var array<int, \stdClass> $logs */
+        $logs = json_decode($this->logs);
+
+        // PHPStan's dumpType on this exact expression reports stdClass|null (correctly
+        // nullable — first() on a filtered Collection can legitimately find no match), but
+        // its separate nullsafe.neverNull rule contradicts that and claims ?-> is
+        // unnecessary here. Verified via a minimal repro outside this file that the two
+        // diagnostics disagree on the identical expression within the same analysis run;
+        // trusting dumpType (the real type) over the buggy nullsafe.neverNull check, since
+        // removing ?-> would reintroduce a real crash when $name matches no log entry.
+        // @phpstan-ignore nullsafe.neverNull
+        return collect($logs)->where('name', $name)->first()?->output ?? null;
     }
 
     public function getHorizonJobStatus(): string
@@ -210,16 +224,16 @@ class ApplicationDeploymentQueue extends Model
         return getJobStatus($this->horizon_job_id);
     }
 
-    public function commitMessage()
+    public function commitMessage(): ?string
     {
-        if (empty($this->commit_message) || is_null($this->commit_message)) {
+        if (empty($this->commit_message)) {
             return null;
         }
 
         return str($this->commit_message)->value();
     }
 
-    private function redactSensitiveInfo(string $text)
+    private function redactSensitiveInfo(string $text): string
     {
         $text = remove_iip($text);
 
@@ -230,16 +244,14 @@ class ApplicationDeploymentQueue extends Model
 
         $lockedVars = collect([]);
 
-        if ($app->environment_variables) {
-            $lockedVars = $lockedVars->merge(
-                $app->environment_variables
-                    ->where('is_shown_once', true)
-                    ->pluck('real_value', 'key')
-                    ->filter()
-            );
-        }
+        $lockedVars = $lockedVars->merge(
+            $app->environment_variables
+                ->where('is_shown_once', true)
+                ->pluck('real_value', 'key')
+                ->filter()
+        );
 
-        if ($this->pull_request_id !== 0 && $app->environment_variables_preview) {
+        if ($this->pull_request_id !== 0) {
             $lockedVars = $lockedVars->merge(
                 $app->environment_variables_preview
                     ->where('is_shown_once', true)
@@ -260,7 +272,7 @@ class ApplicationDeploymentQueue extends Model
         return $text;
     }
 
-    public function addLogEntry(string $message, string $type = 'stdout', bool $hidden = false)
+    public function addLogEntry(string $message, string $type = 'stdout', bool $hidden = false): void
     {
         if ($type === 'error') {
             $type = 'stderr';
