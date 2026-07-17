@@ -16,6 +16,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
@@ -193,7 +194,7 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
                     }
 
                     if ($user_alone_in_team) {
-                        static::finalizeTeamDeletion($user, $team);
+                        self::finalizeTeamDeletion($user, $team);
                         // Delete any pending team invitations for this user
                         TeamInvitation::whereEmail($user->email)->delete();
 
@@ -223,7 +224,7 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
                                 RevokeUserTeamTokens::forUserTeam($found_other_member_who_is_not_owner, $team->id);
                                 $team->members()->detach($user->id);
                             } else {
-                                static::finalizeTeamDeletion($user, $team);
+                                self::finalizeTeamDeletion($user, $team);
                             }
 
                             continue;
@@ -239,7 +240,7 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
     /**
      * Finalize team deletion by cleaning up all associated resources
      */
-    private static function finalizeTeamDeletion(User $user, Team $team)
+    private static function finalizeTeamDeletion(User $user, Team $team): void
     {
         $servers = $team->servers;
         foreach ($servers as $server) {
@@ -263,14 +264,14 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
      * Delete the user if they are not verified and have a force password reset.
      * This is used to clean up users that have been invited, did not accept the invitation (and did not verify their email and have a force password reset).
      */
-    public function deleteIfNotVerifiedAndForcePasswordReset()
+    public function deleteIfNotVerifiedAndForcePasswordReset(): void
     {
         if ($this->hasVerifiedEmail() === false && $this->force_password_reset === true) {
             $this->delete();
         }
     }
 
-    public function recreate_personal_team()
+    public function recreate_personal_team(): Team
     {
         $team = [
             'name' => $this->name."'s Team",
@@ -288,7 +289,10 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
         return $new_team;
     }
 
-    public function createToken(string $name, array $abilities = ['*'], ?DateTimeInterface $expiresAt = null)
+    /**
+     * @param  array<int, string>  $abilities
+     */
+    public function createToken(string $name, array $abilities = ['*'], ?DateTimeInterface $expiresAt = null): NewAccessToken
     {
         $plainTextToken = sprintf(
             '%s%s%s',
@@ -318,7 +322,10 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
             ->withPivot('role');
     }
 
-    public function changelogReads()
+    /**
+     * @return HasMany<UserChangelogRead, $this>
+     */
+    public function changelogReads(): HasMany
     {
         return $this->hasMany(UserChangelogRead::class);
     }
@@ -333,7 +340,7 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
         return [$this->email];
     }
 
-    public function sendVerificationEmail()
+    public function sendVerificationEmail(): void
     {
         $mail = new MailMessage;
         $url = URL::temporarySignedRoute(
@@ -356,22 +363,22 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
         $this->notify(new TransactionalEmailsResetPassword($token));
     }
 
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return $this->role() === 'admin' || $this->role() === 'owner';
     }
 
-    public function isOwner()
+    public function isOwner(): bool
     {
         return $this->role() === 'owner';
     }
 
-    public function isMember()
+    public function isMember(): bool
     {
         return $this->role() === 'member';
     }
 
-    public function isAdminFromSession()
+    public function isAdminFromSession(): bool
     {
         if (Auth::id() === 0) {
             return true;
@@ -391,7 +398,7 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
         return $role === 'admin' || $role === 'owner';
     }
 
-    public function isInstanceAdmin()
+    public function isInstanceAdmin(): bool
     {
         $found_root_team = $this->teams->filter(function ($team) {
             if ($team->id == 0) {

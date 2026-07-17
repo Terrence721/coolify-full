@@ -26,7 +26,7 @@ trait DeletesUserSessions
     /**
      * Boot the trait.
      */
-    protected static function bootDeletesUserSessions()
+    protected static function bootDeletesUserSessions(): void
     {
         static::updated(function ($user) {
             // Check if password was changed
