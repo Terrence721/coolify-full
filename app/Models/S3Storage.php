@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -98,12 +100,8 @@ class S3Storage extends BaseModel
         // use Laravel's 'encrypted' cast. Attribute mutators fire before casts, which
         // would cause issues with the encryption/decryption cycle.
         static::saving(function (S3Storage $storage) {
-            if ($storage->key !== null) {
-                $storage->key = trim($storage->key);
-            }
-            if ($storage->secret !== null) {
-                $storage->secret = trim($storage->secret);
-            }
+            $storage->key = trim($storage->key);
+            $storage->secret = trim($storage->secret);
         });
 
         static::deleting(function (S3Storage $storage) {
@@ -141,26 +139,35 @@ class S3Storage extends BaseModel
         return S3Storage::whereTeamId($teamId)->select($selectArray->all())->orderBy('name');
     }
 
-    public function isUsable()
+    public function isUsable(): bool
     {
         return $this->is_usable;
     }
 
-    public function team()
+    /**
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function scheduledBackups()
+    /**
+     * @return HasMany<ScheduledDatabaseBackup, $this>
+     */
+    public function scheduledBackups(): HasMany
     {
         return $this->hasMany(ScheduledDatabaseBackup::class, 's3_storage_id');
     }
 
-    public function awsUrl()
+    public function awsUrl(): string
     {
         return "{$this->endpoint}/{$this->bucket}";
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     protected function path(): Attribute
     {
         return Attribute::make(
@@ -176,6 +183,8 @@ class S3Storage extends BaseModel
 
     /**
      * Trim whitespace from endpoint to prevent malformed URLs.
+     *
+     * @return Attribute<string|null, string|null>
      */
     protected function endpoint(): Attribute
     {
@@ -186,6 +195,8 @@ class S3Storage extends BaseModel
 
     /**
      * Trim whitespace from bucket name to prevent connection errors.
+     *
+     * @return Attribute<string|null, string|null>
      */
     protected function bucket(): Attribute
     {
@@ -196,6 +207,8 @@ class S3Storage extends BaseModel
 
     /**
      * Trim whitespace from region to prevent connection errors.
+     *
+     * @return Attribute<string|null, string|null>
      */
     protected function region(): Attribute
     {
@@ -204,7 +217,7 @@ class S3Storage extends BaseModel
         );
     }
 
-    public function testConnection(bool $shouldSave = false)
+    public function testConnection(bool $shouldSave = false): void
     {
         try {
             $validator = Validator::make(
