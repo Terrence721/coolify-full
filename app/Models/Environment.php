@@ -8,10 +8,12 @@ use App\Contracts\StandaloneDatabaseInstance;
 use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 
@@ -98,12 +100,15 @@ class Environment extends BaseModel
         });
     }
 
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<Environment>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return Environment::whereRelation('project.team', 'id', currentTeam()->id)->orderBy('name');
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if ($this->applications()->count() > 0 || $this->services()->count() > 0) {
             return false;
@@ -118,52 +123,82 @@ class Environment extends BaseModel
         return true;
     }
 
-    public function environment_variables()
+    /**
+     * @return HasMany<SharedEnvironmentVariable, $this>
+     */
+    public function environment_variables(): HasMany
     {
         return $this->hasMany(SharedEnvironmentVariable::class)->where('type', 'environment');
     }
 
-    public function applications()
+    /**
+     * @return HasMany<Application, $this>
+     */
+    public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
     }
 
-    public function postgresqls()
+    /**
+     * @return HasMany<StandalonePostgresql, $this>
+     */
+    public function postgresqls(): HasMany
     {
         return $this->hasMany(StandalonePostgresql::class);
     }
 
-    public function redis()
+    /**
+     * @return HasMany<StandaloneRedis, $this>
+     */
+    public function redis(): HasMany
     {
         return $this->hasMany(StandaloneRedis::class);
     }
 
-    public function mongodbs()
+    /**
+     * @return HasMany<StandaloneMongodb, $this>
+     */
+    public function mongodbs(): HasMany
     {
         return $this->hasMany(StandaloneMongodb::class);
     }
 
-    public function mysqls()
+    /**
+     * @return HasMany<StandaloneMysql, $this>
+     */
+    public function mysqls(): HasMany
     {
         return $this->hasMany(StandaloneMysql::class);
     }
 
-    public function mariadbs()
+    /**
+     * @return HasMany<StandaloneMariadb, $this>
+     */
+    public function mariadbs(): HasMany
     {
         return $this->hasMany(StandaloneMariadb::class);
     }
 
-    public function keydbs()
+    /**
+     * @return HasMany<StandaloneKeydb, $this>
+     */
+    public function keydbs(): HasMany
     {
         return $this->hasMany(StandaloneKeydb::class);
     }
 
-    public function dragonflies()
+    /**
+     * @return HasMany<StandaloneDragonfly, $this>
+     */
+    public function dragonflies(): HasMany
     {
         return $this->hasMany(StandaloneDragonfly::class);
     }
 
-    public function clickhouses()
+    /**
+     * @return HasMany<StandaloneClickhouse, $this>
+     */
+    public function clickhouses(): HasMany
     {
         return $this->hasMany(StandaloneClickhouse::class);
     }
@@ -187,7 +222,10 @@ class Environment extends BaseModel
         return $this->belongsTo(Project::class);
     }
 
-    public function services()
+    /**
+     * @return HasMany<Service, $this>
+     */
+    public function services(): HasMany
     {
         return $this->hasMany(Service::class);
     }
