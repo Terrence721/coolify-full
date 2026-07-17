@@ -400,7 +400,7 @@ class Service extends BaseModel
 
         // Parse the aggregated "status:health" string
         $parts = explode(':', $aggregatedStatus);
-        $status = $parts[0] ?? null;
+        $status = $parts[0];
         $health = $parts[1] ?? null;
 
         if ($excludedOnly) {
@@ -429,7 +429,7 @@ class Service extends BaseModel
     public function documentation(): string
     {
         $services = get_service_templates();
-        $service = data_get($services, str($this->name)->beforeLast('-')->value, []);
+        $service = data_get($services, str($this->name)->beforeLast('-')->value(), []);
 
         return data_get($service, 'documentation', config('constants.urls.docs'));
     }
@@ -576,16 +576,14 @@ class Service extends BaseModel
         $envs = collect([]);
 
         // Generate SERVICE_NAME_* environment variables from docker-compose services
-        if ($this->docker_compose) {
-            try {
-                $dockerCompose = Yaml::parse($this->docker_compose);
-                $services = data_get($dockerCompose, 'services', []);
-                foreach ($services as $serviceName => $_) {
-                    $envs->push('SERVICE_NAME_'.str($serviceName)->replace('-', '_')->replace('.', '_')->upper().'='.$serviceName);
-                }
-            } catch (\Exception $e) {
-                ray($e->getMessage());
+        try {
+            $dockerCompose = Yaml::parse($this->docker_compose);
+            $services = data_get($dockerCompose, 'services', []);
+            foreach ($services as $serviceName => $_) {
+                $envs->push('SERVICE_NAME_'.str($serviceName)->replace('-', '_')->replace('.', '_')->upper().'='.$serviceName);
             }
+        } catch (\Exception $e) {
+            ray($e->getMessage());
         }
 
         $envs_from_coolify = $this->environment_variables()->get();
@@ -626,7 +624,10 @@ class Service extends BaseModel
         }
     }
 
-    public function networks()
+    /**
+     * @return Collection<int, int|string>
+     */
+    public function networks(): Collection
     {
         return getTopLevelNetworks($this);
     }

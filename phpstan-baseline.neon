@@ -1999,12 +1999,6 @@ parameters:
 			path: app/Models/ServerSetting.php
 
 		-
-			message: '#^Access to protected property Illuminate\\Support\\Stringable\:\:\$value\.$#'
-			identifier: property.protected
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Service\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -2017,12 +2011,6 @@ parameters:
 			path: app/Models/Service.php
 
 		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
@@ -2031,18 +2019,6 @@ parameters:
 		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Project will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Method App\\Models\\Service\:\:networks\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Service.php
-
-		-
-			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
 			count: 1
 			path: app/Models/Service.php
 
