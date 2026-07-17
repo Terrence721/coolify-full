@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
+use App\Models\DiscordNotificationSettings;
+use App\Models\EmailNotificationSettings;
+use App\Models\PushoverNotificationSettings;
+use App\Models\SlackNotificationSettings;
+use App\Models\TelegramNotificationSettings;
+use App\Models\WebhookNotificationSettings;
 use App\Notifications\Channels\DiscordChannel;
 use App\Notifications\Channels\EmailChannel;
 use App\Notifications\Channels\PushoverChannel;
@@ -14,6 +20,9 @@ use Illuminate\Database\Eloquent\Model;
 
 trait HasNotificationSettings
 {
+    /**
+     * @var array<int, string>
+     */
     protected array $alwaysSendEvents = [
         'server_force_enabled',
         'server_force_disabled',
@@ -26,6 +35,8 @@ trait HasNotificationSettings
 
     /**
      * Get settings model for specific channel
+     *
+     * @return EmailNotificationSettings|DiscordNotificationSettings|TelegramNotificationSettings|SlackNotificationSettings|PushoverNotificationSettings|WebhookNotificationSettings|null
      */
     public function getNotificationSettings(string $channel): ?Model
     {
@@ -72,6 +83,8 @@ trait HasNotificationSettings
 
     /**
      * Get all enabled notification channels for an event
+     *
+     * @return array<int, class-string>
      */
     public function getEnabledChannels(string $event): array
     {

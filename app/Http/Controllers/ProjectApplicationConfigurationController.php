@@ -2275,7 +2275,6 @@ class ProjectApplicationConfigurationController extends Controller
             ->values();
 
         $sources = currentTeam()->sources()
-            ->filter(fn ($source) => $source instanceof GithubApp || $source instanceof GitlabApp)
             ->filter(fn ($source) => filled($source->app_id))
             ->reject(fn ($source) => $source->id === $application->source_id)
             ->sortBy('name')

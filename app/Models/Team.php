@@ -17,10 +17,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use OpenApi\Attributes as OA;
 
@@ -141,7 +143,9 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
             GitlabApp::where('team_id', $team->id)->where('is_system_wide', true)->update(['team_id' => 0]);
 
             // Delete non-instance-wide sources owned by this team
-            $teamSources = GithubApp::where('team_id', $team->id)->get()
+            /** @var SupportCollection<int, GithubApp|GitlabApp> $teamSources */
+            $teamSources = collect();
+            $teamSources = $teamSources->merge(GithubApp::where('team_id', $team->id)->get())
                 ->merge(GitlabApp::where('team_id', $team->id)->get());
             foreach ($teamSources as $source) {
                 $source->delete();
@@ -166,6 +170,9 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return data_get($this, 'discord_webhook_url', null);
     }
 
+    /**
+     * @return array<string, string|null>
+     */
     public function routeNotificationForTelegram(): array
     {
         return [
@@ -190,17 +197,13 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
     public function getRecipients(): array
     {
         $recipients = $this->members()->pluck('email')->toArray();
-        $validatedEmails = array_filter($recipients, function ($email) {
-            return filter_var($email, FILTER_VALIDATE_EMAIL);
-        });
-        if (is_null($validatedEmails)) {
-            return [];
-        }
 
-        return array_values($validatedEmails);
+        return array_values(array_filter($recipients, function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL);
+        }));
     }
 
-    public function isAnyNotificationEnabled()
+    public function isAnyNotificationEnabled(): bool
     {
         if (isCloud()) {
             return true;
@@ -248,7 +251,7 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return $this->hasMany(TeamInvitation::class);
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if ($this->projects()->count() === 0 && $this->servers()->count() === 0 && $this->privateKeys()->count() === 0 && $this->sources()->count() === 0) {
             return true;
@@ -281,14 +284,21 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return $this->hasMany(PrivateKey::class);
     }
 
-    public function cloudProviderTokens()
+    /**
+     * @return HasMany<CloudProviderToken, $this>
+     */
+    public function cloudProviderTokens(): HasMany
     {
         return $this->hasMany(CloudProviderToken::class);
     }
 
-    public function sources()
+    /**
+     * @return SupportCollection<int, GithubApp|GitlabApp>
+     */
+    public function sources(): SupportCollection
     {
-        $sources = collect([]);
+        /** @var SupportCollection<int, GithubApp|GitlabApp> $sources */
+        $sources = collect();
         $github_apps = GithubApp::where(function ($query) {
             $query->where(function ($q) {
                 $q->where('team_id', $this->id)
@@ -306,37 +316,58 @@ class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, Sen
         return $sources->merge($github_apps)->merge($gitlab_apps);
     }
 
-    public function s3s()
+    /**
+     * @return HasMany<S3Storage, $this>
+     */
+    public function s3s(): HasMany
     {
         return $this->hasMany(S3Storage::class)->where('is_usable', true);
     }
 
-    public function emailNotificationSettings()
+    /**
+     * @return HasOne<EmailNotificationSettings, $this>
+     */
+    public function emailNotificationSettings(): HasOne
     {
         return $this->hasOne(EmailNotificationSettings::class);
     }
 
-    public function discordNotificationSettings()
+    /**
+     * @return HasOne<DiscordNotificationSettings, $this>
+     */
+    public function discordNotificationSettings(): HasOne
     {
         return $this->hasOne(DiscordNotificationSettings::class);
     }
 
-    public function telegramNotificationSettings()
+    /**
+     * @return HasOne<TelegramNotificationSettings, $this>
+     */
+    public function telegramNotificationSettings(): HasOne
     {
         return $this->hasOne(TelegramNotificationSettings::class);
     }
 
-    public function slackNotificationSettings()
+    /**
+     * @return HasOne<SlackNotificationSettings, $this>
+     */
+    public function slackNotificationSettings(): HasOne
     {
         return $this->hasOne(SlackNotificationSettings::class);
     }
 
-    public function pushoverNotificationSettings()
+    /**
+     * @return HasOne<PushoverNotificationSettings, $this>
+     */
+    public function pushoverNotificationSettings(): HasOne
     {
         return $this->hasOne(PushoverNotificationSettings::class);
     }
 
-    public function webhookNotificationSettings()
+    /**
+     * @return HasOne<WebhookNotificationSettings, $this>
+     */
+    public function webhookNotificationSettings(): HasOne
     {
         return $this->hasOne(WebhookNotificationSettings::class);
     }

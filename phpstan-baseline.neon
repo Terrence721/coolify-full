@@ -1753,12 +1753,6 @@ parameters:
 			path: app/Models/CloudProviderToken.php
 
 		-
-			message: '#^Method App\\Models\\DiscordNotificationSettings\:\:isEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/DiscordNotificationSettings.php
-
-		-
 			message: '#^Method App\\Models\\DiscordNotificationSettings\:\:isPingEnabled\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -1769,12 +1763,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/DiscordNotificationSettings.php
-
-		-
-			message: '#^Method App\\Models\\EmailNotificationSettings\:\:isEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/EmailNotificationSettings.php
 
 		-
 			message: '#^Method App\\Models\\EmailNotificationSettings\:\:team\(\) has no return type specified\.$#'
@@ -1913,12 +1901,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/ProjectSetting.php
-
-		-
-			message: '#^Method App\\Models\\PushoverNotificationSettings\:\:isEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PushoverNotificationSettings.php
 
 		-
 			message: '#^Method App\\Models\\PushoverNotificationSettings\:\:team\(\) has no return type specified\.$#'
@@ -2243,12 +2225,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/ServiceDatabase.php
-
-		-
-			message: '#^Method App\\Models\\SlackNotificationSettings\:\:isEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/SlackNotificationSettings.php
 
 		-
 			message: '#^Method App\\Models\\SlackNotificationSettings\:\:team\(\) has no return type specified\.$#'
@@ -2959,110 +2935,8 @@ parameters:
 			path: app/Models/Tag.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isEnabled\(\)\.$#'
-			identifier: method.notFound
-			count: 7
-			path: app/Models/Team.php
-
-		-
-			message: '#^Call to function is_null\(\) with array\<mixed\> will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Team.php
-
-		-
 			message: '#^Class App\\Models\\Team uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:cloudProviderTokens\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:discordNotificationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:emailNotificationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:getEnabledChannels\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:isAnyNotificationEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:isEmpty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:pushoverNotificationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:routeNotificationForTelegram\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:s3s\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:slackNotificationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:sources\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:telegramNotificationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Method App\\Models\\Team\:\:webhookNotificationSettings\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Parameter \#1 \$items of method Illuminate\\Database\\Eloquent\\Collection\<int,App\\Models\\GithubApp\>\:\:merge\(\) expects iterable\<\(int\|string\), App\\Models\\GithubApp\>, Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\GitlabApp\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/Team.php
-
-		-
-			message: '#^Property App\\Models\\Team\:\:\$alwaysSendEvents type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/Team.php
 
@@ -3071,12 +2945,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/TeamInvitation.php
-
-		-
-			message: '#^Method App\\Models\\TelegramNotificationSettings\:\:isEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TelegramNotificationSettings.php
 
 		-
 			message: '#^Method App\\Models\\TelegramNotificationSettings\:\:team\(\) has no return type specified\.$#'
@@ -3179,12 +3047,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/UserChangelogRead.php
-
-		-
-			message: '#^Method App\\Models\\WebhookNotificationSettings\:\:isEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/WebhookNotificationSettings.php
 
 		-
 			message: '#^Method App\\Models\\WebhookNotificationSettings\:\:team\(\) has no return type specified\.$#'
