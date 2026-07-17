@@ -8,10 +8,14 @@ use App\Contracts\StandaloneDatabaseInstance;
 use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use OpenApi\Attributes as OA;
 use Visus\Cuid2\Cuid2;
@@ -94,15 +98,20 @@ class Project extends BaseModel
      * Get query builder for projects owned by current team.
      * If you need all projects without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<Project>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return Project::whereTeamId(currentTeam()->id)->orderByRaw('LOWER(name)');
     }
 
     /**
      * Get all projects owned by current team (cached for request duration).
+     *
+     * @return Collection<int, Project>
      */
-    public static function ownedByCurrentTeamCached()
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return Project::ownedByCurrentTeam()->get();
@@ -131,17 +140,26 @@ class Project extends BaseModel
         });
     }
 
-    public function environment_variables()
+    /**
+     * @return HasMany<SharedEnvironmentVariable, $this>
+     */
+    public function environment_variables(): HasMany
     {
         return $this->hasMany(SharedEnvironmentVariable::class)->where('type', 'project');
     }
 
-    public function environments()
+    /**
+     * @return HasMany<Environment, $this>
+     */
+    public function environments(): HasMany
     {
         return $this->hasMany(Environment::class);
     }
 
-    public function settings()
+    /**
+     * @return HasOne<ProjectSetting, $this>
+     */
+    public function settings(): HasOne
     {
         return $this->hasOne(ProjectSetting::class);
     }
@@ -154,57 +172,87 @@ class Project extends BaseModel
         return $this->belongsTo(Team::class);
     }
 
-    public function services()
+    /**
+     * @return HasManyThrough<Service, Environment, $this>
+     */
+    public function services(): HasManyThrough
     {
         return $this->hasManyThrough(Service::class, Environment::class);
     }
 
-    public function applications()
+    /**
+     * @return HasManyThrough<Application, Environment, $this>
+     */
+    public function applications(): HasManyThrough
     {
         return $this->hasManyThrough(Application::class, Environment::class);
     }
 
-    public function postgresqls()
+    /**
+     * @return HasManyThrough<StandalonePostgresql, Environment, $this>
+     */
+    public function postgresqls(): HasManyThrough
     {
         return $this->hasManyThrough(StandalonePostgresql::class, Environment::class);
     }
 
-    public function redis()
+    /**
+     * @return HasManyThrough<StandaloneRedis, Environment, $this>
+     */
+    public function redis(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneRedis::class, Environment::class);
     }
 
-    public function keydbs()
+    /**
+     * @return HasManyThrough<StandaloneKeydb, Environment, $this>
+     */
+    public function keydbs(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneKeydb::class, Environment::class);
     }
 
-    public function dragonflies()
+    /**
+     * @return HasManyThrough<StandaloneDragonfly, Environment, $this>
+     */
+    public function dragonflies(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneDragonfly::class, Environment::class);
     }
 
-    public function clickhouses()
+    /**
+     * @return HasManyThrough<StandaloneClickhouse, Environment, $this>
+     */
+    public function clickhouses(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneClickhouse::class, Environment::class);
     }
 
-    public function mongodbs()
+    /**
+     * @return HasManyThrough<StandaloneMongodb, Environment, $this>
+     */
+    public function mongodbs(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneMongodb::class, Environment::class);
     }
 
-    public function mysqls()
+    /**
+     * @return HasManyThrough<StandaloneMysql, Environment, $this>
+     */
+    public function mysqls(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneMysql::class, Environment::class);
     }
 
-    public function mariadbs()
+    /**
+     * @return HasManyThrough<StandaloneMariadb, Environment, $this>
+     */
+    public function mariadbs(): HasManyThrough
     {
         return $this->hasManyThrough(StandaloneMariadb::class, Environment::class);
     }
 
-    public function isEmpty()
+    public function isEmpty(): bool
     {
         if ($this->applications()->count() > 0 || $this->services()->count() > 0) {
             return false;

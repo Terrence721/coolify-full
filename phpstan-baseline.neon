@@ -139,6 +139,72 @@ parameters:
 			path: app/Http/Controllers/Api/ServicesController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 4
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
+			identifier: property.notFound
+			count: 12
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/EnvironmentController.php
+
+		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1075,6 +1141,12 @@ parameters:
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-
+			message: '#^Anonymous function should return array\{name\: string, description\: string\|null, environments\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, description\: mixed, href\: string\}\>\} but returns array\{name\: string, description\: string\|null, environments\: Illuminate\\Support\\Collection\<int, array\{name\: string, description\: string\|null, href\: string\}\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/SharedVariablesController.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
 			identifier: property.notFound
 			count: 1
@@ -1833,102 +1905,6 @@ parameters:
 		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:applications\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:clickhouses\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:dragonflies\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:environment_variables\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:environments\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:isEmpty\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:keydbs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:mariadbs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:mongodbs\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:mysqls\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:ownedByCurrentTeamCached\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:postgresqls\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:redis\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:services\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\Project\:\:settings\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/Project.php
 
