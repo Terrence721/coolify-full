@@ -1,5 +1,8 @@
 # Coolify Release Guide
 
+> [!NOTE]
+> This repository is a personal portfolio fork (see [README.md](README.md)) and is not affiliated with the Coolify team. The process below describes the **upstream** [coollabsio/coolify](https://github.com/coollabsio/coolify) project's release process (CDN publishing, cloud version management, Discord announcements) — this fork has no CDN, no cloud offering, and no release pipeline of its own; it's included for reference only.
+
 This guide outlines the release process for Coolify, intended for developers and those interested in understanding how Coolify releases are managed and deployed.
 
 ## Table of Contents

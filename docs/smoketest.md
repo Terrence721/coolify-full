@@ -1,7 +1,7 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 16, 2026**
+**Last Updated: July 17, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). The Livewire→React migration itself completed 2026-07-14; this checklist now serves as a standing regression suite — run it after any batch of work touching these flows, not just migration work. See `docs/command.md` for the commands to start the dev stack.
 
@@ -16,13 +16,11 @@ Check items off as `[x]` as you go, or just read top to bottom and confirm each 
 
 ## 1. Cross-cutting checks (do these first — they affect every page below)
 
-These verify the Livewire↔Inertia coexistence boundary itself, not any one page.
+The Livewire↔Inertia coexistence boundary these used to verify no longer exists — every full-page route and all navigation/chrome infrastructure is React. These checks now just cover basic navigation/UI plumbing that every page below depends on.
 
-- [ ] From a Livewire page (e.g. Dashboard), click a sidebar link to a **converted** Inertia page (e.g. "Shared Variables"). Confirm it actually navigates and renders — this is the exact failure mode Phase 1 caught (`wire:navigate` fetching HTML but never booting React).
-- [ ] From a converted Inertia page, click a sidebar link to a **still-Livewire** page (e.g. "Servers"). Confirm it loads correctly (full page load is expected/fine here, not a bug).
-- [ ] Trigger a flash message on an Inertia page (e.g. submit a form successfully) — confirm the toast appears (`AppLayout.jsx` routes flash props through the same `window.toast()` used by Livewire).
-- [ ] Trigger a flash message on a still-Livewire page — confirm its toast still works too (regression check — nothing about this migration should break the old path).
-- [ ] Trigger a validation error on a converted form (e.g. leave a required field blank) — confirm inline error text renders under the field, not just a generic failure.
+- [ ] Click a sidebar link between two different pages (e.g. Dashboard → "Shared Variables"). Confirm it navigates via a real Inertia transition, not a full page reload.
+- [ ] Trigger a flash message (e.g. submit a form successfully) — confirm the toast appears (`AppLayout.jsx` routes flash props through `window.toast()`).
+- [ ] Trigger a validation error on a form (e.g. leave a required field blank) — confirm inline error text renders under the field, not just a generic failure.
 
 ## 2. Easy bucket (5 pages) — static/read-only
 
@@ -30,7 +28,7 @@ These verify the Livewire↔Inertia coexistence boundary itself, not any one pag
 - [ ] `/shared-variables/environment`, `/shared-variables/project`, `/shared-variables/server` — each lists its scoped variables.
 - [ ] `/profile/appearance` — theme/width/zoom controls change the UI live.
 
-## 3. Medium bucket (22 pages) — forms, no real-time dependency
+## 3. Medium bucket (20 pages) — forms, no real-time dependency
 
 Notifications (`/notifications/{channel}` for discord, email, slack, telegram, pushover, webhook):
 
@@ -83,7 +81,7 @@ Sources (`/sources`, Phase 53):
 - [ ] "+ Add" opens the create modal; `/sources?create=1` opens it automatically (this is how GlobalSearch's "GitHub App" quick action arrives).
 - [ ] Creating an app (default name pre-filled, optional organization, self-hosted accordion, system-wide warning callout) redirects to the new app's configuration page.
 
-## 4. Hard bucket (45 pages so far) — real-time and non-trivial
+## 4. Hard bucket (59 pages) — real-time and non-trivial
 
 These need the most attention — they're the pages automated checks can't fully exercise.
 
@@ -104,7 +102,7 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] "Cleanup Failed Backups" and "Cleanup Deleted" (typed-confirmation + password) both actually remove the expected rows and nothing else.
 - [ ] Download a successful execution's backup file.
 
-**`/terminal` (live SSH terminal)** — the highest-risk page in the whole migration so far:
+**`/terminal` (live SSH terminal)** — the highest-risk page in the whole migration:
 
 - [ ] Select a server, click Connect. Confirm a real shell prompt appears (not just a blank black box).
 - [ ] Type a command, confirm output streams back.
@@ -127,7 +125,7 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] Project step: "Create 'My First Project'" one-click action creates a project with a production environment and advances; if the team already has projects, confirm the "select existing" dropdown appears and picking one advances without creating anything new.
 - [ ] Completion screen: summary shows the right server/project names; "Deploy Your First Resource" lands on the resource-creation wizard with the server pre-selected; "Go to Dashboard" flips `show_boarding` off and redirects.
 - [ ] "Skip Setup" (any step) and "Restart" (footer) both work — Skip flips `show_boarding` and redirects to the dashboard; Restart reloads the wizard from `welcome`.
-- [ ] Confirm Hetzner Cloud server creation is **not** offered anywhere on this page (deliberate scope decision, Phase 77) — only reachable via the old Livewire `GlobalSearch` → `Server\Create` → `ByHetzner` chain, itself only rendered on `auth/verify-email.blade.php` (see Section 4's `Server\Navbar`-dependent list above, Phase 78).
+- [ ] Confirm Hetzner Cloud server creation is **not** offered inline in this wizard's own tiles (deliberate scope decision, Phase 77) — it's reachable via `AddServerModal.jsx`'s "Add via Hetzner Cloud →" link, which navigates to the dedicated `/servers/new/hetzner` wizard instead.
 
 **`/security/cloud-tokens`, `/security/cloud-init-scripts`, `/security/private-key`, `/destinations`, `/project/{uuid}`, `/project/{uuid}/edit`, `/storages`, `/projects`, `/team/members`, `/servers`, `/project/{uuid}/environment/{uuid}/clone`, `/project/{uuid}/environment/{uuid}`, `/` (Dashboard), `/source/github/{uuid}`, `/shared-variables/team`, `/shared-variables/project/{uuid}`, `/shared-variables/environments/project/{uuid}/environment/{uuid}`, `/shared-variables/server/{uuid}`, `/project/{uuid}/environment/{uuid}/database/{uuid}/backups`** — no live/real-time surface, but re-confirm here since they're Hard-bucket:
 
@@ -141,13 +139,14 @@ These need the most attention — they're the pages automated checks can't fully
 - [ ] `/storages/{uuid}/resources` — confirm backup schedules using this storage list correctly grouped by database; search filter narrows the table; move a backup to a different storage via the picker + Save; "Disable S3" on a schedule and confirm it reverts to local-only backups.
 - [ ] `/projects` — confirm each card's whole-card click-through works (both for projects with exactly one environment, landing on the Resources page, and projects with zero/multiple, landing on `/project/{uuid}`); "+ Add Resource" shortcut only appears when the project has an environment; "Settings" link only appears if you can update; "+ Add" modal creates a new project and redirects into its auto-created production environment.
 - [ ] `/team/members` — as Owner, promote a member to Admin and to Owner, demote back down; as Admin, confirm you can't promote another Admin to Owner (error toast, no change); remove a member; generate an invitation link and confirm "Copy Invitation Link" actually copies it; send an invitation by email (only when transactional email is enabled) and confirm it arrives; as Admin, confirm you can't invite an Owner; revoke a pending invitation.
-- [ ] `/servers` — confirm the grid lists every server owned by the team, with the red-border/"Not reachable"/"Not usable"/"Disabled by the system" states showing correctly; "+ Add" modal creates a server via the IP flow and redirects into its Show page (**post-Phase-78 fix, verify specifically**: confirm this redirect is now a smooth in-app Inertia transition, not a full browser page reload/flash of a blank page); confirm submitting a duplicate IP shows the right error; confirm the "Connect a Hetzner Server" option is **not** present here (known gap, Phase 33) — as of Phase 78, it's only reachable via the old Livewire `GlobalSearch` → `Server\Create` → `ByHetzner` chain, itself only rendered on `auth/verify-email.blade.php`, not from anywhere in the converted UI.
+- [ ] `/servers` — confirm the grid lists every server owned by the team, with the red-border/"Not reachable"/"Not usable"/"Disabled by the system" states showing correctly; "+ Add" modal creates a server via the IP flow and redirects into its Show page (**post-Phase-78 fix, verify specifically**: confirm this redirect is now a smooth in-app Inertia transition, not a full browser page reload/flash of a blank page); confirm submitting a duplicate IP shows the right error; confirm "Add via Hetzner Cloud →" in the same modal navigates to the dedicated `/servers/new/hetzner` wizard (2-step: token → location/type/image/name/private-key/SSH-keys/IPv4-IPv6/cloud-init) and creating a server there redirects into its Show page too.
 - [ ] `/project/{uuid}/environment/{uuid}/clone` — select a destination server/network from the table, confirm the resources list matches the source environment; "Clone to new Project" with a name that already exists shows the right error without creating anything; a genuinely new name creates the project + clones every application/database/service (tags, scheduled backups/tasks, env vars all carried over); "Clone to new Environment" does the same within the same project; toggle "Clone volume data too" and confirm it doesn't error even without real volume data to copy (the underlying `VolumeCloneJob`/start-stop dispatches are SSH-adjacent and thus part of the standing untested-happy-path gap noted in Section 4's intro above).
 - [ ] `/project/{uuid}/environment/{uuid}` — hover the Project breadcrumb, confirm the dropdown lists every project; hover the Environment breadcrumb, confirm sibling environments list and each expands into its own resources flyout on hover; search box filters applications/databases/services live by name/fqdn/description/tag; status badges (running/exited/starting/restarting/degraded) render correctly on each resource card; "Delete Environment" is blocked with an explanation if the environment has resources, and works (typed name confirmation) when genuinely empty; "+ New" and "Clone" links only appear when you can create resources.
 - [ ] `/` (Dashboard) — Projects section: "+ Add" modal (only when you have projects and can create) creates a project and appears immediately; empty state's inline "Add" opens the same modal. Servers section: "+ Add" modal (only when you have servers, private keys, and can create) creates a server via the IP flow; "no private keys found" empty state's inline "add" opens the shared `PrivateKeyCreateModal` and the newly-created key becomes usable without a page reload; "no servers found" empty state's inline "Add" opens the Add Server modal. Confirm the logo and sidebar "Dashboard" link both navigate here via a real Inertia transition (not a full page reload).
 - [ ] `/source/github/{uuid}` — pre-registration state: "Register Now" against a real GitHub account (confirm the manifest-flow form-post actually lands on GitHub's app-creation page with fields pre-filled); "Manual Installation" creates a stub app with placeholder IDs and lands on the tabbed config. Post-registration: General tab "Save" persists changes, "Sync Name" against a real GitHub App (calls GitHub's API), "System Wide?" toggle instant-saves (non-cloud only); Permissions tab "Refetch" against a real installation (calls `GithubAppPermissionJob` for real); Resources tab search filters live, resource links navigate correctly; "Delete" typed-name confirmation, confirm it's blocked with an explanation if any application still uses this source.
 - [ ] `/shared-variables/team`, `/shared-variables/project/{uuid}`, `/shared-variables/environments/project/{uuid}/environment/{uuid}`, `/shared-variables/server/{uuid}` — "+ Add" modal creates a variable (test both single-line and "Is Multiline?" toggled); confirm a locked variable (after clicking "Lock") shows a masked key with only the comment editable, and its delete confirmation requires typing the exact key; toggle "Is Multiline?" on an unlocked variable and confirm it instant-saves without a page reload; switch to Developer view, edit the raw `KEY=value` text, "Save All Environment Variables", and confirm removed lines actually delete those variables while edited lines update in Normal view; on the Server page specifically, confirm `COOLIFY_SERVER_UUID`/`COOLIFY_SERVER_NAME` never appear in the list and can't be created manually (typing that key into "+ Add" should show an error, not silently succeed).
-- [ ] `/project/{uuid}/environment/{uuid}/database/{uuid}/backups` (standalone database only — the service-database equivalent stays Livewire) — confirm the nav tabs (Configuration/Logs/Terminal/Backups) all navigate correctly; Start/Restart/Stop buttons against a real, reachable server, confirming the activity-monitor slide-over shows real streaming output on Start/Restart (not just "Waiting for the process to start..."); "+ Add" modal creates a scheduled backup (test both a plain cron expression and an S3-enabled one against a real S3 storage); confirm each backup card's status badge/timing text updates after a real backup execution completes, and that clicking a card navigates to its (still-Livewire) Execution page.
+- [ ] `/project/{uuid}/environment/{uuid}/database/{uuid}/backups` (standalone database) — confirm the nav tabs (Configuration/Logs/Terminal/Backups) all navigate correctly; Start/Restart/Stop buttons against a real, reachable server, confirming the activity-monitor slide-over shows real streaming output on Start/Restart (not just "Waiting for the process to start..."); "+ Add" modal creates a scheduled backup (test both a plain cron expression and an S3-enabled one against a real S3 storage); confirm each backup card's status badge/timing text updates after a real backup execution completes, and that clicking a card navigates to its Execution page correctly.
+- [ ] `/project/{uuid}/environment/{uuid}/service/{uuid}/{stack_service_uuid}/backups` (`Project/Service/DatabaseBackups.jsx`, the service-database equivalent of the page above — not currently covered by any other item in this checklist) — same coverage: nav tabs, Start/Restart/Stop with real streaming output, "+ Add" a scheduled backup (plain cron + S3-enabled), status badge/timing updates after a real execution, navigation into the execution detail.
 - [ ] Otherwise already covered above in Section 3's list — no additional real-time behavior to check.
 
 **`Server\Navbar`-dependent pages (21 of 21 — fully retired from Livewire, `/server/{server_uuid}/...`)** — grab a real server UUID from `/servers` first. These carry the heaviest concentration of untested-happy-path gaps in the whole migration: every SSH-touching action below was verified only via safe/validation-rejection paths in Pest, never a real end-to-end run, specifically because doing so would need real SSH mocking infrastructure this migration didn't build. This section is where that gap actually gets closed.
@@ -181,13 +180,12 @@ Git-based creation flows (`/project/.../new/git?type=...`, Phase 52 — need rea
 - [ ] `?type=private-gh-app` — select a real GitHub App: repository list loads (check an account with >100 repos to exercise pagination), "Load Repository" fetches branches sorted main-first, submit creates the application; "Refresh Repository List" and the "Change Repositories on GitHub" installation link both work; "+ Add GitHub App" opens the in-page modal (Phase 53) and redirects to the new app's config on create.
 - [ ] `?type=private-deploy-key` — key picker (empty state links to private-key creation), form submit converts a non-GitHub https URL to `git@host:owner/repo.git` and attaches the selected key.
 
-## 5. Regression spot-check: still-Livewire areas
+## 5. Final sanity check
 
-Not part of this migration, but worth a quick sanity check that nothing else broke:
+Not otherwise covered above:
 
-- [ ] Dashboard loads, project list renders.
-- [ ] Open a project → environment → application, confirm the (still-Livewire) Configuration tabs work.
-- [ ] Global search still finds things across both stacks — confirm the old Livewire `GlobalSearch` (still live on `auth/verify-email.blade.php`, the one page that hasn't converted) still opens and functions there, distinct from the React `GlobalSearchModal.jsx` used everywhere else.
+- [ ] Open a project → environment → application, confirm all 16 Configuration tabs (General, Environment Variables, etc.) load and navigate correctly.
+- [ ] Global search (`GlobalSearchModal.jsx`, the only search implementation left in the app) opens and finds things across applications/databases/services/servers.
 
 ## 6. Sign-off
 

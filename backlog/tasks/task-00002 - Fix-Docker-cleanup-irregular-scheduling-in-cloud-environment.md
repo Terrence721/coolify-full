@@ -80,3 +80,5 @@ Successfully migrated Docker cleanup scheduling from ServerManagerJob to Schedul
 - Syntax validation passed
 - Code formatting verified with Laravel Pint
 - PHPStan analysis completed (existing warnings unrelated to changes)
+
+**Update (2026-07-17):** AC #5 ("Cloud subscription checks are properly enforced") and the "Proper cloud subscription checks maintained" note above describe functionality from the pre-fork upstream codebase. This fork's de-commercialization pass removed the entire Stripe/subscription billing subsystem — confirmed by reading the current `ScheduledJobManager.php`: `getServersForCleanupQuery()`/`getDockerCleanupSkipReason()` have no subscription logic at all, just an `isFunctional()` check. AC #5 is inapplicable here, not failing; the scheduling-consistency fix itself (ACs #1–#4, the frozen-execution-time / single-pass-through-ScheduledJobManager approach) is real and still present in the current code.
