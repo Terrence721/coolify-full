@@ -1,7 +1,7 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 16, 2026**
+**Last Updated: July 17, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -83,3 +83,13 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 
   Dev-only:  Vite (HMR, never browsed directly) · Mailpit (mail capture)
              MinIO (S3 for backup tests) · testing-host (fake managed server)
+```
+
+---
+
+## 📋 Project Tracking
+
+Work on this fork is tracked two ways:
+
+- **[`todo.md`](todo.md)** — the primary, detailed record: a phase-by-phase written log of everything done and everything still open, with dates, verified deltas, and the reasoning behind each decision. This is the source of truth.
+- **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Todo/In Progress/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with `todo.md`.
