@@ -18,8 +18,8 @@ trait CalculatesExcludedStatus
      * This method processes excluded containers and returns a status with :excluded suffix
      * to indicate that monitoring is disabled but still show the actual container state.
      *
-     * @param  Collection  $containers  Collection of container objects from Docker inspect
-     * @param  Collection  $excludedContainers  Collection of container names that are excluded
+     * @param  Collection<int, array<string, mixed>>  $containers  Collection of container objects from Docker inspect
+     * @param  Collection<int, string>  $excludedContainers  Collection of container names that are excluded
      * @return string Status string with :excluded suffix (e.g., 'running:unhealthy:excluded')
      */
     protected function calculateExcludedStatus(Collection $containers, Collection $excludedContainers): string
@@ -46,7 +46,7 @@ trait CalculatesExcludedStatus
      * This version works with status strings (e.g., "running:healthy") instead of full
      * container objects, suitable for Sentinel updates that don't have full container data.
      *
-     * @param  Collection  $containerStatuses  Collection of status strings keyed by container name
+     * @param  Collection<string, string>  $containerStatuses  Collection of status strings keyed by container name
      * @return string Status string with :excluded suffix
      */
     protected function calculateExcludedStatusFromStrings(Collection $containerStatuses): string
@@ -104,7 +104,7 @@ trait CalculatesExcludedStatus
      * - They have restart: no policy
      *
      * @param  string|null  $dockerComposeRaw  The raw docker-compose YAML content
-     * @return Collection Collection of excluded container names
+     * @return Collection<int, string> Collection of excluded container names
      */
     protected function getExcludedContainersFromDockerCompose(?string $dockerComposeRaw): Collection
     {

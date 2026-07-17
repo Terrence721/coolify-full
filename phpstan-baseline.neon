@@ -49,54 +49,6 @@ parameters:
 			path: app/Actions/Database/StartRedis.php
 
 		-
-			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:calculateExcludedStatus\(\) has parameter \$excludedContainers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:calculateExcludedStatusFromStrings\(\) has parameter \$containerStatuses with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^Method App\\Actions\\Docker\\GetContainersStatus\:\:getExcludedContainersFromDockerCompose\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Docker/GetContainersStatus.php
-
-		-
-			message: '#^Method App\\Actions\\Shared\\ComplexStatusCheck\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Shared/ComplexStatusCheck.php
-
-		-
-			message: '#^Method App\\Actions\\Shared\\ComplexStatusCheck\:\:calculateExcludedStatus\(\) has parameter \$excludedContainers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Shared/ComplexStatusCheck.php
-
-		-
-			message: '#^Method App\\Actions\\Shared\\ComplexStatusCheck\:\:calculateExcludedStatusFromStrings\(\) has parameter \$containerStatuses with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Shared/ComplexStatusCheck.php
-
-		-
-			message: '#^Method App\\Actions\\Shared\\ComplexStatusCheck\:\:getExcludedContainersFromDockerCompose\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Actions/Shared/ComplexStatusCheck.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 4
@@ -1342,30 +1294,6 @@ parameters:
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Jobs/PushServerUpdateJob.php
-
-		-
-			message: '#^Method App\\Jobs\\PushServerUpdateJob\:\:calculateExcludedStatus\(\) has parameter \$containers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Jobs/PushServerUpdateJob.php
-
-		-
-			message: '#^Method App\\Jobs\\PushServerUpdateJob\:\:calculateExcludedStatus\(\) has parameter \$excludedContainers with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Jobs/PushServerUpdateJob.php
-
-		-
-			message: '#^Method App\\Jobs\\PushServerUpdateJob\:\:calculateExcludedStatusFromStrings\(\) has parameter \$containerStatuses with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Jobs/PushServerUpdateJob.php
-
-		-
-			message: '#^Method App\\Jobs\\PushServerUpdateJob\:\:getExcludedContainersFromDockerCompose\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
 			path: app/Jobs/PushServerUpdateJob.php
 
 		-
