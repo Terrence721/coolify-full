@@ -52,6 +52,7 @@ trait HasStandaloneDatabaseCommon
      * Get query builder for databases of this type owned by the current team.
      * If you need all databases without further query chaining, use ownedByCurrentTeamCached() instead.
      *
+     * @return Builder<static>
      */
     public static function ownedByCurrentTeam(): Builder
     {
@@ -61,12 +62,13 @@ trait HasStandaloneDatabaseCommon
             return static::query()->whereRaw('1 = 0')->orderBy('name');
         }
 
-        return static::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
+        return static::query()->whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
     }
 
     /**
      * Get all databases of this type owned by the current team (cached for request duration).
      *
+     * @return Collection<int, static>
      */
     public static function ownedByCurrentTeamCached(): Collection
     {
@@ -174,10 +176,10 @@ trait HasStandaloneDatabaseCommon
             set: function ($value) {
                 if (str($value)->contains('(')) {
                     $status = str($value)->before('(')->trim()->value();
-                    $health = str($value)->after('(')->before(')')->trim()->value() ?? 'unhealthy';
+                    $health = str($value)->after('(')->before(')')->trim()->value();
                 } elseif (str($value)->contains(':')) {
                     $status = str($value)->before(':')->trim()->value();
-                    $health = str($value)->after(':')->trim()->value() ?? 'unhealthy';
+                    $health = str($value)->after(':')->trim()->value();
                 } else {
                     $status = $value;
                     $health = 'unhealthy';
@@ -188,10 +190,10 @@ trait HasStandaloneDatabaseCommon
             get: function ($value) {
                 if (str($value)->contains('(')) {
                     $status = str($value)->before('(')->trim()->value();
-                    $health = str($value)->after('(')->before(')')->trim()->value() ?? 'unhealthy';
+                    $health = str($value)->after('(')->before(')')->trim()->value();
                 } elseif (str($value)->contains(':')) {
                     $status = str($value)->before(':')->trim()->value();
-                    $health = str($value)->after(':')->trim()->value() ?? 'unhealthy';
+                    $health = str($value)->after(':')->trim()->value();
                 } else {
                     $status = $value;
                     $health = 'unhealthy';
@@ -263,7 +265,7 @@ trait HasStandaloneDatabaseCommon
     /**
      * @return Attribute<string, never>
      */
-    public function databaseType(): Attribute
+    protected function databaseType(): Attribute
     {
         return new Attribute(
             get: fn () => $this->type(),

@@ -202,6 +202,9 @@ class StandaloneDragonfly extends BaseModel implements StandaloneDatabaseInstanc
         return 'standalone-dragonfly';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -211,15 +214,14 @@ class StandaloneDragonfly extends BaseModel implements StandaloneDatabaseInstanc
                 $encodedPass = rawurlencode($this->dragonfly_password);
                 $url = "{$scheme}://:{$encodedPass}@{$this->uuid}:{$port}/0";
 
-                if ($this->enable_ssl && $this->ssl_mode === 'verify-ca') {
-                    $url .= '?cacert=/etc/ssl/certs/coolify-ca.crt';
-                }
-
                 return $url;
             }
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(
@@ -232,10 +234,6 @@ class StandaloneDragonfly extends BaseModel implements StandaloneDatabaseInstanc
                     $scheme = $this->enable_ssl ? 'rediss' : 'redis';
                     $encodedPass = rawurlencode($this->dragonfly_password);
                     $url = "{$scheme}://:{$encodedPass}@{$serverIp}:{$this->public_port}/0";
-
-                    if ($this->enable_ssl && $this->ssl_mode === 'verify-ca') {
-                        $url .= '?cacert=/etc/ssl/certs/coolify-ca.crt';
-                    }
 
                     return $url;
                 }

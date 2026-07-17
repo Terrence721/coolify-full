@@ -1303,6 +1303,12 @@ parameters:
 			path: app/Jobs/ApplicationDeploymentJob.php
 
 		-
+			message: '#^Call to protected method databaseType\(\) of class App\\Models\\ServiceDatabase\.$#'
+			identifier: method.protected
+			count: 1
+			path: app/Jobs/DatabaseBackupJob.php
+
+		-
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -2275,42 +2281,6 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneClickhouse\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2327,12 +2297,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDocker.php
-
-		-
-			message: '#^Access to an undefined property App\\Models\\StandaloneDragonfly\:\:\$ssl_mode\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Models/StandaloneDragonfly.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneDragonfly\) and ''team'' will always evaluate to true\.$#'
@@ -2353,42 +2317,6 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneDragonfly\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
 			count: 1
@@ -2401,9 +2329,9 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\StandaloneKeydb\:\:\$ssl_mode\.$#'
-			identifier: property.notFound
-			count: 2
+			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneKeydb\)\>\.$#'
+			identifier: return.type
+			count: 1
 			path: app/Models/StandaloneKeydb.php
 
 		-
@@ -2425,32 +2353,8 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
+			message: '#^Method App\\Models\\StandaloneKeydb\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneKeydb\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Models/StandaloneKeydb.php
 
@@ -2465,6 +2369,12 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneKeydb.php
+
+		-
+			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneMariadb\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/StandaloneMariadb.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
@@ -2485,38 +2395,8 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
+			message: '#^Method App\\Models\\StandaloneMariadb\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneMariadb\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -2531,6 +2411,12 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMariadb.php
+
+		-
+			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneMongodb\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/StandaloneMongodb.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMongodb\) and ''team'' will always evaluate to true\.$#'
@@ -2551,44 +2437,8 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:mongoInitdbRootPassword\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
+			message: '#^Method App\\Models\\StandaloneMongodb\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneMongodb\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Models/StandaloneMongodb.php
 
@@ -2603,6 +2453,12 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMongodb.php
+
+		-
+			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneMysql\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/StandaloneMysql.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMysql\) and ''team'' will always evaluate to true\.$#'
@@ -2623,38 +2479,8 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
+			message: '#^Method App\\Models\\StandaloneMysql\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneMysql\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
@@ -2669,6 +2495,12 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMysql.php
+
+		-
+			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandalonePostgresql\)\>\.$#'
+			identifier: return.type
+			count: 1
+			path: app/Models/StandalonePostgresql.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandalonePostgresql\) and ''team'' will always evaluate to true\.$#'
@@ -2689,38 +2521,8 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
+			message: '#^Method App\\Models\\StandalonePostgresql\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandalonePostgresql\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Models/StandalonePostgresql.php
 
@@ -2737,9 +2539,9 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\StandaloneRedis\:\:\$ssl_mode\.$#'
-			identifier: property.notFound
-			count: 2
+			message: '#^Anonymous function should return Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneRedis\)\>\.$#'
+			identifier: return.type
+			count: 1
 			path: app/Models/StandaloneRedis.php
 
 		-
@@ -2761,56 +2563,8 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 4
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:externalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:getRedisVersion\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:internalDbUrl\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeam\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeamCached\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:redisPassword\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\StandaloneRedis\:\:redisUsername\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Property ''database_type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
+			message: '#^Method App\\Models\\StandaloneRedis\:\:ownedByCurrentTeamCached\(\) should return Illuminate\\Support\\Collection\<int, static\(App\\Models\\StandaloneRedis\)\> but returns Illuminate\\Database\\Eloquent\\Collection\<int, static\(App\\Models\\StandaloneDragonfly\)\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Models/StandaloneRedis.php
 

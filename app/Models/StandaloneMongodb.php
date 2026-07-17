@@ -221,6 +221,9 @@ class StandaloneMongodb extends BaseModel implements StandaloneDatabaseInstance
         return (string) $this->mongo_conf;
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     public function mongoInitdbRootPassword(): Attribute
     {
         return Attribute::make(
@@ -244,6 +247,9 @@ class StandaloneMongodb extends BaseModel implements StandaloneDatabaseInstance
         return 'standalone-mongodb';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -263,6 +269,9 @@ class StandaloneMongodb extends BaseModel implements StandaloneDatabaseInstance
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(

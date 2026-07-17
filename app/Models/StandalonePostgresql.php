@@ -243,6 +243,9 @@ class StandalonePostgresql extends BaseModel implements StandaloneDatabaseInstan
         return 'standalone-postgresql';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -262,6 +265,9 @@ class StandalonePostgresql extends BaseModel implements StandaloneDatabaseInstan
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(

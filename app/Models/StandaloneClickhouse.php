@@ -205,6 +205,9 @@ class StandaloneClickhouse extends BaseModel implements StandaloneDatabaseInstan
         return 'standalone-clickhouse';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -218,6 +221,9 @@ class StandaloneClickhouse extends BaseModel implements StandaloneDatabaseInstan
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(

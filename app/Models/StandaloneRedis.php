@@ -213,6 +213,9 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
         return 'standalone-redis';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -227,15 +230,14 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
                 $port = $this->enable_ssl ? 6380 : 6379;
                 $url = "{$scheme}://{$username_part}{$encodedPass}@{$this->uuid}:{$port}/0";
 
-                if ($this->enable_ssl && $this->ssl_mode === 'verify-ca') {
-                    $url .= '?cacert=/etc/ssl/certs/coolify-ca.crt';
-                }
-
                 return $url;
             }
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(
@@ -251,10 +253,6 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
                     $scheme = $this->enable_ssl ? 'rediss' : 'redis';
                     $url = "{$scheme}://{$username_part}{$encodedPass}@{$serverIp}:{$this->public_port}/0";
 
-                    if ($this->enable_ssl && $this->ssl_mode === 'verify-ca') {
-                        $url .= '?cacert=/etc/ssl/certs/coolify-ca.crt';
-                    }
-
                     return $url;
                 }
 
@@ -263,7 +261,7 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
         );
     }
 
-    public function getRedisVersion()
+    public function getRedisVersion(): string
     {
         $image_parts = explode(':', $this->image);
 
@@ -275,6 +273,9 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
         return false;
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     public function redisPassword(): Attribute
     {
         return new Attribute(
@@ -290,6 +291,9 @@ class StandaloneRedis extends BaseModel implements StandaloneDatabaseInstance
         );
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     public function redisUsername(): Attribute
     {
         return new Attribute(

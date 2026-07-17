@@ -216,6 +216,9 @@ class StandaloneMariadb extends BaseModel implements StandaloneDatabaseInstance
         return 'standalone-mariadb';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -228,6 +231,9 @@ class StandaloneMariadb extends BaseModel implements StandaloneDatabaseInstance
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(

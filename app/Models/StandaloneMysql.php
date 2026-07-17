@@ -223,6 +223,9 @@ class StandaloneMysql extends BaseModel implements StandaloneDatabaseInstance
         return 'standalone-mysql';
     }
 
+    /**
+     * @return Attribute<string, never>
+     */
     protected function internalDbUrl(): Attribute
     {
         return new Attribute(
@@ -242,6 +245,9 @@ class StandaloneMysql extends BaseModel implements StandaloneDatabaseInstance
         );
     }
 
+    /**
+     * @return Attribute<string|null, never>
+     */
     protected function externalDbUrl(): Attribute
     {
         return new Attribute(
