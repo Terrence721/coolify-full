@@ -1,8 +1,17 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "php",
+            "command": "docker",
             "args": [
+                "compose",
+                "-f",
+                "docker-compose.yml",
+                "-f",
+                "docker-compose.dev.yml",
+                "exec",
+                "-T",
+                "coolify",
+                "php",
                 "artisan",
                 "boost:mcp"
             ]
