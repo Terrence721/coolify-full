@@ -1615,42 +1615,6 @@ parameters:
 			path: app/Models/CloudInitScript.php
 
 		-
-			message: '#^Method App\\Models\\CloudProviderToken\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CloudProviderToken.php
-
-		-
-			message: '#^Method App\\Models\\CloudProviderToken\:\:ownedByCurrentTeam\(\) has parameter \$select with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/CloudProviderToken.php
-
-		-
-			message: '#^Method App\\Models\\CloudProviderToken\:\:scopeForProvider\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CloudProviderToken.php
-
-		-
-			message: '#^Method App\\Models\\CloudProviderToken\:\:scopeForProvider\(\) has parameter \$query with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Models/CloudProviderToken.php
-
-		-
-			message: '#^Method App\\Models\\CloudProviderToken\:\:servers\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CloudProviderToken.php
-
-		-
-			message: '#^Method App\\Models\\CloudProviderToken\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CloudProviderToken.php
-
-		-
 			message: '#^Method App\\Models\\DiscordNotificationSettings\:\:isPingEnabled\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1

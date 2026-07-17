@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -50,12 +53,18 @@ class CloudProviderToken extends BaseModel
         'token' => 'encrypted',
     ];
 
-    public function team()
+    /**
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function servers()
+    /**
+     * @return HasMany<Server, $this>
+     */
+    public function servers(): HasMany
     {
         return $this->hasMany(Server::class);
     }
@@ -65,14 +74,22 @@ class CloudProviderToken extends BaseModel
         return $this->servers()->exists();
     }
 
-    public static function ownedByCurrentTeam(array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(array $select = ['*']): Builder
     {
         $selectArray = collect($select)->concat(['id']);
 
         return self::whereTeamId(currentTeam()->id)->select($selectArray->all());
     }
 
-    public function scopeForProvider($query, string $provider)
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeForProvider(Builder $query, string $provider): Builder
     {
         return $query->where('provider', $provider);
     }
