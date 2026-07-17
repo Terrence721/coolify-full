@@ -12,11 +12,13 @@ use App\Traits\HasResourceCleanup;
 use App\Traits\HasResourceLinks;
 use App\Traits\HasResourceStatus;
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -177,7 +179,7 @@ class Service extends BaseModel
         });
     }
 
-    public function isConfigurationChanged(bool $save = false)
+    public function isConfigurationChanged(bool $save = false): bool
     {
         $domains = $this->applications()->get()->pluck('fqdn')->sort()->toArray();
         $domains = implode(',', $domains);
@@ -192,7 +194,7 @@ class Service extends BaseModel
         $storages = $applicationStorages->merge($databaseStorages)->implode('updated_at');
 
         $newConfigHash = $images.$domains.$images.$storages;
-        $newConfigHash .= json_encode($this->environment_variables()->get('value')->sort());
+        $newConfigHash .= json_encode($this->environment_variables()->pluck('value')->sort()->values());
         $newConfigHash = md5($newConfigHash);
         $oldConfigHash = data_get($this, 'config_hash');
         if ($oldConfigHash === null) {
@@ -215,6 +217,9 @@ class Service extends BaseModel
         }
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function serverStatus(): Attribute
     {
         return Attribute::make(
@@ -238,17 +243,17 @@ class Service extends BaseModel
         }
     }
 
-    public function type()
+    public function type(): string
     {
         return 'service';
     }
 
-    public function project()
+    public function project(): mixed
     {
         return data_get($this, 'environment.project');
     }
 
-    public function team()
+    public function team(): mixed
     {
         return data_get($this, 'environment.project.team');
     }
@@ -265,15 +270,20 @@ class Service extends BaseModel
      * Get query builder for services owned by current team.
      * If you need all services without further query chaining, use ownedByCurrentTeamCached() instead.
      */
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<Service>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return Service::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
     }
 
     /**
      * Get all services owned by current team (cached for request duration).
+     *
+     * @return Collection<int, Service>
      */
-    public static function ownedByCurrentTeamCached()
+    public static function ownedByCurrentTeamCached(): Collection
     {
         return once(function () {
             return Service::ownedByCurrentTeam()->get();
@@ -346,8 +356,8 @@ class Service extends BaseModel
      * This helper method consolidates status aggregation logic using ContainerStatusAggregator.
      * It processes container status strings stored in the database (not live Docker data).
      *
-     * @param  \Illuminate\Database\Eloquent\Collection  $applications  Collection of Application models
-     * @param  \Illuminate\Database\Eloquent\Collection  $databases  Collection of Database models
+     * @param  \Illuminate\Database\Eloquent\Collection<int, ServiceApplication>  $applications  Collection of Application models
+     * @param  \Illuminate\Database\Eloquent\Collection<int, ServiceDatabase>  $databases  Collection of Database models
      * @param  bool  $excludedOnly  If true, only process excluded containers; if false, only process non-excluded
      * @return array{0: string|null, 1: string|null, 2?: bool} [status, health, hasNonExcluded (only when excludedOnly=false)]
      */
@@ -400,17 +410,23 @@ class Service extends BaseModel
         return [$status, $health, $hasNonExcluded];
     }
 
-    public function extraFields()
+    /**
+     * @return Collection<string, mixed>
+     */
+    public function extraFields(): Collection
     {
         return (new ServiceExtraFieldsResolver)->resolve($this);
     }
 
-    public function saveExtraFields($fields)
+    /**
+     * @param  iterable<array{key: mixed, value: mixed}>  $fields
+     */
+    public function saveExtraFields($fields): void
     {
         (new ServiceExtraFieldsResolver)->save($this, $fields);
     }
 
-    public function documentation()
+    public function documentation(): string
     {
         $services = get_service_templates();
         $service = data_get($services, str($this->name)->beforeLast('-')->value, []);
@@ -461,6 +477,9 @@ class Service extends BaseModel
         return $this->hasMany(ServiceDatabase::class);
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function destination(): MorphTo
     {
         return $this->morphTo();
@@ -482,7 +501,7 @@ class Service extends BaseModel
         return $this->belongsTo(Server::class);
     }
 
-    public function byUuid(string $uuid)
+    public function byUuid(string $uuid): ServiceApplication|ServiceDatabase|null
     {
         $app = $this->applications()->whereUuid($uuid)->first();
         if ($app) {
@@ -496,7 +515,7 @@ class Service extends BaseModel
         return null;
     }
 
-    public function byName(string $name)
+    public function byName(string $name): ServiceApplication|ServiceDatabase|null
     {
         $app = $this->applications()->whereName($name)->first();
         if ($app) {
@@ -518,17 +537,20 @@ class Service extends BaseModel
         return $this->hasMany(ScheduledTask::class)->orderBy('name', 'asc');
     }
 
-    public function environment_variables()
+    /**
+     * @return MorphMany<EnvironmentVariable, $this>
+     */
+    public function environment_variables(): MorphMany
     {
         return $this->morphMany(EnvironmentVariable::class, 'resourceable');
     }
 
-    public function workdir()
+    public function workdir(): string
     {
         return service_configuration_dir()."/{$this->uuid}";
     }
 
-    public function saveComposeConfigs()
+    public function saveComposeConfigs(): void
     {
         // Guard against null or empty docker_compose
         if (! $this->docker_compose) {
@@ -590,6 +612,9 @@ class Service extends BaseModel
         instant_remote_process($commands, $this->server);
     }
 
+    /**
+     * @return Collection<int, mixed>
+     */
     public function parse(bool $isNew = false): Collection
     {
         if ((int) $this->compose_parsing_version >= 3) {
@@ -606,6 +631,9 @@ class Service extends BaseModel
         return getTopLevelNetworks($this);
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function isDeployable(): Attribute
     {
         return Attribute::make(

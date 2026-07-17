@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Service;
+use Illuminate\Support\Collection;
 
 /**
  * Resolves per-image-type "extra fields" UI definitions for one-click
@@ -16,7 +17,10 @@ use App\Models\Service;
  */
 class ServiceExtraFieldsResolver
 {
-    public function resolve(Service $service)
+    /**
+     * @return Collection<string, mixed>
+     */
+    public function resolve(Service $service): Collection
     {
         $fields = collect([]);
         $applications = $service->applications()->get();
@@ -1051,11 +1055,11 @@ class ServiceExtraFieldsResolver
                     break;
             }
         }
-        $fields = collect($fields)->map(function ($extraFields) {
+        $fields = collect($fields)->map(function ($extraFields) use ($service) {
             if (is_array($extraFields)) {
-                $extraFields = collect($extraFields)->map(function ($field) {
+                $extraFields = collect($extraFields)->map(function ($field) use ($service) {
                     if (filled($field['value']) && str($field['value'])->startsWith('$SERVICE_')) {
-                        $searchValue = str($field['value'])->after('$')->value;
+                        $searchValue = str($field['value'])->after('$')->value();
                         $newValue = $service->environment_variables()->where('key', $searchValue)->first();
                         if ($newValue) {
                             $field['value'] = $newValue->value;
@@ -1072,6 +1076,9 @@ class ServiceExtraFieldsResolver
         return $fields;
     }
 
+    /**
+     * @param  iterable<array{key: mixed, value: mixed}>  $fields
+     */
     public function save(Service $service, $fields): void
     {
         foreach ($fields as $field) {

@@ -70,6 +70,26 @@ it('adds only an empty Admin entry for sub-applications with no recognized image
     expect($fields->get('Admin'))->toBeEmpty();
 });
 
+it('resolves a field value referencing another $SERVICE_ variable without crashing', function () {
+    // Regression test: the closures resolving a raw "$SERVICE_..." field value into the
+    // referenced variable's real value never captured $service via use(), and used the
+    // protected Stringable::$value property instead of its value() method - both would
+    // have fatally errored the moment this branch was actually reached.
+    $service = extraFieldsMakeService();
+    ServiceApplication::create(['name' => 'drizzle', 'service_id' => $service->id, 'image' => 'drizzle-team/gateway:latest']);
+    $service->environment_variables()->create([
+        'key' => 'SERVICE_PASSWORD_DRIZZLE',
+        'value' => '$SERVICE_PASSWORD_DRIZZLE',
+        'resourceable_id' => $service->id,
+        'resourceable_type' => $service->getMorphClass(),
+        'is_preview' => false,
+    ]);
+
+    $fields = (new ServiceExtraFieldsResolver)->resolve($service);
+
+    expect($fields->get('Drizzle')['Master Password']['value'])->toBe('$SERVICE_PASSWORD_DRIZZLE');
+});
+
 it('saves submitted field values as environment variables, updating an existing one', function () {
     $service = extraFieldsMakeService();
     $existing = $service->environment_variables()->create([
