@@ -8,16 +8,16 @@ This repository is a professionally enhanced fork of [Coolify](https://coolify.i
 It showcases real-world engineering work including:
 
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
-- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 484 (and still going), phase by phase, each one verified with a full test-suite run — not a one-time cleanup
+- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 461 (and still going), phase by phase, each one verified with a full test-suite run — not a one-time cleanup
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
-**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 484 (42 phases) · 1,204 Pest tests passing (5,024 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
+**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 461 (43 phases) · 1,204 Pest tests passing (5,024 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 231 commits total — 42 are PHPStan hardening phases, 174 are other engineering work (features, bug fixes, the React migration), and 15 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself).
+**Reading the commit history:** 233 commits total — 43 are PHPStan hardening phases, 174 are other engineering work (features, bug fixes, the React migration), and 16 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself).
 
 ---
 
