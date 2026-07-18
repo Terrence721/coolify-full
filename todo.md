@@ -1,7 +1,7 @@
 # TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 17, 2026**
+**Last Updated: July 18, 2026**
 
 > The WSL2 dev-environment showcase that briefly replaced this file lives at [docs/wsl2-environment.md](docs/wsl2-environment.md).
 
@@ -19,6 +19,52 @@ A living list of what's done and what's left on this fork. This is a self-hosted
 - Removed two Hetzner Cloud affiliate-link blocks ("Coolify's affiliate link... supports us (€10) and gives you €20") — one in the shared `Security\CloudProviderTokenForm` Livewire component, one already carried over into the converted `Security\CloudTokens.jsx` page.
 
 ### PHPStan baseline reductions
+
+Skim this table for the shape of the whole effort; the detailed phase-by-phase log below it (kept in full, not summarized away) has the actual investigation for any row that looks interesting — schema checks, `dumpType` verifications, real bugs found and how they were confirmed, not just "added a type hint."
+
+| Phase | Baseline (before → after) | Focus | Highlight |
+|---|---|---|---|
+| 1 | 2996 → 2833 | Baseline regen after early return-type fixes | Captured pre-Phase-1 fixes, no new typing of its own |
+| 2 | 2833 → 2808 | `TerminalController` / `ApplicationDeploymentController` | Removed 25 stale ignore blocks that were breaking CI; 9 real findings fixed |
+| 3 | — | Stale baseline entry cleanup | Pure ignore-list hygiene |
+| 4 | 1572 → 1572 | `phpstan.neon.dist` analysis paths | CI-only fix (empty-dir path missing on fresh checkout) |
+| 5 | 1570 → 1606 (+36) | Extract `ManagesApiResourceStorages` trait | Accepted tradeoff — loose `Model $resource` typing |
+| 6 | 1609 → 1323 | 6 shared traits (`HasStandaloneDatabaseCommon`, `HasSafeStringAttribute`, etc.) | **Shared-trait leverage — largest single-phase drop of the whole initiative** |
+| 7 | 1323 → 1257 | `HasMetrics` / `EnvironmentVariableAnalyzer` array shapes | Typing only |
+| 8 | 1257 → 1244 | camelCase `Attribute`-accessor access (13 call sites) | Fixed a hidden magic-property gap invisible to static analysis |
+| 9 | 1244 → 1062 | `Application` / `Server` / `PrivateKey` + 6 traits | Real bug fixed (missing source-provider guard); largest "chip-away" drop by count |
+| 10 | 1062 → 1029 | `ManagesApiResourceEnvs`/`Storages` via `data_get()` | Typing only |
+| 11 | 1029 → 957 | `ManagesResourceEnvironmentVariables`/`Tags` | Real bug fixed — graceful fallback replacing a fatal generic-`Model` error |
+| 12 | 957 → 929 | `LocalFileVolume` | Refactor — extracted shared `resolveStorageContext()` helper |
+| 13 | 929 → 919 | `LocalPersistentVolume` | **Real fatal bug fixed** — protected-property access that would crash on every call |
+| 14 | 919 → 901 | `Application.php` defensive narrowing | Dead code removed (provably-unnecessary null-coalescing) |
+| 15 | 901 → 895 | `GeneratesGitCommands` | Dead code removed |
+| 16 | 895 → 880 | `SwarmDocker` relations | Typing only |
+| 17 | 880 → 866 | `GetContainersStatus` / database-engine actions | Dead branch removed; new characterization test added first |
+| 18 | 866 → 866 | `GetContainersStatusTest` CI flake | CI-only fix (faked a broadcast event) |
+| 19 | 866 → 866 | `Application.php` `Attribute` generics | Documentation-completeness pass, no net baseline change |
+| 20 | 866 → 833 | `Application.php` generics regressions | Pruned 19 now-stale ignores |
+| 21 | 833 → 852 (+19) | Fix Phase 20's vendor-drift false negative | Process lesson — always `composer install` before trusting a local run |
+| 22 | 852 → 852 | `EmailChannel` / `StartDatabaseProxy` | **Real bug fixed** — null `strtolower()` crash, TDD'd first |
+| 23 | 852 → 804 | `HasStandaloneDatabaseCommon` accessors | Shared-trait leverage (×8 database engines) |
+| 24 | 804 → 788 | `Server.php` batch | Code smell fixed (`static::` → `self::` on a private property) |
+| 25 | 788 → 764 | `Service.php` batch | **2 real bugs fixed** — non-deterministic config hash, fatal `$SERVICE_*` resolver |
+| 26 | 764 → 737 | `ServiceApplication`/`ServiceDatabase` | **Real bug fixed** — missing boolean casts, TypeError risk under `strict_types` |
+| 27 | 737 → 710 | `EnvironmentVariable`/`SharedEnvironmentVariable` | Caught its own wrong `Attribute` annotation before baselining, via 11 new errors |
+| 28 | 710 → 697 | `Environment.php` relations | Typing only |
+| 29 | 697 → 709 (+12) | `Project.php` relations | Deliberate net increase — accepted `StandaloneDatabaseInstance` interface gap |
+| 30 | 709 → 680 | `Team.php` + `HasNotificationSettings` | **Real bug fixed** — `Collection::merge()` type mismatch, found twice independently |
+| 31 | 680 → 665 | `User.php` | Code smell fixed (`static::` → `self::` on a private method) |
+| 32 | 665 → 650 | `StandaloneDocker` | Worked around a `Builder` generic-invariance wall |
+| 33 | 650 → 582 | 8 `Standalone*` engines + shared trait | **2 real bugs fixed** (dead SSL branch, accessor-visibility gap); shared-trait leverage |
+| 33b | 582 → 570 | `HasStandaloneDatabaseCommon`'s `once()` | Fixed a CI-only cross-class PHPStan inference bug Phase 33 had papered over |
+| 34 | 570 → 559 | `S3Storage` | Dead code removed (verified-NOT-NULL column guards) |
+| 35 | 559 → 548 | `ApplicationDeploymentQueue` | Caught PHPStan contradicting its own `dumpType` output; trusted the type dumper |
+| 36 | 548 → 541 | `ApplicationPreview` | 2 real findings — dead code proven unreachable, a `Carbon`-into-`string` gap documented |
+| 37 | 541 → 537 | `Service.php` remaining methods | 3 minor findings fixed (dead code ×2, explicit method call) |
+| 38 | 537 → 531 | `CloudProviderToken` | Clean single-model pass, no bugs, nothing left baselined |
+| 39 | 531 → 519 | `CalculatesExcludedStatus` trait | Shared-trait leverage (×4 classes, 12 entries collapsed) |
+| 40 | 519 → 515 | `StorageController.php` | `MorphTo`/`SoftDeletes` nullability blind spot investigated and documented |
 
 - Phase 1 (`bbb38b7f5`) — Shrink the PHPStan baseline after fixing a wave of flagged errors. Not a typing pass of its own: this commit is a pure baseline regeneration (2996 → 2833 entries) that captured fixes already landed in the three commits immediately preceding it (`fad1a5804` "Fix model, notification, and policy return types", `e448c06a2` "Add the PHPStan baseline and database-engine action tests", `2a2f0ccd9` "Fix Livewire and model bugs found during database-engine testing") — the initial wave of return-type/param-type fixes across the 8 database-engine `Start*` actions and the API controllers, done before this fork settled on the later "Phase N" naming convention and per-phase discipline.
 - Phase 2 (`c8eb1ad32`) — Fix TerminalController routing; document the Terminal conversion; shrink PHPStan baseline. Landed alongside the `Terminal\Index` Livewire→React conversion (migration doc's own "Phase 8", a raw-WebSocket page with no Laravel broadcasting involved). Deleting `app/Livewire/Terminal/Index.php` left 25 stale `phpstan-baseline.neon` blocks pointing at now-nonexistent paths — this one actually broke CI (`Invalid entries in ignoreErrors: Path ... is neither a directory, nor a file...`), not just a harmless unmatched-ignore warning. Removing those stale blocks let PHPStan actually analyze the new `TerminalController`/`ApplicationDeploymentController` code for the first time and surfaced 11 real findings: 9 fixed directly (`@return array<string, mixed>` docblocks on 5 private prop-building methods, `ApplicationDeploymentController::deploymentProps()`'s untyped `$deployment` param retyped to `ApplicationDeploymentQueue`, a redundant `?? []` on an array key PHPStan proved always exists, a redundant `collect()` re-wrap of an already-typed `Collection`, and `TerminalController::getAllActiveContainers()`'s param/return generics tightened to `Collection<int, Server>`/`Collection<int, array<string, mixed>>`). 2 were deliberately left baselined rather than blind-fixed: a `nullsafe.neverNull` complaint on `$lastDeployment?->commit_message` (the nullsafe is arguably redundant per PHPStan, but `get_last_successful_deployment()` has no declared return type and can genuinely return null — baselining beat risking a null-pointer fatal on unverified static-analysis reasoning), and a `return.type` complaint on `getAllActiveContainers()` caused by `Illuminate\Support\Collection`'s well-documented non-covariant `TValue` template. Baseline 2833 → 2808. Full suite 349 passed (up from 345) per the migration doc's Phase 8 verification log.
