@@ -23,7 +23,7 @@ trait StreamsContainerLogs
         $timestampFlag = $showTimestamps ? ' -t' : '';
         $command = "{$base} -n {$numberOfLines}{$timestampFlag} {$container}";
         if ($server->isNonRoot()) {
-            $command = parseCommandsByLineForSudo(collect($command), $server)[0];
+            $command = parseCommandsByLineForSudo(collect([$command]), $server)[0];
         }
 
         return SshMultiplexingHelper::generateSshCommand($server, $command);
@@ -35,7 +35,7 @@ trait StreamsContainerLogs
         $timestampFlag = $showTimestamps ? ' -t' : '';
         $command = "{$base}{$timestampFlag} {$container}";
         if ($server->isNonRoot()) {
-            $command = parseCommandsByLineForSudo(collect($command), $server)[0];
+            $command = parseCommandsByLineForSudo(collect([$command]), $server)[0];
         }
 
         return SshMultiplexingHelper::generateSshCommand($server, $command);

@@ -643,33 +643,9 @@ parameters:
 			path: app/Http/Controllers/ProjectLogsController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Support\\Collection\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
 			identifier: method.notFound
 			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
 			path: app/Http/Controllers/ProjectLogsController.php
 
 		-
@@ -799,12 +775,6 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Support\\Collection\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:type\(\)\.$#'
 			identifier: method.notFound
 			count: 3
@@ -853,64 +823,10 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceResourceController.php
 
 		-
-			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Http/Controllers/ProjectServiceResourceController.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ProjectServiceResourceController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ProjectServiceResourceController.php
-
-		-
 			message: '#^Using nullsafe property access "\?\-\>ssl_certificate" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/ServerCaCertificateController.php
-
-		-
-			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Http/Controllers/ServerProxyController.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ServerProxyController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ServerProxyController.php
-
-		-
-			message: '#^Parameter \#1 \$value of function collect expects Illuminate\\Contracts\\Support\\Arrayable\<\(int\|string\), mixed\>\|iterable\<\(int\|string\), mixed\>\|null, non\-falsy\-string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Http/Controllers/ServerSentinelController.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ServerSentinelController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 2
-			path: app/Http/Controllers/ServerSentinelController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'

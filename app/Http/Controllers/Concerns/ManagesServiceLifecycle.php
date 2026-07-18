@@ -35,18 +35,25 @@ trait ManagesServiceLifecycle
     {
         $this->authorize('deploy', $service);
 
-        $inProgressStatuses = [ProcessStatus::IN_PROGRESS->value, ProcessStatus::QUEUED->value];
-        Activity::where('properties->type_uuid', $service->uuid)
-            ->whereIn('properties->status', $inProgressStatuses)
-            ->get()
-            ->each(function (Activity $activity) {
-                $activity->properties->status = ProcessStatus::ERROR->value;
-                $activity->save();
-            });
+        $this->markStaleServiceActivitiesAsErrored($service, [ProcessStatus::IN_PROGRESS->value, ProcessStatus::QUEUED->value]);
 
         $activity = StartService::run($service, pullLatestImages: true, stopBeforeStart: true);
 
         return back()->with(['activityId' => $activity->id, 'activityContext' => 'service']);
+    }
+
+    /**
+     * @param  array<int, string>  $statuses
+     */
+    public function markStaleServiceActivitiesAsErrored(Service $service, array $statuses): void
+    {
+        Activity::where('properties->type_uuid', $service->uuid)
+            ->whereIn('properties->status', $statuses)
+            ->get()
+            ->each(function (Activity $activity) {
+                $activity->properties = $activity->properties->put('status', ProcessStatus::ERROR->value);
+                $activity->save();
+            });
     }
 
     private function restartService(Service $service): RedirectResponse
