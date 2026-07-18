@@ -138,6 +138,7 @@ use Illuminate\Support\Facades\Log;
  */
 class StandaloneMongodb extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneMongodbFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

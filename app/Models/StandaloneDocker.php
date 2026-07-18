@@ -64,6 +64,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneDocker extends BaseModel
 {
+    /** @use HasFactory<\Database\Factories\StandaloneDockerFactory> */
     use HasFactory;
     use HasSafeStringAttribute;
 

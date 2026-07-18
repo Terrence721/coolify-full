@@ -139,6 +139,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneMysql extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneMysqlFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

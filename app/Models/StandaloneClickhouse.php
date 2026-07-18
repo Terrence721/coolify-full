@@ -131,6 +131,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneClickhouse extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneClickhouseFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

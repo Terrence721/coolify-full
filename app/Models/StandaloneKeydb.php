@@ -131,6 +131,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneKeydb extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneKeydbFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

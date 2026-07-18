@@ -131,6 +131,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneRedis extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneRedisFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

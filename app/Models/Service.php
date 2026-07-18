@@ -124,6 +124,7 @@ use Visus\Cuid2\Cuid2;
 )]
 class Service extends BaseModel
 {
+    /** @use HasFactory<\Database\Factories\ServiceFactory> */
     use ClearsGlobalSearchCache, HasFactory, HasResourceCleanup, HasResourceLinks, HasResourceStatus, HasSafeStringAttribute, SoftDeletes;
 
     protected function resourceTypeSlug(): string

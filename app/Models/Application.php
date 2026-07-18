@@ -369,6 +369,7 @@ use Visus\Cuid2\Cuid2;
 )]
 class Application extends BaseModel
 {
+    /** @use HasFactory<\Database\Factories\ApplicationFactory> */
     use ClearsGlobalSearchCache, GeneratesGitCommands, HasConfiguration, HasDeploymentConfigurationTracking, HasFactory, HasMetrics, HasResourceCleanup, HasResourceLinks, HasResourceStatus, HasSafeStringAttribute, HasWatchPaths, SoftDeletes;
 
     protected function resourceTypeSlug(): string

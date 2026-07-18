@@ -325,12 +325,6 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Class App\\Models\\Application uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -427,12 +421,6 @@ parameters:
 			path: app/Models/Environment.php
 
 		-
-			message: '#^Class App\\Models\\Environment uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Environment.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
@@ -487,12 +475,6 @@ parameters:
 			path: app/Models/Project.php
 
 		-
-			message: '#^Class App\\Models\\Project uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Project.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
@@ -517,12 +499,6 @@ parameters:
 			path: app/Models/S3Storage.php
 
 		-
-			message: '#^Class App\\Models\\ScheduledTask uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/ScheduledTask.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\Server\:\:\$destination\.$#'
 			identifier: property.notFound
 			count: 1
@@ -531,12 +507,6 @@ parameters:
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Server\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Class App\\Models\\Server uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/Server.php
 
@@ -595,12 +565,6 @@ parameters:
 			path: app/Models/Service.php
 
 		-
-			message: '#^Class App\\Models\\Service uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
@@ -637,12 +601,6 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Class App\\Models\\StandaloneClickhouse uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -661,20 +619,8 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Class App\\Models\\StandaloneDocker uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneDocker.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneDragonfly\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Class App\\Models\\StandaloneDragonfly uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
@@ -703,12 +649,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Class App\\Models\\StandaloneKeydb uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -729,12 +669,6 @@ parameters:
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Class App\\Models\\StandaloneMariadb uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -763,12 +697,6 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Class App\\Models\\StandaloneMongodb uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -789,12 +717,6 @@ parameters:
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMysql\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Class App\\Models\\StandaloneMysql uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
@@ -823,12 +745,6 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Class App\\Models\\StandalonePostgresql uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -853,12 +769,6 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Class App\\Models\\StandaloneRedis uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -877,22 +787,10 @@ parameters:
 			path: app/Models/StandaloneRedis.php
 
 		-
-			message: '#^Class App\\Models\\Team uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Team.php
-
-		-
 			message: '#^Method App\\Models\\TeamInvitation\:\:isValid\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Models/TeamInvitation.php
-
-		-
-			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
 
 		-
 			message: '#^Method App\\Models\\UserChangelogRead\:\:getReadIdentifiersForUser\(\) return type has no value type specified in iterable type array\.$#'

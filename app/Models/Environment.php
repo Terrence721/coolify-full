@@ -78,6 +78,7 @@ use OpenApi\Attributes as OA;
 class Environment extends BaseModel
 {
     use ClearsGlobalSearchCache;
+    /** @use HasFactory<\Database\Factories\EnvironmentFactory> */
     use HasFactory;
     use HasSafeStringAttribute;
 

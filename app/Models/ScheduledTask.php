@@ -75,6 +75,7 @@ use OpenApi\Attributes as OA;
 )]
 class ScheduledTask extends BaseModel
 {
+    /** @use HasFactory<\Database\Factories\ScheduledTaskFactory> */
     use HasFactory;
     use HasSafeStringAttribute;
 

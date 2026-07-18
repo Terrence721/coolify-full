@@ -135,6 +135,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneMariadb extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneMariadbFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

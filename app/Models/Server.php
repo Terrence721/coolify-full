@@ -198,6 +198,7 @@ use Visus\Cuid2\Cuid2;
 
 class Server extends BaseModel
 {
+    /** @use HasFactory<\Database\Factories\ServerFactory> */
     use ClearsGlobalSearchCache, HasDockerContainers, HasFactory, HasMetrics, HasProxyConfiguration, HasSentinel, SchemalessAttributesTrait, SoftDeletes, ValidatesDockerEnvironment;
 
     public static int $batch_counter = 0;

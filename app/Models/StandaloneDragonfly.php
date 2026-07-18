@@ -129,6 +129,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneDragonfly extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandaloneDragonflyFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

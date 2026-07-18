@@ -102,6 +102,7 @@ use OpenApi\Attributes as OA;
 )]
 class User extends Authenticatable implements MustVerifyEmail, SendsEmail
 {
+    /** @use HasFactory<\Database\Factories\UserFactory> */
     use DeletesUserSessions, HasApiTokens, HasFactory, MustVerifyEmailTrait, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [

@@ -143,6 +143,7 @@ use Illuminate\Support\Carbon;
  */
 class StandalonePostgresql extends StandaloneDatabaseInstance
 {
+    /** @use HasFactory<\Database\Factories\StandalonePostgresqlFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

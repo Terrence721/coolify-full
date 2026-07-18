@@ -97,6 +97,7 @@ use OpenApi\Attributes as OA;
 )]
 class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, SendsSlack
 {
+    /** @use HasFactory<\Database\Factories\TeamFactory> */
     use HasFactory, HasNotificationSettings, HasSafeStringAttribute, Notifiable;
 
     protected $fillable = [

@@ -82,6 +82,7 @@ use Visus\Cuid2\Cuid2;
 class Project extends BaseModel
 {
     use ClearsGlobalSearchCache;
+    /** @use HasFactory<\Database\Factories\ProjectFactory> */
     use HasFactory;
     use HasSafeStringAttribute;
 
