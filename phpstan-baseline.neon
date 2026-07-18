@@ -793,57 +793,39 @@ parameters:
 			path: app/Http/Controllers/SettingsBackupController.php
 
 		-
-			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledDatabaseBackup and ''server'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:enrichSkipLogsWithLinks\(\) should return Illuminate\\Support\\Collection\<int, array\<string, mixed\>\> but returns Illuminate\\Support\\Collection\<int, non\-empty\-array\<string, mixed\>\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-
-			message: '#^Call to function method_exists\(\) with App\\Models\\ScheduledTask and ''server'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getBackupExecutions\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: mixed, type\: ''backup'', status\: mixed, resource_name\: mixed, resource_type\: string\|null, server_name\: mixed, server_id\: mixed, created_at\: mixed, \.\.\.\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: mixed, type\: ''backup'', status\: mixed, resource_name\: mixed, resource_type\: string\|null, server_name\: mixed, server_id\: mixed, created_at\: mixed, \.\.\.\}\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:enrichSkipLogsWithLinks\(\) has parameter \$skipLogs with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getCleanupExecutions\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: mixed, type\: ''cleanup'', status\: mixed, resource_name\: mixed, resource_type\: ''Server'', server_name\: mixed, server_id\: mixed, created_at\: mixed, \.\.\.\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: mixed, type\: ''cleanup'', status\: mixed, resource_name\: mixed, resource_type\: ''Server'', server_name\: mixed, server_id\: mixed, created_at\: mixed, \.\.\.\}\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:enrichSkipLogsWithLinks\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getExecutions\(\) should return Illuminate\\Support\\Collection\<int, array\<string, mixed\>\> but returns Illuminate\\Support\\Collection\<int, non\-empty\-array\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getBackupExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
+			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getTaskExecutions\(\) should return Illuminate\\Support\\Collection\<int, array\{id\: mixed, type\: ''task'', status\: mixed, resource_name\: mixed, resource_type\: string\|null, server_name\: mixed, server_id\: mixed, created_at\: mixed, \.\.\.\}\> but returns Illuminate\\Support\\Collection\<int, array\{id\: mixed, type\: ''task'', status\: mixed, resource_name\: mixed, resource_type\: string\|null, server_name\: mixed, server_id\: mixed, created_at\: mixed, \.\.\.\}\>\.$#'
+			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getCleanupExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
+			message: '#^Parameter \#1 \$skipLogs of method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:enrichSkipLogsWithLinks\(\) expects Illuminate\\Support\\Collection\<int, array\<string, mixed\>\>, Illuminate\\Support\\Collection\<int, array\{timestamp\: string, type\: string, reason\: string, team_id\: int\|null, context\: array\}\> given\.$#'
+			identifier: argument.type
 			count: 1
-			path: app/Http/Controllers/SettingsScheduledJobsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Http/Controllers/SettingsScheduledJobsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\SettingsScheduledJobsController\:\:getTaskExecutions\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Http/Controllers/SettingsScheduledJobsController.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 2
 			path: app/Http/Controllers/SettingsScheduledJobsController.php
 
 		-

@@ -59,6 +59,10 @@ class SettingsScheduledJobsController extends Controller
         ]);
     }
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $skipLogs
+     * @return Collection<int, array<string, mixed>>
+     */
     private function enrichSkipLogsWithLinks(Collection $skipLogs): Collection
     {
         $taskIds = $skipLogs->where('type', 'task')->pluck('context.task_id')->filter()->unique()->values();
@@ -118,7 +122,7 @@ class SettingsScheduledJobsController extends Controller
                         $service = $database->service()->first();
                         $environment = $service?->environment;
                         $project = $environment?->project;
-                        if ($project && $environment && $service) {
+                        if ($project) {
                             $skip['link'] = route('project.service.database.backups', [
                                 'project_uuid' => $project->uuid,
                                 'environment_uuid' => $environment->uuid,
@@ -150,6 +154,9 @@ class SettingsScheduledJobsController extends Controller
         });
     }
 
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
     private function getExecutions(string $filterType, string $filterDate): Collection
     {
         $dateFrom = $this->getDateFrom($filterDate);
@@ -185,6 +192,9 @@ class SettingsScheduledJobsController extends Controller
             });
     }
 
+    /**
+     * @return Collection<int, array{id: mixed, type: 'backup', status: mixed, resource_name: mixed, resource_type: string|null, server_name: mixed, server_id: mixed, created_at: mixed, finished_at: mixed, message: mixed, size: mixed}>
+     */
     private function getBackupExecutions(?Carbon $dateFrom): Collection
     {
         $query = ScheduledDatabaseBackupExecution::with(['scheduledDatabaseBackup.database', 'scheduledDatabaseBackup.team'])
@@ -197,7 +207,7 @@ class SettingsScheduledJobsController extends Controller
         return $query->map(function ($execution) {
             $backup = $execution->scheduledDatabaseBackup;
             $database = data_get($backup, 'database');
-            $server = (is_object($backup) && method_exists($backup, 'server')) ? $backup->server() : null;
+            $server = $backup?->server();
 
             return [
                 'id' => $execution->id,
@@ -215,6 +225,9 @@ class SettingsScheduledJobsController extends Controller
         });
     }
 
+    /**
+     * @return Collection<int, array{id: mixed, type: 'task', status: mixed, resource_name: mixed, resource_type: string|null, server_name: mixed, server_id: mixed, created_at: mixed, finished_at: mixed, message: mixed, size: null}>
+     */
     private function getTaskExecutions(?Carbon $dateFrom): Collection
     {
         $query = ScheduledTaskExecution::with(['scheduledTask.application', 'scheduledTask.service'])
@@ -227,7 +240,7 @@ class SettingsScheduledJobsController extends Controller
         return $query->map(function ($execution) {
             $task = $execution->scheduledTask;
             $resource = data_get($task, 'application') ?? data_get($task, 'service');
-            $server = (is_object($task) && method_exists($task, 'server')) ? $task->server() : null;
+            $server = $task?->server();
 
             return [
                 'id' => $execution->id,
@@ -245,6 +258,9 @@ class SettingsScheduledJobsController extends Controller
         });
     }
 
+    /**
+     * @return Collection<int, array{id: mixed, type: 'cleanup', status: mixed, resource_name: mixed, resource_type: 'Server', server_name: mixed, server_id: mixed, created_at: mixed, finished_at: mixed, message: mixed, size: null}>
+     */
     private function getCleanupExecutions(?Carbon $dateFrom): Collection
     {
         $query = DockerCleanupExecution::with(['server'])
