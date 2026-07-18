@@ -8,6 +8,9 @@ use App\Models\Application;
 use App\Models\LocalFileVolume;
 use App\Models\LocalPersistentVolume;
 use App\Models\Service;
+use App\Models\ServiceApplication;
+use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use App\Support\ValidationPatterns;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
@@ -46,15 +49,23 @@ trait ManagesResourceStorages
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function storagesTabProps(Model $resource, array $parameters, string $routePrefix): array
+    private function storagesTabProps(Application|Service|StandaloneDatabaseInstance $resource, array $parameters, string $routePrefix): array
     {
         $isService = $resource instanceof Service;
+        $sourceDirPlaceholder = null;
+        $storageUrls = null;
 
-        if ($isService) {
+        if ($resource instanceof Service) {
             $children = $resource->applications()->get()->concat($resource->databases()->get());
-            $sections = $children->map(fn (Model $child) => $this->storageSectionProps($child, $parameters, $routePrefix, isService: true))->values();
+            $sections = $children->map(fn (ServiceApplication|ServiceDatabase $child) => $this->storageSectionProps($child, $parameters, $routePrefix, isService: true))->values();
         } else {
             $sections = collect([$this->storageSectionProps($resource, $parameters, $routePrefix, isService: false)]);
+            $sourceDirPlaceholder = $this->configurationDir($resource)."/{$resource->uuid}";
+            $storageUrls = [
+                'volumeStore' => route("{$routePrefix}.storages.volume.store", $parameters),
+                'fileStore' => route("{$routePrefix}.storages.file.store", $parameters),
+                'directoryStore' => route("{$routePrefix}.storages.directory.store", $parameters),
+            ];
         }
 
         return [
@@ -62,16 +73,12 @@ trait ManagesResourceStorages
             'isService' => $isService,
             'canAddMounts' => ! $isService,
             'canUpdate' => auth()->user()->can('update', $resource),
-            'sourceDirPlaceholder' => $isService ? null : $this->configurationDir($resource)."/{$resource->uuid}",
-            'storageUrls' => $isService ? null : [
-                'volumeStore' => route("{$routePrefix}.storages.volume.store", $parameters),
-                'fileStore' => route("{$routePrefix}.storages.file.store", $parameters),
-                'directoryStore' => route("{$routePrefix}.storages.directory.store", $parameters),
-            ],
+            'sourceDirPlaceholder' => $sourceDirPlaceholder,
+            'storageUrls' => $storageUrls,
         ];
     }
 
-    public function storeStorageVolume(Request $request, Model $resource): RedirectResponse
+    public function storeStorageVolume(Request $request, Application|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -98,7 +105,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'Volume added successfully');
     }
 
-    public function storeStorageFile(Request $request, Model $resource): RedirectResponse
+    public function storeStorageFile(Request $request, Application|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -128,7 +135,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'File mount added successfully');
     }
 
-    public function storeStorageDirectory(Request $request, Model $resource): RedirectResponse
+    public function storeStorageDirectory(Request $request, Application|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -159,7 +166,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'Directory mount added successfully');
     }
 
-    public function updateStorageVolume(Request $request, Model $resource, LocalPersistentVolume $volume): RedirectResponse
+    public function updateStorageVolume(Request $request, Application|Service|StandaloneDatabaseInstance $resource, LocalPersistentVolume $volume): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -185,7 +192,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'Storage updated successfully');
     }
 
-    public function destroyStorageVolume(Request $request, Model $resource, LocalPersistentVolume $volume): RedirectResponse
+    public function destroyStorageVolume(Request $request, Application|Service|StandaloneDatabaseInstance $resource, LocalPersistentVolume $volume): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -202,7 +209,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'Storage deleted.');
     }
 
-    public function updateStorageFile(Request $request, Model $resource, LocalFileVolume $file): RedirectResponse
+    public function updateStorageFile(Request $request, Application|Service|StandaloneDatabaseInstance $resource, LocalFileVolume $file): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -230,7 +237,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'File updated.');
     }
 
-    public function loadStorageFile(Model $resource, LocalFileVolume $file): RedirectResponse
+    public function loadStorageFile(Application|Service|StandaloneDatabaseInstance $resource, LocalFileVolume $file): RedirectResponse
     {
         $this->authorize('view', $resource);
 
@@ -244,7 +251,7 @@ trait ManagesResourceStorages
         return back()->with('success', 'File storage loaded from server.');
     }
 
-    public function convertStorageFile(Model $resource, LocalFileVolume $file): RedirectResponse
+    public function convertStorageFile(Application|Service|StandaloneDatabaseInstance $resource, LocalFileVolume $file): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -263,7 +270,7 @@ trait ManagesResourceStorages
         return back()->with('success', $file->is_directory ? 'Converted to directory.' : 'Converted to file.');
     }
 
-    public function destroyStorageFile(Request $request, Model $resource, LocalFileVolume $file): RedirectResponse
+    public function destroyStorageFile(Request $request, Application|Service|StandaloneDatabaseInstance $resource, LocalFileVolume $file): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -295,7 +302,7 @@ trait ManagesResourceStorages
      * A volume/file id from the client must belong to the routed resource: the database itself,
      * or (for services) one of the service's own application/database children.
      */
-    private function resolveOwnedVolume(Model $resource, string $volume_id): LocalPersistentVolume
+    private function resolveOwnedVolume(Application|Service|StandaloneDatabaseInstance $resource, string $volume_id): LocalPersistentVolume
     {
         $volume = LocalPersistentVolume::findOrFail($volume_id);
         abort_unless($this->storageBelongsToResource($volume->resource, $resource), 404);
@@ -303,7 +310,7 @@ trait ManagesResourceStorages
         return $volume;
     }
 
-    private function resolveOwnedFileVolume(Model $resource, string $file_id): LocalFileVolume
+    private function resolveOwnedFileVolume(Application|Service|StandaloneDatabaseInstance $resource, string $file_id): LocalFileVolume
     {
         $file = LocalFileVolume::findOrFail($file_id);
         abort_unless($this->storageBelongsToResource($file->service, $resource), 404);
@@ -311,7 +318,7 @@ trait ManagesResourceStorages
         return $file;
     }
 
-    private function storageBelongsToResource(?Model $owner, Model $resource): bool
+    private function storageBelongsToResource(?Model $owner, Application|Service|StandaloneDatabaseInstance $resource): bool
     {
         if ($owner === null) {
             return false;
@@ -326,7 +333,7 @@ trait ManagesResourceStorages
         return false;
     }
 
-    private function configurationDir(Model $resource): string
+    private function configurationDir(Application|StandaloneDatabaseInstance $resource): string
     {
         return $resource instanceof Application ? application_configuration_dir() : database_configuration_dir();
     }
@@ -336,7 +343,7 @@ trait ManagesResourceStorages
      * (which can also target a swarm destination) never had this rule in the original either,
      * so it stays Application-only here rather than generalized further.
      */
-    private function requiresHostPath(Model $resource): bool
+    private function requiresHostPath(Application|StandaloneDatabaseInstance $resource): bool
     {
         return $resource instanceof Application && (bool) $resource->destination?->server?->isSwarm();
     }
@@ -345,7 +352,7 @@ trait ManagesResourceStorages
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function storageSectionProps(Model $owner, array $parameters, string $routePrefix, bool $isService): array
+    private function storageSectionProps(Application|StandaloneDatabaseInstance|ServiceApplication|ServiceDatabase $owner, array $parameters, string $routePrefix, bool $isService): array
     {
         $volumes = $owner->persistentStorages()->get();
         $files = $owner->fileStorages()->get();

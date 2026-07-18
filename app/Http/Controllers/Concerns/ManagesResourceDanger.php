@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Concerns;
 
 use App\Jobs\DeleteResourceJob;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Application;
+use App\Models\Service;
+use App\Models\StandaloneDatabaseInstance;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +26,7 @@ trait ManagesResourceDanger
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function dangerTabProps(Model $resource, array $parameters, string $routePrefix): array
+    private function dangerTabProps(Application|Service|StandaloneDatabaseInstance $resource, array $parameters, string $routePrefix): array
     {
         return [
             'resourceName' => $resource->name ?? 'Resource',
@@ -36,7 +38,7 @@ trait ManagesResourceDanger
     /**
      * @param  array<string, string>  $parameters
      */
-    private function destroyResource(Request $request, Model $resource, array $parameters): RedirectResponse
+    private function destroyResource(Request $request, Application|Service|StandaloneDatabaseInstance $resource, array $parameters): RedirectResponse
     {
         $validated = Validator::make($request->all(), [
             'password' => 'required|string',

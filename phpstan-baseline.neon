@@ -91,44 +91,8 @@ parameters:
 			path: app/Http/Controllers/Api/ServicesController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
 			message: '#^Anonymous function should return array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: mixed, name\: mixed\}\>\} but returns array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string\}\>\}\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service\|App\\Models\\StandaloneDatabaseInstance in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
@@ -181,44 +145,8 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Anonymous function should return array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: mixed, name\: mixed\}\>\} but returns array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string\}\>\}\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service\|App\\Models\\StandaloneDatabaseInstance in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
@@ -241,44 +169,8 @@ parameters:
 			path: app/Http/Controllers/ProjectResourceCreateController.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
 			message: '#^Anonymous function should return array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: mixed, name\: mixed\}\>\} but returns array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string\}\>\}\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service\|App\\Models\\StandaloneDatabaseInstance in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
