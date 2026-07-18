@@ -73,7 +73,7 @@ trait SshRetryable
      * Execute a callback with SSH retry logic
      *
      * @param  callable  $callback  The operation to execute
-     * @param  array  $context  Context for logging (server, command, etc.)
+     * @param  array<string, mixed>  $context  Context for logging (server, command, etc.)
      * @param  bool  $throwError  Whether to throw error on final failure
      * @return mixed The result from the callback
      */

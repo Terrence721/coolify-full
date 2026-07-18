@@ -7,7 +7,6 @@ namespace App\Traits;
 use App\Enums\ApplicationDeploymentStatus;
 use App\Exceptions\DeploymentException;
 use App\Helpers\SshMultiplexingHelper;
-use App\Models\Server;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Process;
 
@@ -19,7 +18,7 @@ trait ExecuteRemoteCommand
 
     public static int $batch_counter = 0;
 
-    private function redact_sensitive_info($text)
+    private function redact_sensitive_info(string $text): string
     {
         $text = remove_iip($text);
 
@@ -59,13 +58,13 @@ trait ExecuteRemoteCommand
         return $text;
     }
 
-    public function execute_remote_command(...$commands)
+    /**
+     * @param  array<int|string, mixed>  ...$commands
+     */
+    public function execute_remote_command(...$commands): void
     {
         static::$batch_counter++;
         $commandsText = collect($commands);
-        if ($this->server instanceof Server === false) {
-            throw new \RuntimeException('Server is not set or is not an instance of Server model');
-        }
         $commandsText->each(function ($single_command) {
             $command = data_get($single_command, 'command') ?? $single_command[0] ?? null;
             if ($command === null) {
@@ -150,7 +149,7 @@ trait ExecuteRemoteCommand
     /**
      * Execute the actual command with process handling
      */
-    private function executeCommandWithProcess($command, $hidden, $customType, $append, $ignore_errors, $command_hidden = false)
+    private function executeCommandWithProcess(string $command, bool $hidden, ?string $customType, bool $append, bool $ignore_errors, bool $command_hidden = false): void
     {
         if ($command_hidden && isset($this->application_deployment_queue)) {
             $this->application_deployment_queue->addLogEntry('[CMD]: '.$this->redact_sensitive_info($command), hidden: true);
@@ -244,7 +243,7 @@ trait ExecuteRemoteCommand
     /**
      * Add a log entry for SSH retry attempts
      */
-    private function addRetryLogEntry(int $attempt, int $maxRetries, int $delay, string $errorMessage)
+    private function addRetryLogEntry(int $attempt, int $maxRetries, int $delay, string $errorMessage): void
     {
         $retryMessage = "SSH connection failed. Retrying... (Attempt {$attempt}/{$maxRetries}, waiting {$delay}s)\nError: {$errorMessage}";
 
