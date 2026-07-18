@@ -8,11 +8,14 @@ This repository is a professionally enhanced fork of [Coolify](https://coolify.i
 It showcases real-world engineering work including:
 
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
+- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 519 (and still going), phase by phase, each one verified with a full test-suite run — not a one-time cleanup
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
+
+**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 519 (40 phases) · 1,201 Pest tests passing (5,021 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
 ---
 
@@ -92,4 +95,4 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 Work on this fork is tracked two ways:
 
 - **[`todo.md`](todo.md)** — the primary, detailed record: a phase-by-phase written log of everything done and everything still open, with dates, verified deltas, and the reasoning behind each decision. This is the source of truth.
-- **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Todo/In Progress/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with `todo.md`.
+- **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Backlog/Planned/In Progress/Verification & QA/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with `todo.md`.
