@@ -1117,30 +1117,6 @@ parameters:
 			path: app/Http/Controllers/StorageController.php
 
 		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: app/Http/Controllers/StorageController.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: app/Http/Controllers/StorageController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/StorageController.php
-
-		-
-			message: '#^Using nullsafe property access on non\-nullable type App\\Models\\Service\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/StorageController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) has parameter \$applicationIds with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1

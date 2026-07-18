@@ -214,14 +214,24 @@ class StorageController extends Controller
         $rows = [];
         foreach ($backups as $group) {
             $database = $group->first()->database;
+            // database() is an untyped MorphTo; Larastan infers it as always-Model, but a MorphTo
+            // genuinely resolves to null when the target row is gone - exactly the scenario this
+            // line's own 'Deleted database' fallback names.
+            // @phpstan-ignore nullsafe.neverNull
             $databaseName = $database?->name ?? 'Deleted database';
             $resourceLink = null;
             $backupParams = null;
 
             if ($database instanceof ServiceDatabase) {
                 $service = $database->service;
+                // Service uses SoftDeletes, so this belongsTo can resolve to null at runtime (e.g. a
+                // soft-deleted parent Service) even though service_id is a NOT NULL column - Larastan
+                // doesn't model soft-delete query scoping.
+                // @phpstan-ignore nullsafe.neverNull
                 $environment = $service?->environment;
                 $project = $environment?->project;
+                // Same Service::SoftDeletes blind spot as above - $service can genuinely be null.
+                // @phpstan-ignore booleanAnd.leftAlwaysTrue, booleanAnd.rightAlwaysTrue
                 if ($service && $project && $environment) {
                     $resourceLink = route('project.service.configuration', [
                         'project_uuid' => $project->uuid,
