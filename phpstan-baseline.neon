@@ -433,24 +433,6 @@ parameters:
 			path: app/Models/CloudInitScript.php
 
 		-
-			message: '#^Method App\\Models\\DiscordNotificationSettings\:\:isPingEnabled\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/DiscordNotificationSettings.php
-
-		-
-			message: '#^Method App\\Models\\DiscordNotificationSettings\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/DiscordNotificationSettings.php
-
-		-
-			message: '#^Method App\\Models\\EmailNotificationSettings\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/EmailNotificationSettings.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -581,12 +563,6 @@ parameters:
 			identifier: missingType.return
 			count: 1
 			path: app/Models/ProjectSetting.php
-
-		-
-			message: '#^Method App\\Models\\PushoverNotificationSettings\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/PushoverNotificationSettings.php
 
 		-
 			message: '#^Class App\\Models\\S3Storage uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -725,36 +701,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/ServiceDatabase.php
-
-		-
-			message: '#^Method App\\Models\\SlackNotificationSettings\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/SlackNotificationSettings.php
-
-		-
-			message: '#^Method App\\Models\\SslCertificate\:\:application\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/SslCertificate.php
-
-		-
-			message: '#^Method App\\Models\\SslCertificate\:\:database\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/SslCertificate.php
-
-		-
-			message: '#^Method App\\Models\\SslCertificate\:\:server\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/SslCertificate.php
-
-		-
-			message: '#^Method App\\Models\\SslCertificate\:\:service\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/SslCertificate.php
 
 		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneClickhouse\) and ''team'' will always evaluate to true\.$#'
@@ -1033,12 +979,6 @@ parameters:
 			path: app/Models/TeamInvitation.php
 
 		-
-			message: '#^Method App\\Models\\TelegramNotificationSettings\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TelegramNotificationSettings.php
-
-		-
 			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -1049,12 +989,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Models/UserChangelogRead.php
-
-		-
-			message: '#^Method App\\Models\\WebhookNotificationSettings\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/WebhookNotificationSettings.php
 
 		-
 			message: '#^Trait App\\Traits\\AuthorizesResourceCreation is used zero times and is not analysed\.$#'

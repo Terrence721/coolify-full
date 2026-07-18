@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
@@ -107,7 +108,10 @@ class DiscordNotificationSettings extends Model
         'discord_ping_enabled' => 'boolean',
     ];
 
-    public function team()
+    /**
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
@@ -117,7 +121,7 @@ class DiscordNotificationSettings extends Model
         return $this->discord_enabled;
     }
 
-    public function isPingEnabled()
+    public function isPingEnabled(): bool
     {
         return $this->discord_ping_enabled;
     }

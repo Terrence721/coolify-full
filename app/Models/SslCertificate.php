@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,10 +23,7 @@ use Illuminate\Support\Carbon;
  * @property bool $is_ca_certificate
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Model|\Eloquent|null $application
- * @property-read Model|\Eloquent|null $database
  * @property-read Server|null $server
- * @property-read Model|\Eloquent|null $service
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SslCertificate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SslCertificate newQuery()
@@ -70,22 +68,10 @@ class SslCertificate extends Model
         'valid_until' => 'datetime',
     ];
 
-    public function application()
-    {
-        return $this->morphTo('resource');
-    }
-
-    public function service()
-    {
-        return $this->morphTo('resource');
-    }
-
-    public function database()
-    {
-        return $this->morphTo('resource');
-    }
-
-    public function server()
+    /**
+     * @return BelongsTo<Server, $this>
+     */
+    public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
