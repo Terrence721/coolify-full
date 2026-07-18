@@ -17,7 +17,7 @@ This project is not affiliated with the Coolify team and is intended solely as a
 
 **At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 519 (40 phases) · 1,201 Pest tests passing (5,021 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 220 commits total — 43 are PHPStan hardening phases, 169 are other engineering work (features, bug fixes, the React migration), and 8 are documentation-accuracy passes. `git log --oneline --grep="^Phase [0-9]"` isolates just the PHPStan phases if you want to skip straight to that thread.
+**Reading the commit history:** 221 commits total — 39 are PHPStan hardening phases, 173 are other engineering work (features, bug fixes, the React migration), and 9 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself).
 
 ---
 
