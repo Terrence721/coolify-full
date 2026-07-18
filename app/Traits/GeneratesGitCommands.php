@@ -28,7 +28,7 @@ trait GeneratesGitCommands
     {
         $baseDir = $this->generateBaseDir($deployment_uuid);
         $escapedBaseDir = escapeshellarg($baseDir);
-        $isShallowCloneEnabled = $this->settings?->is_git_shallow_clone_enabled ?? false;
+        $isShallowCloneEnabled = $this->settings->is_git_shallow_clone_enabled;
         $gitCommand = $gitConfigOptions ? "git {$gitConfigOptions}" : 'git';
 
         $resolvedGitSshCommand = $git_ssh_command ?? $gitSshCommand;
@@ -108,7 +108,7 @@ trait GeneratesGitCommands
             $source_html_url_host = $url['host'];
             $source_html_url_scheme = $url['scheme'];
 
-            if ($this->source->getMorphClass() == 'App\Models\GithubApp') {
+            if ($this->source instanceof GithubApp) {
                 $escapedCustomRepository = escapeshellarg($customRepository);
                 if (data_get($this, 'source.is_public')) {
                     $sourceHtmlUrl = data_get($this, 'source.html_url');
@@ -145,7 +145,7 @@ trait GeneratesGitCommands
                 ];
             }
 
-            if ($this->source->getMorphClass() === GitlabApp::class) {
+            if ($this->source instanceof GitlabApp) {
                 $gitlabSource = $this->source;
                 $private_key = data_get($gitlabSource, 'privateKey.private_key');
 
@@ -303,7 +303,7 @@ trait GeneratesGitCommands
         $commands = collect([]);
 
         // Check if shallow clone is enabled
-        $isShallowCloneEnabled = $this->settings?->is_git_shallow_clone_enabled ?? false;
+        $isShallowCloneEnabled = $this->settings->is_git_shallow_clone_enabled;
         $depthFlag = $isShallowCloneEnabled ? ' --depth=1' : '';
 
         $submoduleFlags = '';
@@ -328,7 +328,7 @@ trait GeneratesGitCommands
             $source_html_url_host = $url['host'];
             $source_html_url_scheme = $url['scheme'];
 
-            if ($this->source->getMorphClass() === GithubApp::class) {
+            if ($this->source instanceof GithubApp) {
                 if (data_get($this, 'source.is_public')) {
                     $sourceHtmlUrl = data_get($this, 'source.html_url');
                     $fullRepoUrl = "{$sourceHtmlUrl}/{$customRepository}";
@@ -394,7 +394,7 @@ trait GeneratesGitCommands
                 ];
             }
 
-            if ($this->source->getMorphClass() === GitlabApp::class) {
+            if ($this->source instanceof GitlabApp) {
                 $gitlabSource = $this->source;
                 $private_key = data_get($gitlabSource, 'privateKey.private_key');
 

@@ -173,7 +173,7 @@ use Visus\Cuid2\Cuid2;
  * @property-read Collection<int, ScheduledTask> $scheduled_tasks
  * @property-read int|null $scheduled_tasks_count
  * @property-read mixed $server_status
- * @property-read Model|\Eloquent|null $source
+ * @property-read GithubApp|GitlabApp|null $source
  * @property-read Collection<int, Tag> $tags
  * @property-read int|null $tags_count
  *
@@ -640,7 +640,7 @@ class Application extends BaseModel
                 }
 
                 // If it's a string but not JSON, treat it as a comma-separated list
-                if (is_string($value) && ! is_array($value)) {
+                if (is_string($value)) {
                     $value = explode(',', $value);
                 }
 
@@ -750,6 +750,9 @@ class Application extends BaseModel
         });
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getContainersToStop(Server $server, bool $previewDeployments = false): array
     {
         $containers = $previewDeployments
@@ -757,6 +760,48 @@ class Application extends BaseModel
             : getCurrentApplicationContainerStatus($server, $this->id, 0);
 
         return $containers->pluck('Names')->toArray();
+    }
+
+    /**
+     * Drops docker_compose_domains entries for services that no longer exist
+     * in the parsed compose file, nulling the column out entirely once
+     * nothing valid remains.
+     */
+    public function pruneStaleDockerComposeDomains(mixed $parsedServices): void
+    {
+        if (! $this->docker_compose_domains) {
+            return;
+        }
+
+        $decoded = json_decode($this->docker_compose_domains, true);
+        $json = collect(is_array($decoded) ? $decoded : []);
+        $normalized = collect();
+        foreach ($json as $key => $value) {
+            $normalizedKey = (string) str($key)->replace('-', '_')->replace('.', '_');
+            $normalized->put($normalizedKey, $value);
+        }
+        $json = $normalized;
+        $servicesData = data_get($parsedServices, 'services', []);
+        $services = collect(is_array($servicesData) ? $servicesData : []);
+        foreach ($services as $name => $service) {
+            if (str($name)->contains('-') || str($name)->contains('.')) {
+                $replacedName = str($name)->replace('-', '_')->replace('.', '_');
+                $services->put((string) $replacedName, $service);
+                $services->forget((string) $name);
+            }
+        }
+        $names = $services->keys()->toArray();
+        $jsonNames = $json->keys()->toArray();
+        $diff = array_diff($jsonNames, $names);
+        $json = $json->filter(function ($value, $key) use ($diff) {
+            return ! in_array($key, $diff);
+        });
+        if ($json->isNotEmpty()) {
+            $this->docker_compose_domains = json_encode($json);
+        } else {
+            $this->docker_compose_domains = null;
+        }
+        $this->save();
     }
 
     public function deleteVolumes(): void
@@ -1058,6 +1103,9 @@ class Application extends BaseModel
         return $this->getRawOriginal('status');
     }
 
+    /**
+     * @return Attribute<bool, never>
+     */
     protected function serverStatus(): Attribute
     {
         return Attribute::make(
@@ -1628,37 +1676,7 @@ class Application extends BaseModel
             $this->docker_compose_raw = $composeFileContent;
             $this->save();
             $parsedServices = $this->parse();
-            if ($this->docker_compose_domains) {
-                $decoded = json_decode($this->docker_compose_domains, true);
-                $json = collect(is_array($decoded) ? $decoded : []);
-                $normalized = collect();
-                foreach ($json as $key => $value) {
-                    $normalizedKey = (string) str($key)->replace('-', '_')->replace('.', '_');
-                    $normalized->put($normalizedKey, $value);
-                }
-                $json = $normalized;
-                $servicesData = data_get($parsedServices, 'services', []);
-                $services = collect(is_array($servicesData) ? $servicesData : []);
-                foreach ($services as $name => $service) {
-                    if (str($name)->contains('-') || str($name)->contains('.')) {
-                        $replacedName = str($name)->replace('-', '_')->replace('.', '_');
-                        $services->put((string) $replacedName, $service);
-                        $services->forget((string) $name);
-                    }
-                }
-                $names = $services->keys()->toArray();
-                $jsonNames = $json->keys()->toArray();
-                $diff = array_diff($jsonNames, $names);
-                $json = $json->filter(function ($value, $key) use ($diff) {
-                    return ! in_array($key, $diff);
-                });
-                if ($json) {
-                    $this->docker_compose_domains = json_encode($json);
-                } else {
-                    $this->docker_compose_domains = null;
-                }
-                $this->save();
-            }
+            $this->pruneStaleDockerComposeDomains($parsedServices);
 
             return [
                 'parsedServices' => $parsedServices,
@@ -1766,14 +1784,15 @@ class Application extends BaseModel
                 if ($retries->isNotEmpty()) {
                     $this->health_check_retries = $retries->toInteger();
                 }
-                if ($interval || $timeout || $start_period || $retries) {
-                    $this->custom_healthcheck_found = true;
-                    $this->save();
-                }
+                $this->custom_healthcheck_found = true;
+                $this->save();
             }
         }
     }
 
+    /**
+     * @return array{limits_memory: string, limits_memory_swap: string, limits_memory_swappiness: int, limits_memory_reservation: string, limits_cpus: string, limits_cpuset: string|null, limits_cpu_shares: int}
+     */
     public function getLimits(): array
     {
         return [

@@ -1285,12 +1285,6 @@ parameters:
 			path: app/Jobs/ServerLimitCheckJob.php
 
 		-
-			message: '#^Call to function is_array\(\) with string will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Application\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1305,18 +1299,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: app/Models/Application.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
 			count: 1
 			path: app/Models/Application.php
 
@@ -1345,105 +1327,9 @@ parameters:
 			path: app/Models/Application.php
 
 		-
-			message: '#^Left side of \|\| is always true\.$#'
-			identifier: booleanOr.leftAlwaysTrue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:deploymentConfigurationSnapshot\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:getContainersToStop\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:getLimits\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:isWatchPathsTriggered\(\) has parameter \$modified_files with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:matchPaths\(\) has parameter \$modified_files with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:matchPaths\(\) has parameter \$watch_paths with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:matchPaths\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:matchWatchPaths\(\) has parameter \$modified_files with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:matchWatchPaths\(\) has parameter \$watch_paths with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:matchWatchPaths\(\) return type with generic class Illuminate\\Support\\Collection does not specify its types\: TKey, TValue$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:serverStatus\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Method App\\Models\\Application\:\:watchPaths\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Parameter \#1 \$source of function generateGithubInstallationToken expects App\\Models\\GithubApp, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: app/Models/Application.php
-
-		-
-			message: '#^Parameter \#3 \$source of function convertGitUrl expects App\\Models\\GithubApp\|App\\Models\\GitlabApp\|null, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Models/Application.php
-
-		-
 			message: '#^Result of \|\| is always false\.$#'
 			identifier: booleanOr.alwaysFalse
 			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Right side of \|\| is always true\.$#'
-			identifier: booleanOr.rightAlwaysTrue
-			count: 3
 			path: app/Models/Application.php
 
 		-

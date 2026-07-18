@@ -55,6 +55,9 @@ trait HasDeploymentConfigurationTracking
         return $this->pendingDeploymentConfigurationDiff()->isChanged();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function deploymentConfigurationSnapshot(): array
     {
         return (new ApplicationConfigurationSnapshot($this))->toArray();

@@ -41,6 +41,9 @@ trait HasWatchPaths
         return null;
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     public function watchPaths(): Attribute
     {
         return Attribute::make(
@@ -52,6 +55,11 @@ trait HasWatchPaths
         );
     }
 
+    /**
+     * @param  Collection<int, string>  $modified_files
+     * @param  Collection<int, string>|null  $watch_paths
+     * @return Collection<int, string>
+     */
     public function matchWatchPaths(Collection $modified_files, ?Collection $watch_paths): Collection
     {
         return self::matchPaths($modified_files, $watch_paths);
@@ -60,6 +68,10 @@ trait HasWatchPaths
     /**
      * Static method to match paths against watch patterns with negation support
      * Uses order-based matching: last matching pattern wins
+     *
+     * @param  Collection<int, string>  $modified_files
+     * @param  Collection<int, string>|null  $watch_paths
+     * @return Collection<int, string>
      */
     public static function matchPaths(Collection $modified_files, ?Collection $watch_paths): Collection
     {
@@ -201,6 +213,9 @@ trait HasWatchPaths
         }
     }
 
+    /**
+     * @param  Collection<int, string>  $modified_files
+     */
     public function isWatchPathsTriggered(Collection $modified_files): bool
     {
         if (is_null($this->watch_paths)) {
