@@ -95,8 +95,8 @@ trait HasDockerContainers
         }
 
         return [
-            'containers' => collect($containers) ?? collect([]),
-            'containerReplicates' => collect($containerReplicates) ?? collect([]),
+            'containers' => collect($containers),
+            'containerReplicates' => collect($containerReplicates),
         ];
     }
 

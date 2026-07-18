@@ -17,7 +17,7 @@ trait HasSentinel
 {
     public function sentinelHeartbeat(bool $isReset = false): void
     {
-        $this->sentinel_updated_at = $isReset ? now()->subMinutes(6000) : now();
+        $this->sentinel_updated_at = (string) ($isReset ? now()->subMinutes(6000) : now());
         $this->save();
     }
 
@@ -61,6 +61,9 @@ trait HasSentinel
         CheckAndStartSentinelJob::dispatch($this);
     }
 
+    /**
+     * @return array{os: string, arch: string, kernel: string, cpus: int, memory_bytes: int, uptime_since: string|null, collected_at: string}|null
+     */
     public function gatherServerMetadata(): ?array
     {
         if (! $this->isFunctional()) {

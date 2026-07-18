@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Stringable;
@@ -204,6 +205,8 @@ class Server extends BaseModel
     /**
      * Identity map cache for request-scoped Server lookups.
      * Prevents N+1 queries when the same Server is accessed multiple times.
+     *
+     * @var array<int, static|null>|null
      */
     private static ?array $identityMapCache = null;
 
@@ -343,6 +346,9 @@ class Server extends BaseModel
         'force_disabled' => 'boolean',
     ];
 
+    /**
+     * @var array<int, string>
+     */
     protected array $schemalessAttributes = [
         'proxy',
     ];
@@ -582,7 +588,10 @@ class Server extends BaseModel
         );
     }
 
-    public function previews()
+    /**
+     * @return SupportCollection<int, ApplicationPreview>
+     */
+    public function previews(): SupportCollection
     {
         return $this->destinations()->map(function ($standaloneDocker) {
             return $standaloneDocker->applications->map(function ($application) {
@@ -591,7 +600,10 @@ class Server extends BaseModel
         })->flatten();
     }
 
-    public function destinations()
+    /**
+     * @return Collection<int, StandaloneDocker|SwarmDocker>
+     */
+    public function destinations(): Collection
     {
         $standalone_docker = $this->hasMany(StandaloneDocker::class)->get();
         $swarm_docker = $this->hasMany(SwarmDocker::class)->get();
@@ -730,9 +742,7 @@ class Server extends BaseModel
         // $ID_LIKE = data_get($collectedData, 'ID_LIKE');
         // $VERSION_ID = data_get($collectedData, 'VERSION_ID');
         $supported = collect(SUPPORTED_OS)->filter(function ($supportedOs) use ($ID) {
-            if (str($supportedOs)->contains($ID)) {
-                return str($ID);
-            }
+            return str($supportedOs)->contains($ID);
         });
         if ($supported->count() === 1) {
             return str($supported->first());
@@ -785,7 +795,7 @@ class Server extends BaseModel
                 $database->status = 'exited';
                 $database->save();
             }
-            foreach ($this->services() as $service) {
+            foreach ($this->services()->get() as $service) {
                 $apps = $service->applications()->get();
                 $dbs = $service->databases()->get();
                 foreach ($apps as $app) {
@@ -937,7 +947,7 @@ class Server extends BaseModel
         $configRepository->disableSshMux();
     }
 
-    public function generateCaCertificate()
+    public function generateCaCertificate(): mixed
     {
         try {
             ray('Generating CA certificate for server', $this->id);
@@ -976,5 +986,7 @@ class Server extends BaseModel
 
             return handleError($e);
         }
+
+        return null;
     }
 }
