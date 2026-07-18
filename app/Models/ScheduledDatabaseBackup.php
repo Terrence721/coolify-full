@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Contracts\StandaloneDatabaseInstance;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -37,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @property float $database_backup_retention_max_storage_s3
  * @property int $timeout
  * @property bool $disable_local_backup
- * @property-read Model|\Eloquent $database
+ * @property-read ServiceDatabase|(StandaloneDatabaseInstance&Model)|null $database
  * @property-read Collection<int, ScheduledDatabaseBackupExecution> $executions
  * @property-read int|null $executions_count
  * @property-read mixed $image
@@ -129,6 +130,9 @@ class ScheduledDatabaseBackup extends BaseModel
         return $this->belongsTo(Team::class);
     }
 
+    /**
+     * @return MorphTo<Model, $this>
+     */
     public function database(): MorphTo
     {
         return $this->morphTo();
@@ -159,12 +163,18 @@ class ScheduledDatabaseBackup extends BaseModel
         return $this->belongsTo(S3Storage::class, 's3_storage_id');
     }
 
-    public function get_last_days_backup_status($days = 7)
+    /**
+     * @return Collection<int, ScheduledDatabaseBackupExecution>
+     */
+    public function get_last_days_backup_status(int $days = 7): Collection
     {
         return $this->hasMany(ScheduledDatabaseBackupExecution::class)->where('created_at', '>=', now()->subDays($days))->get();
     }
 
-    public function executionsPaginated(int $skip = 0, int $take = 10)
+    /**
+     * @return array{count: int, executions: Collection<int, ScheduledDatabaseBackupExecution>}
+     */
+    public function executionsPaginated(int $skip = 0, int $take = 10): array
     {
         $executions = $this->hasMany(ScheduledDatabaseBackupExecution::class)->orderBy('created_at', 'desc');
         $count = $executions->count();
