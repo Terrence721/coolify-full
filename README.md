@@ -63,7 +63,7 @@ The repository **must** be cloned into the WSL filesystem (e.g. `~/projects/cool
 
 ## 🧩 What Coolify Is (Summary)
 
-Coolify is an open-source, self-hostable PaaS — an alternative to Heroku/Netlify/Vercel that manages servers, applications, databases, and services over SSH. This fork focuses on frontend modernization and de-commercialization rather than replicating the full upstream feature set.
+Coolify is an open-source, self-hostable PaaS — an alternative to Heroku/Netlify/Vercel that manages servers, applications, databases, and services over SSH. This fork strips that down to a no-frills self-hosted tool: the entire Stripe/subscription billing subsystem is gone (no `subscriptions` table, no payment-gated features, no sponsor/upsell UI, no server-count caps tied to a paid tier), leaving the deployment/server-management core with nothing else to configure or pay for.
 
 ---
 
