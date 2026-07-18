@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -49,17 +51,26 @@ class Tag extends BaseModel
         return strtolower($value);
     }
 
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return Tag::whereTeamId(currentTeam()->id)->orderBy('name');
     }
 
-    public function applications()
+    /**
+     * @return MorphToMany<Application, $this>
+     */
+    public function applications(): MorphToMany
     {
         return $this->morphedByMany(Application::class, 'taggable');
     }
 
-    public function services()
+    /**
+     * @return MorphToMany<Service, $this>
+     */
+    public function services(): MorphToMany
     {
         return $this->morphedByMany(Service::class, 'taggable');
     }

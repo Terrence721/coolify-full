@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -43,12 +45,19 @@ class CloudInitScript extends Model
         ];
     }
 
-    public function team()
+    /**
+     * @return BelongsTo<Team, $this>
+     */
+    public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
     }
 
-    public static function ownedByCurrentTeam(array $select = ['*'])
+    /**
+     * @param  array<int, string>  $select
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(array $select = ['*']): Builder
     {
         $selectArray = collect($select)->concat(['id']);
 

@@ -175,6 +175,9 @@ class InstanceSettings extends Model
         });
     }
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     public function fqdn(): Attribute
     {
         return Attribute::make(
@@ -189,6 +192,9 @@ class InstanceSettings extends Model
         );
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function updateCheckFrequency(): Attribute
     {
         return Attribute::make(
@@ -201,6 +207,9 @@ class InstanceSettings extends Model
         );
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function autoUpdateFrequency(): Attribute
     {
         return Attribute::make(
@@ -213,7 +222,7 @@ class InstanceSettings extends Model
         );
     }
 
-    public static function get()
+    public static function get(): self
     {
         return once(fn () => InstanceSettings::findOrFail(0));
     }

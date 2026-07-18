@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -87,17 +90,26 @@ class GitlabApp extends BaseModel
         'app_secret',
     ];
 
-    public static function ownedByCurrentTeam()
+    /**
+     * @return Builder<self>
+     */
+    public static function ownedByCurrentTeam(): Builder
     {
         return GitlabApp::whereTeamId(currentTeam()->id);
     }
 
-    public function applications()
+    /**
+     * @return MorphMany<Application, $this>
+     */
+    public function applications(): MorphMany
     {
         return $this->morphMany(Application::class, 'source');
     }
 
-    public function privateKey()
+    /**
+     * @return BelongsTo<PrivateKey, $this>
+     */
+    public function privateKey(): BelongsTo
     {
         return $this->belongsTo(PrivateKey::class);
     }

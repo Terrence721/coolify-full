@@ -289,6 +289,12 @@ parameters:
 			path: app/Http/Controllers/TerminalController.php
 
 		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Http/Middleware/TrustHosts.php
+
+		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Jobs\\ApplicationDeploymentJob\) and ''addRetryLogEntry'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -415,24 +421,6 @@ parameters:
 			path: app/Models/BaseModel.php
 
 		-
-			message: '#^Method App\\Models\\CloudInitScript\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CloudInitScript.php
-
-		-
-			message: '#^Method App\\Models\\CloudInitScript\:\:ownedByCurrentTeam\(\) has parameter \$select with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/CloudInitScript.php
-
-		-
-			message: '#^Method App\\Models\\CloudInitScript\:\:team\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/CloudInitScript.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -461,48 +449,6 @@ parameters:
 			identifier: rules.modelAppends
 			count: 1
 			path: app/Models/GithubApp.php
-
-		-
-			message: '#^Method App\\Models\\GitlabApp\:\:applications\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/GitlabApp.php
-
-		-
-			message: '#^Method App\\Models\\GitlabApp\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/GitlabApp.php
-
-		-
-			message: '#^Method App\\Models\\GitlabApp\:\:privateKey\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/GitlabApp.php
-
-		-
-			message: '#^Method App\\Models\\InstanceSettings\:\:autoUpdateFrequency\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/InstanceSettings.php
-
-		-
-			message: '#^Method App\\Models\\InstanceSettings\:\:fqdn\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/InstanceSettings.php
-
-		-
-			message: '#^Method App\\Models\\InstanceSettings\:\:get\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/InstanceSettings.php
-
-		-
-			message: '#^Method App\\Models\\InstanceSettings\:\:updateCheckFrequency\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/InstanceSettings.php
 
 		-
 			message: '#^Class App\\Models\\LocalFileVolume uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -639,24 +585,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/ServerSetting.php
-
-		-
-			message: '#^Method App\\Models\\ServerSetting\:\:dockerCleanupFrequency\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/ServerSetting.php
-
-		-
-			message: '#^Method App\\Models\\ServerSetting\:\:generateSentinelUrl\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ServerSetting.php
-
-		-
-			message: '#^Method App\\Models\\ServerSetting\:\:server\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: app/Models/ServerSetting.php
 
@@ -947,24 +875,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:applications\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:ownedByCurrentTeam\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
-
-		-
-			message: '#^Method App\\Models\\Tag\:\:services\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/Tag.php
 
 		-
 			message: '#^Class App\\Models\\Team uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'

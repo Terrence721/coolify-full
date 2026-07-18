@@ -7,6 +7,7 @@ namespace App\Models;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
@@ -310,7 +311,7 @@ class ServerSetting extends Model
         return $token;
     }
 
-    public function generateSentinelUrl(bool $save = true, bool $ignoreEvent = false)
+    public function generateSentinelUrl(bool $save = true, bool $ignoreEvent = false): ?string
     {
         $domain = null;
         $settings = InstanceSettings::get();
@@ -335,11 +336,17 @@ class ServerSetting extends Model
         return $domain;
     }
 
-    public function server()
+    /**
+     * @return BelongsTo<Server, $this>
+     */
+    public function server(): BelongsTo
     {
         return $this->belongsTo(Server::class);
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function dockerCleanupFrequency(): Attribute
     {
         return Attribute::make(
