@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
+use App\Contracts\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesDatabaseGeneralForm;
 use App\Http\Controllers\Concerns\ManagesDatabaseImport;
 use App\Http\Controllers\Concerns\ManagesResourceDanger;
@@ -489,7 +490,7 @@ class ProjectDatabaseConfigurationController extends Controller
     /**
      * @param Model&\App\Contracts\StandaloneDatabaseInstance $database
      */
-    private function markHealthcheckConfigurationChanged(Model $database): void
+    private function markHealthcheckConfigurationChanged(StandaloneDatabaseInstance&Model $database): void
     {
         if (is_null(data_get($database, 'config_hash')) && method_exists($database, 'isConfigurationChanged')) {
             $database->isConfigurationChanged(true);
@@ -577,7 +578,7 @@ class ProjectDatabaseConfigurationController extends Controller
     * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function tabProps(string $tab, Model $database, array $parameters): array
+    private function tabProps(string $tab, StandaloneDatabaseInstance&Model $database, array $parameters): array
     {
         return match ($tab) {
             'configuration' => $this->generalFormTabProps($database, $parameters, 'project.database'),

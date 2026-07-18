@@ -319,9 +319,45 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$custom_docker_run_options\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
 			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$enable_ssl\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
+			identifier: property.notFound
 			count: 4
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$external_db_url\.$#'
+			identifier: property.notFound
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -331,7 +367,55 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$internal_db_url\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_log_drain_enabled\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 5
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$ports_mappings\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$public_port\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$public_port_timeout\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$ssl_mode\.$#'
 			identifier: property.notFound
 			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
@@ -339,7 +423,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 6
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -351,133 +435,25 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 7
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$custom_docker_run_options\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$enable_ssl\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$external_db_url\.$#'
-			identifier: property.notFound
-			count: 1
+			count: 8
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 5
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$internal_db_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_log_drain_enabled\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
-			identifier: property.notFound
-			count: 2
+			count: 3
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
 			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$ports_mappings\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$public_port\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$public_port_timeout\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$redis_password\.$#'
-			identifier: property.notFound
 			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$redis_username\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$ssl_mode\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
 			identifier: property.notFound
-			count: 4
+			count: 3
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -499,6 +475,12 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -508,6 +490,12 @@ parameters:
 			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
 			identifier: method.notFound
 			count: 1
+			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
+
+		-
+			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
+			identifier: method.notFound
+			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -523,32 +511,8 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
 			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:runtime_environment_variables\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Parameter \#1 \$database of method App\\Http\\Controllers\\ProjectDatabaseConfigurationController\:\:redisFormExtras\(\) expects App\\Models\\StandaloneRedis, Illuminate\\Database\\Eloquent\\Model given\.$#'
-			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
