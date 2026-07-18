@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
+use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\Application;
 use App\Models\Environment;
 use App\Models\Project;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,7 +34,7 @@ trait ManagesResourceOperations
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function resourceOperationsTabProps(Model $resource, array $parameters, string $routePrefix): array
+    private function resourceOperationsTabProps(Application|Service|(StandaloneDatabaseInstance&Model) $resource, array $parameters, string $routePrefix): array
     {
         return [
             'servers' => currentTeam()->servers
@@ -65,7 +68,7 @@ trait ManagesResourceOperations
     /**
      * @param  array<string, string>  $parameters
      */
-    private function moveResourceToEnvironment(Request $request, Model $resource, string $configRouteName, array $parameters, string $uuidParamKey): RedirectResponse
+    private function moveResourceToEnvironment(Request $request, Application|Service|(StandaloneDatabaseInstance&Model) $resource, string $configRouteName, array $parameters, string $uuidParamKey): RedirectResponse
     {
         $this->authorize('update', $resource);
 

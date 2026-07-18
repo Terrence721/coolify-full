@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
+use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,7 +47,7 @@ trait ManagesResourceLimits
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function resourceLimitsTabProps(Model $resource, array $parameters, string $routePrefix): array
+    private function resourceLimitsTabProps(Application|(StandaloneDatabaseInstance&Model) $resource, array $parameters, string $routePrefix): array
     {
         return [
             'limits' => [
@@ -61,7 +63,7 @@ trait ManagesResourceLimits
         ];
     }
 
-    private function applyResourceLimitsUpdate(Request $request, Model $resource): RedirectResponse
+    private function applyResourceLimitsUpdate(Request $request, Application|(StandaloneDatabaseInstance&Model) $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
 
