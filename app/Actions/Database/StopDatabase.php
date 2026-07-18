@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Actions\Database;
 
 use App\Actions\Server\CleanupDocker;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Events\ServiceStatusChanged;
-use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StopDatabase
 {
     use AsAction;
 
-    public function handle(Model&StandaloneDatabaseInstance $database, bool $dockerCleanup = true): string
+    public function handle(StandaloneDatabaseInstance $database, bool $dockerCleanup = true): string
     {
         try {
             $server = data_get($database, 'destination.server');
@@ -50,7 +49,7 @@ class StopDatabase
 
     }
 
-    private function stopContainer(Model&StandaloneDatabaseInstance $database, string $containerName, int $timeout = 30): void
+    private function stopContainer(StandaloneDatabaseInstance $database, string $containerName, int $timeout = 30): void
     {
         $server = data_get($database, 'destination.server');
         instant_remote_process(command: [

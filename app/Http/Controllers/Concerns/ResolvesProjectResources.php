@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\Service;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 
 /**
@@ -37,10 +36,7 @@ trait ResolvesProjectResources
         return $application;
     }
 
-    /**
-     * @return (Model&StandaloneDatabaseInstance)|RedirectResponse
-     */
-    private function resolveDatabase(string $project_uuid, string $environment_uuid, string $database_uuid): Model|RedirectResponse
+    private function resolveDatabase(string $project_uuid, string $environment_uuid, string $database_uuid): StandaloneDatabaseInstance|RedirectResponse
     {
         $project = currentTeam()->load(['projects'])->projects->where('uuid', $project_uuid)->first();
         if (! $project) {

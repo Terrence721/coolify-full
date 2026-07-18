@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Contracts\StandaloneDatabaseInstance;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -38,7 +37,7 @@ use Illuminate\Support\Carbon;
  * @property float $database_backup_retention_max_storage_s3
  * @property int $timeout
  * @property bool $disable_local_backup
- * @property-read ServiceDatabase|(StandaloneDatabaseInstance&Model)|null $database
+ * @property-read ServiceDatabase|StandaloneDatabaseInstance|null $database
  * @property-read Collection<int, ScheduledDatabaseBackupExecution> $executions
  * @property-read int|null $executions_count
  * @property-read mixed $image

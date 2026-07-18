@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\User;
 
 class DatabasePolicy

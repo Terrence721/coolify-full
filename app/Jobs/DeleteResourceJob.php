@@ -9,7 +9,7 @@ use App\Actions\Database\StopDatabase;
 use App\Actions\Server\CleanupDocker;
 use App\Actions\Service\DeleteService;
 use App\Actions\Service\StopService;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Enums\ApplicationDeploymentStatus;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
@@ -20,7 +20,6 @@ use App\Support\DatabaseEngineRegistry;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
@@ -32,7 +31,7 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public Application|ApplicationPreview|Service|(Model&StandaloneDatabaseInstance) $resource,
+        public Application|ApplicationPreview|Service|StandaloneDatabaseInstance $resource,
         public bool $deleteVolumes = true,
         public bool $deleteConnectedNetworks = true,
         public bool $deleteConfigurations = true,

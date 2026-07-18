@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Contracts\StandaloneDatabaseInstance;
 use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -203,7 +201,7 @@ class Environment extends BaseModel
         return $this->hasMany(StandaloneClickhouse::class);
     }
 
-    /** @return Collection<int, Model&StandaloneDatabaseInstance> */
+    /** @return Collection<int, StandaloneDatabaseInstance> */
     public function databases(): Collection
     {
         $result = new Collection;

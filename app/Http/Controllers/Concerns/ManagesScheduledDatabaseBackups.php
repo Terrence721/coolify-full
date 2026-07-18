@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\S3Storage;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\Server;
 use App\Models\ServiceDatabase;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +21,7 @@ trait ManagesScheduledDatabaseBackups
      * Validates and creates a new backup schedule for the given database (standalone
      * or service). Returns an error message on failure, or null on success.
      */
-    private function createBackupSchedule(Request $request, ServiceDatabase|(StandaloneDatabaseInstance&Model) $database, int $teamId): ?string
+    private function createBackupSchedule(Request $request, ServiceDatabase|StandaloneDatabaseInstance $database, int $teamId): ?string
     {
         $validated = Validator::make($request->all(), [
             'frequency' => 'required|string',

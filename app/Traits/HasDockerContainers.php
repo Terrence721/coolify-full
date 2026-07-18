@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Support\DatabaseEngineRegistry;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -152,7 +151,7 @@ trait HasDockerContainers
     }
 
     /**
-     * @return Collection<int, Model&StandaloneDatabaseInstance>
+     * @return Collection<int, StandaloneDatabaseInstance>
      */
     public function databases(): Collection
     {

@@ -8,14 +8,13 @@ use App\Actions\Database\RestartDatabase;
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Actions\Docker\GetContainersStatus;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesScheduledDatabaseBackups;
 use App\Jobs\DatabaseBackupJob;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Support\DatabaseEngineRegistry;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,7 +30,7 @@ class ProjectDatabaseBackupController extends Controller
     public function index(string $project_uuid, string $environment_uuid, string $database_uuid): Response|RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -67,7 +66,7 @@ class ProjectDatabaseBackupController extends Controller
     public function store(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -84,7 +83,7 @@ class ProjectDatabaseBackupController extends Controller
     public function execution(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid): Response|RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -133,7 +132,7 @@ class ProjectDatabaseBackupController extends Controller
     public function updateBackupSchedule(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -155,7 +154,7 @@ class ProjectDatabaseBackupController extends Controller
     public function destroyBackupSchedule(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -179,7 +178,7 @@ class ProjectDatabaseBackupController extends Controller
     public function backupNow(string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -198,7 +197,7 @@ class ProjectDatabaseBackupController extends Controller
     public function cleanupFailedExecutions(string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -215,7 +214,7 @@ class ProjectDatabaseBackupController extends Controller
     public function cleanupDeletedExecutions(string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -235,7 +234,7 @@ class ProjectDatabaseBackupController extends Controller
     public function destroyExecution(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid, string $backup_uuid, int $execution_id): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -261,7 +260,7 @@ class ProjectDatabaseBackupController extends Controller
     public function start(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -278,7 +277,7 @@ class ProjectDatabaseBackupController extends Controller
     public function restart(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -295,7 +294,7 @@ class ProjectDatabaseBackupController extends Controller
     public function stop(Request $request, string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -309,7 +308,7 @@ class ProjectDatabaseBackupController extends Controller
     public function checkStatus(string $project_uuid, string $environment_uuid, string $database_uuid): RedirectResponse
     {
         $database = $this->resolveDatabase($project_uuid, $environment_uuid, $database_uuid, redirectOnMissing: true);
-        if (! $database instanceof Model) {
+        if (! $database instanceof StandaloneDatabaseInstance) {
             return $database;
         }
 
@@ -322,10 +321,7 @@ class ProjectDatabaseBackupController extends Controller
         return back();
     }
 
-    /**
-     * @return (Model&StandaloneDatabaseInstance)|RedirectResponse
-     */
-    private function resolveDatabase(string $project_uuid, string $environment_uuid, string $database_uuid, bool $redirectOnMissing = false): Model|RedirectResponse
+    private function resolveDatabase(string $project_uuid, string $environment_uuid, string $database_uuid, bool $redirectOnMissing = false): StandaloneDatabaseInstance|RedirectResponse
     {
         $project = currentTeam()->load(['projects'])->projects->where('uuid', $project_uuid)->first();
         if (! $project) {
@@ -343,7 +339,7 @@ class ProjectDatabaseBackupController extends Controller
         return $database;
     }
 
-    private function resolveBackup(Model $database, string $backup_uuid, bool $redirectOnMissing = false): ScheduledDatabaseBackup|RedirectResponse
+    private function resolveBackup(StandaloneDatabaseInstance $database, string $backup_uuid, bool $redirectOnMissing = false): ScheduledDatabaseBackup|RedirectResponse
     {
         $backup = $database->scheduledBackups->where('uuid', $backup_uuid)->first();
         if (! $backup) {
@@ -357,7 +353,7 @@ class ProjectDatabaseBackupController extends Controller
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function headingProps(Model $database, array $parameters): array
+    private function headingProps(StandaloneDatabaseInstance $database, array $parameters): array
     {
         return [
             'parameters' => $parameters,
@@ -370,7 +366,7 @@ class ProjectDatabaseBackupController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function configurationCheckerProps(Model $database): array
+    private function configurationCheckerProps(StandaloneDatabaseInstance $database): array
     {
         return [
             'isConfigurationChanged' => $database->isConfigurationChanged(),

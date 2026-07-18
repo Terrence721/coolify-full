@@ -10,7 +10,7 @@ use App\Actions\Proxy\CheckProxy;
 use App\Actions\Proxy\StartProxy;
 use App\Actions\Server\StartLogDrain;
 use App\Actions\Shared\ComplexStatusCheck;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\Application;
 use App\Models\ApplicationPreview;
 use App\Models\Server;
@@ -56,7 +56,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<int, ApplicationPreview> */
     public Collection $previews;
 
-    /** @var Collection<int, Model&StandaloneDatabaseInstance> */
+    /** @var Collection<int, StandaloneDatabaseInstance> */
     public Collection $databases;
 
     /** @var Collection<int, Service> */
@@ -68,7 +68,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /** @var Collection<string, ApplicationPreview> */
     public Collection $previewsByKey;
 
-    /** @var Collection<string, Model&StandaloneDatabaseInstance> */
+    /** @var Collection<string, StandaloneDatabaseInstance> */
     public Collection $databasesByUuid;
 
     /** @var Collection<string, Service> */
@@ -444,7 +444,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             ->get();
     }
 
-    /** @return Collection<int, Model&StandaloneDatabaseInstance> */
+    /** @return Collection<int, StandaloneDatabaseInstance> */
     private function loadDatabases(): Collection
     {
         [$standaloneDockerIds, $swarmDockerIds] = $this->serverDestinationIds();

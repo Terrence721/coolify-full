@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\S3Storage;
 use App\Models\ServiceDatabase;
 use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -38,7 +37,7 @@ trait ManagesDatabaseImport
      * @param  array<string, string>  $routeParameters
      * @return array<string, mixed>
      */
-    private function importTabProps(ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource, string $routePrefix, array $routeParameters): array
+    private function importTabProps(ServiceDatabase|StandaloneDatabaseInstance $resource, string $routePrefix, array $routeParameters): array
     {
         [$container, $resourceUuid, $dbType] = $this->importResourceIdentity($resource);
 
@@ -66,7 +65,7 @@ trait ManagesDatabaseImport
         ];
     }
 
-    public function importCheckFile(Request $request, ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): RedirectResponse
+    public function importCheckFile(Request $request, ServiceDatabase|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -88,7 +87,7 @@ trait ManagesDatabaseImport
         return back()->with('success', 'The file exists.');
     }
 
-    public function importRun(Request $request, ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): RedirectResponse
+    public function importRun(Request $request, ServiceDatabase|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $validated = Validator::make($request->all(), [
             'password' => 'required|string',
@@ -152,7 +151,7 @@ trait ManagesDatabaseImport
         ]);
     }
 
-    public function importCheckS3(Request $request, ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): RedirectResponse
+    public function importCheckS3(Request $request, ServiceDatabase|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $this->authorize('update', $resource);
 
@@ -185,7 +184,7 @@ trait ManagesDatabaseImport
         }
     }
 
-    public function importRestoreS3(Request $request, ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): RedirectResponse
+    public function importRestoreS3(Request $request, ServiceDatabase|StandaloneDatabaseInstance $resource): RedirectResponse
     {
         $validated = Validator::make($request->all(), [
             'password' => 'required|string',
@@ -304,7 +303,7 @@ trait ManagesDatabaseImport
      *
      * @return array{0: string, 1: string, 2: string}
      */
-    private function importResourceIdentity(ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): array
+    private function importResourceIdentity(ServiceDatabase|StandaloneDatabaseInstance $resource): array
     {
         if ($resource->getMorphClass() === ServiceDatabase::class) {
             $container = $resource->name.'-'.$resource->service->uuid;
@@ -323,7 +322,7 @@ trait ManagesDatabaseImport
         return [$resource->uuid, $resource->uuid, $resource->type()];
     }
 
-    private function importUnsupported(ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): bool
+    private function importUnsupported(ServiceDatabase|StandaloneDatabaseInstance $resource): bool
     {
         if ($resource instanceof StandaloneDatabaseInstance) {
             return ! DatabaseEngineRegistry::forInstance($resource)?->supportsImport;
@@ -341,7 +340,7 @@ trait ManagesDatabaseImport
         return false;
     }
 
-    private function importServer(ServiceDatabase|(StandaloneDatabaseInstance&Model) $resource): \App\Models\Server
+    private function importServer(ServiceDatabase|StandaloneDatabaseInstance $resource): \App\Models\Server
     {
         if ($resource instanceof ServiceDatabase) {
             // Service uses SoftDeletes, so this belongsTo can resolve to null at runtime (e.g. a

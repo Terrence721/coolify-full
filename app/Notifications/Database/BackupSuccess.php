@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Notifications\Database;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ServiceDatabase;
 use App\Notifications\CustomEmailNotification;
 use App\Notifications\Dto\DiscordMessage;
 use App\Notifications\Dto\PushoverMessage;
 use App\Notifications\Dto\SlackMessage;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class BackupSuccess extends CustomEmailNotification
@@ -20,7 +19,7 @@ class BackupSuccess extends CustomEmailNotification
 
     public string $frequency;
 
-    public function __construct(ScheduledDatabaseBackup $backup, public (Model&StandaloneDatabaseInstance)|ServiceDatabase $database, public string $database_name)
+    public function __construct(ScheduledDatabaseBackup $backup, public StandaloneDatabaseInstance|ServiceDatabase $database, public string $database_name)
     {
         $this->onQueue('high');
 

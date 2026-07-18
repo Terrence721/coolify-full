@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Contracts\StandaloneDatabaseInstance;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\StandaloneDatabaseInstance;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class RestartDatabase
 {
     use AsAction;
 
-    public function handle(Model&StandaloneDatabaseInstance $database): mixed
+    public function handle(StandaloneDatabaseInstance $database): mixed
     {
         $server = data_get($database, 'destination.server');
         if (! $server->isFunctional()) {

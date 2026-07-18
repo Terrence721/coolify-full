@@ -91,96 +91,6 @@ parameters:
 			path: app/Http/Controllers/Api/ServicesController.php
 
 		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 12
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/EnvironmentController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ExecuteContainerCommandController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ExecuteContainerCommandController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ExecuteContainerCommandController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isRunning\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ExecuteContainerCommandController.php
-
-		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 3
@@ -217,7 +127,7 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
-			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
+			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service\|App\\Models\\StandaloneDatabaseInstance in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
@@ -235,80 +145,20 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$mariadb_database\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mariadb_database\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$mysql_database\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mysql_database\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$postgres_db\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$postgres_db\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$scheduledBackups\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
@@ -319,123 +169,15 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$custom_docker_run_options\.$#'
+			message: '#^Access to an undefined property App\\Models\\StandaloneDatabaseInstance\:\:\$enable_ssl\.$#'
 			identifier: property.notFound
 			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$description\.$#'
+			message: '#^Access to an undefined property App\\Models\\StandaloneDatabaseInstance\:\:\$ssl_mode\.$#'
 			identifier: property.notFound
 			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 5
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$enable_ssl\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$external_db_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 4
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$image\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$internal_db_url\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_log_drain_enabled\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 5
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$ports_mappings\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$public_port\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$public_port_timeout\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$ssl_mode\.$#'
-			identifier: property.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 6
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$tags\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 8
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -463,48 +205,6 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:environment_variables\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:persistentStorages\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
-			identifier: method.notFound
-			count: 2
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:fileStorages\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -517,7 +217,7 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
+			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service\|App\\Models\\StandaloneDatabaseInstance in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
@@ -533,72 +233,6 @@ parameters:
 			identifier: argument.templateType
 			count: 2
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectLogsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$config_hash\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectMetricsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectMetricsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectMetricsController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Http/Controllers/ProjectMetricsController.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:isConfigurationChanged\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectMetricsController.php
 
 		-
 			message: '#^Parameter \#5 \$destinations of method App\\Http\\Controllers\\ProjectResourceCreateController\:\:renderDestinationsStep\(\) expects Illuminate\\Support\\Collection\<int, App\\Models\\StandaloneDocker\|App\\Models\\SwarmDocker\>, Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\StandaloneDocker\>\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\SwarmDocker\> given\.$#'
@@ -643,7 +277,7 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
-			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
+			message: '#^Parameter \#1 \$resource of job class App\\Jobs\\DeleteResourceJob constructor expects App\\Models\\Application\|App\\Models\\ApplicationPreview\|App\\Models\\Service\|App\\Models\\StandaloneDatabaseInstance in App\\Jobs\\DeleteResourceJob\:\:dispatch\(\), Illuminate\\Database\\Eloquent\\Model given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
@@ -661,28 +295,22 @@ parameters:
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$mariadb_database\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mariadb_database\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$mysql_database\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mysql_database\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$postgres_db\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$postgres_db\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectServiceResourceController.php
 
 		-
 			message: '#^Using nullsafe property access "\?\-\>ssl_certificate" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
@@ -691,19 +319,19 @@ parameters:
 			path: app/Http/Controllers/ServerCaCertificateController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$mariadb_database\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mariadb_database\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/SettingsBackupController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$mysql_database\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mysql_database\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/SettingsBackupController.php
 
 		-
-			message: '#^Access to an undefined property \(App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\)\|App\\Models\\ServiceDatabase\:\:\$postgres_db\.$#'
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$postgres_db\.$#'
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/SettingsBackupController.php
@@ -751,18 +379,6 @@ parameters:
 			path: app/Http/Controllers/SharedVariablesController.php
 
 		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$environment\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/StorageController.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/StorageController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) has parameter \$applicationIds with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -791,42 +407,6 @@ parameters:
 			identifier: method.protected
 			count: 1
 			path: app/Jobs/DatabaseBackupJob.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:scheduledBackups\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Jobs/DeleteResourceJob.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:sslCertificates\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Jobs/DeleteResourceJob.php
-
-		-
-			message: '#^Call to an undefined method App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:tags\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Jobs/DeleteResourceJob.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$is_public\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Jobs/PushServerUpdateJob.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Jobs/PushServerUpdateJob.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 3
-			path: app/Jobs/PushServerUpdateJob.php
 
 		-
 			message: '#^If condition is always false\.$#'
@@ -1127,12 +707,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/ScheduledTask.php
-
-		-
-			message: '#^Access to an undefined property App\\Contracts\\StandaloneDatabaseInstance&Illuminate\\Database\\Eloquent\\Model\:\:\$status\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Server.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\Server\:\:\$destination\.$#'

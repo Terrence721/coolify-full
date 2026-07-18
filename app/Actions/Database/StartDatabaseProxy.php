@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\ServiceDatabase;
 use App\Notifications\Container\ContainerRestarted;
-use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 use Symfony\Component\Yaml\Yaml;
@@ -21,7 +20,7 @@ class StartDatabaseProxy
         $job->onQueue(deployment_queue());
     }
 
-    public function handle((Model&StandaloneDatabaseInstance)|ServiceDatabase $database): void
+    public function handle(StandaloneDatabaseInstance|ServiceDatabase $database): void
     {
         $databaseType = (string) data_get($database, 'database_type');
         $network = data_get($database, 'destination.network');

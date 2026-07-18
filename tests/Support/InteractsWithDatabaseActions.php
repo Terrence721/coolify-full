@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
-use App\Contracts\StandaloneDatabaseInstance;
 use App\Models\Server;
 use App\Models\SslCertificate;
 use App\Models\StandaloneClickhouse;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\StandaloneDocker;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
@@ -265,7 +265,7 @@ trait InteractsWithDatabaseActions
      * can't intercept them. A real, persisted model (with RefreshDatabase providing
      * the real, empty tables) is required instead.
      */
-    private function fakeDatabase(array $overrides = []): Model&StandaloneDatabaseInstance
+    private function fakeDatabase(array $overrides = []): StandaloneDatabaseInstance
     {
         $modelClass = 'App\\Models\\Standalone'.$this->engineName();
 

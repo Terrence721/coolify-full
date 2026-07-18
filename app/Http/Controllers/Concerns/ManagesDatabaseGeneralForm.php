@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Concerns;
 
 use App\Actions\Database\StartDatabaseProxy;
 use App\Actions\Database\StopDatabaseProxy;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Helpers\SslHelper;
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
@@ -17,7 +17,6 @@ use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
 use App\Support\ValidationPatterns;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -53,7 +52,7 @@ trait ManagesDatabaseGeneralForm
      * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function generalFormTabProps(StandaloneDatabaseInstance&Model $database, array $parameters, string $routePrefix): array
+    private function generalFormTabProps(StandaloneDatabaseInstance $database, array $parameters, string $routePrefix): array
     {
         $spec = $this->engineFormSpec($database);
         $server = data_get($database, 'destination.server');
@@ -144,7 +143,7 @@ trait ManagesDatabaseGeneralForm
      * @param  array<string, mixed>  $spec
      * @return array<string, mixed>
      */
-    private function statusInfoProps(StandaloneDatabaseInstance&Model $database, array $spec, bool $isExited): array
+    private function statusInfoProps(StandaloneDatabaseInstance $database, array $spec, bool $isExited): array
     {
         $sslMode = $spec['sslModeOptions'] !== null ? $database->ssl_mode : null;
 
@@ -163,7 +162,7 @@ trait ManagesDatabaseGeneralForm
         ];
     }
 
-    public function updateDatabaseGeneral(Request $request, StandaloneDatabaseInstance&Model $database): RedirectResponse
+    public function updateDatabaseGeneral(Request $request, StandaloneDatabaseInstance $database): RedirectResponse
     {
         $spec = $this->engineFormSpec($database);
         $this->authorize($spec['authAbility'], $database);
@@ -243,7 +242,7 @@ trait ManagesDatabaseGeneralForm
         return back()->with('success', 'Database updated.');
     }
 
-    public function updateDatabaseProxy(Request $request, StandaloneDatabaseInstance&Model $database): RedirectResponse
+    public function updateDatabaseProxy(Request $request, StandaloneDatabaseInstance $database): RedirectResponse
     {
         $this->authorize('update', $database);
 
@@ -286,7 +285,7 @@ trait ManagesDatabaseGeneralForm
         return back()->with('success', 'Database is no longer publicly accessible.');
     }
 
-    public function updateDatabaseAdvanced(Request $request, StandaloneDatabaseInstance&Model $database): RedirectResponse
+    public function updateDatabaseAdvanced(Request $request, StandaloneDatabaseInstance $database): RedirectResponse
     {
         $this->authorize('update', $database);
 
@@ -305,7 +304,7 @@ trait ManagesDatabaseGeneralForm
         return back()->with('success', 'Database updated. You need to restart the service for the changes to take effect.');
     }
 
-    public function updateDatabaseSsl(Request $request, StandaloneDatabaseInstance&Model $database): RedirectResponse
+    public function updateDatabaseSsl(Request $request, StandaloneDatabaseInstance $database): RedirectResponse
     {
         $this->authorize('update', $database);
         $spec = $this->engineFormSpec($database);
@@ -325,7 +324,7 @@ trait ManagesDatabaseGeneralForm
         return back()->with('success', 'SSL configuration updated.');
     }
 
-    public function regenerateDatabaseSslCertificate(StandaloneDatabaseInstance&Model $database): RedirectResponse
+    public function regenerateDatabaseSslCertificate(StandaloneDatabaseInstance $database): RedirectResponse
     {
         $this->authorize('update', $database);
 
@@ -446,7 +445,7 @@ trait ManagesDatabaseGeneralForm
      *
      * @return array<string, mixed>
      */
-    private function engineFormSpec(StandaloneDatabaseInstance&Model $database): array
+    private function engineFormSpec(StandaloneDatabaseInstance $database): array
     {
         return match (true) {
             $database instanceof StandalonePostgresql => [

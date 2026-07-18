@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\BuildsTerminalCommand;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
 use App\Models\Server;
 use App\Models\Service;
 use App\Support\ServerChromeData;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -230,10 +229,9 @@ class ExecuteContainerCommandController extends Controller
     }
 
     /**
-     * @param  Model&StandaloneDatabaseInstance  $database
      * @return array{0: Collection<int, Server>, 1: Collection<int, array{server: Server, name: string}>}
      */
-    private function discoverForDatabase(Model $database): array
+    private function discoverForDatabase(StandaloneDatabaseInstance $database): array
     {
         $servers = collect();
         $containers = collect();

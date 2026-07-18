@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\BuildsConfigurationCheckerProps;
 use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -128,10 +127,7 @@ class ProjectMetricsController extends Controller
         return $this->metricsData($request, $database);
     }
 
-    /**
-     * @param  (Model&StandaloneDatabaseInstance)|Application  $resource
-     */
-    private function metricsData(Request $request, Model|Application $resource): JsonResponse
+    private function metricsData(Request $request, StandaloneDatabaseInstance|Application $resource): JsonResponse
     {
         $interval = (int) $request->query('interval', 5);
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Contracts\StandaloneDatabaseInstance;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasDatabaseHealthCheck;
 use App\Traits\HasMetrics;
@@ -128,7 +127,7 @@ use Illuminate\Support\Carbon;
  *
  * @mixin \Eloquent
  */
-class StandaloneDragonfly extends BaseModel implements StandaloneDatabaseInstance
+class StandaloneDragonfly extends StandaloneDatabaseInstance
 {
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 

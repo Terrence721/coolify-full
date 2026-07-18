@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\Server;
 use App\Support\DatabaseEngineRegistry;
-use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;
 
@@ -20,7 +19,7 @@ class StartDatabase
         $job->onQueue(deployment_queue());
     }
 
-    public function handle(Model&StandaloneDatabaseInstance $database): mixed
+    public function handle(StandaloneDatabaseInstance $database): mixed
     {
         $server = data_get($database, 'destination.server');
         if (! $server instanceof Server || ! $server->isFunctional()) {

@@ -242,7 +242,7 @@ class StorageController extends Controller
             } elseif ($database) {
                 $environment = $database->environment;
                 $project = $environment?->project;
-                if ($project && $environment) {
+                if ($project) {
                     $backupParams = [
                         'project_uuid' => $project->uuid,
                         'environment_uuid' => $environment->uuid,

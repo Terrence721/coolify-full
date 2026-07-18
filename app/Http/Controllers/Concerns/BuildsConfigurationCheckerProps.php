@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\Application;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * Builds the props ConfigurationChecker.jsx needs, extracted from ProjectLogsController
@@ -48,10 +47,9 @@ trait BuildsConfigurationCheckerProps
     }
 
     /**
-     * @param  Model&StandaloneDatabaseInstance  $database
      * @return array<string, mixed>
      */
-    private function databaseConfigurationCheckerProps(Model $database): array
+    private function databaseConfigurationCheckerProps(StandaloneDatabaseInstance $database): array
     {
         return [
             'isConfigurationChanged' => $database->isConfigurationChanged(),

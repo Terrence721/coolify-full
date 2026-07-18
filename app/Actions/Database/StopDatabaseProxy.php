@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Events\DatabaseProxyStopped;
 use App\Models\ServiceDatabase;
-use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StopDatabaseProxy
@@ -16,7 +15,7 @@ class StopDatabaseProxy
 
     public string $jobQueue = 'high';
 
-    public function handle((Model&StandaloneDatabaseInstance)|ServiceDatabase $database): void
+    public function handle(StandaloneDatabaseInstance|ServiceDatabase $database): void
     {
         $server = data_get($database, 'destination.server');
         $uuid = (string) data_get($database, 'uuid');

@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesDatabaseGeneralForm;
 use App\Http\Controllers\Concerns\ManagesDatabaseImport;
 use App\Http\Controllers\Concerns\ManagesResourceDanger;
@@ -22,7 +22,6 @@ use App\Models\StandaloneDocker;
 use App\Models\StandalonePostgresql;
 use App\Models\SwarmDocker;
 use App\Support\DatabaseEngineRegistry;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -92,7 +91,7 @@ class ProjectDatabaseConfigurationController extends Controller
                 'isExited' => str($database->status)->startsWith('exited'),
             ],
             'configurationChecker' => [
-                'isConfigurationChanged' => method_exists($database, 'isConfigurationChanged') ? (bool) $database->isConfigurationChanged() : false,
+                'isConfigurationChanged' => (bool) $database->isConfigurationChanged(),
                 'isExited' => str($database->status)->startsWith('exited'),
                 'configHash' => data_get($database, 'config_hash'),
                 'diff' => [],
@@ -487,12 +486,9 @@ class ProjectDatabaseConfigurationController extends Controller
         return back()->with('success', 'Health check '.($healthcheckEnabled ? 'enabled' : 'disabled').'. Restart the database to apply the changes.');
     }
 
-    /**
-     * @param Model&\App\Contracts\StandaloneDatabaseInstance $database
-     */
-    private function markHealthcheckConfigurationChanged(StandaloneDatabaseInstance&Model $database): void
+    private function markHealthcheckConfigurationChanged(StandaloneDatabaseInstance $database): void
     {
-        if (is_null(data_get($database, 'config_hash')) && method_exists($database, 'isConfigurationChanged')) {
+        if (is_null(data_get($database, 'config_hash'))) {
             $database->isConfigurationChanged(true);
         }
     }
@@ -574,11 +570,10 @@ class ProjectDatabaseConfigurationController extends Controller
     }
 
     /**
-    * @param  Model&\App\Contracts\StandaloneDatabaseInstance  $database
-    * @param  array<string, string>  $parameters
+     * @param  array<string, string>  $parameters
      * @return array<string, mixed>
      */
-    private function tabProps(string $tab, StandaloneDatabaseInstance&Model $database, array $parameters): array
+    private function tabProps(string $tab, StandaloneDatabaseInstance $database, array $parameters): array
     {
         return match ($tab) {
             'configuration' => $this->generalFormTabProps($database, $parameters, 'project.database'),

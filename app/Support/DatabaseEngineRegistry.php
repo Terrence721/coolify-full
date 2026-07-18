@@ -12,7 +12,7 @@ use App\Actions\Database\StartMongodb;
 use App\Actions\Database\StartMysql;
 use App\Actions\Database\StartPostgresql;
 use App\Actions\Database\StartRedis;
-use App\Contracts\StandaloneDatabaseInstance;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
