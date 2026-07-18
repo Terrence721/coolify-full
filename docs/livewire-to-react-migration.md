@@ -1,7 +1,7 @@
 # Livewire → React Migration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 15, 2026**
+**Last Updated: July 18, 2026**
 
 ## 1. Why
 
@@ -25,6 +25,92 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 | Hard | 59 of 59 (all done) | 0 |
 
 All three big Configuration routers are fully retired (`Service\Configuration`, Phase 59; `Database\Configuration`, Phase 62; `Application\Configuration`, Phase 74), `Boarding\Index` (Phase 77) and `Server\Show` (Phase 78) converted, and `auth/verify-email.blade.php` (Phase 79) — the last page anywhere in the app still using `<x-layout>`/`layouts/app.blade.php` — closed out the rest of the chrome cascade entirely (see Section 146). There is no more "still routed to Livewire" tail at the page or navigation level. Permanent consequence of Phase 79: Hetzner Cloud server creation is fully unreachable from the UI, with no Livewire fallback remaining (see `todo.md` for the full note). This section is a point-in-time summary — `todo.md`'s "Still to do → Migration" list and per-phase sections below (numbered sequentially past Section 44 or so) are the sources of truth for exactly what's left; update the count here whenever it drifts, don't treat this paragraph itself as authoritative if it looks stale.
+
+### Phase index
+
+Skim this for the shape of all 79 phases; each numbered section below (starting at Section 8's verification logs, and the full `## N. Phase M — ...` headers from Section 19 onward) has the real per-phase detail — design decisions, files touched, bugs found. Dates are commit dates (`git log --date=short`), matched to each phase by page name; the 8 marked `~` predate this fork's later one-phase-one-commit discipline and are inferred from the surrounding same-day commit cluster rather than a distinctly-named commit.
+
+| Phase | Page(s) converted | Bucket | Date |
+|---|---|---|---|
+| 1 | `SharedVariables\Index` (pilot) | Easy | ~2026-07-08 |
+| 2 | `SharedVariables\{Environment,Project,Server}\Index`, `Profile\Appearance`; persistent layout + shared props foundation | Easy + Medium | ~2026-07-08 |
+| 3 | Notifications: Discord, Email, Slack, Telegram, Pushover | Medium | ~2026-07-08 |
+| 4 | `Profile\Index`, `Security\ApiTokens`, `Tags\Show`, `Team\Index`, `Admin\Index` | Medium | ~2026-07-08 |
+| 5 | `Destination\Show`, `Security\PrivateKey\Show`, `Settings\Updates`, `ForcePasswordReset`, `Settings\Advanced`, `SettingsEmail` | Medium | 2026-07-08 |
+| 6 | `Team\AdminView`, `SettingsOauth`, `Settings\ScheduledJobs` | Medium | 2026-07-08 |
+| 7 | `Project\Application\Deployment\Index` + Echo-in-React foundation | Hard | ~2026-07-09 |
+| 8 | `Terminal\Index` | Hard | 2026-07-09 |
+| 9 | `Security\CloudTokens` | Hard | 2026-07-09 |
+| 10 | `Security\CloudInitScripts` | Hard | 2026-07-09 |
+| 11 | `Server\Navbar` foundation + 3 pilot pages | Hard | ~2026-07-09 |
+| 12 | `Server\Advanced` | Hard | 2026-07-09 |
+| 13 | `Server\CaCertificate\Show` | Hard | 2026-07-09 |
+| 14 | `Server\LogDrains` | Hard | 2026-07-09 |
+| 15 | `Server\Resources` | Hard | 2026-07-09 |
+| 16 | `Server\Security\Patches` | Hard | 2026-07-09 |
+| 17 | `Server\CloudflareTunnel` | Hard | 2026-07-09 |
+| 18 | `Server\PrivateKey\Show` | Hard | 2026-07-09 |
+| 19 | `Server\Destinations` | Hard | 2026-07-09 |
+| 20 | `Server\DockerCleanup` | Hard | 2026-07-09 |
+| 21 | `Server\CloudProviderToken\Show` | Hard | ~2026-07-09 |
+| 22 | `Server\Charts` (Metrics) | Hard | ~2026-07-10 |
+| 23 | `Server\Proxy\Show` | Hard | 2026-07-10 |
+| 24 | `Server\Sentinel\Show` | Hard | 2026-07-10 |
+| 25 | `Security\PrivateKey\Index` | Hard | 2026-07-10 |
+| 26 | `Destination\Index` | Hard | 2026-07-10 |
+| 27 | `Project\Show` + `Project\Edit` | Hard | 2026-07-10 |
+| 28 | `Storage\Index` | Hard | 2026-07-10 |
+| 29 | `Project\Index` | Hard | 2026-07-10 |
+| 30 | `Storage\Show` + `Storage\Resources` | Hard | 2026-07-10 |
+| 31 | `Project\EnvironmentEdit` | Hard | 2026-07-10 |
+| 32 | `Team\Member\Index` | Hard | 2026-07-10 |
+| 33 | `Server\Index` | Hard | 2026-07-10 |
+| 34 | `Project\CloneMe` | Hard | 2026-07-11 |
+| 35 | `Project\Resource\Index` | Hard | 2026-07-11 |
+| 36 | `Dashboard` | Hard | 2026-07-11 |
+| 37 | `Server\Proxy\DynamicConfigurations` | Hard | 2026-07-11 |
+| 38 | `Source\Github\Change` | Hard | 2026-07-11 |
+| 39 | `SharedVariables\{Team,Project,Environment,Server}\Show` | Hard | 2026-07-11 |
+| 40 | `Project\Database\Backup\Index` | Hard | 2026-07-11 |
+| 41 | `Project\Database\Backup\Execution` | Hard | 2026-07-11 |
+| 42 | `Settings\Backup` | Hard | 2026-07-11 |
+| 43 | `Settings\Index` | Hard | 2026-07-11 |
+| 44 | `Project\Application\Deployment\Show` | Hard | 2026-07-11 |
+| 45 | `Project\Service\DatabaseBackups` | Hard | 2026-07-11 |
+| 46 | `Server\Proxy\Logs` + `Server\Sentinel\Logs` | Hard | 2026-07-11 |
+| 47 | `Project\Shared\Logs` | Hard | 2026-07-11 |
+| 48 | `Project\Shared\ExecuteContainerCommand` | Hard | 2026-07-12 |
+| 49 | `Project\Service\Index` (general/advanced tabs) | Hard | 2026-07-12 |
+| 50 | `Project\Shared\Metrics` | Hard | 2026-07-12 |
+| 51 | `Project\Resource\Create` (wizard shell) | Hard | 2026-07-12 |
+| 52 | `PublicGitRepository`, `GithubPrivateRepository`, `GithubPrivateRepositoryDeployKey` | Hard | 2026-07-13 |
+| 53 | Sources page + "New GitHub App" modal | Hard | 2026-07-13 |
+| 54 | Database Configuration router + 6 shared tabs | Hard | 2026-07-13 |
+| 55 | Service Configuration router + 4 shared tabs | Hard | 2026-07-13 |
+| 56 | Environment Variables (databases + services) | Hard | 2026-07-13 |
+| 57 | Persistent Storage (databases + services) | Hard | 2026-07-13 |
+| 58 | Scheduled Tasks (services) | Hard | 2026-07-13 |
+| 59 | Service General tab | Hard | 2026-07-13 |
+| 60 | Database Healthcheck tab | Hard | 2026-07-13 |
+| 61 | Import Backup (databases + service databases) | Hard | 2026-07-13 |
+| 62 | 8 per-engine database General tabs | Hard | 2026-07-14 |
+| 63 | Application Tags/Danger Zone/Resource Limits/Resource Operations/Scheduled Tasks | Hard | 2026-07-14 |
+| 64 | `Project\Application\Heading` (action bar) | Hard | 2026-07-14 |
+| 65 | Application Environment Variables + Persistent Storage | Hard | 2026-07-14 |
+| 66 | Application Webhooks | Hard | 2026-07-14 |
+| 67 | Application Swarm tab | Hard | 2026-07-14 |
+| 68 | Application Rollback tab | Hard | 2026-07-14 |
+| 69 | Application General tab | Hard | 2026-07-14 |
+| 70 | Application Preview Deployments tab | Hard | 2026-07-14 |
+| 71 | Application Advanced tab | Hard | 2026-07-14 |
+| 72 | Application Healthcheck tab | Hard | 2026-07-14 |
+| 73 | Application Servers tab | Hard | 2026-07-14 |
+| 74 | Application Git Source tab | Hard | 2026-07-14 |
+| 75 | Theme switcher + What's New changelog (`AppLayout`) | Hard | 2026-07-14 |
+| 76 | `GlobalSearch` command palette | Hard | 2026-07-14 |
+| 77 | `Boarding\Index` (onboarding wizard) | Hard | 2026-07-14 |
+| 78 | `Server\Show` (last full-page Livewire component) | Hard | 2026-07-14 |
+| 79 | `auth/verify-email.blade.php` (last legacy chrome page — migration complete) | Infra/chrome | 2026-07-14 |
 
 ## 4. Foundation (change ledger)
 
