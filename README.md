@@ -1,23 +1,23 @@
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 18, 2026**
+**Last Updated: July 19, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
 It showcases real-world engineering work including:
 
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
-- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 96 (and still going), phase by phase, each one verified with a full test-suite run — not a one-time cleanup
+- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 86 (and still going), phase by phase, each one verified with a full test-suite run — not a one-time cleanup
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
-**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 96 (58 phases) · 1,208 Pest tests passing (5,032 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
+**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 86 (59 phases) · 1,212 Pest tests passing (5,039 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 263 commits total — 58 are PHPStan hardening phases, 174 are other engineering work (features, bug fixes, the React migration), and 31 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself).
+**Reading the commit history:** 270 commits total — 59 are PHPStan hardening phases, 176 are other engineering work (features, bug fixes, the React migration), and 35 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has the full phase-by-phase ledger, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
 
 ---
 
