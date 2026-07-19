@@ -9,7 +9,7 @@ It showcases real-world engineering work including:
 
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
 - A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 60 across 65 phases, each verified with a full test-suite run — the remaining 60 are individually confirmed analysis-tool limitations (documented in `todo.md`), not unaddressed work
-- Security-specific static analysis beyond type-safety — CodeQL for the React frontend, Psalm taint analysis for the PHP backend (CodeQL has no PHP support, confirmed directly against its own supported-languages list rather than assumed) — catching SQL-injection/XSS/command-injection dataflow patterns PHPStan's type-checking doesn't cover
+- Security-specific static analysis beyond type-safety — CodeQL for the React frontend, Psalm taint analysis for the PHP backend, added retroactively during this hardening pass (a mature SDLC sets these up on day one; retrofitting them onto an existing codebase is the more common real-world scenario, and surfaced 11 real CVEs plus 2 real findings in the process — see `todo.md`)
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
@@ -34,9 +34,6 @@ A plain React SPA would require designing and versioning a whole new API surface
 
 **De-commercialization**  
 This fork also strips the SaaS/billing surface area from upstream Coolify (Stripe integration, subscription gating, sponsor/upsell UI) to produce a clean, no-frills, self-hosted-only platform. See [`todo.md`](todo.md) for what's been removed and what's still tracked.
-
-**Being honest about the order things happened in**  
-This fork started from Coolify's real, existing codebase pulled from GitHub — not a greenfield project — and was retrofitted over the course of this work to meet a specific job description's bar for engineering rigor. The static-analysis/security tooling documented here (the PHPStan hardening pass, CodeQL, Psalm taint analysis) was added incrementally, not present from day one. In a mature engineering organization, SAST and dependency scanning are normally wired up as one of the first CI gates on a repo — often before the first feature PR ever merges — specifically because it's cheaper to catch an issue the moment it's introduced than to retrofit scanning later and inherit a backlog. Retrofitting is exactly what happened here: setting up CodeQL and Psalm late in this effort immediately surfaced 11 real CVE advisories and 2 real insecure-randomness findings that had been sitting in the code the whole time (see `todo.md`'s dated entries for both). Those aren't new problems this work introduced — they're pre-existing ones this work found and fixed, which is also a realistic and common senior-engineering scenario: inheriting a codebase where these practices were never established, and being the one to close that gap.
 
 **Full-stack engineering depth**  
 This project demonstrates hands-on experience across:
