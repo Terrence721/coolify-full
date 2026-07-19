@@ -33,7 +33,8 @@ class ServerLimitCheckJob implements ShouldBeEncrypted, ShouldQueue
         try {
             $servers = $this->team->servers;
             $servers_count = $servers->count();
-            $number_of_servers_to_disable = $servers_count - $this->team->limits;
+            $customServerLimit = $this->team->custom_server_limit;
+            $number_of_servers_to_disable = $customServerLimit === null ? 0 : $servers_count - $customServerLimit;
             if ($number_of_servers_to_disable > 0) {
                 $servers = $servers->sortbyDesc('created_at');
                 $servers_to_disable = $servers->take($number_of_servers_to_disable);

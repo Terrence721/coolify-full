@@ -37,6 +37,7 @@ use OpenApi\Attributes as OA;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property bool $show_boarding
+ * @property int|null $custom_server_limit
  * @property-read Collection<int, Application> $applications
  * @property-read int|null $applications_count
  * @property-read Collection<int, CloudProviderToken> $cloudProviderTokens

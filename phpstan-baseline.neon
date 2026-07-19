@@ -55,8 +55,8 @@ parameters:
 			path: app/Console/Commands/CleanupStuckedResources.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
+			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
 			count: 1
 			path: app/Http/Controllers/Api/ApplicationsController.php
 
@@ -64,25 +64,7 @@ parameters:
 			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
-			path: app/Http/Controllers/Api/ApplicationsController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
 			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Http/Controllers/Api/DatabasesController.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/Api/ServicesController.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
@@ -313,12 +295,6 @@ parameters:
 			path: app/Jobs/ServerCheckJob.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Team\:\:\$limits\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Jobs/ServerLimitCheckJob.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Application\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -385,24 +361,6 @@ parameters:
 			path: app/Models/ApplicationSetting.php
 
 		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$uuid\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/BaseModel.php
-
-		-
-			message: '#^Method App\\Models\\BaseModel\:\:image\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/BaseModel.php
-
-		-
-			message: '#^Method App\\Models\\BaseModel\:\:sanitizedName\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/BaseModel.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -431,12 +389,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$name\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/LocalPersistentVolume.php
 
 		-
 			message: '#^Class App\\Models\\OauthSetting uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'

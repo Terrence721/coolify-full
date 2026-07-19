@@ -23,12 +23,9 @@ use Symfony\Component\Yaml\Yaml;
  * @property Carbon|null $updated_at
  * @property bool $is_preview_suffix_enabled
  * @property string $uuid
- * @property-read Model|\Eloquent|null $application
- * @property-read Model|\Eloquent|null $database
  * @property-read mixed $image
- * @property-read Model|\Eloquent|null $resource
+ * @property-read Application|StandaloneDatabaseInstance|ServiceApplication|ServiceDatabase|null $resource
  * @property-read mixed $sanitized_name
- * @property-read Model|\Eloquent|null $service
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|LocalPersistentVolume newQuery()
@@ -67,30 +64,6 @@ class LocalPersistentVolume extends BaseModel
      * @return MorphTo<Model, $this>
      */
     public function resource(): MorphTo
-    {
-        return $this->morphTo('resource');
-    }
-
-    /**
-     * @return MorphTo<Model, $this>
-     */
-    public function application(): MorphTo
-    {
-        return $this->morphTo('resource');
-    }
-
-    /**
-     * @return MorphTo<Model, $this>
-     */
-    public function service(): MorphTo
-    {
-        return $this->morphTo('resource');
-    }
-
-    /**
-     * @return MorphTo<Model, $this>
-     */
-    public function database(): MorphTo
     {
         return $this->morphTo('resource');
     }

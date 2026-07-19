@@ -8,8 +8,10 @@ use App\Models\Application;
 use App\Models\LocalFileVolume;
 use App\Models\LocalPersistentVolume;
 use App\Models\Service;
+use App\Models\ServiceApplication;
+use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use App\Support\ValidationPatterns;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -48,7 +50,7 @@ trait ManagesApiResourceStorages
     /**
      * @return array{persistent_storages: Collection<int, mixed>, file_storages: Collection<int, mixed>}
      */
-    private function apiStoragesPayload(Model $resource): array
+    private function apiStoragesPayload(Application|Service|StandaloneDatabaseInstance $resource): array
     {
         if ($resource instanceof Service) {
             $persistentStorages = collect();
@@ -90,7 +92,7 @@ trait ManagesApiResourceStorages
      * at: the resource itself for Application/Database, or the named child (found via a
      * `resource_uuid` request field) for Service.
      */
-    private function resolveApiStorageOwner(Model $resource, ?string $requestedResourceUuid): ?Model
+    private function resolveApiStorageOwner(Application|Service|StandaloneDatabaseInstance $resource, ?string $requestedResourceUuid): Application|StandaloneDatabaseInstance|ServiceApplication|ServiceDatabase|null
     {
         if (! $resource instanceof Service) {
             return $resource;
@@ -104,7 +106,7 @@ trait ManagesApiResourceStorages
         return $owner;
     }
 
-    private function apiStorageConfigurationDir(Model $resource): string
+    private function apiStorageConfigurationDir(Application|Service|StandaloneDatabaseInstance $resource): string
     {
         if ($resource instanceof Application) {
             return application_configuration_dir();
@@ -121,7 +123,7 @@ trait ManagesApiResourceStorages
      * Application/Database; a 2-level fan-out (applications then databases) for Service,
      * since it owns no storages of its own.
      */
-    private function findApiStorageByLookup(Model $resource, string $type, string $lookupField, mixed $lookupValue): LocalPersistentVolume|LocalFileVolume|null
+    private function findApiStorageByLookup(Application|Service|StandaloneDatabaseInstance $resource, string $type, string $lookupField, mixed $lookupValue): LocalPersistentVolume|LocalFileVolume|null
     {
         if (! $resource instanceof Service) {
             $storages = $type === 'persistent'
@@ -155,7 +157,7 @@ trait ManagesApiResourceStorages
      * Locates a single storage by uuid only, persistent-then-file, with the same
      * application-then-database fan-out for Service.
      */
-    private function findApiStorageByUuid(Model $resource, string $storageUuid): LocalPersistentVolume|LocalFileVolume|null
+    private function findApiStorageByUuid(Application|Service|StandaloneDatabaseInstance $resource, string $storageUuid): LocalPersistentVolume|LocalFileVolume|null
     {
         if (! $resource instanceof Service) {
             return $this->ensureStorageCollection(data_get($resource, 'persistentStorages'))->where('uuid', $storageUuid)->first()
@@ -192,7 +194,7 @@ trait ManagesApiResourceStorages
      * which service child owns the storage; findApiStorageByLookup()'s fan-out finds it
      * directly). Returns either the located Model or an error JsonResponse to return as-is.
      */
-    private function resolveApiStorageForUpdate(Request $request, Model $resource): LocalPersistentVolume|LocalFileVolume|JsonResponse
+    private function resolveApiStorageForUpdate(Request $request, Application|Service|StandaloneDatabaseInstance $resource): LocalPersistentVolume|LocalFileVolume|JsonResponse
     {
         $validator = customApiValidator($request->all(), [
             'uuid' => 'string',
@@ -248,7 +250,7 @@ trait ManagesApiResourceStorages
     /**
      * @param  array{event: string, resourceKey: string}  $auditContext
      */
-    private function applyApiStorageCreate(Request $request, Model $owner, Model $topLevelResource, array $auditContext, string $teamId, string $resourceUuid): JsonResponse
+    private function applyApiStorageCreate(Request $request, Application|StandaloneDatabaseInstance|ServiceApplication|ServiceDatabase $owner, Application|Service|StandaloneDatabaseInstance $topLevelResource, array $auditContext, string $teamId, string $resourceUuid): JsonResponse
     {
         $validator = customApiValidator($request->all(), [
             'type' => 'required|string|in:persistent,file',
