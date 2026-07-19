@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Attributes as OA;
+use phpseclib3\Crypt\Common\PrivateKey as PhpseclibPrivateKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 
 /**
@@ -247,6 +248,9 @@ class PrivateKey extends BaseModel
     {
         try {
             $key = PublicKeyLoader::load($privateKey);
+            if (! $key instanceof PhpseclibPrivateKey) {
+                return null;
+            }
 
             return $key->getPublicKey()->toString('OpenSSH', ['comment' => '']);
         } catch (\Throwable $e) {
@@ -432,6 +436,9 @@ class PrivateKey extends BaseModel
     {
         try {
             $key = PublicKeyLoader::load($privateKey);
+            if (! $key instanceof PhpseclibPrivateKey) {
+                return null;
+            }
 
             return $key->getPublicKey()->getFingerprint('sha256');
         } catch (\Throwable $e) {
@@ -445,6 +452,9 @@ class PrivateKey extends BaseModel
     {
         try {
             $key = PublicKeyLoader::load($privateKey);
+            if (! $key instanceof PhpseclibPrivateKey) {
+                return null;
+            }
 
             return $key->getPublicKey()->getFingerprint('md5');
         } catch (\Throwable $e) {

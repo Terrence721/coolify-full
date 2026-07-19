@@ -235,7 +235,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $postgresql->destination()) {
+                if (! data_get($postgresql, 'destination')) {
                     echo 'Postgresql without destination: '.$postgresql->name.'\n';
                     DeleteResourceJob::dispatch($postgresql);
 
@@ -262,7 +262,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $redis->destination()) {
+                if (! data_get($redis, 'destination')) {
                     echo 'Redis without destination: '.$redis->name.'\n';
                     DeleteResourceJob::dispatch($redis);
 
@@ -290,7 +290,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $mongodb->destination()) {
+                if (! data_get($mongodb, 'destination')) {
                     echo 'Mongodb without destination: '.$mongodb->name.'\n';
                     DeleteResourceJob::dispatch($mongodb);
 
@@ -318,7 +318,7 @@ class CleanupStuckedResources extends Command
 
                     continue;
                 }
-                if (! $mysql->destination()) {
+                if (! data_get($mysql, 'destination')) {
                     echo 'Mysql without destination: '.$mysql->name.'\n';
                     DeleteResourceJob::dispatch($mysql);
 

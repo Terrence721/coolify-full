@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 4
-			path: app/Console/Commands/CleanupStuckedResources.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between \*NEVER\* and ''persistent'' will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
@@ -193,12 +187,6 @@ parameters:
 			path: app/Http/Controllers/TerminalController.php
 
 		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: app/Http/Middleware/TrustHosts.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Jobs\\ApplicationDeploymentJob\) and ''addRetryLogEntry'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -221,12 +209,6 @@ parameters:
 			identifier: property.notFound
 			count: 2
 			path: app/Jobs/DatabaseBackupJob.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: app/Jobs/ServerCheckJob.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
@@ -295,18 +277,6 @@ parameters:
 			path: app/Models/Environment.php
 
 		-
-			message: '#^Method App\\Models\\GithubApp\:\:type\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/GithubApp.php
-
-		-
-			message: '#^Property ''type'' does not exist in model\.$#'
-			identifier: rules.modelAppends
-			count: 1
-			path: app/Models/GithubApp.php
-
-		-
 			message: '#^Class App\\Models\\LocalFileVolume uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -323,12 +293,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/OauthSetting.php
-
-		-
-			message: '#^Call to an undefined method phpseclib3\\Crypt\\Common\\AsymmetricKey\:\:getPublicKey\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: app/Models/PrivateKey.php
 
 		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'

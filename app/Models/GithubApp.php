@@ -41,7 +41,7 @@ use Illuminate\Support\Carbon;
  * @property-read mixed $image
  * @property-read PrivateKey|null $privateKey
  * @property-read mixed $sanitized_name
- * @property-read mixed $type
+ * @property-read string $type
  *
  * @method static Builder<static>|GithubApp newModelQuery()
  * @method static Builder<static>|GithubApp newQuery()
@@ -101,7 +101,6 @@ class GithubApp extends BaseModel
     protected $casts = [
         'is_public' => 'boolean',
         'is_system_wide' => 'boolean',
-        'type' => 'string',
     ];
 
     protected $hidden = [
@@ -174,14 +173,13 @@ class GithubApp extends BaseModel
         return $this->belongsTo(PrivateKey::class);
     }
 
-    public function type(): Attribute
+    /**
+     * @return Attribute<string, never>
+     */
+    protected function type(): Attribute
     {
         return Attribute::make(
-            get: function () {
-                if ($this->getMorphClass() === GithubApp::class) {
-                    return 'github';
-                }
-            },
+            get: fn () => 'github',
         );
     }
 }

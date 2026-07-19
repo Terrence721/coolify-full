@@ -56,7 +56,7 @@ class TrustHosts extends Middleware
         $fqdnHost = Cache::remember('instance_settings_fqdn_host', 300, function () {
             try {
                 $settings = InstanceSettings::get();
-                if ($settings && $settings->fqdn) {
+                if ($settings->fqdn) {
                     $url = Url::fromString($settings->fqdn);
                     $host = $url->getHost();
 

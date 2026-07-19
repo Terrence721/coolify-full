@@ -13,7 +13,6 @@ class StandaloneRedisFactory extends Factory
     {
         return [
             'name' => fake()->unique()->word(),
-            'redis_password' => 'secret',
             'destination_type' => StandaloneDocker::class,
             'destination_id' => 1,
             'environment_id' => 1,
