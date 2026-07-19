@@ -15,6 +15,7 @@ use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Services\DockerImageParser;
 use App\Support\ValidationPatterns;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -454,7 +455,7 @@ class ProjectResourceCreateController extends Controller
     }
 
     /**
-     * @param  Collection<int, StandaloneDocker|SwarmDocker>  $destinations
+     * @param  EloquentCollection<int, StandaloneDocker>|EloquentCollection<int, SwarmDocker>  $destinations
      */
     private function renderDestinationsStep(Project $project, Environment $environment, string $type, Server $server, Collection $destinations): Response
     {

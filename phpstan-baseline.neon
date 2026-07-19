@@ -1,54 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartClickhouse\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartClickhouse.php
-
-		-
-			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartDragonfly\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartDragonfly.php
-
-		-
-			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartKeydb\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartKeydb.php
-
-		-
-			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartMariadb\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartMariadb.php
-
-		-
-			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartMongodb\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartMongodb.php
-
-		-
-			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartMysql\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartMysql.php
-
-		-
-			message: '#^Parameter \#5 \$volume_names of method App\\Actions\\Database\\StartPostgresql\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartPostgresql.php
-
-		-
-			message: '#^Parameter \#6 \$volume_names of method App\\Actions\\Database\\StartRedis\:\:build_docker_compose\(\) expects array\<int, mixed\>, array\<string, array\<string, bool\|string\>\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Actions/Database/StartRedis.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 4
@@ -143,12 +95,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Parameter \#5 \$destinations of method App\\Http\\Controllers\\ProjectResourceCreateController\:\:renderDestinationsStep\(\) expects Illuminate\\Support\\Collection\<int, App\\Models\\StandaloneDocker\|App\\Models\\SwarmDocker\>, Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\StandaloneDocker\>\|Illuminate\\Database\\Eloquent\\Collection\<int, App\\Models\\SwarmDocker\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/ProjectResourceCreateController.php
 
 		-
 			message: '#^Anonymous function should return array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: mixed, name\: mixed\}\>\} but returns array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string\}\>\}\.$#'

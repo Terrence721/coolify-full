@@ -54,7 +54,7 @@ class StartClickhouse
      * @param  array<int, string>  $environment_variables
      * @param  array<int, mixed>  $persistent_storages
      * @param  Collection<int, LocalFileVolume>  $persistent_file_volumes
-     * @param  array<int, mixed>  $volume_names
+     * @param  array<string, array{name: string, external: bool}>  $volume_names
      * @return array<string, mixed>
      */
     private function build_docker_compose(string $container_name, array $environment_variables, array $persistent_storages, $persistent_file_volumes, array $volume_names): array
