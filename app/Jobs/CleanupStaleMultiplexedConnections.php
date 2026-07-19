@@ -173,6 +173,13 @@ class CleanupStaleMultiplexedConnections implements ShouldQueue
                 $this->removeMultiplexFile($muxFile, 'connection_check_failed');
             } else {
                 $muxContent = Storage::disk('ssh-mux')->get($muxFile);
+
+                if ($muxContent === null) {
+                    $this->removeMultiplexFile($muxFile, 'content_unreadable');
+
+                    continue;
+                }
+
                 $establishedAt = Carbon::parse(substr($muxContent, 37));
                 $expirationTime = $establishedAt->addSeconds(config('constants.ssh.mux_persist_time'));
 
