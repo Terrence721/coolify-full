@@ -257,6 +257,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                         }
 
                     } catch (Throwable $e) {
+                        Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
                         // Continue without env vars - will be handled in backup_standalone_mongodb method
                     }
                 }
@@ -436,6 +437,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
                             $localStorageDeleted = true;
                         }
                     } catch (Throwable $e) {
+                        Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
                         // S3 upload failed but local backup succeeded
                         $s3UploadError = $e->getMessage();
                     }
