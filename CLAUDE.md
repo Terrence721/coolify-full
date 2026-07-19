@@ -37,6 +37,10 @@ php artisan test --compact tests/Feature/SomeTest.php  # specific file
 # Code formatting (Pint, Laravel preset)
 vendor/bin/pint --dirty --format agent              # format changed files
 
+# Static analysis
+composer phpstan                    # PHPStan/Larastan, level 6 (see phpstan-baseline.neon)
+composer psalm                      # Psalm taint analysis only (SQL injection, XSS, etc.) — not general type-checking, that's PHPStan's job
+
 # Frontend
 yarn dev                        # vite dev server
 yarn build                      # production build
