@@ -16,6 +16,7 @@ use App\Traits\HasResourceLinks;
 use App\Traits\HasResourceStatus;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasWatchPaths;
+use Database\Factories\ApplicationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -101,6 +102,7 @@ use Visus\Cuid2\Cuid2;
  * @property int|null $source_id
  * @property int|null $private_key_id
  * @property int $environment_id
+ * @property int|null $team_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $description
@@ -268,6 +270,7 @@ use Visus\Cuid2\Cuid2;
  * @method static Builder<static>|Application whereStatus($value)
  * @method static Builder<static>|Application whereSwarmPlacementConstraints($value)
  * @method static Builder<static>|Application whereSwarmReplicas($value)
+ * @method static Builder<static>|Application whereTeamId($value)
  * @method static Builder<static>|Application whereUpdatedAt($value)
  * @method static Builder<static>|Application whereUuid($value)
  * @method static Builder<static>|Application whereWatchPaths($value)
@@ -369,7 +372,7 @@ use Visus\Cuid2\Cuid2;
 )]
 class Application extends BaseModel
 {
-    /** @use HasFactory<\Database\Factories\ApplicationFactory> */
+    /** @use HasFactory<ApplicationFactory> */
     use ClearsGlobalSearchCache, GeneratesGitCommands, HasConfiguration, HasDeploymentConfigurationTracking, HasFactory, HasMetrics, HasResourceCleanup, HasResourceLinks, HasResourceStatus, HasSafeStringAttribute, HasWatchPaths, SoftDeletes;
 
     protected function resourceTypeSlug(): string
@@ -501,6 +504,11 @@ class Application extends BaseModel
             $application->manual_webhook_secret_gitlab ??= Str::random(40);
             $application->manual_webhook_secret_bitbucket ??= Str::random(40);
             $application->manual_webhook_secret_gitea ??= Str::random(40);
+        });
+        static::saving(function ($application) {
+            if ($application->environment_id && ($application->isDirty('environment_id') || is_null($application->team_id))) {
+                $application->team_id = Environment::find($application->environment_id)?->project?->team_id;
+            }
         });
         static::addGlobalScope('withRelations', function ($builder) {
             $builder->withCount([
@@ -683,6 +691,7 @@ class Application extends BaseModel
 
     /**
      * Get custom_network_aliases as an array
+     *
      * @return Attribute<array<int, string>, never>
      */
     public function customNetworkAliasesArray(): Attribute
@@ -718,7 +727,7 @@ class Application extends BaseModel
      */
     public static function ownedByCurrentTeamAPI(int|string $teamId): Builder
     {
-        return Application::whereRelation('environment.project.team', 'id', $teamId)->orderBy('name');
+        return Application::whereTeamId($teamId)->orderBy('name');
     }
 
     /**
@@ -735,7 +744,7 @@ class Application extends BaseModel
             return Application::whereRaw('1 = 0');
         }
 
-        return Application::whereRelation('environment.project.team', 'id', $team->id)->orderBy('name');
+        return Application::whereTeamId($team->id)->orderBy('name');
     }
 
     /**
@@ -1020,6 +1029,7 @@ class Application extends BaseModel
         }
         if (strpos($this->git_repository, 'git@') === 0) {
             $git_repository = str_replace(['git@', ':', '.git'], ['', '/', ''], $this->git_repository);
+
             return "{$git_repository}/commit/{$link}";
         }
 

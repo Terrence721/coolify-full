@@ -37,7 +37,7 @@ class GetService extends Tool
             return Response::error('uuid argument is required.');
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)
+        $service = Service::whereTeamId($teamId)
             ->where('uuid', $uuid)
             ->first();
 

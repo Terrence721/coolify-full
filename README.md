@@ -16,9 +16,9 @@ It showcases real-world engineering work including:
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
-**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,218 Pest tests passing (5,057 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
+**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,223 Pest tests passing (5,064 assertions) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 289 commits total — 64 are PHPStan hardening phases, 182 are other engineering work (features, bug fixes, the React migration), and 43 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has the full phase-by-phase ledger, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
+**Reading the commit history:** 294 commits total — 64 are PHPStan hardening phases, 185 are other engineering work (features, bug fixes, the React migration), and 45 are documentation-accuracy passes. `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has the full phase-by-phase ledger, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
 
 ---
 

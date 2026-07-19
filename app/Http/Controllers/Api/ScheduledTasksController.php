@@ -37,7 +37,7 @@ class ScheduledTasksController extends Controller
 
     private function resolveService(Request $request, int $teamId): ?Service
     {
-        return Service::whereRelation('environment.project.team', 'id', $teamId)->where('uuid', $request->uuid)->first();
+        return Service::whereTeamId($teamId)->where('uuid', $request->uuid)->first();
     }
 
     private function listTasks(Application|Service $resource): JsonResponse

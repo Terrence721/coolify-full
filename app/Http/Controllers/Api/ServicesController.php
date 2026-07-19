@@ -713,7 +713,7 @@ class ServicesController extends Controller
         if (! $request->uuid) {
             return response()->json(['message' => 'UUID is required.'], 404);
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -780,7 +780,7 @@ class ServicesController extends Controller
         if (! $request->uuid) {
             return response()->json(['message' => 'UUID is required.'], 404);
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -917,7 +917,7 @@ class ServicesController extends Controller
             return $return;
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1100,7 +1100,7 @@ class ServicesController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1199,7 +1199,7 @@ class ServicesController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->route('uuid'))->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1328,7 +1328,7 @@ class ServicesController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->route('uuid'))->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1454,7 +1454,7 @@ class ServicesController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->route('uuid'))->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1570,7 +1570,7 @@ class ServicesController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->route('uuid'))->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1660,7 +1660,7 @@ class ServicesController extends Controller
         if (! $uuid) {
             return response()->json(['message' => 'UUID is required.'], 400);
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1755,7 +1755,7 @@ class ServicesController extends Controller
         if (! $uuid) {
             return response()->json(['message' => 'UUID is required.'], 400);
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1853,7 +1853,7 @@ class ServicesController extends Controller
         if (! $uuid) {
             return response()->json(['message' => 'UUID is required.'], 400);
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -1929,7 +1929,7 @@ class ServicesController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
 
         if (! $service) {
             return response()->json([
@@ -2007,7 +2007,7 @@ class ServicesController extends Controller
             return $return;
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -2115,7 +2115,7 @@ class ServicesController extends Controller
             return $return;
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->route('uuid'))->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
 
         if (! $service) {
             return response()->json([
@@ -2178,7 +2178,7 @@ class ServicesController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = Service::whereRelation('environment.project.team', 'id', $teamId)->whereUuid($request->uuid)->first();
+        $service = Service::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }

@@ -231,6 +231,7 @@ trait ManagesResourceEnvironmentVariables
                 ->all();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in envBulkUpdate().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -473,7 +474,7 @@ trait ManagesResourceEnvironmentVariables
 
         $serviceUuid = data_get($parameters, 'service_uuid');
         if ($serviceUuid) {
-            $service = Service::whereRelation('environment.project.team', 'id', $team->id)
+            $service = Service::whereTeamId($team->id)
                 ->where('uuid', $serviceUuid)
                 ->with('server')
                 ->first();

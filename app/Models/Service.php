@@ -12,6 +12,7 @@ use App\Traits\HasResourceCleanup;
 use App\Traits\HasResourceLinks;
 use App\Traits\HasResourceStatus;
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\ServiceFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,6 +38,7 @@ use Visus\Cuid2\Cuid2;
  * @property string $name
  * @property-read bool $isDeployable
  * @property int $environment_id
+ * @property int|null $team_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property int|null $server_id
@@ -91,6 +93,7 @@ use Visus\Cuid2\Cuid2;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereServerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereServiceType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereTeamId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service whereUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service withTrashed(bool $withTrashed = true)
@@ -124,7 +127,7 @@ use Visus\Cuid2\Cuid2;
 )]
 class Service extends BaseModel
 {
-    /** @use HasFactory<\Database\Factories\ServiceFactory> */
+    /** @use HasFactory<ServiceFactory> */
     use ClearsGlobalSearchCache, HasFactory, HasResourceCleanup, HasResourceLinks, HasResourceStatus, HasSafeStringAttribute, SoftDeletes;
 
     protected function resourceTypeSlug(): string
@@ -172,6 +175,11 @@ class Service extends BaseModel
         static::creating(function ($service) {
             if (blank($service->name)) {
                 $service->name = 'service-'.(new Cuid2);
+            }
+        });
+        static::saving(function ($service) {
+            if ($service->environment_id && ($service->isDirty('environment_id') || is_null($service->team_id))) {
+                $service->team_id = Environment::find($service->environment_id)?->project?->team_id;
             }
         });
         static::created(function ($service) {
@@ -276,7 +284,7 @@ class Service extends BaseModel
      */
     public static function ownedByCurrentTeam(): Builder
     {
-        return Service::whereRelation('environment.project.team', 'id', currentTeam()->id)->orderBy('name');
+        return Service::whereTeamId(currentTeam()->id)->orderBy('name');
     }
 
     /**
