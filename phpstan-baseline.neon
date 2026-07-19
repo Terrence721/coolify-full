@@ -241,18 +241,6 @@ parameters:
 			path: app/Http/Controllers/SharedVariablesController.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\{value\: string, comment\: string\|null\} will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: app/Http/Controllers/SharedVariablesController.php
-
-		-
-			message: '#^Offset ''value'' on array\{value\: string, comment\: string\|null\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: app/Http/Controllers/SharedVariablesController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) has parameter \$applicationIds with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
@@ -293,12 +281,6 @@ parameters:
 			identifier: if.alwaysFalse
 			count: 1
 			path: app/Jobs/ServerCheckJob.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Application\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/Application.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
@@ -361,12 +343,6 @@ parameters:
 			path: app/Models/ApplicationSetting.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/Environment.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
@@ -409,12 +385,6 @@ parameters:
 			path: app/Models/PrivateKey.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \*NEVER\* and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/Project.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
@@ -441,12 +411,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\Server\:\:\$destination\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Server\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
 			count: 1
 			path: app/Models/Server.php
 
@@ -487,12 +451,6 @@ parameters:
 			path: app/Models/ServerSetting.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\Service\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/Service.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
@@ -523,22 +481,10 @@ parameters:
 			path: app/Models/ServiceDatabase.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneClickhouse\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneDragonfly\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
@@ -547,22 +493,10 @@ parameters:
 			path: app/Models/StandaloneDragonfly.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneKeydb\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneMariadb.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
@@ -571,22 +505,10 @@ parameters:
 			path: app/Models/StandaloneMariadb.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMongodb\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMysql\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneMysql.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
@@ -595,22 +517,10 @@ parameters:
 			path: app/Models/StandaloneMysql.php
 
 		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandalonePostgresql\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneRedis\) and ''team'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: app/Models/StandaloneRedis.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'

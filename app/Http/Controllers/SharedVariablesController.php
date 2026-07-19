@@ -275,8 +275,8 @@ class SharedVariablesController extends BaseController
                     continue;
                 }
 
-                $value = is_array($data) ? ($data['value'] ?? '') : $data;
-                $comment = is_array($data) ? ($data['comment'] ?? null) : null;
+                $value = $data['value'];
+                $comment = $data['comment'];
 
                 $found = $owner->environment_variables()->where('key', $key)->first();
                 if ($found) {

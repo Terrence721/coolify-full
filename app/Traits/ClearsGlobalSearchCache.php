@@ -117,15 +117,9 @@ trait ClearsGlobalSearchCache
             }
 
             // For database models, team is accessed through environment.project.team
-            if (method_exists($this, 'team')) {
-                if ($this instanceof Server) {
-                    $team = $this->team;
-                } else {
-                    $team = $this->team();
-                }
-                if (filled($team)) {
-                    return is_object($team) ? $team->id : null;
-                }
+            $team = $this instanceof Server ? $this->team : $this->team();
+            if (filled($team)) {
+                return is_object($team) ? $team->id : null;
             }
 
             // For models with direct team_id property
