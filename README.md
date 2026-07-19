@@ -35,6 +35,9 @@ A plain React SPA would require designing and versioning a whole new API surface
 **De-commercialization**  
 This fork also strips the SaaS/billing surface area from upstream Coolify (Stripe integration, subscription gating, sponsor/upsell UI) to produce a clean, no-frills, self-hosted-only platform. See [`todo.md`](todo.md) for what's been removed and what's still tracked.
 
+**Being honest about the order things happened in**  
+This fork started from Coolify's real, existing codebase pulled from GitHub — not a greenfield project — and was retrofitted over the course of this work to meet a specific job description's bar for engineering rigor. The static-analysis/security tooling documented here (the PHPStan hardening pass, CodeQL, Psalm taint analysis) was added incrementally, not present from day one. In a mature engineering organization, SAST and dependency scanning are normally wired up as one of the first CI gates on a repo — often before the first feature PR ever merges — specifically because it's cheaper to catch an issue the moment it's introduced than to retrofit scanning later and inherit a backlog. Retrofitting is exactly what happened here: setting up CodeQL and Psalm late in this effort immediately surfaced 11 real CVE advisories and 2 real insecure-randomness findings that had been sitting in the code the whole time (see `todo.md`'s dated entries for both). Those aren't new problems this work introduced — they're pre-existing ones this work found and fixed, which is also a realistic and common senior-engineering scenario: inheriting a codebase where these practices were never established, and being the one to close that gap.
+
 **Full-stack engineering depth**  
 This project demonstrates hands-on experience across:
 

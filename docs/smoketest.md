@@ -1,7 +1,7 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 17, 2026**
+**Last Updated: July 19, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). The Livewire→React migration itself completed 2026-07-14; this checklist now serves as a standing regression suite — run it after any batch of work touching these flows, not just migration work. See `docs/command.md` for the commands to start the dev stack.
 
@@ -11,6 +11,7 @@ Check items off as `[x]` as you go, or just read top to bottom and confirm each 
 
 - [ ] `spin up` (or `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`), wait for all containers healthy (`docker compose -f docker-compose.yml -f docker-compose.dev.yml ps`). Run from a WSL2 terminal in the repo's WSL2 path — see `docs/command.md`'s "WSL2 migration" section if you're on Windows.
 - [ ] Visit `http://localhost:8000`. Confirm no blank page / no console errors on first load.
+- [ ] **From a different device on the same network** (not the Docker host), visit `http://<host-machine-LAN-IP>:8000`. In **dev**, the page HTML loads fine but JS/CSS assets 404/fail silently unless `VITE_HOST` is set to the host machine's real LAN IP in `.env` — Vite's dev server hardcodes asset URLs to `VITE_HOST`'s value (`docker-compose.dev.yml` defaults it to the literal string `localhost`, which resolves to the *other device itself*, not the dev machine, once the browser tries to fetch `http://localhost:5173/...`). Confirmed via `docker exec coolify curl .../login -H "Host: <lan-ip>:8000"` — the returned HTML's `<script src="http://localhost:5173/...">` tags are hardcoded regardless of the request's own Host header. **Production is unaffected** — `yarn build` serves pre-built static assets from the same origin as the app itself, no separate Vite dev port involved. (Docker port binding and Sanctum's stateful-domain config were both checked and ruled out as blockers — see `todo.md`'s dated entry for the full investigation, including why an initial theory about Sanctum turned out wrong once traced through the actual code.)
 - [ ] Log in. Dev-seeded credentials are `test@example.com` / `password` (`UserSeeder`, run by first-boot `dev --init`); `ROOT_USER_EMAIL`/`ROOT_USER_PASSWORD` only apply if the production `RootUserSeeder` path was used. Alternatively register at `/register` if instance registration is enabled.
 - [ ] Toggle dark/light mode (if a toggle exists on the page you land on) — confirm no flash-of-unstyled-content and the choice persists across a reload.
 
