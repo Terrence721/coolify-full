@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 16, 2026**
+**Last Updated: July 19, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -101,6 +101,7 @@ docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pest --testdox-html s
 docker exec coolify vendor/bin/pint --dirty --format agent      # format only changed files (always run before finalizing PHP changes)
 docker exec coolify vendor/bin/pint --format agent               # format the whole codebase
 docker exec coolify composer phpstan                             # static analysis (uses phpstan-baseline.neon for known nits)
+docker exec coolify composer psalm                                # taint analysis (SQL injection, XSS, command injection dataflow — not general type-checking, that's PHPStan's job)
 ```
 
 Never run `pint --test` — just run `pint --format agent`, it fixes issues directly.
@@ -131,9 +132,12 @@ From `.github/workflows/quality.yml` — reproduce these exactly when debugging 
 cp .env.testing .env
 composer install --no-interaction --prefer-dist --optimize-autoloader
 composer phpstan                          # separate CI job: "phpstan"
+composer psalm                            # separate CI job: "psalm" (taint analysis)
 yarn install --frozen-lockfile
 yarn build
 php artisan test --compact                # separate CI job: "tests" — note it builds frontend assets first, unlike local dev
 ```
+
+`.github/workflows/codeql.yml` runs separately (its own workflow, not part of `quality.yml`) and scans `resources/js/` only — CodeQL has no PHP support, so there's nothing to reproduce locally for the PHP side beyond the `psalm` job above. See `todo.md`'s "GitHub repo-level security features" entry for why both tools exist.
 
 The most common source of CI-only failures in this repo has been environment divergence from the Windows/Docker dev setup (case-insensitive filesystem, always-on Redis, a running Vite dev server masking missing-build errors) — see `docs/livewire-to-react-migration.md` for specific incidents. When in doubt, run the block above verbatim inside the `coolify` container rather than the everyday shortcuts further up this file.

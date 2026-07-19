@@ -1,7 +1,7 @@
 # Architecture Overview
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 13, 2026**
+**Last Updated: July 19, 2026**
 
 This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
 
@@ -35,7 +35,7 @@ coolify-full/
 ├── tests/                      # Pest/PHPUnit tests — see tests/README.md for the test-infrastructure files specifically
 ├── docker-compose.yml, docker-compose.dev.yml, docker-compose.prod.yml, docker-compose.windows.yml
 ├── .circleci/config.yml         # CircleCI pipeline
-└── .github/workflows/quality.yml # GitHub Actions pipeline
+└── .github/                     # GitHub Actions pipelines + CodeQL config (see Section 7)
 ```
 
 There is no `agents/` directory and no separate agent codebase in this repository.
@@ -97,7 +97,8 @@ See [DEVELOPING_IN_CONTAINERS_WINDOWS.md](../DEVELOPING_IN_CONTAINERS_WINDOWS.md
 ## 7. CI
 
 - **`.circleci/config.yml`** — CircleCI pipeline.
-- **`.github/workflows/quality.yml`** — GitHub Actions (formatting/static analysis/tests).
+- **`.github/workflows/quality.yml`** — GitHub Actions: Pint, PHPStan, Psalm (`--taint-analysis`, PHP-side security dataflow scanning), and the Pest suite.
+- **`.github/workflows/codeql.yml`** + **`.github/codeql/codeql-config.yml`** — GitHub Actions: CodeQL, scoped to `javascript` only (CodeQL has no PHP support — Psalm's taint analysis above is the PHP-side equivalent). See `todo.md`'s "GitHub repo-level security features" entry for why two tools were needed and what each one actually covers.
 
 ## 8. Where to go next
 
