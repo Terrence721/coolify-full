@@ -1,15 +1,19 @@
 name: CodeQL
 
 # Scoped to JavaScript/JSX only (resources/js/) — CodeQL has no PHP extractor,
-# so it cannot analyze this app's Laravel backend. See psalm.yml for PHP-side
-# taint analysis (SQL injection, XSS, etc.), CodeQL's closest equivalent for
-# languages it doesn't support.
+# so it cannot analyze this app's Laravel backend. See quality.yml's "psalm"
+# job for PHP-side taint analysis (SQL injection, XSS, etc.), CodeQL's closest
+# equivalent for languages it doesn't support.
 on:
   push:
     branches: [main]
   pull_request:
   schedule:
     - cron: "17 3 * * 1"
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
