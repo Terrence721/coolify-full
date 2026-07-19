@@ -59,7 +59,9 @@ trait ManagesDatabaseGeneralForm
         $started = filled($database->started_at ?? null);
         $isExited = str((string) $database->status)->contains('exited');
 
-        $credentials = collect($spec['credentials'])->map(function (array $field) use ($database, $started) {
+        /** @var array<int, array{prop: string, column: string, label: string, type: string, placeholder?: string, helperStarted?: string, helperStopped?: string, readonlyWhenStarted?: bool}> $specCredentials */
+        $specCredentials = $spec['credentials'];
+        $credentials = collect($specCredentials)->map(function (array $field) use ($database, $started) {
             $value = $database->{$field['column']};
 
             return [

@@ -61,18 +61,6 @@ parameters:
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
-
-		-
 			message: '#^Anonymous function should return array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: mixed, name\: mixed\}\>\} but returns array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string\}\>\}\.$#'
 			identifier: return.type
 			count: 1
