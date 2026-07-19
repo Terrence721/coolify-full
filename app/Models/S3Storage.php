@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Rules\SafeWebhookUrl;
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\S3StorageFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -62,6 +63,7 @@ use Illuminate\Support\Facades\Validator;
  */
 class S3Storage extends BaseModel
 {
+    /** @use HasFactory<S3StorageFactory> */
     use HasFactory, HasSafeStringAttribute;
 
     private const CONNECTION_TIMEOUT_SECONDS = 15;

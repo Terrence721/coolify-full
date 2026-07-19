@@ -6,6 +6,8 @@ namespace App\Models;
 
 use App\Events\FileStorageChanged;
 use App\Jobs\ServerStorageSaveJob;
+use Database\Factories\LocalFileVolumeFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -75,6 +77,7 @@ class LocalFileVolume extends BaseModel
         'is_preview_suffix_enabled' => 'boolean',
     ];
 
+    /** @use HasFactory<LocalFileVolumeFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -342,7 +345,7 @@ class LocalFileVolume extends BaseModel
 
     // Scope for searching
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<self>  $query
+     * @param  Builder<self>  $query
      * @return Collection<int, self>
      */
     public function scopeWherePlainMountPath($query, string $path): Collection

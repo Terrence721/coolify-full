@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ServiceDatabaseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -82,6 +83,7 @@ use Illuminate\Support\Stringable;
  */
 class ServiceDatabase extends BaseModel
 {
+    /** @use HasFactory<ServiceDatabaseFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [

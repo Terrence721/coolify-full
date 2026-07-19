@@ -217,18 +217,6 @@ parameters:
 			path: app/Models/Environment.php
 
 		-
-			message: '#^Class App\\Models\\LocalFileVolume uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/LocalFileVolume.php
-
-		-
-			message: '#^Class App\\Models\\OauthSetting uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/OauthSetting.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
@@ -239,12 +227,6 @@ parameters:
 			identifier: instanceof.alwaysFalse
 			count: 1
 			path: app/Models/Project.php
-
-		-
-			message: '#^Class App\\Models\\S3Storage uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/S3Storage.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
@@ -299,18 +281,6 @@ parameters:
 			identifier: booleanOr.alwaysFalse
 			count: 1
 			path: app/Models/Service.php
-
-		-
-			message: '#^Class App\\Models\\ServiceApplication uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/ServiceApplication.php
-
-		-
-			message: '#^Class App\\Models\\ServiceDatabase uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/ServiceDatabase.php
 
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'

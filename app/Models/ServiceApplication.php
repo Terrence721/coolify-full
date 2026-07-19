@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\ServiceApplicationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -82,6 +83,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ServiceApplication extends BaseModel
 {
+    /** @use HasFactory<ServiceApplicationFactory> */
     use HasFactory, SoftDeletes;
 
     /**
