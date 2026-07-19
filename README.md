@@ -9,6 +9,7 @@ It showcases real-world engineering work including:
 
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
 - A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 65 (and still going), phase by phase, each one verified with a full test-suite run — not a one-time cleanup
+- Security-specific static analysis beyond type-safety — CodeQL for the React frontend, Psalm taint analysis for the PHP backend (CodeQL has no PHP support, confirmed directly against its own supported-languages list rather than assumed) — catching SQL-injection/XSS/command-injection dataflow patterns PHPStan's type-checking doesn't cover
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
