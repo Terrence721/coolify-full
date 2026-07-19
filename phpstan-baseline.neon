@@ -187,18 +187,6 @@ parameters:
 			path: app/Http/Controllers/SharedVariablesController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) has parameter \$applicationIds with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/TagsController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\TagsController\:\:getDeployments\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Http/Controllers/TagsController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\TerminalController\:\:getAllActiveContainers\(\) should return Illuminate\\Support\\Collection\<int, array\<string, mixed\>\> but returns Illuminate\\Support\\Collection\<int, array\{name\: mixed, connection_name\: mixed, uuid\: mixed, status\: Illuminate\\Support\\Stringable, server_name\: string, server_uuid\: string\}\>\.$#'
 			identifier: return.type
 			count: 1
@@ -217,9 +205,21 @@ parameters:
 			path: app/Jobs/ApplicationDeploymentJob.php
 
 		-
-			message: '#^Call to protected method databaseType\(\) of class App\\Models\\ServiceDatabase\.$#'
-			identifier: method.protected
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\:\:\$mariadb_root_password\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Jobs/DatabaseBackupJob.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\:\:\$mysql_root_password\.$#'
+			identifier: property.notFound
 			count: 1
+			path: app/Jobs/DatabaseBackupJob.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\:\:\$postgres_user\.$#'
+			identifier: property.notFound
+			count: 2
 			path: app/Jobs/DatabaseBackupJob.php
 
 		-
@@ -486,8 +486,3 @@ parameters:
 			count: 1
 			path: app/Models/UserChangelogRead.php
 
-		-
-			message: '#^Trait App\\Traits\\AuthorizesResourceCreation is used zero times and is not analysed\.$#'
-			identifier: trait.unused
-			count: 1
-			path: app/Traits/AuthorizesResourceCreation.php

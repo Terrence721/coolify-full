@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\DeployController;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\Tag;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -79,7 +80,11 @@ class TagsController extends Controller
         return back()->with('success', 'Mass deployment started.');
     }
 
-    private function getDeployments($applicationIds): array
+    /**
+     * @param  Collection<int, int>  $applicationIds
+     * @return array<string, mixed>
+     */
+    private function getDeployments(Collection $applicationIds): array
     {
         return ApplicationDeploymentQueue::whereIn('status', ['in_progress', 'queued'])
             ->whereIn('application_id', $applicationIds)

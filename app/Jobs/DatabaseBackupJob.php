@@ -134,7 +134,7 @@ class DatabaseBackupJob implements ShouldBeEncrypted, ShouldQueue
 
                 return;
             }
-            if (data_get($this->backup, 'database_type') === ServiceDatabase::class) {
+            if ($this->database instanceof ServiceDatabase) {
                 $databaseType = $this->database->databaseType();
                 $serviceUuid = $this->database->service->uuid;
                 $serviceName = str($this->database->service->name)->slug();
