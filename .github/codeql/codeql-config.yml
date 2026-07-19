@@ -1,0 +1,11 @@
+name: "CodeQL config"
+
+# security-extended (set in codeql.yml) includes Security/CWE-730/RegExpInjection.ql,
+# which hung indefinitely (53+ minutes, no progress) on 2026-07-19 while every other
+# query in the suite completed in under a minute - a known category of CodeQL
+# taint-tracking performance edge case, not something specific to this app's code
+# (confirmed: zero `new RegExp(` calls anywhere in resources/js/). Excluded here so
+# a future hang doesn't block the whole workflow; see todo.md for the full writeup.
+query-filters:
+  - exclude:
+      id: js/regex-injection
