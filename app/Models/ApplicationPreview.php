@@ -92,8 +92,8 @@ class ApplicationPreview extends BaseModel
                 $composeFile = $application->parse(pull_request_id: $preview->pull_request_id);
                 $volumes = data_get($composeFile, 'volumes');
                 $networks = data_get($composeFile, 'networks');
-                $networkKeys = collect($networks)->keys();
-                $volumeKeys = collect($volumes)->keys();
+                $networkKeys = collect(is_array($networks) ? $networks : [])->keys();
+                $volumeKeys = collect(is_array($volumes) ? $volumes : [])->keys();
                 $volumeKeys->each(function ($key) use ($server) {
                     if (! preg_match(ValidationPatterns::VOLUME_NAME_PATTERN, $key)) {
                         return;
@@ -183,9 +183,10 @@ class ApplicationPreview extends BaseModel
 
     public function generate_preview_fqdn_compose(): void
     {
-        $services = collect(json_decode($this->application->docker_compose_domains));
-        $docker_compose_domains = data_get($this, 'docker_compose_domains');
-        $docker_compose_domains = json_decode($docker_compose_domains, true) ?? [];
+        $decodedApplicationDomains = json_decode((string) $this->application->docker_compose_domains, true);
+        $services = collect(is_array($decodedApplicationDomains) ? $decodedApplicationDomains : []);
+        $decodedPreviewDomains = json_decode((string) $this->docker_compose_domains, true);
+        $docker_compose_domains = is_array($decodedPreviewDomains) ? $decodedPreviewDomains : [];
 
         // Get all services from the parsed compose file to ensure all services have entries
         $parsedServices = $this->application->parse(pull_request_id: $this->pull_request_id);
