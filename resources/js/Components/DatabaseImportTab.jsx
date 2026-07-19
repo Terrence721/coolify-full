@@ -17,7 +17,7 @@ const CHUNK_SIZE = 10_000_000;
 async function uploadInChunks(url, file, onProgress) {
     const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     const totalChunks = Math.max(1, Math.ceil(file.size / CHUNK_SIZE));
-    const uuid = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const uuid = crypto.randomUUID();
 
     for (let index = 0; index < totalChunks; index++) {
         const start = index * CHUNK_SIZE;

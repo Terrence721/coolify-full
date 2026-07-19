@@ -2,6 +2,7 @@ import { WebSocketServer } from 'ws';
 import http from 'http';
 import pty from 'node-pty';
 import cookie from 'cookie';
+import { randomUUID } from 'crypto';
 import 'dotenv/config';
 import {
     getTerminalSessionTimeout,
@@ -493,7 +494,7 @@ async function killPtyProcess(userId) {
 }
 
 function generateUserId() {
-    return Math.random().toString(36).substring(2, 11);
+    return randomUUID();
 }
 
 server.listen(6002, () => {
