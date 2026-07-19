@@ -40,6 +40,7 @@ Profile & Security:
 
 - [ ] `/profile` — name/email change (with verification-code flow) and password change both work.
 - [ ] `/security/api-tokens` — create a token (copy the plaintext value shown once), revoke it.
+- [ ] `/security/api-tokens` — load the page fresh and check the "Expires in" dropdown's default selection *before touching it*. It should show "90 days", not "Never" — confirms `expires_in_days` initial form state matches the intended default (see `todo.md`, Sanctum API tokens entry). This is a client-side React default that couldn't be verified without a real browser session, so it needs an actual look.
 - [ ] `/security/private-key/{uuid}` — edit name/description, reveal-to-edit the private key field, delete.
 - [ ] `/security/cloud-tokens` — add a token (needs a real or intentionally-invalid Hetzner/DigitalOcean token to see both accept/reject paths), validate it, delete it.
 - [ ] `/security/cloud-init-scripts` — create a script via the modal, edit it, delete it.

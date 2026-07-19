@@ -14,7 +14,7 @@ export default function ApiTokens({
 }) {
     const { data, setData, post, processing, errors } = useForm({
         description: '',
-        expires_in_days: '',
+        expires_in_days: '90',
         permissions: ['read'],
     });
 
