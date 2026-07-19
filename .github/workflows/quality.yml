@@ -36,6 +36,36 @@ jobs:
       - name: Run PHPStan
         run: composer phpstan
 
+  psalm:
+    name: Psalm (taint analysis)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, dom, fileinfo, pdo_sqlite, bcmath, gd, zip, intl
+          coverage: none
+
+      - name: Copy environment file
+        run: cp .env.testing .env
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Run Psalm taint analysis
+        run: composer psalm
+
   tests:
     name: Pest Test Suite
     runs-on: ubuntu-latest

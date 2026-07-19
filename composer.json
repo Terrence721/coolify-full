@@ -76,7 +76,8 @@
         "rector/rector": "^2.3.5",
         "serversideup/spin": "^3.1.1",
         "spatie/laravel-ignition": "^2.10.0",
-        "symfony/http-client": "^7.4.5"
+        "symfony/http-client": "^7.4.5",
+        "vimeo/psalm": "^6.16"
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
@@ -118,6 +119,7 @@
     },
     "scripts": {
         "phpstan": "phpstan analyse",
+        "psalm": "psalm --taint-analysis",
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "Illuminate\\Foundation\\ComposerScripts::postUpdate"

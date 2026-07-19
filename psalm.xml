@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="8"
+    resolveFromConfigFile="true"
+    findUnusedBaselineEntry="false"
+    findUnusedCode="false"
+    xmlns="https://getpsalm.org/schema/config"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <!--
+        Psalm is scoped to this repo purely for taint analysis (SQL injection, XSS,
+        command injection, etc, run via "composer psalm"), not general type
+        checking; that job already belongs to PHPStan/Larastan (see
+        phpstan.neon.dist). errorLevel is set to the most permissive level (8) so
+        Psalm's own general-purpose checks stay quiet and don't duplicate
+        PHPStan's baseline; only taint-specific findings are the actual signal
+        here.
+    -->
+    <projectFiles>
+        <directory name="app" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>
