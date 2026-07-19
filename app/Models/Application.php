@@ -151,7 +151,7 @@ use Visus\Cuid2\Cuid2;
  * @property-read int|null $environment_variables_count
  * @property-read int|null $environment_variables_preview_count
  * @property-read int|null $file_storages_count
- * @property-read mixed $fqdns
+ * @property-read array<int, string> $fqdns
  * @property-read mixed $git_branch_location
  * @property-read mixed $git_commits
  * @property-read mixed $git_webhook

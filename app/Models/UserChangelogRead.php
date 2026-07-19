@@ -66,6 +66,9 @@ class UserChangelogRead extends Model
             ->exists();
     }
 
+    /**
+     * @return array<int, string>
+     */
     public static function getReadIdentifiersForUser(int $userId): array
     {
         return self::where('user_id', $userId)

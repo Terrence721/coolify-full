@@ -25,18 +25,6 @@ parameters:
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mariadb_database\.$#'
 			identifier: property.notFound
 			count: 1
@@ -51,12 +39,6 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$postgres_db\.$#'
 			identifier: property.notFound
-			count: 1
-			path: app/Http/Controllers/ProjectDatabaseBackupController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>supportsBackup" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Http/Controllers/ProjectDatabaseBackupController.php
 
@@ -113,12 +95,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: app/Http/Controllers/ProjectServiceDatabaseBackupController.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>ssl_certificate" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Controllers/ServerCaCertificateController.php
 
 		-
 			message: '#^Access to an undefined property App\\Models\\ServiceDatabase\|App\\Models\\StandaloneDatabaseInstance\:\:\$mariadb_database\.$#'
@@ -259,18 +235,6 @@ parameters:
 			path: app/Models/ApplicationPreview.php
 
 		-
-			message: '#^Method App\\Models\\ApplicationSetting\:\:application\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ApplicationSetting.php
-
-		-
-			message: '#^Method App\\Models\\ApplicationSetting\:\:isStatic\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/ApplicationSetting.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Server will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
@@ -289,12 +253,6 @@ parameters:
 			path: app/Models/OauthSetting.php
 
 		-
-			message: '#^Method App\\Models\\OauthSetting\:\:clientSecret\(\) return type with generic class Illuminate\\Database\\Eloquent\\Casts\\Attribute does not specify its types\: TGet, TSet$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/OauthSetting.php
-
-		-
 			message: '#^Instanceof between \*NEVER\* and App\\Models\\Environment will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
@@ -305,12 +263,6 @@ parameters:
 			identifier: instanceof.alwaysFalse
 			count: 1
 			path: app/Models/Project.php
-
-		-
-			message: '#^Method App\\Models\\ProjectSetting\:\:project\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/ProjectSetting.php
 
 		-
 			message: '#^Class App\\Models\\S3Storage uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -431,16 +383,4 @@ parameters:
 			identifier: catch.neverThrown
 			count: 1
 			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Method App\\Models\\TeamInvitation\:\:isValid\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Models/TeamInvitation.php
-
-		-
-			message: '#^Method App\\Models\\UserChangelogRead\:\:getReadIdentifiersForUser\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: app/Models/UserChangelogRead.php
 

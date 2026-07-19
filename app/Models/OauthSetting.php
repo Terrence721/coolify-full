@@ -44,6 +44,9 @@ class OauthSetting extends Model
 
     protected $fillable = ['provider', 'client_id', 'client_secret', 'redirect_uri', 'tenant', 'base_url', 'enabled'];
 
+    /**
+     * @return Attribute<string|null, string|null>
+     */
     protected function clientSecret(): Attribute
     {
         return Attribute::make(

@@ -34,7 +34,7 @@ class ProjectDatabaseBackupController extends Controller
             return $database;
         }
 
-        if (! (DatabaseEngineRegistry::forInstance($database)?->supportsBackup ?? false)) {
+        if (! (DatabaseEngineRegistry::forInstance($database)->supportsBackup ?? false)) {
             return redirect()->route('project.database.configuration', compact('project_uuid', 'environment_uuid', 'database_uuid'));
         }
 

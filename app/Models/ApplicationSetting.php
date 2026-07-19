@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -190,6 +191,9 @@ class ApplicationSetting extends Model
         return $this->stopGracePeriodSeconds();
     }
 
+    /**
+     * @return Attribute<never, bool>
+     */
     public function isStatic(): Attribute
     {
         return Attribute::make(
@@ -204,7 +208,10 @@ class ApplicationSetting extends Model
         );
     }
 
-    public function application()
+    /**
+     * @return BelongsTo<Application, $this>
+     */
+    public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }

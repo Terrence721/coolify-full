@@ -30,7 +30,7 @@ class ServerCaCertificateController extends Controller
         return Inertia::render('Server/CaCertificate/Show', [
             'serverNavbar' => ServerChromeData::navbar($server),
             'sidebar' => ServerChromeData::sidebar($server, 'main', 'ca-certificate'),
-            'certificateContent' => $caCertificate?->ssl_certificate ?? '',
+            'certificateContent' => $caCertificate->ssl_certificate ?? '',
             'certificateValidUntil' => $caCertificate?->valid_until?->toIso8601String(),
             'canManage' => Gate::forUser($request->user())->allows('update', $server),
             'canView' => Gate::forUser($request->user())->allows('view', $server),
