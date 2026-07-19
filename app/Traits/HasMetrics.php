@@ -86,7 +86,7 @@ trait HasMetrics
 
     private function getMetricsServer(): Server
     {
-        return $this->isServerMetrics() ? $this : $this->destination->server;
+        return $this instanceof Server ? $this : $this->destination->server;
     }
 
     private function getMetricsEndpoint(string $type, string $from): string

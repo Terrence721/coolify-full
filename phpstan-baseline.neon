@@ -319,12 +319,6 @@ parameters:
 			path: app/Models/S3Storage.php
 
 		-
-			message: '#^Access to an undefined property App\\Models\\Server\:\:\$destination\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
