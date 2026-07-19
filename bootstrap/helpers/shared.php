@@ -711,7 +711,10 @@ function validate_timezone(string $timezone): bool
     return in_array($timezone, timezone_identifiers_list());
 }
 
-function parseEnvFormatToArray(string $env_file_contents)
+/**
+ * @return array<string, array{value: string, comment: string|null}>
+ */
+function parseEnvFormatToArray(string $env_file_contents): array
 {
     $env_array = [];
     $lines = explode("\n", $env_file_contents);

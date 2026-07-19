@@ -67,7 +67,8 @@ trait HasMetrics
             throw new \Exception($error);
         }
 
-        $metrics = collect(json_decode($response, true))->map(function ($metric) use ($valueField) {
+        $decoded = json_decode($response, true);
+        $metrics = collect(is_array($decoded) ? $decoded : [])->map(function ($metric) use ($valueField) {
             return [(int) $metric['time'], (float) ($metric[$valueField] ?? 0.0)];
         })->toArray();
 

@@ -99,13 +99,13 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 2
+			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 2
+			count: 1
 			path: app/Http/Controllers/ProjectApplicationConfigurationController.php
 
 		-
@@ -153,13 +153,13 @@ parameters:
 		-
 			message: '#^Unable to resolve the template type TKey in call to function collect$#'
 			identifier: argument.templateType
-			count: 2
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
 			message: '#^Unable to resolve the template type TValue in call to function collect$#'
 			identifier: argument.templateType
-			count: 2
+			count: 1
 			path: app/Http/Controllers/ProjectDatabaseConfigurationController.php
 
 		-
@@ -171,18 +171,6 @@ parameters:
 		-
 			message: '#^Anonymous function should return array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: mixed, name\: mixed\}\>\} but returns array\{id\: int, name\: string, ip\: string, destinations\: Illuminate\\Support\\Collection\<int, array\{id\: int, name\: string\}\>\}\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Http/Controllers/ProjectServiceConfigurationController.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
 			count: 1
 			path: app/Http/Controllers/ProjectServiceConfigurationController.php
 
@@ -267,6 +255,18 @@ parameters:
 		-
 			message: '#^Anonymous function should return array\{name\: string, description\: string\|null, environments\: Illuminate\\Support\\Collection\<int, array\{name\: mixed, description\: mixed, href\: string\}\>\} but returns array\{name\: string, description\: string\|null, environments\: Illuminate\\Support\\Collection\<int, array\{name\: string, description\: string\|null, href\: string\}\>\}\.$#'
 			identifier: return.type
+			count: 1
+			path: app/Http/Controllers/SharedVariablesController.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\{value\: string, comment\: string\|null\} will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: app/Http/Controllers/SharedVariablesController.php
+
+		-
+			message: '#^Offset ''value'' on array\{value\: string, comment\: string\|null\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
 			count: 1
 			path: app/Http/Controllers/SharedVariablesController.php
 
@@ -357,18 +357,6 @@ parameters:
 		-
 			message: '#^Result of \|\| is always false\.$#'
 			identifier: booleanOr.alwaysFalse
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/Application.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
 			count: 1
 			path: app/Models/Application.php
 
@@ -541,18 +529,6 @@ parameters:
 			path: app/Models/Server.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/Server.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/Server.php
-
-		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
 			count: 1
@@ -607,18 +583,6 @@ parameters:
 			path: app/Models/StandaloneClickhouse.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneClickhouse.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneDragonfly\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -627,18 +591,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneDragonfly.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneDragonfly.php
 
@@ -655,18 +607,6 @@ parameters:
 			path: app/Models/StandaloneKeydb.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneKeydb.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMariadb\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -675,18 +615,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneMariadb.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMariadb.php
 
@@ -703,18 +631,6 @@ parameters:
 			path: app/Models/StandaloneMongodb.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneMongodb.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneMysql\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -723,18 +639,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneMysql.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneMysql.php
 
@@ -751,18 +655,6 @@ parameters:
 			path: app/Models/StandalonePostgresql.php
 
 		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandalonePostgresql.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(App\\Models\\StandaloneRedis\) and ''team'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -771,18 +663,6 @@ parameters:
 		-
 			message: '#^Dead catch \- Illuminate\\Contracts\\Encryption\\DecryptException is never thrown in the try block\.$#'
 			identifier: catch.neverThrown
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Unable to resolve the template type TKey in call to function collect$#'
-			identifier: argument.templateType
-			count: 1
-			path: app/Models/StandaloneRedis.php
-
-		-
-			message: '#^Unable to resolve the template type TValue in call to function collect$#'
-			identifier: argument.templateType
 			count: 1
 			path: app/Models/StandaloneRedis.php
 
