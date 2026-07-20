@@ -1,11 +1,13 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 19, 2026**
+**Last Updated: July 20, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). The Livewire→React migration itself completed 2026-07-14; this checklist now serves as a standing regression suite — run it after any batch of work touching these flows, not just migration work. See `docs/command.md` for the commands to start the dev stack.
 
 Check items off as `[x]` as you go, or just read top to bottom and confirm each still works. If something fails, note the page and the exact error (console + Laravel Debugbar) before fixing — that detail is what makes a bug report actionable.
+
+**Also tracked on the [Scrum board](https://github.com/users/Terrence721/projects/1)** (2026-07-20): this file's 115 checklist items are split across 10 sub-issues of issue #5, one per section/theme below — Setup+Cross-cutting, Easy bucket, Medium bucket, and 7 pieces of the Hard bucket (Deployment+Backups, Terminal, Onboarding, non-realtime misc pages, `Server\Navbar` SSH-heavy pages, Git-creation flows, Final sanity+sign-off). Each sub-issue carries the same items as a GitHub task list, checked off in parallel with this file — the file is the detailed reference, the board is the at-a-glance status. `gh issue view 5` lists all 10.
 
 ## 0. Setup
 
