@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import GlobalSearchModal from '../Components/GlobalSearchModal';
 import LayoutPopups from '../Components/LayoutPopups';
 import ThemeSwitcher from '../Components/ThemeSwitcher';
+import Toast from '../Components/Toast';
 import WhatsNewButton from '../Components/WhatsNewButton';
 import { applyZoom, pageWidthClass } from '../hooks/useAppearance';
 
@@ -24,6 +25,12 @@ import { applyZoom, pageWidthClass } from '../hooks/useAppearance';
  * app.blade.php's pageWidth class binding — both went dead (silently, for a while) once
  * navbar.blade.php/app.blade.php were deleted and nothing on the React side replaced them; see
  * todo.md's "Correction, 2026-07-19" note.
+ * Toast.jsx is a from-scratch React port of components/toast.blade.php, which defined
+ * window.toast() entirely via Alpine.js (x-data/x-init/x-teleport) - removing Alpine broke it
+ * silently everywhere, and app-inertia.blade.php never included it in the first place, so every
+ * window.toast(...) call site in the app (this file's own flash handler included) had been
+ * no-op'ing since the migration completed. Found via manual smoke-test QA, not inspection - see
+ * todo.md's "Correction, 2026-07-20" note.
  *
  * Known v1 gaps — features the old Livewire navbar had that have no React port yet, not deferred
  * for any architectural reason: team switching (read-only team name shown instead of a working
@@ -149,6 +156,7 @@ export default function AppLayout({ children }) {
             </div>
             {auth?.user && <LayoutPopups />}
             {auth?.user && <GlobalSearchModal />}
+            <Toast />
         </div>
     );
 }
