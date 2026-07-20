@@ -23,11 +23,31 @@ services:
       interval: 5s
       retries: 10
       timeout: 15s
+    labels:
+      - autoheal=true
     volumes:
       - .:/var/www/html/:cached
       - dev_backups_data:/var/www/html/storage/app/backups
     networks:
       - coolify
+  autoheal:
+    image: willfarrell/autoheal:latest
+    pull_policy: always
+    container_name: coolify-autoheal
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      # Windows/WSL2 restart, the coolify container's bind mount to the repo can come up
+      # empty (a Docker Desktop/WSL2 filesystem-readiness race, not an app bug - confirmed
+      # 2026-07-20 via `docker exec coolify ls /var/www/html`, which showed just an empty
+      # storage/ dir until a plain `docker restart coolify` re-attached the real mount).
+      # Only coolify carries the autoheal=true label (see above) - deliberately not
+      # applied stack-wide, since a blind auto-restart on genuine DB/Redis unhealthiness
+      # could mask a real problem instead of just re-attaching a stale mount.
+      AUTOHEAL_INTERVAL: 5
+      AUTOHEAL_START_PERIOD: 30
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
   postgres:
     pull_policy: always
     ports:

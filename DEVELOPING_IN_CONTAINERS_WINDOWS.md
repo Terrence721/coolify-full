@@ -1,7 +1,7 @@
 # Developing Coolify In Containers (Windows)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 19, 2026**
+**Last Updated: July 20, 2026**
 
 **The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in `docs/command.md` runs identically.
 
@@ -225,6 +225,12 @@ These are optional environment values and do not always block local development.
 ### A "Cannot connect to real-time service" popup appears, or Vite HMR never connects
 
 Confirmed 2026-07-19: not a bug in this app. The Soketi WebSocket server (port 6001) and Vite's own dev-server HMR socket (port 5173) are two completely independent services, built with different code — if both fail with the identical browser error (`WebSocket connection to '...' failed: WebSocket is closed before the connection is established`, visible in DevTools → Console), the common factor is something in the browser sitting between it and `localhost`, not either service. Confirmed live: a real WebSocket handshake to `localhost:6001` from outside the browser (`curl` with proper `Upgrade`/`Sec-WebSocket-*` headers) succeeds cleanly, and both failures disappeared immediately after disabling an ad blocker for the site. If you hit this, check browser extensions (ad blockers/privacy extensions are the most common cause) before assuming the app is broken — try an Incognito/Private window (extensions off by default) as the fastest test.
+
+### After a Windows reboot, `coolify` comes up unhealthy with `artisan` missing
+
+Confirmed 2026-07-20: a Docker Desktop/WSL2 filesystem-readiness race, not an app bug. Right after a host reboot, the `coolify` container can start before WSL2's filesystem is fully ready, so its bind mount to the repo (`.:/var/www/html`) attaches empty — `docker exec coolify ls /var/www/html` shows just an empty `storage/` directory, no `artisan`, and every scheduled/queue process loops on `Could not open input file: artisan`. A plain `docker restart coolify` (once WSL2 has actually settled) re-attaches the real mount and fixes it immediately — confirmed live.
+
+**Fixed for good, not just documented**: `docker-compose.dev.yml` now runs a `willfarrell/autoheal` sidecar (`autoheal` service) that watches for any container labeled `autoheal=true` — currently just `coolify` — going `unhealthy`, and restarts it automatically. Verified end-to-end with a real controlled test (not assumed): forced `coolify`'s healthcheck to fail for 30+ seconds (`s6-svc -d /run/service/nginx` inside the container, not just `pkill nginx` — s6 auto-restarts a merely-killed process too fast to sustain a failure), watched the container's own `StartedAt` timestamp change once it crossed the unhealthy threshold, and confirmed the bind mount and app were fully healthy again afterward with zero manual intervention. Deliberately scoped to just `coolify` via the label (not stack-wide) — a blind auto-restart on genuine Postgres/Redis unhealthiness could mask a real problem instead of just re-attaching a stale mount.
 
 ### App health stays `starting`
 
