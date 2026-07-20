@@ -63,7 +63,7 @@ export default function Toast() {
                     key={toast.id}
                     role="alert"
                     onClick={() => dismiss(toast.id)}
-                    className="w-full cursor-pointer rounded-sm bg-white p-4 shadow-[0_5px_15px_-3px_rgb(0_0_0_/_0.08)] dark:border dark:border-coolgray-200 dark:bg-coolgray-100"
+                    className="w-full cursor-pointer rounded-sm bg-white p-4 shadow-[0_5px_15px_-3px_rgb(0_0_0/0.08)] dark:border dark:border-coolgray-200 dark:bg-coolgray-100"
                 >
                     <p className={`font-medium ${TYPE_STYLES[toast.type]}`}>{toast.title}</p>
                     {toast.description && <p className="mt-1 whitespace-pre-wrap text-xs opacity-90">{toast.description}</p>}

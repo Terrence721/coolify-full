@@ -13,28 +13,27 @@
         </label>
     @endif
     @if ($type === 'password')
-        <div class="relative" x-data="{ type: 'password' }">
+        <div class="relative" data-password-field>
             <input autocomplete="{{ $autocomplete }}" value="{{ $value }}"
-                x-bind:type="type"
-                x-bind:class="{ 'truncate': type === 'text' && ! $el.disabled }"
+                type="password" data-password-input
                 {{ $attributes->merge(['class' => $defaultClass]) }} @required($required)
                 @readonly($readonly) @disabled($disabled) id="{{ $htmlId }}"
                 name="{{ $name }}" placeholder="{{ $attributes->get('placeholder') }}"
                 aria-placeholder="{{ $attributes->get('placeholder') }}"
-                @if ($autofocus) x-ref="autofocusInput" @endif>
+                @if ($autofocus) autofocus @endif>
             @if ($allowToPeak)
-                <button type="button" x-on:click="type = type === 'password' ? 'text' : 'password'"
+                <button type="button" data-password-toggle
                     class="flex absolute inset-y-0 right-0 items-center pr-2 cursor-pointer dark:hover:text-white"
                     aria-label="Toggle password visibility">
                     {{-- Eye icon (shown when password is hidden) --}}
-                    <svg x-show="type === 'password'" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" stroke-width="1.5"
+                    <svg data-password-icon-shown xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
                         <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                     </svg>
                     {{-- Eye-off icon (shown when password is visible) --}}
-                    <svg x-cloak x-show="type === 'text'" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" stroke-width="1.5"
+                    <svg data-password-icon-hidden class="hidden w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
@@ -53,7 +52,7 @@
             maxlength="{{ $attributes->get('maxlength') }}"
             id="{{ $htmlId }}" name="{{ $name }}"
             placeholder="{{ $attributes->get('placeholder') }}"
-            @if ($autofocus) x-ref="autofocusInput" @endif>
+            @if ($autofocus) autofocus @endif>
     @endif
     @if (!$label && $helper)
         <x-helper :helper="$helper" />
