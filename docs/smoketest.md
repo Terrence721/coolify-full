@@ -23,7 +23,7 @@ Check items off as `[x]` as you go, or just read top to bottom and confirm each 
 
 The Livewire↔Inertia coexistence boundary these used to verify no longer exists — every full-page route and all navigation/chrome infrastructure is React. These checks now just cover basic navigation/UI plumbing that every page below depends on.
 
-- [ ] Click a sidebar link between two different pages (e.g. Dashboard → "Shared Variables"). Confirm it navigates via a real Inertia transition, not a full page reload.
+- [x] Click a sidebar link between two different pages (e.g. Dashboard → "Shared Variables"). Confirm it navigates via a real Inertia transition, not a full page reload. **Confirmed 2026-07-20**, real browser session, Network tab: the navigation request showed as type `xhr` (not a document/page load), followed by a lazy-loaded `Index.jsx` chunk — no new full-page request, no flicker, Console log survived the navigation (Preserve log on) confirming no reload occurred.
 - [ ] Trigger a flash message (e.g. submit a form successfully) — confirm the toast appears (`AppLayout.jsx` routes flash props through `window.toast()`).
 - [ ] Trigger a validation error on a form (e.g. leave a required field blank) — confirm inline error text renders under the field, not just a generic failure.
 
