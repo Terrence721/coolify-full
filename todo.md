@@ -314,7 +314,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 |---|---|
 | Added | 2026-07-20 |
 | Tooling | Vitest + React Testing Library |
-| Coverage | 36 tests across 6 suites — `Toast.jsx`, `useTeamChannel.js`, `Notifications/Email.jsx`, `ServerNavbar.jsx`, `AppLayout.jsx`, `useAppearance.js`'s `applyZoom()` |
+| Coverage | 43 tests across 7 suites — `Toast.jsx`, `useTeamChannel.js`, `Notifications/Email.jsx`, `ServerNavbar.jsx`, `AppLayout.jsx`, `useAppearance.js`'s `applyZoom()`, `Project/Resource/Create.jsx` |
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
 | Full detail | Scrum issue #32 (setup, per-suite rationale, verification) |
 
