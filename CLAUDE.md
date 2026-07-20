@@ -44,6 +44,8 @@ composer psalm                      # Psalm taint analysis only (SQL injection, 
 # Frontend
 yarn dev                        # vite dev server
 yarn build                      # production build
+yarn test                       # React component tests (Vitest + Testing Library, resources/js/**/*.test.jsx)
+node --test resources/js/*.test.js resources/js/**/*.test.js  # plain-JS logic tests (Node's built-in runner, no jsdom)
 ```
 
 ## Architecture
@@ -90,6 +92,7 @@ yarn build                      # production build
 - Real-time updates use Laravel Echo (`useTeamChannel`) against Soketi broadcasts
 - Tailwind CSS v4 with `@tailwindcss/forms` and `@tailwindcss/typography`
 - Vite for asset bundling (two entrypoints: `app.js` for the remaining plain-Blade pages, `inertia-app.jsx` for React)
+- Component tests: Vitest + Testing Library (`resources/js/**/*.test.jsx`, `vitest.config.js`, run via `yarn test`) — jsdom-based, no real browser. Plain-JS logic (no React) is tested separately via Node's built-in `node --test` (`resources/js/**/*.test.js`), unchanged. Pest 4's browser-testing plugin (the planned path for full browser-level JS testing) can't run in this dev setup — see `todo.md` issue #11.
 
 ### Laravel 10 Structure (NOT Laravel 11+ slim structure)
 - Middleware in `app/Http/Middleware/` — custom middleware includes `CheckForcePasswordReset`, `DecideWhatToDoWithUser`, `ApiAbility`, `ApiSensitiveData`
