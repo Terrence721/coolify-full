@@ -128,6 +128,26 @@ class ConfigurationRepositoryTest extends TestCase
     }
 
     #[Test]
+    public function smtp_encryption_null_does_not_crash_and_defaults_to_null_encryption()
+    {
+        // Real bug found via manual smoke-test QA: InstanceSettings/EmailNotificationSettings'
+        // smtp_encryption column is nullable, and smtp_enabled can be true with smtp_encryption
+        // never set (e.g. saved before the field was filled in). strtolower(null) is a fatal
+        // TypeError under strict_types=1 - this crashed every outgoing transactional email
+        // (Fortify verification codes, password resets, etc.) whenever that combination occurred.
+        $settings = $this->makeSettings([
+            'smtp_enabled' => true,
+            'smtp_encryption' => null,
+        ]);
+
+        $repo = new ConfigurationRepository($this->config);
+        $repo->updateMailConfig($settings);
+
+        $smtp = $this->config->get('mail.mailers.smtp');
+        $this->assertNull($smtp['encryption']);
+    }
+
+    #[Test]
     public function disable_ssh_mux_sets_config_value()
     {
         $repo = new ConfigurationRepository($this->config);

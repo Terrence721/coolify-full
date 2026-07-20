@@ -27,7 +27,7 @@ class ConfigurationRepository
         }
 
         if ($settings->smtp_enabled) {
-            $encryption = match (strtolower($settings->smtp_encryption)) {
+            $encryption = match (strtolower($settings->smtp_encryption ?? 'none')) {
                 'starttls' => null,
                 'tls' => 'tls',
                 'none' => null,
