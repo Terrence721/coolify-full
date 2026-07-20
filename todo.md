@@ -324,7 +324,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Manual SSH-touching smoke-test checklist | In progress — 11 tracked sub-issues (#5), 1 of 11 done. See "Migration follow-up" and `docs/smoketest.md` |
+| 1 | Manual SSH-touching smoke-test checklist | In progress — 11 tracked sub-issues (#5), 2 of 11 done, 1 more partially done (#21). See "Migration follow-up" and `docs/smoketest.md` |
 | 2 | Zero Laravel API Resource classes | Deliberate style choice, not a bug — optional refactor, Backlog (#9) |
 | 3 | Fresh-clone end-to-end boot test | Deferred on purpose, destructive — Planned (#6) |
 | 4 | Pest browser-testing plugin can't run in this dev setup | Backlog (#11) — Vitest + Testing Library (added 2026-07-20) covers component logic but not real-browser/console behavior. See "Frontend component testing" |
@@ -338,7 +338,7 @@ The migration itself is complete (see **Done** above) — this heading exists fo
 
 | Item | Status |
 |---|---|
-| Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) | In progress — manual QA checklist in `docs/smoketest.md`, split across 11 tracked sub-issues (issue #5), 1 of 11 done |
+| Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) | In progress — manual QA checklist in `docs/smoketest.md`, split across 11 tracked sub-issues (issue #5), 2 of 11 done, 1 more partially done (#21) |
 
 ### Laravel backend improvements — still open
 
