@@ -46,6 +46,8 @@ yarn dev                        # vite dev server
 yarn build                      # production build
 yarn test                       # React component tests (Vitest + Testing Library, resources/js/**/*.test.jsx)
 node --test resources/js/*.test.js resources/js/**/*.test.js  # plain-JS logic tests (Node's built-in runner, no jsdom)
+yarn lint                       # ESLint (eslint.config.js) — validates resources/js/; see todo.md issue #33 for the current baseline
+yarn format:check               # Prettier check (.prettierrc.json), resources/js/ — not yet enforced repo-wide
 ```
 
 ## Architecture
@@ -93,6 +95,7 @@ node --test resources/js/*.test.js resources/js/**/*.test.js  # plain-JS logic t
 - Tailwind CSS v4 with `@tailwindcss/forms` and `@tailwindcss/typography`
 - Vite for asset bundling (two entrypoints: `app.js` for the remaining plain-Blade pages, `inertia-app.jsx` for React)
 - Component tests: Vitest + Testing Library (`resources/js/**/*.test.jsx`, `vitest.config.js`, run via `yarn test`) — jsdom-based, no real browser. Plain-JS logic (no React) is tested separately via Node's built-in `node --test` (`resources/js/**/*.test.js`), unchanged. Pest 4's browser-testing plugin (the planned path for full browser-level JS testing) can't run in this dev setup — see `todo.md` issue #11.
+- Linting/formatting: ESLint (`eslint.config.js`, flat config) + Prettier (`.prettierrc.json`) for `resources/js/`, run via `yarn lint`/`yarn format:check`. Validated against the whole tree but not yet enforced or auto-fixed repo-wide — see `todo.md` issue #33 for the current baseline and what's real vs. cosmetic.
 
 ### Laravel 10 Structure (NOT Laravel 11+ slim structure)
 - Middleware in `app/Http/Middleware/` — custom middleware includes `CheckForcePasswordReset`, `DecideWhatToDoWithUser`, `ApiAbility`, `ApiSensitiveData`

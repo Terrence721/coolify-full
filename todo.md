@@ -18,13 +18,14 @@ This file is long and detailed on purpose — every claim below is backed by evi
 - Security hardening (CodeQL + Psalm, 11 real CVEs patched, 2 real findings fixed) — see "GitHub repo-level security features" below
 - The Laravel backend audit's tracked findings (team-scoping, Sanctum tokens, cross-device reachability) — see "Laravel backend improvements" below
 
-**Actually still open, right now (6 items):**
+**Actually still open, right now (7 items):**
 1. **Manual SSH-touching smoke-test checklist — in progress.** Split across 11 tracked sub-issues on the Scrum board (issue #5); 1 of 11 done so far. See "Migration follow-up" below and `docs/smoketest.md`.
 2. **Zero Laravel API Resource classes** — a deliberate style choice, not a bug. Optional refactor, Backlog on the Scrum board (#9).
 3. **Fresh-clone end-to-end boot test** — deferred on purpose, since it's destructive (wipes all local dev data). Planned on the Scrum board (#6).
 4. **Pest browser-testing plugin still can't run in this dev setup** (PHP/Node split across containers) — Backlog on the Scrum board (#11), unchanged. A separate, complementary layer was added 2026-07-20: Vitest + Testing Library for React component tests (`yarn test`) — doesn't need a real browser, so it runs independently of the container split, but it also doesn't replace what the browser plugin would give (real console errors, real rendering). See "Frontend component testing" below.
 5. **Low-level audit: is every top-level folder/file still necessary** — a deliberate, exhaustive sweep, not yet started. Backlog on the Scrum board (#2).
 6. **`Application`/`Service` compose-file parsing might be unifiable** — a "maybe worth a look," not a known bug, no urgency. Not yet on the Scrum board.
+7. **ESLint/Prettier now configured for `resources/js/`, but the 104-problem validation baseline it surfaced isn't fixed yet** — no live bugs among them, mostly cosmetic (see "Frontend linting & formatting" below). Planned on the Scrum board (#33).
 
 If you only read one section of this file, read this one — everything else is the evidence trail behind these six lines.
 
@@ -405,6 +406,12 @@ Vitest + React Testing Library adds the component layer underneath that: jsdom-b
 **Scope**: covers component/hook logic in isolation (jsdom), not full browser behavior — no real WebSocket, no real CSS layout/paint, no real console capture the way Pest's browser plugin would give. Complements issue #11 rather than resolving it. `AppLayout.jsx` actually mounting `<Toast />`, and `ServerNavbar.jsx` actually wiring `useTeamChannel` end-to-end, aren't covered yet — integration-level assertions, heavier to set up given their Inertia/router dependencies — noted as natural next candidates.
 
 Verification: `yarn test` 12/12 passed (6 + 6). `node --test resources/js/terminal.test.js resources/js/hooks/useAppearance.test.js` 2/2 passed, unaffected. `yarn build` clean. Full Pest suite unaffected (no PHP touched). Tracked as Scrum issue #32.
+
+### Frontend linting & formatting
+
+**2026-07-20**: `resources/js/` had no ESLint or Prettier configured — no config file, no dev dependency, anywhere in the repo (Pint is PHP-only). Added `eslint.config.js` (flat config, ESLint 10 + `eslint-plugin-react`/`react-hooks`/`react-refresh`) and `.prettierrc.json`, run via `yarn lint`/`yarn format:check`. Deliberately does **not** whitelist a `route()` global — this codebase has no Ziggy, and a real bug (an undefined `route()` call in `Project/Resource/Create.jsx`, found and fixed in Phase 76 — see the migration doc) shipped exactly because nothing flagged the reference; `no-undef` should catch that class of bug, not suppress it.
+
+`yarn lint` against the whole tree: **104 problems (74 errors, 30 warnings), none in the new test files** — a validation baseline, not a bug report. Real/notable findings: `MonacoEditor.jsx:39` mutates a ref during render instead of in an effect; `CaCertificate/Show.jsx:40` calls `new Date()` during render (non-deterministic render logic); `PrivateKey/Show.jsx`'s `useKey` and `CloudProviderToken.jsx`'s `useToken` are false-positive Rules-of-Hooks flags (plain functions colliding with the `use*` naming convention, not actual hooks). The bulk of the count (50) is `react/no-unescaped-entities` — raw apostrophes/quotes in JSX text, cosmetic only. Full breakdown and next steps tracked as Scrum issue #33 rather than mass-autofixing here — a `--fix`/`--write` pass across the existing codebase deserves its own deliberate review, not folding into this round's test-writing work.
 
 ## Still to do
 

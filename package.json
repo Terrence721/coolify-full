@@ -5,17 +5,27 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "test": "vitest run"
+        "test": "vitest run",
+        "lint": "eslint resources/js",
+        "format:check": "prettier --check resources/js"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@tailwindcss/postcss": "4.3.2",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
         "@vitejs/plugin-react": "^6.0.3",
+        "eslint": "^10.7.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.5.3",
+        "globals": "^17.7.0",
         "jsdom": "^29.1.1",
         "laravel-vite-plugin": "3.1.0",
         "postcss": "8.5.16",
+        "prettier": "^3.9.5",
         "tailwind-scrollbar": "4.0.2",
         "tailwindcss": "4.3.2",
         "vite": "8.1.3",
