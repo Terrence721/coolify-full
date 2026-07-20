@@ -29,8 +29,8 @@ The Livewire↔Inertia coexistence boundary these used to verify no longer exist
 
 ## 2. Easy bucket (5 pages) — static/read-only
 
-- [ ] `/shared-variables` — 4 linked cards render, each link works.
-- [ ] `/shared-variables/environment`, `/shared-variables/project`, `/shared-variables/server` — each lists its scoped variables.
+- [x] `/shared-variables` — 4 linked cards render, each link works. **Confirmed 2026-07-20**, real browser session: the 4 cards link to `/shared-variables/team`, `/projects`, `/environments`, `/servers`.
+- [x] `/shared-variables/environments`, `/shared-variables/projects`, `/shared-variables/servers` — each lists its scoped variables. **Confirmed 2026-07-20**, real browser session — this item's URLs were previously wrong in this file (singular `/environment`/`/project`/`/server`, which don't exist and redirect to Dashboard; the real routes are plural, plus a 4th `/team` scope this item never listed). Corrected here rather than leaving the wrong paths for the next person to hit the same redirect. All 3 scoped pages load correctly (`Environments`/`Projects`/`Servers` headings), no console errors beyond the known WebSocket-connection-refused noise from this throwaway-container test harness (Vite HMR + Soketi aren't reachable from that container's network path — not an app bug, same as every other Playwright-container session this file documents).
 - [x] **RESOLVED 2026-07-19** (was: width/zoom didn't actually do anything — only Theme worked; see `todo.md`'s Zoom/Width entry). `/profile/appearance` — theme/width/zoom controls change the UI live, verified via a real browser session (throwaway Playwright container): `html`'s font-size genuinely changes 16px → 14px at 90% zoom, `<main>` genuinely gains `max-w-7xl mx-auto` at Center width.
 
 ## 3. Medium bucket (20 pages) — forms, no real-time dependency
