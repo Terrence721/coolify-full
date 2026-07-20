@@ -27,7 +27,7 @@ The Livewire↔Inertia coexistence boundary these used to verify no longer exist
 
 - [ ] `/shared-variables` — 4 linked cards render, each link works.
 - [ ] `/shared-variables/environment`, `/shared-variables/project`, `/shared-variables/server` — each lists its scoped variables.
-- [ ] `/profile/appearance` — theme/width/zoom controls change the UI live.
+- [x] **RESOLVED 2026-07-19** (was: width/zoom didn't actually do anything — only Theme worked; see `todo.md`'s Zoom/Width entry). `/profile/appearance` — theme/width/zoom controls change the UI live, verified via a real browser session (throwaway Playwright container): `html`'s font-size genuinely changes 16px → 14px at 90% zoom, `<main>` genuinely gains `max-w-7xl mx-auto` at Center width.
 
 ## 3. Medium bucket (20 pages) — forms, no real-time dependency
 
