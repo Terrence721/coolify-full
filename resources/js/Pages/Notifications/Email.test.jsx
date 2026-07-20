@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { useState } from 'react';
+import { act, useState } from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import Email from './Email';
 
@@ -79,7 +79,7 @@ describe('Notifications/Email', () => {
         render(<Email {...BASE_PROPS} />);
 
         const toggle = screen.getByLabelText('Use system wide (transactional) email settings');
-        toggle.click();
+        act(() => toggle.click());
 
         expect(putSpy).toHaveBeenCalledWith('/notifications/email');
     });
@@ -101,7 +101,7 @@ describe('Notifications/Email', () => {
         render(<Email {...BASE_PROPS} isCloud settings={{ ...BASE_SETTINGS, use_instance_email_settings: false }} />);
 
         const toggle = screen.getByLabelText('Use Hosted Email Service');
-        toggle.click();
+        act(() => toggle.click());
 
         expect(putSpy).toHaveBeenCalledTimes(1);
         expect(putSpy).toHaveBeenCalledWith('/notifications/email');
