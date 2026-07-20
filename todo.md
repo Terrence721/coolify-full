@@ -1,4 +1,4 @@
-# TODO
+# 📝 TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
 **Last Updated: July 20, 2026**
@@ -25,7 +25,7 @@ This file is long and detailed on purpose — every claim below is backed by evi
 
 If you only read one section of this file, read this one and that table — everything else is the evidence trail behind them.
 
-## Done
+## ✅ Done
 
 ### De-commercialization
 
@@ -318,7 +318,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
 | Full detail | Scrum issue #32 (setup, per-suite rationale, verification) |
 
-## Still to do
+## 🚧 Still to do
 
 **Overview — 7 items open right now:**
 
