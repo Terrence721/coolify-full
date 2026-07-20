@@ -45,7 +45,7 @@ describe('useTeamChannel', () => {
         expect(channelMock.listen).not.toHaveBeenCalledWith('.App\\Events\\.ServerValidated', expect.any(Function));
     });
 
-    it('subscribes to the current team\'s private channel', () => {
+    it("subscribes to the current team's private channel", () => {
         renderHook(() => useTeamChannel(['ProxyStatusChangedUI'], vi.fn()));
 
         expect(echoMock.private).toHaveBeenCalledWith('team.42');

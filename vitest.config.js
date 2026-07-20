@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // Deliberately separate from vite.config.js: that file's `laravel()` plugin
 // expects a real manifest/Vite dev server and has no role in an in-memory
@@ -7,8 +7,8 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
     plugins: [react()],
     test: {
-        environment: "jsdom",
-        setupFiles: ["./resources/js/testSetup.js"],
-        include: ["resources/js/**/*.test.jsx"],
+        environment: 'jsdom',
+        setupFiles: ['./resources/js/testSetup.js'],
+        include: ['resources/js/**/*.test.jsx'],
     },
 });

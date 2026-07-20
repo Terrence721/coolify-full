@@ -136,7 +136,11 @@ export default function Email({
                         Save
                     </button>
                     {canSendTest && (
-                        <button type="button" className="normal-case dark:text-white btn btn-xs no-animation btn-primary" onClick={() => setTestModalOpen(true)}>
+                        <button
+                            type="button"
+                            className="normal-case dark:text-white btn btn-xs no-animation btn-primary"
+                            onClick={() => setTestModalOpen(true)}
+                        >
                             Send Test Email
                         </button>
                     )}
@@ -154,9 +158,7 @@ export default function Email({
                                 value={testForm.data.test_email_address}
                                 onChange={(e) => testForm.setData('test_email_address', e.target.value)}
                             />
-                            {testForm.errors.test_email_address && (
-                                <span className="text-error">{testForm.errors.test_email_address}</span>
-                            )}
+                            {testForm.errors.test_email_address && <span className="text-error">{testForm.errors.test_email_address}</span>}
                         </label>
                         <button type="submit" disabled={testForm.processing}>
                             Send Email
