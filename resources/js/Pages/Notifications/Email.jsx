@@ -171,7 +171,16 @@ export default function Email({
                                 id="email-use-instance-settings"
                                 type="checkbox"
                                 checked={main.data.use_instance_email_settings}
-                                onChange={(e) => main.setData('use_instance_email_settings', e.target.checked)}
+                                onChange={(e) => {
+                                    // Auto-saves immediately, matching the original Livewire component's
+                                    // instantSave() on this exact field. Without this, toggling it off only
+                                    // updates client state - the SMTP/Resend blocks below appear and can be
+                                    // filled in and saved successfully, but a page reload reverts the toggle
+                                    // to whatever's still persisted (true), re-hiding the block even though
+                                    // the SMTP/Resend data itself did save. Found via manual smoke-test QA.
+                                    main.setData('use_instance_email_settings', e.target.checked);
+                                    main.put(updateUrl);
+                                }}
                             />
                             Use system wide (transactional) email settings
                         </label>

@@ -37,8 +37,8 @@ The Livewire↔Inertia coexistence boundary these used to verify no longer exist
 
 Notifications (`/notifications/{channel}` for discord, email, slack, telegram, pushover, webhook):
 
-- [ ] Each channel's toggle/URL form saves successfully and shows a success toast.
-- [ ] Email channel specifically: SMTP block, Resend block, and the test-send action all work independently.
+- [x] Each channel's toggle/URL form saves successfully and shows a success toast. **Confirmed 2026-07-20**, real browser session covering all 5 non-email channels (discord, slack, telegram, pushover, webhook): each channel's enabled toggle + URL/token field(s) save, show a real "Success / Settings saved." toast, and persist correctly after a reload.
+- [x] Email channel specifically: SMTP block, Resend block, and the test-send action all work independently. **Confirmed 2026-07-20**, real browser session — SMTP block saved against the real `coolify-mail` (Mailpit) container and Resend block saved independently, each showing its own success toast. **Found and fixed a real bug along the way**: the "Use system wide (transactional) email settings" checkbox only updated local form state with no save call, so unchecking it, saving SMTP/Resend successfully, then reloading reverted the checkbox to checked and re-hid the just-saved blocks (the data itself wasn't lost — the checkbox toggle itself just was never persisted). The original Livewire component had this exact field wired to an instant-save; the React port dropped it. Fixed by adding the same auto-save-on-toggle the file's own `isCloud` variant and event-notification checkboxes already use elsewhere. See `todo.md`'s "Cleanup opportunities" section for the full trace, plus a new regression test (`Email.test.jsx`).
 
 Profile & Security:
 
