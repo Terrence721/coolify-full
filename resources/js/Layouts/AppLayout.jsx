@@ -4,6 +4,7 @@ import GlobalSearchModal from '../Components/GlobalSearchModal';
 import LayoutPopups from '../Components/LayoutPopups';
 import ThemeSwitcher from '../Components/ThemeSwitcher';
 import WhatsNewButton from '../Components/WhatsNewButton';
+import { applyZoom, pageWidthClass } from '../hooks/useAppearance';
 
 /**
  * React port of the persistent navbar/sidebar shell (formerly
@@ -19,6 +20,10 @@ import WhatsNewButton from '../Components/WhatsNewButton';
  * and GlobalSearchModal.jsx (the "/" or ⌘K command palette) are ports of the former
  * `<livewire:layout-popups/>` and `<livewire:global-search/>` components — the search side shares
  * its actual query logic with the backend via GlobalSearchService rather than duplicating it.
+ * useAppearance.js's applyZoom()/pageWidthClass() are ports of the old navbar's checkZoom() and
+ * app.blade.php's pageWidth class binding — both went dead (silently, for a while) once
+ * navbar.blade.php/app.blade.php were deleted and nothing on the React side replaced them; see
+ * todo.md's "Correction, 2026-07-19" note.
  *
  * Known v1 gaps — features the old Livewire navbar had that have no React port yet, not deferred
  * for any architectural reason: team switching (read-only team name shown instead of a working
@@ -67,8 +72,13 @@ export default function AppLayout({ children }) {
         });
     }, [flash]);
 
+    useEffect(() => {
+        applyZoom(localStorage.getItem('zoom') || '100');
+    }, []);
+
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
     const csrfToken = typeof document !== 'undefined' ? document.querySelector('meta[name="csrf-token"]')?.content : '';
+    const pageWidth = typeof window !== 'undefined' ? localStorage.getItem('pageWidth') || 'full' : 'full';
 
     return (
         <div className="flex min-h-screen">
@@ -135,7 +145,7 @@ export default function AppLayout({ children }) {
                         <WhatsNewButton unreadCount={changelog.unreadCount} currentVersion={changelog.currentVersion} canFetchLatest={permissions?.isDev} />
                     )}
                 </header>
-                <main className="flex-1 p-6">{children}</main>
+                <main className={`flex-1 p-6 w-full ${pageWidthClass(pageWidth)}`}>{children}</main>
             </div>
             {auth?.user && <LayoutPopups />}
             {auth?.user && <GlobalSearchModal />}
