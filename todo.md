@@ -402,10 +402,11 @@ Vitest + React Testing Library adds the component layer underneath that: jsdom-b
 |---|---|---|---|
 | `Toast.jsx` | `Components/Toast.test.jsx` | 6 | The component behind the toast-notification bug (see "Cleanup opportunities" above) — every real `window.toast()` call site depends on its mount/unmount contract |
 | `useTeamChannel.js` | `hooks/useTeamChannel.test.jsx` | 6 | The hook behind a real, documented Phase 78 bug (see the Livewire → React/Inertia migration section's Phase 78 entry) — a bare-vs-leading-dot event name mismatch silently broke the `ServerValidated` listener. Test reverts the fix locally and confirms it fails with the exact real symptom (`.App\Events\.ServerValidated` instead of `.ServerValidated`) before restoring it, same TDD-proof pattern used for backend regression tests all session |
+| `Notifications/Email.jsx` | `Pages/Notifications/Email.test.jsx` | 4 | Written alongside the fix for a real bug found the same session (see "Cleanup opportunities" below): the "Use system wide email settings" toggle only updated local state, never saved, so a page reload silently re-hid successfully-saved SMTP/Resend settings. Confirms the toggle now auto-saves, the SMTP/Resend blocks show/hide correctly, and the `isCloud` variant doesn't double-save |
 
 **Scope**: covers component/hook logic in isolation (jsdom), not full browser behavior — no real WebSocket, no real CSS layout/paint, no real console capture the way Pest's browser plugin would give. Complements issue #11 rather than resolving it. `AppLayout.jsx` actually mounting `<Toast />`, and `ServerNavbar.jsx` actually wiring `useTeamChannel` end-to-end, aren't covered yet — integration-level assertions, heavier to set up given their Inertia/router dependencies — noted as natural next candidates.
 
-Verification: `yarn test` 12/12 passed (6 + 6). `node --test resources/js/terminal.test.js resources/js/hooks/useAppearance.test.js` 2/2 passed, unaffected. `yarn build` clean. Full Pest suite unaffected (no PHP touched). Tracked as Scrum issue #32.
+Verification: `yarn test` 16/16 passed (6 + 6 + 4). `node --test resources/js/terminal.test.js resources/js/hooks/useAppearance.test.js` 2/2 passed, unaffected. `yarn build` clean. Full Pest suite unaffected (no PHP touched). Tracked as Scrum issue #32.
 
 ### Frontend linting & formatting
 
