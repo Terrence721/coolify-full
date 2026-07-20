@@ -1,7 +1,7 @@
 # Developing Coolify In Containers (Windows)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 13, 2026**
+**Last Updated: July 19, 2026**
 
 **The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in `docs/command.md` runs identically.
 
@@ -221,6 +221,10 @@ use Illuminate\Support\Facades\Log;
 ### Docker compose warns about `PUSHER_HOST` or `PUSHER_PORT`
 
 These are optional environment values and do not always block local development.
+
+### A "Cannot connect to real-time service" popup appears, or Vite HMR never connects
+
+Confirmed 2026-07-19: not a bug in this app. The Soketi WebSocket server (port 6001) and Vite's own dev-server HMR socket (port 5173) are two completely independent services, built with different code — if both fail with the identical browser error (`WebSocket connection to '...' failed: WebSocket is closed before the connection is established`, visible in DevTools → Console), the common factor is something in the browser sitting between it and `localhost`, not either service. Confirmed live: a real WebSocket handshake to `localhost:6001` from outside the browser (`curl` with proper `Upgrade`/`Sec-WebSocket-*` headers) succeeds cleanly, and both failures disappeared immediately after disabling an ad blocker for the site. If you hit this, check browser extensions (ad blockers/privacy extensions are the most common cause) before assuming the app is broken — try an Incognito/Private window (extensions off by default) as the fastest test.
 
 ### App health stays `starting`
 

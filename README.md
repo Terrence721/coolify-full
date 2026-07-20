@@ -10,9 +10,7 @@ This repository is a professionally enhanced fork of [Coolify](https://coolify.i
 
 **Evaluating this for a specific role?** See [`POSITION_ALIGNMENT.md`](POSITION_ALIGNMENT.md) for a direct, requirement-by-requirement mapping between this repo and a real job description — not a generic "skills" list, an actual line-by-line comparison.
 
-| Projects | Servers |
-| --- | --- |
-| ![Projects list, showing an E-Commerce Platform and Internal Tools project](docs/screenshots/projects.png) | ![Servers list, showing a managed Docker host](docs/screenshots/servers.png) |
+![Dashboard showing two projects (E-Commerce Platform, Internal Tools) and a managed Docker server](docs/screenshots/dashboard.png)
 
 It showcases real-world engineering work including:
 
