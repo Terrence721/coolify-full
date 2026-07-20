@@ -314,7 +314,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 |---|---|
 | Added | 2026-07-20 |
 | Tooling | Vitest + React Testing Library |
-| Coverage | 31 tests across 5 suites — `Toast.jsx`, `useTeamChannel.js`, `Notifications/Email.jsx`, `ServerNavbar.jsx`, `AppLayout.jsx` |
+| Coverage | 36 tests across 6 suites — `Toast.jsx`, `useTeamChannel.js`, `Notifications/Email.jsx`, `ServerNavbar.jsx`, `AppLayout.jsx`, `useAppearance.js`'s `applyZoom()` |
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
 | Full detail | Scrum issue #32 (setup, per-suite rationale, verification) |
 
@@ -375,6 +375,7 @@ Everything found and fixed during this migration's various cleanup passes is rec
 
 | Item | Status | Detail |
 |---|---|---|
+| `Email.test.jsx` was shipping in the production bundle | Resolved 2026-07-20 | Found while adding a 6th Vitest suite: `inertia-app.jsx`'s `import.meta.glob('./Pages/**/*.jsx')` swept up any `.test.jsx` file sitting under `Pages/` — `Email.test.jsx` is the only test file that happens to live there, so it alone was bundled into the real production build (438KB/112KB gzipped, one of the largest chunks in the whole build). Fixed by excluding `**/*.test.jsx` from the glob; confirmed via `yarn build` that the test chunk is gone and the real `Email.jsx` page bundle (9.91KB) is unaffected. |
 | `Application`/`Service` compose-file parsing might be unifiable | Open | Surfaced 2026-07-15 during the god-objects extraction — diverges more than it first looked; not a known bug, just worth a look if this area gets touched again. |
 | `StandaloneDatabaseInstance` plain-interface PHPStan gap | Resolved (Phase 50) | Converted to an abstract class extending `BaseModel`; migrated all 8 engines + 27 consumers. Dropped the baseline by 136 in one phase — see the PHPStan milestones table above. |
 | Zoom/page-width settings not applied on React pages | Resolved 2026-07-19 | Ported `checkZoom()`/`pageWidth` logic (recovered from git history pre-deletion) into a new `useAppearance.js` hook, wired into `AppLayout.jsx`. Verified live via a headless-browser session (computed `font-size` and `<main>` class both change correctly). |

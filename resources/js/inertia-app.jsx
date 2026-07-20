@@ -5,7 +5,7 @@ import AppLayout from './Layouts/AppLayout';
 
 createInertiaApp({
     resolve: (name) =>
-        resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')).then((module) => {
+        resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob(['./Pages/**/*.jsx', '!./Pages/**/*.test.jsx'])).then((module) => {
             module.default.layout = module.default.layout || ((page) => <AppLayout>{page}</AppLayout>);
 
             return module;

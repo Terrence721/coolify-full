@@ -9,6 +9,7 @@ test('pageWidthClass constrains width unless "full" is selected, matching the ol
 });
 
 // applyZoom() manipulates document.head/document.getElementById - no DOM available under
-// node:test (no jsdom dependency in this project). Verified live instead via a real browser
-// session (throwaway Playwright container) confirming html font-size actually changes
-// 16px -> 14px at the lg breakpoint when zoom is set to '90' - see todo.md.
+// plain node:test, so its coverage lives separately in useAppearance.test.jsx (Vitest's
+// jsdom environment). Originally verified only via a real browser session (throwaway
+// Playwright container, confirming html font-size actually changes 16px -> 14px at the
+// lg breakpoint when zoom is set to '90') before that automated coverage existed.
