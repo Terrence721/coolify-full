@@ -13,9 +13,7 @@ export default function Index({ team, canUpdate, canDelete, deletionBlockedReaso
     }
 
     function deleteTeam() {
-        const confirmation = window.prompt(
-            `This will permanently delete "${team.name}" and cannot be undone. Type the team name to confirm:`,
-        );
+        const confirmation = window.prompt(`This will permanently delete "${team.name}" and cannot be undone. Type the team name to confirm:`);
         if (confirmation !== team.name) return;
         router.delete(deleteUrl);
     }

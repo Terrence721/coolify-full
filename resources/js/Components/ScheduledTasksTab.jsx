@@ -241,10 +241,7 @@ function TaskDetail({ task, executions, isResourceRunning, taskUrls, canUpdate }
     const fastPoll = selectedExecution?.status === 'running';
 
     useEffect(() => {
-        pollRef.current = setInterval(
-            () => router.reload({ only: ['executions'], preserveScroll: true }),
-            fastPoll ? 1000 : 5000,
-        );
+        pollRef.current = setInterval(() => router.reload({ only: ['executions'], preserveScroll: true }), fastPoll ? 1000 : 5000);
 
         return () => clearInterval(pollRef.current);
     }, [fastPoll]);

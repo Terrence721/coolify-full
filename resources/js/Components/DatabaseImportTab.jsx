@@ -161,13 +161,26 @@ export default function DatabaseImportTab({ importTab, flash }) {
                     {dumpAll ? (
                         <label className="flex flex-col gap-1">
                             Custom Import Command
-                            <textarea id="db-import-command-readonly" name="db-import-command-readonly" rows={8} readOnly className="font-mono" value={`${restoreCommand}${commands.dumpAllSuffix ?? ''}`} />
+                            <textarea
+                                id="db-import-command-readonly"
+                                name="db-import-command-readonly"
+                                rows={8}
+                                readOnly
+                                className="font-mono"
+                                value={`${restoreCommand}${commands.dumpAllSuffix ?? ''}`}
+                            />
                         </label>
                     ) : (
                         <>
                             <label className="flex flex-col gap-1">
                                 Custom Import Command
-                                <input id="db-import-command" name="db-import-command" value={restoreCommand} onChange={(e) => setRestoreCommand(e.target.value)} disabled={!canUpdate} />
+                                <input
+                                    id="db-import-command"
+                                    name="db-import-command"
+                                    value={restoreCommand}
+                                    onChange={(e) => setRestoreCommand(e.target.value)}
+                                    disabled={!canUpdate}
+                                />
                             </label>
                             {importTab.dbType === 'standalone-postgresql' && (
                                 <div className="flex flex-col gap-1 pt-1 text-xs">
@@ -178,7 +191,14 @@ export default function DatabaseImportTab({ importTab, flash }) {
                         </>
                     )}
                     <label className="flex items-center gap-2 w-64 pt-2">
-                        <input id="dumpAll" name="dumpAll" type="checkbox" checked={dumpAll} onChange={(e) => toggleDumpAll(e.target.checked)} disabled={!canUpdate} />
+                        <input
+                            id="dumpAll"
+                            name="dumpAll"
+                            type="checkbox"
+                            checked={dumpAll}
+                            onChange={(e) => toggleDumpAll(e.target.checked)}
+                            disabled={!canUpdate}
+                        />
                         Backup includes all databases
                     </label>
                 </div>
@@ -225,7 +245,14 @@ export default function DatabaseImportTab({ importTab, flash }) {
                     <div className="pt-2 text-center text-xl font-bold">Or</div>
                     <label className="flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed rounded-sm cursor-pointer border-neutral-300 dark:border-coolgray-300 hover:border-warning/50">
                         <span>Select a backup file to upload.</span>
-                        <input id="db-import-file" name="db-import-file" ref={fileInputRef} type="file" className="hidden" onChange={handleFileSelected} />
+                        <input
+                            id="db-import-file"
+                            name="db-import-file"
+                            ref={fileInputRef}
+                            type="file"
+                            className="hidden"
+                            onChange={handleFileSelected}
+                        />
                     </label>
                     {uploadProgress !== null && <progress max="100" value={uploadProgress} className="w-full" />}
                     {uploadError && <div className="pt-2 text-error text-sm">{uploadError}</div>}
@@ -233,9 +260,7 @@ export default function DatabaseImportTab({ importTab, flash }) {
                     {(uploadedFile || customLocation) && !uploadError && (
                         <div className="pt-6">
                             <h3>File Information</h3>
-                            <div className="pt-2">
-                                Location: {uploadedFile ? `${uploadedFile.name} / ${uploadedFile.size}` : customLocation}
-                            </div>
+                            <div className="pt-2">Location: {uploadedFile ? `${uploadedFile.name} / ${uploadedFile.size}` : customLocation}</div>
                             <div className="pt-2">
                                 <button type="button" className="button-error" onClick={() => setConfirming('file')}>
                                     Restore Database from File
@@ -271,7 +296,9 @@ export default function DatabaseImportTab({ importTab, flash }) {
                             </select>
                         </label>
                         <label className="flex flex-col gap-1">
-                            <span title="Path to the backup file in your S3 bucket, e.g., /backups/database-2025-01-15.gz">S3 File Path (within bucket)</span>
+                            <span title="Path to the backup file in your S3 bucket, e.g., /backups/database-2025-01-15.gz">
+                                S3 File Path (within bucket)
+                            </span>
                             <input
                                 id="db-import-s3-path"
                                 name="db-import-s3-path"

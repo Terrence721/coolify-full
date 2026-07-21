@@ -101,7 +101,10 @@ export default function PublicGitRepository({ defaultRepositoryUrl, checkUrl, su
             {checkResult?.branchFound && (
                 <>
                     {checkResult.rateLimitRemaining && checkResult.rateLimitReset && (
-                        <div className="flex gap-2 py-2" title={`Rate limit remaining: ${checkResult.rateLimitRemaining} — resets at ${checkResult.rateLimitReset} UTC`}>
+                        <div
+                            className="flex gap-2 py-2"
+                            title={`Rate limit remaining: ${checkResult.rateLimitRemaining} — resets at ${checkResult.rateLimitReset} UTC`}
+                        >
                             <div>Rate Limit Remaining: {checkResult.rateLimitRemaining}</div>
                         </div>
                     )}

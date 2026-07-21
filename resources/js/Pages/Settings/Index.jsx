@@ -41,7 +41,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                     setConfirming(false);
                     setShowConflictModal(false);
                 },
-            }
+            },
         );
     }
 
@@ -111,10 +111,9 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                     placeholder="https://coolify.yourdomain.com"
                                 />
                                 <span className="text-xs opacity-70">
-                                    Enter the full URL of the instance (for example, https://dashboard.example.com).
-                                    Important: if you want the dashboard to be accessible over HTTPS, you must include
-                                    https:// at the start of the URL — without it, the dashboard will use HTTP and won't
-                                    be secured.
+                                    Enter the full URL of the instance (for example, https://dashboard.example.com). Important: if you want the
+                                    dashboard to be accessible over HTTPS, you must include https:// at the start of the URL — without it, the
+                                    dashboard will use HTTP and won't be secured.
                                 </span>
                                 {errors.fqdn && <span className="text-error">{errors.fqdn}</span>}
                             </label>
@@ -146,8 +145,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                     />
                                 </label>
                                 <span className="text-xs opacity-70">
-                                    Timezone for the Coolify instance, used for the update check and automatic update
-                                    frequency.
+                                    Timezone for the Coolify instance, used for the update check and automatic update frequency.
                                 </span>
                                 {errors.instance_timezone && <span className="text-error">{errors.instance_timezone}</span>}
                                 {tzOpen && (
@@ -179,8 +177,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                     placeholder="1.2.3.4"
                                 />
                                 <span className="text-xs opacity-70">
-                                    Useful if you have several IPv4 addresses and Coolify could not detect the correct
-                                    one.
+                                    Useful if you have several IPv4 addresses and Coolify could not detect the correct one.
                                 </span>
                                 {errors.public_ipv4 && <span className="text-error">{errors.public_ipv4}</span>}
                             </label>
@@ -196,8 +193,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                     placeholder="2001:db8::1"
                                 />
                                 <span className="text-xs opacity-70">
-                                    Useful if you have several IPv6 addresses and Coolify could not detect the correct
-                                    one.
+                                    Useful if you have several IPv6 addresses and Coolify could not detect the correct one.
                                 </span>
                                 {errors.public_ipv6 && <span className="text-error">{errors.public_ipv6}</span>}
                             </label>
@@ -221,8 +217,8 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                         placeholder={defaultHelperVersion}
                                     />
                                     <span className="text-xs opacity-70">
-                                        Override the default coolify-helper image version. Leave empty to use the
-                                        default ({defaultHelperVersion}). Examples: 1.0.11, latest, dev
+                                        Override the default coolify-helper image version. Leave empty to use the default ({defaultHelperVersion}).
+                                        Examples: 1.0.11, latest, dev
                                     </span>
                                     {errors.dev_helper_version && <span className="text-error">{errors.dev_helper_version}</span>}
                                 </label>

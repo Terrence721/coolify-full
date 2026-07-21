@@ -150,12 +150,7 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                         <div className="flex flex-col gap-1.5 pl-1">
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
-                                    <input
-                                        id={field}
-                                        type="checkbox"
-                                        checked={data[field]}
-                                        onChange={(e) => setData(field, e.target.checked)}
-                                    />
+                                    <input id={field} type="checkbox" checked={data[field]} onChange={(e) => setData(field, e.target.checked)} />
                                     {label}
                                 </label>
                             ))}

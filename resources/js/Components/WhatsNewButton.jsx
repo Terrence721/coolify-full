@@ -71,7 +71,12 @@ export default function WhatsNewButton({ unreadCount: initialUnreadCount, curren
 
     return (
         <>
-            <button type="button" onClick={openModal} className="relative p-2 dark:text-neutral-400 hover:dark:text-white transition-colors" title="What's New">
+            <button
+                type="button"
+                onClick={openModal}
+                className="relative p-2 dark:text-neutral-400 hover:dark:text-white transition-colors"
+                title="What's New"
+            >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                         strokeLinecap="round"
@@ -196,7 +201,9 @@ export default function WhatsNewButton({ unreadCount: initialUnreadCount, curren
                                 <div className="text-center py-8">
                                     <h3 className="mt-2 text-sm font-medium dark:text-white">No updates found</h3>
                                     <p className="mt-1 text-sm dark:text-neutral-400">
-                                        {search.trim() !== '' ? 'No updates match your search criteria.' : 'There are no updates available at the moment.'}
+                                        {search.trim() !== ''
+                                            ? 'No updates match your search criteria.'
+                                            : 'There are no updates available at the moment.'}
                                     </p>
                                 </div>
                             )}

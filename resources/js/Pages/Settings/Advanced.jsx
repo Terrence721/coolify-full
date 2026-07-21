@@ -140,10 +140,13 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             />
                             {errors.allowed_ips && <span className="text-error">{errors.allowed_ips}</span>}
                         </label>
-                        {(!data.allowed_ips || data.allowed_ips.split(',').map((s) => s.trim()).includes('0.0.0.0')) && (
+                        {(!data.allowed_ips ||
+                            data.allowed_ips
+                                .split(',')
+                                .map((s) => s.trim())
+                                .includes('0.0.0.0')) && (
                             <div className="mt-2 text-sm text-warning">
-                                Using 0.0.0.0 (or empty) allows API access from anywhere. This is not recommended for
-                                production environments!
+                                Using 0.0.0.0 (or empty) allows API access from anywhere. This is not recommended for production environments!
                             </div>
                         )}
 
@@ -163,8 +166,8 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <div className="mt-2 text-sm">
                                 Endpoint: <code>{mcpUrl}</code>
                                 <br />
-                                Authenticate with <code>Authorization: Bearer &lt;token&gt;</code> using a token created in
-                                Security &raquo; API Tokens.
+                                Authenticate with <code>Authorization: Bearer &lt;token&gt;</code> using a token created in Security &raquo; API
+                                Tokens.
                             </div>
                         )}
 
@@ -180,7 +183,6 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                                 SPA Navigation
                             </label>
                         </div>
-
                     </div>
 
                     <h4 className="pt-4">Confirmation Settings</h4>
@@ -206,9 +208,8 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                                     </button>
                                 </div>
                                 <div className="mb-4 text-sm text-error">
-                                    Disabling two step confirmation reduces security (as anyone can easily delete anything)
-                                    and increases the risk of accidental actions. This is not recommended for production
-                                    servers.
+                                    Disabling two step confirmation reduces security (as anyone can easily delete anything) and increases the risk of
+                                    accidental actions. This is not recommended for production servers.
                                 </div>
                             </>
                         )}

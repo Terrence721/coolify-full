@@ -11,9 +11,7 @@ export default function Show({ destination, canUpdate, canDelete, resourcesUrl, 
     }
 
     function destroy() {
-        const confirmation = window.prompt(
-            `This will delete the selected destination/network. Type the destination name to confirm:`,
-        );
+        const confirmation = window.prompt(`This will delete the selected destination/network. Type the destination name to confirm:`);
         if (confirmation !== destination.name) return;
         router.delete(deleteUrl);
     }

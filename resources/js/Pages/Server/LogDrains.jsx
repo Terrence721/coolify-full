@@ -120,7 +120,9 @@ export default function LogDrains({
                                     </label>
                                 </div>
                                 <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={newRelic.processing || isLogDrainEnabled}>Save</button>
+                                    <button type="submit" disabled={newRelic.processing || isLogDrainEnabled}>
+                                        Save
+                                    </button>
                                 </div>
                             </form>
 
@@ -179,7 +181,9 @@ export default function LogDrains({
                                     </label>
                                 </div>
                                 <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={axiom.processing || isLogDrainEnabled}>Save</button>
+                                    <button type="submit" disabled={axiom.processing || isLogDrainEnabled}>
+                                        Save
+                                    </button>
                                 </div>
                             </form>
 
@@ -232,7 +236,9 @@ export default function LogDrains({
                                     />
                                 </label>
                                 <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={custom.processing || isLogDrainEnabled}>Save</button>
+                                    <button type="submit" disabled={custom.processing || isLogDrainEnabled}>
+                                        Save
+                                    </button>
                                 </div>
                             </form>
                         </div>

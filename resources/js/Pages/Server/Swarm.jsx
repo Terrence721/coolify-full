@@ -24,14 +24,18 @@ export default function Swarm({ serverNavbar, sidebar, deprecationNotice, isSwar
                         <h2>Swarm</h2>
                         <span className="badge">Deprecated</span>
                     </div>
-                    <div className="my-4 p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded">
-                        {deprecationNotice}
-                    </div>
+                    <div className="my-4 p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded">{deprecationNotice}</div>
                     <div className="pb-4">
                         Read the docs{' '}
-                        <a className="underline dark:text-white" href="https://coolify.io/docs/knowledge-base/docker/swarm" target="_blank" rel="noreferrer">
+                        <a
+                            className="underline dark:text-white"
+                            href="https://coolify.io/docs/knowledge-base/docker/swarm"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
                             here
-                        </a>.
+                        </a>
+                        .
                     </div>
 
                     <div className="w-96 flex flex-col gap-2">

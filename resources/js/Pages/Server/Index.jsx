@@ -16,16 +16,12 @@ export default function Index({ servers, canCreate, privateKeys, defaultPrivateK
             </div>
             <div className="subtitle">All your servers are here.</div>
             <div className="grid gap-4 lg:grid-cols-2 -mt-1">
-                {servers.length === 0 && (
-                    <div>No servers found. Without a server, you won't be able to do much.</div>
-                )}
+                {servers.length === 0 && <div>No servers found. Without a server, you won't be able to do much.</div>}
                 {servers.map((server) => (
                     <a
                         key={server.uuid}
                         href={server.showUrl}
-                        className={`gap-2 border cursor-pointer coolbox group ${
-                            !server.isReachable || server.forceDisabled ? 'border-red-500' : ''
-                        }`}
+                        className={`gap-2 border cursor-pointer coolbox group ${!server.isReachable || server.forceDisabled ? 'border-red-500' : ''}`}
                     >
                         <div className="flex flex-col justify-center mx-6">
                             <div className="font-bold dark:text-white">{server.name}</div>

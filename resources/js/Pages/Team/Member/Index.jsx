@@ -148,11 +148,7 @@ export default function Index({
     }
 
     function sendViaEmail() {
-        router.post(
-            sendInvitationUrl,
-            { ...data, via: 'email' },
-            { preserveScroll: true, onSuccess: () => reset() },
-        );
+        router.post(sendInvitationUrl, { ...data, via: 'email' }, { preserveScroll: true, onSuccess: () => reset() });
     }
 
     return (
@@ -208,7 +204,11 @@ export default function Index({
                     <h2 className="pb-4">Invite New Member</h2>
                     {!isTransactionalEmailsEnabled && isInstanceAdmin && (
                         <div className="pb-4 text-xs dark:text-warning">
-                            You need to configure (as root team) <a href="/settings/email" className="underline dark:text-warning">Transactional Emails</a> before you can invite a new member via email.
+                            You need to configure (as root team){' '}
+                            <a href="/settings/email" className="underline dark:text-warning">
+                                Transactional Emails
+                            </a>{' '}
+                            before you can invite a new member via email.
                         </div>
                     )}
                     <form onSubmit={submitInvite} className="flex gap-2 flex-col lg:flex-row items-end">
@@ -227,7 +227,12 @@ export default function Index({
                             </label>
                             <label className="flex flex-col gap-1">
                                 Role
-                                <select id="team-invite-role" name="team-invite-role" value={data.role} onChange={(e) => setData('role', e.target.value)}>
+                                <select
+                                    id="team-invite-role"
+                                    name="team-invite-role"
+                                    value={data.role}
+                                    onChange={(e) => setData('role', e.target.value)}
+                                >
                                     {currentUserRole === 'owner' && <option value="owner">Owner</option>}
                                     <option value="admin">Admin</option>
                                     <option value="member">Member</option>

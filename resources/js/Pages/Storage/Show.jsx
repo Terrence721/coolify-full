@@ -189,8 +189,8 @@ export default function Show({
                             <li>The selected storage location will be permanently deleted from Coolify.</li>
                             {backupCount > 0 && (
                                 <li>
-                                    {backupCount} backup schedule(s) will be updated to no longer save to S3 and will
-                                    only store backups locally on the server.
+                                    {backupCount} backup schedule(s) will be updated to no longer save to S3 and will only store backups locally on
+                                    the server.
                                 </li>
                             )}
                         </ul>

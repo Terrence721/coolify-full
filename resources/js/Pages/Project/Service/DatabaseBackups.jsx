@@ -31,7 +31,9 @@ function BackupCard({ backup, onSelect }) {
             className={
                 'flex flex-col border-l-2 transition-colors p-4 cursor-pointer bg-white hover:bg-gray-100 dark:bg-coolgray-100 dark:hover:bg-coolgray-200 text-black dark:text-white' +
                 (backup.selected ? ' bg-gray-200 dark:bg-coolgray-200 border-coollabs' : ' ') +
-                (backup.status ? ` ${STATUS_BORDER[backup.status] ?? 'border-gray-200 dark:border-coolgray-300'}` : ' border-gray-200 dark:border-coolgray-300')
+                (backup.status
+                    ? ` ${STATUS_BORDER[backup.status] ?? 'border-gray-200 dark:border-coolgray-300'}`
+                    : ' border-gray-200 dark:border-coolgray-300')
             }
         >
             <div className="flex items-center gap-2 mb-2">
@@ -73,10 +75,7 @@ function BackupCard({ backup, onSelect }) {
                         )}
                     </>
                 ) : (
-                    <>
-                        Last Run: Never • Total Executions: 0
-                        {backup.saveS3 && <> • S3: Enabled</>}
-                    </>
+                    <>Last Run: Never • Total Executions: 0{backup.saveS3 && <> • S3: Enabled</>}</>
                 )}
             </div>
         </div>

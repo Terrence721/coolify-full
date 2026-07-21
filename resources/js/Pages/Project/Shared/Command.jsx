@@ -74,13 +74,10 @@ export default function Command({ title, containers, terminalConfig, connectUrl 
                 <div>No containers are running or terminal access is disabled on this server.</div>
             ) : (
                 <form className="w-96 min-w-fit flex gap-2 items-end" onSubmit={connect}>
-                    <select
-                        id="container"
-                        required
-                        value={selectedContainer}
-                        onChange={(e) => setSelectedContainer(e.target.value)}
-                    >
-                        <option disabled value="default">Select a container</option>
+                    <select id="container" required value={selectedContainer} onChange={(e) => setSelectedContainer(e.target.value)}>
+                        <option disabled value="default">
+                            Select a container
+                        </option>
                         {containers.map((container) => (
                             <option key={container.name} value={container.name}>
                                 {container.name} ({container.serverName})

@@ -64,7 +64,9 @@ export default function ServerNavbar({ serverNavbar }) {
     });
 
     function restart() {
-        if (!window.confirm('This proxy will be stopped and started again. All resources hosted on coolify will be unavailable during the restart.')) {
+        if (
+            !window.confirm('This proxy will be stopped and started again. All resources hosted on coolify will be unavailable during the restart.')
+        ) {
             return;
         }
         setShowLogs(true);
@@ -99,14 +101,16 @@ export default function ServerNavbar({ serverNavbar }) {
                     <div className="relative flex h-[85vh] w-full flex-col rounded-sm border border-neutral-200 bg-white shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-4xl">
                         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-6 py-5 dark:border-coolgray-300">
                             <h3 className="text-2xl font-bold">Proxy Startup Logs</h3>
-                            <button type="button" onClick={() => setShowLogs(false)}>✕</button>
+                            <button type="button" onClick={() => setShowLogs(false)}>
+                                ✕
+                            </button>
                         </div>
                         <div className="flex-1 min-h-0 overflow-hidden p-6">
                             {serverNavbar.server.id === 0 && (
                                 <div className="mb-4 p-3 text-sm bg-warning/10 border border-warning/30 rounded-lg text-warning">
-                                    <span className="font-semibold">Note:</span> This is the localhost server where Coolify runs.
-                                    During proxy restart, the connection may be temporarily lost. If logs stop updating, please
-                                    refresh the browser after a few minutes.
+                                    <span className="font-semibold">Note:</span> This is the localhost server where Coolify runs. During proxy
+                                    restart, the connection may be temporarily lost. If logs stop updating, please refresh the browser after a few
+                                    minutes.
                                 </div>
                             )}
                             <ActivityLog activityId={activityId} header="Logs" fullHeight />
@@ -124,7 +128,9 @@ export default function ServerNavbar({ serverNavbar }) {
                         {proxyStatus === 'stopping' && <span className="status-badge status-restarting">Proxy Stopping</span>}
                         {proxyStatus === 'starting' && <span className="status-badge status-restarting">Proxy Starting</span>}
                         {serverNavbar.proxyForceStop && <span className="status-badge status-stopped">Proxy Stopped (Force Stop)</span>}
-                        {!serverNavbar.proxyForceStop && proxyStatus === 'exited' && <span className="status-badge status-stopped">Proxy Exited</span>}
+                        {!serverNavbar.proxyForceStop && proxyStatus === 'exited' && (
+                            <span className="status-badge status-stopped">Proxy Exited</span>
+                        )}
                         {proxyStatus !== 'exited' && (
                             <button type="button" title="Refresh Status" onClick={checkStatus} className="mx-1">
                                 ⟳
@@ -180,11 +186,17 @@ export default function ServerNavbar({ serverNavbar }) {
                                             Traefik Dashboard
                                         </a>
                                     )}
-                                    <button type="button" onClick={restart}>Restart Proxy</button>
-                                    <button type="button" className="text-error" onClick={stop}>Stop Proxy</button>
+                                    <button type="button" onClick={restart}>
+                                        Restart Proxy
+                                    </button>
+                                    <button type="button" className="text-error" onClick={stop}>
+                                        Stop Proxy
+                                    </button>
                                 </>
                             ) : (
-                                <button type="button" onClick={start}>Start Proxy</button>
+                                <button type="button" onClick={start}>
+                                    Start Proxy
+                                </button>
                             )}
                         </div>
                     )}

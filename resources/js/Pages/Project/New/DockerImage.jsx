@@ -44,7 +44,13 @@ export default function DockerImage({ submitUrl }) {
             <div className="flex gap-2 pt-2">
                 <label className="flex flex-col flex-1 gap-1">
                     Tag
-                    <input id="docker-image-tag" name="docker-image-tag" placeholder="latest" value={data.imageTag} onChange={(e) => setData('imageTag', e.target.value)} />
+                    <input
+                        id="docker-image-tag"
+                        name="docker-image-tag"
+                        placeholder="latest"
+                        value={data.imageTag}
+                        onChange={(e) => setData('imageTag', e.target.value)}
+                    />
                     {errors.imageTag && <span className="text-error">{errors.imageTag}</span>}
                 </label>
                 <div className="flex items-center pt-6">OR</div>

@@ -111,7 +111,14 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                                 onChange={(e) => setData('privateKeyValue', e.target.value)}
                             />
                         ) : (
-                            <textarea id="private-key-value-hidden" name="private-key-value-hidden" disabled rows={10} value="••••••••••••••••••••••••" readOnly />
+                            <textarea
+                                id="private-key-value-hidden"
+                                name="private-key-value-hidden"
+                                disabled
+                                rows={10}
+                                value="••••••••••••••••••••••••"
+                                readOnly
+                            />
                         )}
                         {errors.privateKeyValue && <span className="text-error">{errors.privateKeyValue}</span>}
                     </div>

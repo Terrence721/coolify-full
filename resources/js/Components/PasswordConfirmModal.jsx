@@ -1,7 +1,17 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function PasswordConfirmModal({ title, action, actions, checkboxes = [], confirmationText, confirmationLabel, withPassword = true, onClose, onDone }) {
+export default function PasswordConfirmModal({
+    title,
+    action,
+    actions,
+    checkboxes = [],
+    confirmationText,
+    confirmationLabel,
+    withPassword = true,
+    onClose,
+    onDone,
+}) {
     const [selectedActions, setSelectedActions] = useState(() => checkboxes.filter((cb) => cb.default).map((cb) => cb.id));
     const [confirmation, setConfirmation] = useState('');
     const [password, setPassword] = useState('');
@@ -52,14 +62,26 @@ export default function PasswordConfirmModal({ title, action, actions, checkboxe
                     </ul>
                     {checkboxes.map((cb) => (
                         <label key={cb.id} className="flex items-center gap-2">
-                            <input id={cb.id} name={cb.id} type="checkbox" checked={selectedActions.includes(cb.id)} onChange={() => toggleAction(cb.id)} />
+                            <input
+                                id={cb.id}
+                                name={cb.id}
+                                type="checkbox"
+                                checked={selectedActions.includes(cb.id)}
+                                onChange={() => toggleAction(cb.id)}
+                            />
                             {cb.label}
                         </label>
                     ))}
                     {confirmationText && (
                         <label className="flex flex-col gap-1">
                             {confirmationLabel}
-                            <input id="confirmation" name="confirmation" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} placeholder={confirmationText} />
+                            <input
+                                id="confirmation"
+                                name="confirmation"
+                                value={confirmation}
+                                onChange={(e) => setConfirmation(e.target.value)}
+                                placeholder={confirmationText}
+                            />
                         </label>
                     )}
                     {withPassword && (

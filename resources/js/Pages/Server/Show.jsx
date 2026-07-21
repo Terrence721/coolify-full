@@ -248,7 +248,11 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 <div className="flex items-center gap-1">
                                     <span className="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded bg-white dark:bg-coolgray-100 dark:text-white">
                                         {hetznerStatus ? (
-                                            <span className={hetznerStatus === 'running' ? 'text-green-500' : hetznerStatus === 'off' ? 'text-red-500' : ''}>
+                                            <span
+                                                className={
+                                                    hetznerStatus === 'running' ? 'text-green-500' : hetznerStatus === 'off' ? 'text-red-500' : ''
+                                                }
+                                            >
                                                 {refreshingHetzner && '⟳ '}
                                                 {hetznerStatus.charAt(0).toUpperCase() + hetznerStatus.slice(1)}
                                             </span>
@@ -320,8 +324,8 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
 
                         {server.isForceDisabled && isCloud && (
                             <div className="mb-4 p-4 border border-error rounded-lg">
-                                Server Disabled — the system has disabled the server because you have exceeded the number of servers for which you have
-                                paid.
+                                Server Disabled — the system has disabled the server because you have exceeded the number of servers for which you
+                                have paid.
                             </div>
                         )}
 
@@ -449,9 +453,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                     />
                                     Use it as a build server?
                                     {server.isBuildServerLocked && (
-                                        <span className="text-xs dark:text-neutral-500">
-                                            (locked — this server has defined resources)
-                                        </span>
+                                        <span className="text-xs dark:text-neutral-500">(locked — this server has defined resources)</span>
                                     )}
                                 </label>
                             )}
@@ -489,7 +491,8 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                             : 'N/A'}
                                     </div>
                                     <div>
-                                        <span className="font-medium dark:text-neutral-400">Up Since:</span> {server.serverMetadata.uptime_since ?? 'N/A'}
+                                        <span className="font-medium dark:text-neutral-400">Up Since:</span>{' '}
+                                        {server.serverMetadata.uptime_since ?? 'N/A'}
                                     </div>
                                 </div>
                             ) : (
@@ -509,7 +512,12 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                             <div className="flex flex-wrap gap-4 items-end">
                                 <label className="flex flex-col gap-1 w-72">
                                     Hetzner Token
-                                    <select id="server-hetzner-token" name="server-hetzner-token" value={selectedTokenId} onChange={(e) => setSelectedTokenId(e.target.value)}>
+                                    <select
+                                        id="server-hetzner-token"
+                                        name="server-hetzner-token"
+                                        value={selectedTokenId}
+                                        onChange={(e) => setSelectedTokenId(e.target.value)}
+                                    >
                                         <option value="">Select a token...</option>
                                         {availableHetznerTokens.map((token) => (
                                             <option key={token.id} value={token.id}>
@@ -537,7 +545,9 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 </button>
                             </div>
 
-                            {hetznerSearchError && <div className="mt-4 p-4 border border-red-500 rounded-md text-red-600 dark:text-red-400">{hetznerSearchError}</div>}
+                            {hetznerSearchError && (
+                                <div className="mt-4 p-4 border border-red-500 rounded-md text-red-600 dark:text-red-400">{hetznerSearchError}</div>
+                            )}
 
                             {hetznerNoMatchFound && (
                                 <div className="mt-4 p-4 border border-yellow-500 rounded-md text-yellow-600 dark:text-yellow-400">

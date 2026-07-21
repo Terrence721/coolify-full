@@ -140,11 +140,21 @@ function FileCard({ file, canUpdate }) {
             )}
             <div className="flex flex-col gap-2 md:flex-row">
                 <Field id={`file-${file.id}-fs-path`} name={`file-${file.id}-fs-path`} label="Source Path" readOnly value={file.fsPath} />
-                <Field id={`file-${file.id}-mount-path`} name={`file-${file.id}-mount-path`} label="Destination Path" readOnly value={file.mountPath} />
+                <Field
+                    id={`file-${file.id}-mount-path`}
+                    name={`file-${file.id}-mount-path`}
+                    label="Destination Path"
+                    readOnly
+                    value={file.mountPath}
+                />
             </div>
             {canUpdate && (
                 <div className="flex flex-wrap gap-2">
-                    {!file.isDirectory && <button type="button" onClick={load}>Load from server</button>}
+                    {!file.isDirectory && (
+                        <button type="button" onClick={load}>
+                            Load from server
+                        </button>
+                    )}
                     {editable && !file.isBinary && !file.isTooLarge && (
                         <button type="button" onClick={() => setConvertConfirmation('')}>
                             {file.isDirectory ? 'Convert to file' : 'Convert to directory'}
@@ -201,7 +211,9 @@ function FileCard({ file, canUpdate }) {
                 <PasswordConfirmModal
                     title={file.isDirectory ? 'Confirm Directory Deletion?' : 'Confirm File Deletion?'}
                     action={{ method: 'delete', url: file.urls.destroy }}
-                    actions={[`The selected ${file.isDirectory ? 'directory and all its contents' : 'file'} will be permanently deleted from the container.`]}
+                    actions={[
+                        `The selected ${file.isDirectory ? 'directory and all its contents' : 'file'} will be permanently deleted from the container.`,
+                    ]}
                     checkboxes={[
                         {
                             id: 'permanently_delete',
@@ -401,13 +413,15 @@ export default function StoragesTab({ sections, isService, canAddMounts, canUpda
             <div>
                 <div className="flex items-center gap-2">
                     <h2>{isService ? 'Storages' : 'Storages'}</h2>
-                    {canAddMounts && canUpdate && storageUrls && <AddDropdown storageUrls={storageUrls} sourceDirPlaceholder={sourceDirPlaceholder} />}
+                    {canAddMounts && canUpdate && storageUrls && (
+                        <AddDropdown storageUrls={storageUrls} sourceDirPlaceholder={sourceDirPlaceholder} />
+                    )}
                 </div>
                 <div>Persistent storage to preserve data between deployments.</div>
                 {isService && (
                     <div className="mt-2 w-full p-2 text-sm rounded bg-warning/10 text-warning">
-                        For docker compose based resources, volume mounts are read-only in the dashboard. To add, modify, or manage volumes,
-                        edit your Docker Compose file and reload it.
+                        For docker compose based resources, volume mounts are read-only in the dashboard. To add, modify, or manage volumes, edit your
+                        Docker Compose file and reload it.
                     </div>
                 )}
             </div>

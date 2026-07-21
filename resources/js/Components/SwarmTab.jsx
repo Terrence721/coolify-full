@@ -30,14 +30,20 @@ export default function SwarmTab({ swarm, swarmUpdateUrl, canUpdate }) {
                 <span className="px-2 py-0.5 text-xs font-medium leading-normal rounded-full bg-warning/15 text-warning border border-warning/30">
                     Deprecated
                 </span>
-                <button type="submit" disabled={!canUpdate} title={!canUpdate ? "You don't have permission to update this application. Contact your team administrator for access." : undefined}>
+                <button
+                    type="submit"
+                    disabled={!canUpdate}
+                    title={
+                        !canUpdate ? "You don't have permission to update this application. Contact your team administrator for access." : undefined
+                    }
+                >
                     Save
                 </button>
             </div>
             <div className="w-full p-3 my-4 text-sm rounded bg-warning/10 text-warning">
-                Docker Swarm is deprecated and will be removed in Coolify v5. Coolify v5 will be replacing Swarm with native
-                Docker Compose replicas and our own scaling solution. Existing Swarm deployments will continue to work on v4
-                as-is. We do not recommend setting up new Swarm deployments for the time being.
+                Docker Swarm is deprecated and will be removed in Coolify v5. Coolify v5 will be replacing Swarm with native Docker Compose replicas
+                and our own scaling solution. Existing Swarm deployments will continue to work on v4 as-is. We do not recommend setting up new Swarm
+                deployments for the time being.
             </div>
             <div className="flex flex-col gap-2 py-4">
                 <div className="flex flex-col items-end gap-2 xl:flex-row">

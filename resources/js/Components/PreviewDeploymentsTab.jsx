@@ -116,7 +116,11 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
     }
 
     function saveComposeDomain(preview, serviceName) {
-        router.patch(preview.urls.composeDomainUpdate, { serviceName, domain: composeDomainForms[`${preview.id}:${serviceName}`] }, { preserveScroll: true });
+        router.patch(
+            preview.urls.composeDomainUpdate,
+            { serviceName, domain: composeDomainForms[`${preview.id}:${serviceName}`] },
+            { preserveScroll: true },
+        );
     }
 
     function generateComposeDomain(preview, serviceName) {
@@ -182,7 +186,9 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                             </>
                         )}
                     </div>
-                    {rateLimitRemaining !== null && <div className="pt-1 pb-4">Requests remaining till rate limited by Git: {rateLimitRemaining}</div>}
+                    {rateLimitRemaining !== null && (
+                        <div className="pt-1 pb-4">Requests remaining till rate limited by Git: {rateLimitRemaining}</div>
+                    )}
                     {pullRequests.length > 0 && (
                         <div className="overflow-x-auto table-md">
                             <table>
@@ -278,7 +284,8 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
                                             </a>
                                         </>
                                     )}
-                                    | <a href={preview.deploymentLogsUrl}>Deployment Logs</a> | <a href={preview.applicationLogsUrl}>Application Logs</a>
+                                    | <a href={preview.deploymentLogsUrl}>Deployment Logs</a> |{' '}
+                                    <a href={preview.applicationLogsUrl}>Application Logs</a>
                                 </div>
 
                                 {previews.buildPack === 'dockercompose' ? (

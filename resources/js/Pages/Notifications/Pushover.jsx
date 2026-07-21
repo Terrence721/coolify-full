@@ -133,7 +133,12 @@ export default function Pushover({ settings, updateUrl, sendTestUrl }) {
                         />
                         <span className="text-sm text-neutral-500">
                             Generate an API Token/Key in Pushover by creating a new application.{' '}
-                            <a className="inline-block underline dark:text-white" href="https://pushover.net/apps/build" target="_blank" rel="noreferrer">
+                            <a
+                                className="inline-block underline dark:text-white"
+                                href="https://pushover.net/apps/build"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
                                 Create Pushover Application
                             </a>
                         </span>
@@ -150,12 +155,7 @@ export default function Pushover({ settings, updateUrl, sendTestUrl }) {
                         <div className="flex flex-col gap-1.5 pl-1">
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
-                                    <input
-                                        id={field}
-                                        type="checkbox"
-                                        checked={data[field]}
-                                        onChange={(e) => setData(field, e.target.checked)}
-                                    />
+                                    <input id={field} type="checkbox" checked={data[field]} onChange={(e) => setData(field, e.target.checked)} />
                                     {label}
                                 </label>
                             ))}

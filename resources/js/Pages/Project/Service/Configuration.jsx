@@ -77,7 +77,14 @@ export default function Configuration(props) {
                             canUpdate={props.canUpdate}
                         />
                     )}
-                    {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}
+                    {tab === 'tags' && (
+                        <TagsTab
+                            tags={props.tags}
+                            availableTags={props.availableTags}
+                            tagsStoreUrl={props.tagsStoreUrl}
+                            canUpdate={props.canUpdate}
+                        />
+                    )}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}
                     {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} />}
                     {tab === 'resource-operations' && (

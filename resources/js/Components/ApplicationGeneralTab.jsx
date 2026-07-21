@@ -129,11 +129,7 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
 
     function loadCompose(isInit = false) {
         setLoadingCompose(true);
-        router.post(
-            generalUrls.loadCompose,
-            { isInit },
-            { preserveScroll: true, onFinish: () => setLoadingCompose(false) },
-        );
+        router.post(generalUrls.loadCompose, { isInit }, { preserveScroll: true, onFinish: () => setLoadingCompose(false) });
     }
 
     function generateServiceDomain(serviceName) {
@@ -178,8 +174,23 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                 <div>General configuration for your application.</div>
                 <div className="flex flex-col gap-2 py-4">
                     <div className="flex flex-col items-end gap-2 xl:flex-row">
-                        <Field disabled={shouldDisable} label="Name" required value={form.name} onChange={(e) => set('name', e.target.value)} id="app-general-name" name="app-general-name" />
-                        <Field disabled={shouldDisable} label="Description" value={form.description} onChange={(e) => set('description', e.target.value)} id="app-general-description" name="app-general-description" />
+                        <Field
+                            disabled={shouldDisable}
+                            label="Name"
+                            required
+                            value={form.name}
+                            onChange={(e) => set('name', e.target.value)}
+                            id="app-general-name"
+                            name="app-general-name"
+                        />
+                        <Field
+                            disabled={shouldDisable}
+                            label="Description"
+                            value={form.description}
+                            onChange={(e) => set('description', e.target.value)}
+                            id="app-general-description"
+                            name="app-general-description"
+                        />
                     </div>
 
                     {!hasDockerfileOverride && !isDockerImage && (
@@ -235,7 +246,10 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                                     helper="You can specify one domain with path or more with comma."
                                                     value={parsedServiceDomains[s.sanitizedKey]?.domain ?? ''}
                                                     onChange={(e) =>
-                                                        setParsedServiceDomains((d) => ({ ...d, [s.sanitizedKey]: { ...d[s.sanitizedKey], domain: e.target.value } }))
+                                                        setParsedServiceDomains((d) => ({
+                                                            ...d,
+                                                            [s.sanitizedKey]: { ...d[s.sanitizedKey], domain: e.target.value },
+                                                        }))
                                                     }
                                                 />
                                                 {canUpdate && (
@@ -301,8 +315,8 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             <div className="flex items-end gap-2">
                                 {!general.isContainerLabelReadonlyEnabled ? (
                                     <Field
-                                id="app-general-fqdn"
-                                name="app-general-fqdn"
+                                        id="app-general-fqdn"
+                                        name="app-general-fqdn"
                                         placeholder="https://coolify.io"
                                         label="Domains"
                                         readOnly
@@ -450,7 +464,9 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                                 onChange={(checked) => instantSave({ isPreserveRepositoryEnabled: checked })}
                                             />
                                         </div>
-                                        <div className="pt-4">The following commands are for advanced use cases. Only modify them if you know what you are doing.</div>
+                                        <div className="pt-4">
+                                            The following commands are for advanced use cases. Only modify them if you know what you are doing.
+                                        </div>
                                         <div className="flex gap-2">
                                             <Field
                                                 id="app-general-docker-compose-custom-build-command"
@@ -507,9 +523,30 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                                     <>
                                         {general.couldSetBuildCommands && isNixpacksOrRailpack && (
                                             <div className="flex flex-col gap-2 xl:flex-row">
-                                                <Field disabled={!canUpdate} label="Install Command" value={form.installCommand} onChange={(e) => set('installCommand', e.target.value)} id="app-general-install-command" name="app-general-install-command" />
-                                                <Field disabled={!canUpdate} label="Build Command" value={form.buildCommand} onChange={(e) => set('buildCommand', e.target.value)} id="app-general-build-command" name="app-general-build-command" />
-                                                <Field disabled={!canUpdate} label="Start Command" value={form.startCommand} onChange={(e) => set('startCommand', e.target.value)} id="app-general-start-command" name="app-general-start-command" />
+                                                <Field
+                                                    disabled={!canUpdate}
+                                                    label="Install Command"
+                                                    value={form.installCommand}
+                                                    onChange={(e) => set('installCommand', e.target.value)}
+                                                    id="app-general-install-command"
+                                                    name="app-general-install-command"
+                                                />
+                                                <Field
+                                                    disabled={!canUpdate}
+                                                    label="Build Command"
+                                                    value={form.buildCommand}
+                                                    onChange={(e) => set('buildCommand', e.target.value)}
+                                                    id="app-general-build-command"
+                                                    name="app-general-build-command"
+                                                />
+                                                <Field
+                                                    disabled={!canUpdate}
+                                                    label="Start Command"
+                                                    value={form.startCommand}
+                                                    onChange={(e) => set('startCommand', e.target.value)}
+                                                    id="app-general-start-command"
+                                                    name="app-general-start-command"
+                                                />
                                             </div>
                                         )}
                                         <div className="flex flex-col gap-2 xl:flex-row">
@@ -618,7 +655,13 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                     {general.dockerfile && (
                         <label className="flex flex-col gap-1">
                             Dockerfile
-                            <MonacoEditor value={form.dockerfile} onChange={(v) => set('dockerfile', v)} language="dockerfile" readOnly={!canUpdate} height="300px" />
+                            <MonacoEditor
+                                value={form.dockerfile}
+                                onChange={(v) => set('dockerfile', v)}
+                                language="dockerfile"
+                                readOnly={!canUpdate}
+                                height="300px"
+                            />
                         </label>
                     )}
 
@@ -686,7 +729,15 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                             </div>
                             {form.isHttpBasicAuthEnabled && (
                                 <div className="flex gap-2 py-2">
-                                    <Field label="Username" required disabled={!canUpdate} value={form.httpBasicAuthUsername} onChange={(e) => set('httpBasicAuthUsername', e.target.value)} id="app-general-http-basic-auth-username" name="app-general-http-basic-auth-username" />
+                                    <Field
+                                        label="Username"
+                                        required
+                                        disabled={!canUpdate}
+                                        value={form.httpBasicAuthUsername}
+                                        onChange={(e) => set('httpBasicAuthUsername', e.target.value)}
+                                        id="app-general-http-basic-auth-username"
+                                        name="app-general-http-basic-auth-username"
+                                    />
                                     <Field
                                         id="app-general-http-basic-auth-password"
                                         name="app-general-http-basic-auth-password"
@@ -790,7 +841,11 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                     conflicts={props.flash?.domainConflicts ?? []}
                     onCancel={() => setConflictDismissed(true)}
                     onConfirm={() => submit(null, { force_save_domains: true })}
-                    consequences={['SSL certificates might not work correctly', 'Routing behavior will be unpredictable', 'Traffic may be routed to the wrong resource']}
+                    consequences={[
+                        'SSL certificates might not work correctly',
+                        'Routing behavior will be unpredictable',
+                        'Traffic may be routed to the wrong resource',
+                    ]}
                 />
             )}
 
@@ -798,7 +853,10 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
                 <PasswordConfirmModal
                     title="Confirm Labels Reset to Coolify Defaults?"
                     action={{ url: generalUrls.resetLabels, method: 'post', data: { manual: true } }}
-                    actions={['All your custom proxy labels will be lost.', 'Proxy labels (traefik, caddy, etc) will be reset to the coolify defaults.']}
+                    actions={[
+                        'All your custom proxy labels will be lost.',
+                        'Proxy labels (traefik, caddy, etc) will be reset to the coolify defaults.',
+                    ]}
                     confirmationText={`${form.fqdn}/`}
                     confirmationLabel="Please confirm by entering the Application URL below"
                     withPassword={false}

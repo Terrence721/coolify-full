@@ -140,7 +140,9 @@ export default function Index({
                             <a href={`${baseUrl}/${deployment.deployment_uuid}`} className="block">
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className={`px-3 py-1 rounded-md text-xs font-medium shadow-xs ${STATUS_BADGE[deployment.status] ?? ''}`}>
+                                        <span
+                                            className={`px-3 py-1 rounded-md text-xs font-medium shadow-xs ${STATUS_BADGE[deployment.status] ?? ''}`}
+                                        >
                                             {STATUS_LABELS[deployment.status] ?? deployment.status}
                                         </span>
                                     </div>

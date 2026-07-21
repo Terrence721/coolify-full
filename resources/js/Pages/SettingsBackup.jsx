@@ -93,7 +93,12 @@ export default function SettingsBackup({
                                 <div className="flex gap-2">
                                     <label className="flex flex-col gap-1">
                                         User
-                                        <input id="settings-backup-postgres-user" name="settings-backup-postgres-user" readOnly value={identity.data.postgres_user} />
+                                        <input
+                                            id="settings-backup-postgres-user"
+                                            name="settings-backup-postgres-user"
+                                            readOnly
+                                            value={identity.data.postgres_user}
+                                        />
                                     </label>
                                     <label className="flex flex-col gap-1">
                                         Password
@@ -125,8 +130,7 @@ export default function SettingsBackup({
                         </>
                     ) : (
                         <div>
-                            To configure automatic backup for your Coolify instance, you first need to add a database resource
-                            into Coolify.
+                            To configure automatic backup for your Coolify instance, you first need to add a database resource into Coolify.
                             <button type="button" className="mt-2" onClick={addDatabase}>
                                 Configure Backup
                             </button>
@@ -135,8 +139,8 @@ export default function SettingsBackup({
                 ) : (
                     <div className="p-6 bg-red-500/10 rounded-lg border border-red-500/20">
                         <div className="text-red-500 font-medium mb-4">
-                            Instance Backup is currently disabled because the localhost server is not properly validated. Please
-                            validate your server to enable Instance Backup.
+                            Instance Backup is currently disabled because the localhost server is not properly validated. Please validate your server
+                            to enable Instance Backup.
                         </div>
                         <a
                             href={`/server/${server.uuid}`}

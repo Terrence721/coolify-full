@@ -60,8 +60,7 @@ export default function RollbackTab({ rollback, rollbackUrls }) {
 
             {rollback.serverRetentionDisabled && (
                 <div className="w-full p-3 mb-4 text-sm rounded bg-warning/10 text-warning">
-                    Image retention is disabled at the server level. This setting has no effect until the server administrator
-                    enables it.
+                    Image retention is disabled at the server level. This setting has no effect until the server administrator enables it.
                 </div>
             )}
 

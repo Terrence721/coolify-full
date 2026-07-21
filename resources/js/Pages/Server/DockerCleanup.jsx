@@ -27,10 +27,7 @@ function ExecutionRow({ execution, isSelected, onSelect }) {
 
     return (
         <div className="flex flex-col">
-            <a
-                className="flex flex-col border-l-2 p-4 cursor-pointer"
-                onClick={() => onSelect(execution.id)}
-            >
+            <a className="flex flex-col border-l-2 p-4 cursor-pointer" onClick={() => onSelect(execution.id)}>
                 <div className="flex items-center gap-2 mb-2">
                     <span className="px-3 py-1 rounded-md text-xs font-medium">{statusLabel(execution.status)}</span>
                 </div>
@@ -38,9 +35,12 @@ function ExecutionRow({ execution, isSelected, onSelect }) {
                     Started: {execution.startedAt}
                     {execution.status !== 'running' && (
                         <>
-                            <br />Ended: {execution.finishedAt}
-                            <br />Duration: {execution.duration}
-                            <br />Finished {execution.finishedHuman}
+                            <br />
+                            Ended: {execution.finishedAt}
+                            <br />
+                            Duration: {execution.duration}
+                            <br />
+                            Finished {execution.finishedHuman}
                         </>
                     )}
                 </div>
@@ -198,9 +198,15 @@ export default function DockerCleanup({
 
                         {!isCloud && isCleanupStale && (
                             <div className="mb-4 p-3 border border-warning/30 bg-warning/10 text-sm rounded">
-                                <p>The last Docker cleanup ran {lastExecutionTime ?? 'unknown time'} ago, which is longer than expected for the configured frequency.</p>
+                                <p>
+                                    The last Docker cleanup ran {lastExecutionTime ?? 'unknown time'} ago, which is longer than expected for the
+                                    configured frequency.
+                                </p>
                                 {!isSchedulerHealthy && (
-                                    <p className="mt-1">The scheduled job manager appears to be inactive. This may indicate a stale Redis lock is blocking all scheduled jobs.</p>
+                                    <p className="mt-1">
+                                        The scheduled job manager appears to be inactive. This may indicate a stale Redis lock is blocking all
+                                        scheduled jobs.
+                                    </p>
                                 )}
                                 <p className="mt-2">
                                     To resolve, run on your Coolify instance: <code>php artisan cleanup:redis --clear-locks</code>
@@ -257,7 +263,8 @@ export default function DockerCleanup({
                         <div className="flex flex-col gap-2 mt-6">
                             <h3>Advanced</h3>
                             <div className="p-3 border border-warning/30 bg-warning/10 text-sm rounded">
-                                These options can cause permanent data loss and functional issues. Only enable if you fully understand the consequences.
+                                These options can cause permanent data loss and functional issues. Only enable if you fully understand the
+                                consequences.
                             </div>
                             <div className="w-full sm:w-96">
                                 <label className="flex items-center gap-2">
@@ -299,9 +306,7 @@ export default function DockerCleanup({
                             Recent executions <span className="text-xs text-neutral-500">(click to check output)</span>
                         </h3>
                         <div className="flex flex-col gap-2">
-                            {executions.length === 0 && (
-                                <div className="p-4 bg-gray-100 dark:bg-coolgray-100 rounded-sm">No executions found.</div>
-                            )}
+                            {executions.length === 0 && <div className="p-4 bg-gray-100 dark:bg-coolgray-100 rounded-sm">No executions found.</div>}
                             {executions.map((execution) => (
                                 <ExecutionRow
                                     key={execution.id}
@@ -321,7 +326,9 @@ export default function DockerCleanup({
                     <div className="relative flex w-full flex-col rounded-sm border border-neutral-200 bg-white p-6 shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-lg">
                         <h3 className="text-2xl font-bold pb-4">Confirm Docker Cleanup?</h3>
                         <ul className="list-disc pl-4 pb-4 text-sm">
-                            <li>Permanently deletes all stopped containers managed by Coolify (as containers are non-persistent, no data will be lost)</li>
+                            <li>
+                                Permanently deletes all stopped containers managed by Coolify (as containers are non-persistent, no data will be lost)
+                            </li>
                             <li>Permanently deletes all unused images</li>
                             <li>Clears build cache</li>
                             <li>Removes old versions of the Coolify helper image</li>

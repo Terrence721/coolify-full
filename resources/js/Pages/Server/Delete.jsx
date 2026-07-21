@@ -59,7 +59,9 @@ export default function Delete({ serverNavbar, sidebar, server, hasResources, ch
                     <div className="relative flex max-h-[85vh] w-full flex-col rounded-sm border border-neutral-200 bg-white shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-lg">
                         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-6 py-5 dark:border-coolgray-300">
                             <h3 className="text-2xl font-bold">Confirm Server Deletion?</h3>
-                            <button type="button" onClick={() => setModalOpen(false)}>✕</button>
+                            <button type="button" onClick={() => setModalOpen(false)}>
+                                ✕
+                            </button>
                         </div>
                         <form onSubmit={submit} className="flex flex-col gap-3 overflow-y-auto p-6">
                             <p>This server will be permanently deleted from Coolify.</p>

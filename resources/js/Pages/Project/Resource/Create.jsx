@@ -28,13 +28,7 @@ function Tile({ title, description, logo, onClick }) {
     return (
         <div className="w-full cursor-pointer coolbox group" onClick={onClick}>
             <div className="flex items-center gap-4 mx-6">
-                {logo && (
-                    <img
-                        className="object-contain w-12 h-12 p-1 transition-all duration-200 bg-black/10 dark:bg-white/10"
-                        src={logo}
-                        alt=""
-                    />
-                )}
+                {logo && <img className="object-contain w-12 h-12 p-1 transition-all duration-200 bg-black/10 dark:bg-white/10" src={logo} alt="" />}
                 <div className="flex flex-col">
                     <div className="box-title">{title}</div>
                     {description && <div className="box-description">{description}</div>}
@@ -118,7 +112,13 @@ function TypeStep({ project, environment, environments, services, categories, gi
                             <h5>Git Based</h5>
                             <div className="grid grid-cols-1 gap-4">
                                 {gitBasedApplications.map((app) => (
-                                    <Tile key={app.id} title={app.name} description={app.description} logo={app.logo} onClick={() => selectType(app.id)} />
+                                    <Tile
+                                        key={app.id}
+                                        title={app.name}
+                                        description={app.description}
+                                        logo={app.logo}
+                                        onClick={() => selectType(app.id)}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -126,7 +126,13 @@ function TypeStep({ project, environment, environments, services, categories, gi
                             <h5>Docker Based</h5>
                             <div className="grid grid-cols-1 gap-4">
                                 {dockerBasedApplications.map((app) => (
-                                    <Tile key={app.id} title={app.name} description={app.description} logo={app.logo} onClick={() => selectType(app.id)} />
+                                    <Tile
+                                        key={app.id}
+                                        title={app.name}
+                                        description={app.description}
+                                        logo={app.logo}
+                                        onClick={() => selectType(app.id)}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -226,7 +232,11 @@ function PostgresqlVersionStep({ postgresqlVersions }) {
             <div>If you need extra extensions, you can select Supabase PostgreSQL (or others), otherwise select PostgreSQL 18 (default).</div>
             <div className="grid grid-cols-1 gap-6 pt-8 lg:grid-cols-2">
                 {postgresqlVersions.map((version) => (
-                    <div key={version.image} className="flex relative gap-2 cursor-pointer coolbox group" onClick={() => goTo({ database_image: version.image })}>
+                    <div
+                        key={version.image}
+                        className="flex relative gap-2 cursor-pointer coolbox group"
+                        onClick={() => goTo({ database_image: version.image })}
+                    >
                         <div className="flex flex-col">
                             <div className="box-title">{version.name}</div>
                             <div className="box-description">{version.description}</div>

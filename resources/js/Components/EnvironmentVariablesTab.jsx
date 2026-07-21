@@ -210,15 +210,15 @@ function EnvCard({ env, resourceType, canManage, problematicVariables }) {
                 title="Add a note to document what this environment variable is used for."
             />
             <div className="flex flex-wrap items-center gap-4">{!env.isRedisCredential && checkboxes}</div>
-            {problem && form.is_buildtime && (
-                <div className="text-sm dark:text-warning">⚠ {problem.issue}</div>
-            )}
+            {problem && form.is_buildtime && <div className="text-sm dark:text-warning">⚠ {problem.issue}</div>}
             {canManage && (
                 <div className="flex w-full justify-end gap-2">
-                    {(!env.isMagic || env.isLocked) && (
-                        <button type="submit">Update</button>
+                    {(!env.isMagic || env.isLocked) && <button type="submit">Update</button>}
+                    {!env.isLocked && (
+                        <button type="button" onClick={lock}>
+                            Lock
+                        </button>
                     )}
-                    {!env.isLocked && <button type="button" onClick={lock}>Lock</button>}
                     {!confirmingDelete ? (
                         <button type="button" className="button-error" onClick={() => setConfirmingDelete(true)}>
                             Delete

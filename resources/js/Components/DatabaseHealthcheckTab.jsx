@@ -58,8 +58,8 @@ export default function DatabaseHealthcheckTab({ healthcheck, healthcheckUrls, c
             <div className="flex flex-col gap-4">
                 {!healthcheck.enabled && (
                     <div className="w-full p-3 text-sm rounded bg-warning/10 text-warning">
-                        <strong>Healthcheck disabled.</strong> Docker runs no healthcheck probe for this database and Coolify can
-                        no longer report a healthy/unhealthy state.
+                        <strong>Healthcheck disabled.</strong> Docker runs no healthcheck probe for this database and Coolify can no longer report a
+                        healthy/unhealthy state.
                     </div>
                 )}
                 <div className="flex flex-col gap-2 md:flex-row">

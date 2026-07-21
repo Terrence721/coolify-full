@@ -136,12 +136,24 @@ export default function Destinations({
                             <div className="flex gap-2">
                                 <label className="flex flex-col gap-1 w-full">
                                     Name
-                                    <input id="server-destination-name" name="server-destination-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                                    <input
+                                        id="server-destination-name"
+                                        name="server-destination-name"
+                                        required
+                                        value={data.name}
+                                        onChange={(e) => setData('name', e.target.value)}
+                                    />
                                     {errors.name && <span className="text-error">{errors.name}</span>}
                                 </label>
                                 <label className="flex flex-col gap-1 w-full">
                                     Network
-                                    <input id="server-destination-network" name="server-destination-network" required value={data.network} onChange={(e) => setData('network', e.target.value)} />
+                                    <input
+                                        id="server-destination-network"
+                                        name="server-destination-network"
+                                        required
+                                        value={data.network}
+                                        onChange={(e) => setData('network', e.target.value)}
+                                    />
                                     {errors.network && <span className="text-error">{errors.network}</span>}
                                 </label>
                             </div>

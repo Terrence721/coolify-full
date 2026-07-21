@@ -13,14 +13,40 @@ const JSON_HEADERS = { Accept: 'application/json' };
 // this gates when a fully-typed "new X" command auto-navigates instead of just filtering results,
 // so it must only fire on an exact, complete phrase, never on a partial/prefix match.
 const EXACT_MATCH_COMMANDS = [
-    'new project', 'new server', 'new team', 'new storage', 'new s3',
-    'new private key', 'new privatekey', 'new key',
-    'new github app', 'new github', 'new source',
-    'new public', 'new public git', 'new public repo', 'new public repository',
-    'new private github', 'new private gh', 'new private deploy', 'new deploy key',
-    'new dockerfile', 'new docker compose', 'new compose', 'new docker image', 'new image',
-    'new postgresql', 'new postgres', 'new mysql', 'new mariadb',
-    'new redis', 'new keydb', 'new dragonfly', 'new mongodb', 'new mongo', 'new clickhouse',
+    'new project',
+    'new server',
+    'new team',
+    'new storage',
+    'new s3',
+    'new private key',
+    'new privatekey',
+    'new key',
+    'new github app',
+    'new github',
+    'new source',
+    'new public',
+    'new public git',
+    'new public repo',
+    'new public repository',
+    'new private github',
+    'new private gh',
+    'new private deploy',
+    'new deploy key',
+    'new dockerfile',
+    'new docker compose',
+    'new compose',
+    'new docker image',
+    'new image',
+    'new postgresql',
+    'new postgres',
+    'new mysql',
+    'new mariadb',
+    'new redis',
+    'new keydb',
+    'new dragonfly',
+    'new mongodb',
+    'new mongo',
+    'new clickhouse',
 ];
 
 function ChevronRight({ className = 'h-5 w-5' }) {
@@ -474,8 +500,19 @@ export default function GlobalSearchModal() {
                                         <Spinner />
                                     </span>
                                 ) : (
-                                    <svg className="w-5 h-5 text-neutral-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    <svg
+                                        className="w-5 h-5 text-neutral-400"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                        />
                                     </svg>
                                 )}
                             </div>
@@ -523,7 +560,11 @@ export default function GlobalSearchModal() {
                                                     title="Select Destination"
                                                     subtitle={selectedResourceName}
                                                     loading={loadingDestinations}
-                                                    items={destinations.map((d) => ({ key: d.uuid, name: d.name, description: `Network: ${d.network}` }))}
+                                                    items={destinations.map((d) => ({
+                                                        key: d.uuid,
+                                                        name: d.name,
+                                                        description: `Network: ${d.network}`,
+                                                    }))}
                                                     emptyMessage="No destinations available"
                                                     onBack={goBack}
                                                     onSelect={(key) => selectDestination(key)}
@@ -562,7 +603,10 @@ export default function GlobalSearchModal() {
                                                         </h4>
                                                     </div>
                                                     {searchResults.map((result) => (
-                                                        <ExistingResourceRow key={`${result.type}-${result.id ?? result.uuid ?? result.name}`} result={result} />
+                                                        <ExistingResourceRow
+                                                            key={`${result.type}-${result.id ?? result.uuid ?? result.name}`}
+                                                            result={result}
+                                                        />
                                                     ))}
                                                 </>
                                             )}
@@ -590,7 +634,10 @@ export default function GlobalSearchModal() {
                                                         </h4>
                                                     </div>
                                                     {searchResults.map((result) => (
-                                                        <ExistingResourceRow key={`${result.type}-${result.id ?? result.uuid ?? result.name}`} result={result} />
+                                                        <ExistingResourceRow
+                                                            key={`${result.type}-${result.id ?? result.uuid ?? result.name}`}
+                                                            result={result}
+                                                        />
                                                     ))}
                                                 </div>
                                             )}
@@ -618,7 +665,9 @@ export default function GlobalSearchModal() {
                                                 !loadingInitial && (
                                                     <div className="flex items-center justify-center py-12 px-4">
                                                         <div className="text-center">
-                                                            <p className="mt-4 text-sm font-medium text-neutral-900 dark:text-white">No results found</p>
+                                                            <p className="mt-4 text-sm font-medium text-neutral-900 dark:text-white">
+                                                                No results found
+                                                            </p>
                                                             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
                                                                 Try different keywords or check the spelling
                                                             </p>
@@ -663,7 +712,11 @@ function SelectionStep({ title, subtitle, loading, items, emptyMessage, onBack, 
     return (
         <div className="mb-4">
             <div className="flex items-center gap-3 mb-3">
-                <button type="button" onClick={onBack} className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white">
+                <button
+                    type="button"
+                    onClick={onBack}
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
+                >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -752,7 +805,13 @@ function CreatableRow({ item, onClick }) {
                         </div>
                     ) : (
                         <div className="shrink-0 w-10 h-10 rounded-lg bg-warning-100 dark:bg-warning-900/40 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-warning-600 dark:text-warning-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5 text-warning-600 dark:text-warning-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                             </svg>
                         </div>
@@ -770,7 +829,9 @@ function CreatableRow({ item, onClick }) {
                                     ARM only
                                 </span>
                             )}
-                            {item.quickcommand && <span className="text-xs text-neutral-500 dark:text-neutral-400 shrink-0">{item.quickcommand}</span>}
+                            {item.quickcommand && (
+                                <span className="text-xs text-neutral-500 dark:text-neutral-400 shrink-0">{item.quickcommand}</span>
+                            )}
                         </div>
                         <div className="text-sm text-neutral-600 dark:text-neutral-400 truncate">{item.description}</div>
                     </div>

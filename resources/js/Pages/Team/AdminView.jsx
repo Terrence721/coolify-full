@@ -67,9 +67,7 @@ export default function AdminView({ search, users, lotsOfUsers, deleteUserUrl })
                         </div>
                     </div>
                 ))}
-                {lotsOfUsers && (
-                    <div>There are more users than shown. Please use the search bar to find the user you are looking for.</div>
-                )}
+                {lotsOfUsers && <div>There are more users than shown. Please use the search bar to find the user you are looking for.</div>}
             </div>
         </div>
     );

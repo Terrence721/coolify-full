@@ -106,7 +106,11 @@ export default function ServiceHeading({ service, parameters, urls }) {
                                     Force Deploy
                                 </button>
                                 {isExited && (
-                                    <button type="button" className="text-error" onClick={() => router.post(urls.stop, { docker_cleanup: true }, { preserveScroll: true })}>
+                                    <button
+                                        type="button"
+                                        className="text-error"
+                                        onClick={() => router.post(urls.stop, { docker_cleanup: true }, { preserveScroll: true })}
+                                    >
                                         Force Cleanup Containers
                                     </button>
                                 )}

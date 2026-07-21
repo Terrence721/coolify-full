@@ -105,9 +105,9 @@ export default function ApplicationServersTab({ servers, serversUrls, canUpdate 
                         <>
                             <h3>Add another server</h3>
                             <div className="w-full p-3 text-sm rounded bg-warning/10 text-warning">
-                                <strong>Cannot add additional servers.</strong> This application has persistent storage volumes configured. Applications
-                                with persistent storage cannot be deployed to multiple servers as the storage would not be accessible across different
-                                servers.
+                                <strong>Cannot add additional servers.</strong> This application has persistent storage volumes configured.
+                                Applications with persistent storage cannot be deployed to multiple servers as the storage would not be accessible
+                                across different servers.
                             </div>
                         </>
                     ) : servers.availableNetworks.length > 0 ? (

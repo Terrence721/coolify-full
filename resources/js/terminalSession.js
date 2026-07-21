@@ -166,8 +166,7 @@ export class TerminalSession {
         if (this.keepAliveInterval) {
             clearInterval(this.keepAliveInterval);
         }
-        [this.reconnectInterval, this.connectionTimeoutId, this.pingTimeoutId, this.resizeTimeout]
-            .forEach((timer) => timer && clearTimeout(timer));
+        [this.reconnectInterval, this.connectionTimeoutId, this.pingTimeoutId, this.resizeTimeout].forEach((timer) => timer && clearTimeout(timer));
         if (this.terminalSessionCountdownInterval) {
             clearInterval(this.terminalSessionCountdownInterval);
         }
@@ -428,10 +427,7 @@ export class TerminalSession {
         this.connectionState = 'reconnecting';
         this.emitState();
 
-        const delay = Math.min(
-            this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts) + Math.random() * 1000,
-            this.maxReconnectDelay
-        );
+        const delay = Math.min(this.baseReconnectDelay * Math.pow(2, this.reconnectAttempts) + Math.random() * 1000, this.maxReconnectDelay);
 
         logTerminal('warn', `[Terminal] Scheduling reconnect attempt ${this.reconnectAttempts + 1} in ${delay}ms`);
 
@@ -517,10 +513,7 @@ export class TerminalSession {
             this.disconnectSocket({ code: 1000, reason: 'Terminal session ended', allowReconnect: false });
 
             this.onTerminalDisconnected();
-        } else if (
-            typeof event.data === 'string' &&
-            (event.data.startsWith('Unauthorized:') || event.data.startsWith('Invalid SSH command:'))
-        ) {
+        } else if (typeof event.data === 'string' && (event.data.startsWith('Unauthorized:') || event.data.startsWith('Invalid SSH command:'))) {
             logTerminal('error', '[Terminal] Backend rejected terminal startup:', event.data);
             this.onError(event.data);
             this.terminalActive = false;

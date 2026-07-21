@@ -19,7 +19,9 @@ function Modal({ title, onClose, children, wide = false }) {
     return (
         <div className="fixed inset-0 z-50 flex h-screen w-screen items-center justify-center p-4">
             <div className="absolute inset-0 h-full w-full bg-black/20 backdrop-blur-xs" onClick={onClose} />
-            <div className={`relative flex max-h-[85vh] w-full flex-col overflow-y-auto rounded-sm border border-neutral-200 bg-white p-6 shadow-lg dark:border-coolgray-300 dark:bg-base ${wide ? 'lg:max-w-4xl' : 'lg:max-w-xl'}`}>
+            <div
+                className={`relative flex max-h-[85vh] w-full flex-col overflow-y-auto rounded-sm border border-neutral-200 bg-white p-6 shadow-lg dark:border-coolgray-300 dark:bg-base ${wide ? 'lg:max-w-4xl' : 'lg:max-w-xl'}`}
+            >
                 <div className="flex items-center justify-between pb-4">
                     <h3 className="text-2xl font-bold">{title}</h3>
                     <button type="button" onClick={onClose}>
@@ -56,8 +58,8 @@ function EditComposeModal({ stackForm, form, generalUrls, canUpdate, onSaveRaw, 
     return (
         <Modal title="Edit Docker Compose" onClose={onClose} wide>
             <div className="pb-4 text-sm">
-                Volume names are updated upon save. The service UUID will be added as a prefix to all volumes, to prevent name
-                collision. To see the actual volume names, check the Deployable Compose file, or go to Storage menu.
+                Volume names are updated upon save. The service UUID will be added as a prefix to all volumes, to prevent name collision. To see the
+                actual volume names, check the Deployable Compose file, or go to Storage menu.
             </div>
             <textarea
                 id="service-stack-compose-raw"
@@ -93,11 +95,7 @@ function EditComposeModal({ stackForm, form, generalUrls, canUpdate, onSaveRaw, 
                     </button>
                 )}
                 {canUpdate && (
-                    <button
-                        type="button"
-                        className="w-28"
-                        onClick={() => onSaveRaw(raw, { ...form })}
-                    >
+                    <button type="button" className="w-28" onClick={() => onSaveRaw(raw, { ...form })}>
                         Save
                     </button>
                 )}
@@ -156,8 +154,8 @@ function EditDomainModal({ resource, onClose }) {
             {showPortWarning && (
                 <div className="mt-2 flex flex-col gap-2 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20 text-sm">
                     <div>
-                        This service requires port <strong>{props.flash?.requiredPort}</strong> to function correctly. One or
-                        more of your domains is missing it. Continue without the port?
+                        This service requires port <strong>{props.flash?.requiredPort}</strong> to function correctly. One or more of your domains is
+                        missing it. Continue without the port?
                     </div>
                     <div className="flex gap-2">
                         <button type="button" onClick={() => setShowPortWarning(false)}>
@@ -192,7 +190,9 @@ function ResourceCard({ resource, canUpdate }) {
     const [confirmingRestart, setConfirmingRestart] = useState(false);
 
     return (
-        <div className={`${statusBorder(resource.status)} flex gap-2 box-without-bg-without-border dark:bg-coolgray-100 bg-white dark:hover:text-neutral-300 group`}>
+        <div
+            className={`${statusBorder(resource.status)} flex gap-2 box-without-bg-without-border dark:bg-coolgray-100 bg-white dark:hover:text-neutral-300 group`}
+        >
             <div className="flex flex-row w-full">
                 <div className="flex flex-col flex-1">
                     <div className="pb-2">
@@ -395,9 +395,7 @@ export default function ServiceStackTab({ stackForm, resources, resourceDetails,
                     <div className="p-4 text-sm text-neutral-500">No services defined in this Docker Compose file.</div>
                 )}
                 {applications.length === 0 && databases.length > 0 && (
-                    <div className="p-4 text-sm text-neutral-500">
-                        No applications with domains defined. Only database services are available.
-                    </div>
+                    <div className="p-4 text-sm text-neutral-500">No applications with domains defined. Only database services are available.</div>
                 )}
                 {resources.map((resource) => (
                     <ResourceCard key={resource.uuid} resource={resource} canUpdate={canUpdate} />

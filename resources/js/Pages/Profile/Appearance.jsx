@@ -59,10 +59,20 @@ export default function Appearance() {
                     <h2>Appearance</h2>
                     <div>Choose how Coolify looks in this browser.</div>
                     <div className="flex flex-wrap gap-1.5">
-                        <button type="button" aria-label="Use light theme" className={optionClass(theme === 'light')} onClick={() => setTheme('light')}>
+                        <button
+                            type="button"
+                            aria-label="Use light theme"
+                            className={optionClass(theme === 'light')}
+                            onClick={() => setTheme('light')}
+                        >
                             Light
                         </button>
-                        <button type="button" aria-label="Use system theme" className={optionClass(theme === 'system')} onClick={() => setTheme('system')}>
+                        <button
+                            type="button"
+                            aria-label="Use system theme"
+                            className={optionClass(theme === 'system')}
+                            onClick={() => setTheme('system')}
+                        >
                             System
                         </button>
                         <button type="button" aria-label="Use dark theme" className={optionClass(theme === 'dark')} onClick={() => setTheme('dark')}>
@@ -75,10 +85,20 @@ export default function Appearance() {
                     <h2>Width</h2>
                     <div>Choose the maximum page width for this browser.</div>
                     <div className="flex flex-wrap gap-1.5">
-                        <button type="button" aria-label="Use centered width" className={optionClass(pageWidth === 'center')} onClick={() => setWidth('center')}>
+                        <button
+                            type="button"
+                            aria-label="Use centered width"
+                            className={optionClass(pageWidth === 'center')}
+                            onClick={() => setWidth('center')}
+                        >
                             Center
                         </button>
-                        <button type="button" aria-label="Use full width" className={optionClass(pageWidth === 'full')} onClick={() => setWidth('full')}>
+                        <button
+                            type="button"
+                            aria-label="Use full width"
+                            className={optionClass(pageWidth === 'full')}
+                            onClick={() => setWidth('full')}
+                        >
                             Full
                         </button>
                     </div>
@@ -88,7 +108,12 @@ export default function Appearance() {
                     <h2>Zoom</h2>
                     <div>Choose interface density for this browser.</div>
                     <div className="flex flex-wrap gap-1.5">
-                        <button type="button" aria-label="Use 100 percent zoom" className={optionClass(zoom === '100')} onClick={() => setZoom('100')}>
+                        <button
+                            type="button"
+                            aria-label="Use 100 percent zoom"
+                            className={optionClass(zoom === '100')}
+                            onClick={() => setZoom('100')}
+                        >
                             100%
                         </button>
                         <button type="button" aria-label="Use 90 percent zoom" className={optionClass(zoom === '90')} onClick={() => setZoom('90')}>

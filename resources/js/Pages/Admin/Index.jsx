@@ -1,15 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Index({
-    name,
-    email,
-    impersonating,
-    search: initialSearch,
-    foundUsers,
-    backUrl,
-    switchUserUrl,
-}) {
+export default function Index({ name, email, impersonating, search: initialSearch, foundUsers, backUrl, switchUserUrl }) {
     const [search, setSearch] = useState(initialSearch ?? '');
 
     function submitSearch(e) {

@@ -83,9 +83,7 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                                 value={testForm.data.test_email_address}
                                 onChange={(e) => testForm.setData('test_email_address', e.target.value)}
                             />
-                            {testForm.errors.test_email_address && (
-                                <span className="text-error">{testForm.errors.test_email_address}</span>
-                            )}
+                            {testForm.errors.test_email_address && <span className="text-error">{testForm.errors.test_email_address}</span>}
                         </label>
                         <button type="submit" disabled={testForm.processing}>
                             Send Email

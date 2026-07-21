@@ -30,7 +30,9 @@ export default function Resources({ serverNavbar, managedResources, unmanagedCon
                     <div className="flex flex-col">
                         <div className="flex gap-2">
                             <h2>Resources</h2>
-                            <button type="button" onClick={refresh}>Refresh</button>
+                            <button type="button" onClick={refresh}>
+                                Refresh
+                            </button>
                         </div>
                         <div>Here you can find all resources that are managed by Coolify.</div>
                     </div>
@@ -56,7 +58,9 @@ export default function Resources({ serverNavbar, managedResources, unmanagedCon
                                             <a href={resource.link}>{resource.name}</a>
                                         </td>
                                         <td className="px-5 py-4 text-sm whitespace-nowrap">{resource.type}</td>
-                                        <td className={`px-5 py-4 text-sm font-medium whitespace-nowrap ${STATUS_CLASS[resource.statusCategory] ?? ''}`}>
+                                        <td
+                                            className={`px-5 py-4 text-sm font-medium whitespace-nowrap ${STATUS_CLASS[resource.statusCategory] ?? ''}`}
+                                        >
                                             {resource.status}
                                         </td>
                                     </tr>
@@ -88,15 +92,31 @@ export default function Resources({ serverNavbar, managedResources, unmanagedCon
                                             <td className="flex gap-2 px-5 py-4 text-sm whitespace-nowrap">
                                                 {container.state === 'running' && (
                                                     <>
-                                                        <button type="button" onClick={() => containerAction(container.id, 'restart')}>Restart</button>
-                                                        <button type="button" className="text-error" onClick={() => containerAction(container.id, 'stop')}>Stop</button>
+                                                        <button type="button" onClick={() => containerAction(container.id, 'restart')}>
+                                                            Restart
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="text-error"
+                                                            onClick={() => containerAction(container.id, 'stop')}
+                                                        >
+                                                            Stop
+                                                        </button>
                                                     </>
                                                 )}
                                                 {container.state === 'exited' && (
-                                                    <button type="button" onClick={() => containerAction(container.id, 'start')}>Start</button>
+                                                    <button type="button" onClick={() => containerAction(container.id, 'start')}>
+                                                        Start
+                                                    </button>
                                                 )}
                                                 {container.state === 'restarting' && (
-                                                    <button type="button" className="text-error" onClick={() => containerAction(container.id, 'stop')}>Stop</button>
+                                                    <button
+                                                        type="button"
+                                                        className="text-error"
+                                                        onClick={() => containerAction(container.id, 'stop')}
+                                                    >
+                                                        Stop
+                                                    </button>
                                                 )}
                                             </td>
                                         </tr>

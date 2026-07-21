@@ -38,7 +38,11 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
 
     function submit(e) {
         e.preventDefault();
-        router.patch(healthcheckUrls.update, { ...form, healthCheckEnabled: healthcheck.healthCheckEnabled, customHealthcheckFound: healthcheck.customHealthcheckFound }, { preserveScroll: true });
+        router.patch(
+            healthcheckUrls.update,
+            { ...form, healthCheckEnabled: healthcheck.healthCheckEnabled, customHealthcheckFound: healthcheck.customHealthcheckFound },
+            { preserveScroll: true },
+        );
     }
 
     function toggle() {
@@ -69,8 +73,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
             <div className="flex flex-col gap-4">
                 {healthcheck.customHealthcheckFound && (
                     <div className="w-full p-3 text-sm rounded bg-warning/10 text-warning">
-                        <strong>Caution.</strong> A custom health check has been detected. If you enable this health check, it will disable the custom one
-                        and use this instead.
+                        <strong>Caution.</strong> A custom health check has been detected. If you enable this health check, it will disable the custom
+                        one and use this instead.
                     </div>
                 )}
 
@@ -173,8 +177,8 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                 ) : (
                     <>
                         <div className="w-full p-3 text-sm rounded bg-warning/10 text-warning">
-                            <strong>Caution.</strong> This command runs inside the container on every health check interval. Shell operators (;, |, &amp;, $,
-                            &gt;, &lt;) are not allowed.
+                            <strong>Caution.</strong> This command runs inside the container on every health check interval. Shell operators (;, |,
+                            &amp;, $, &gt;, &lt;) are not allowed.
                         </div>
                         <Field
                             id="healthCheckCommand"

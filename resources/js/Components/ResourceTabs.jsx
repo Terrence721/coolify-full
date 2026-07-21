@@ -109,7 +109,11 @@ export function DangerTab({ resourceName, canDelete, destroyUrl }) {
                     actions={['Permanently delete all containers of this resource.']}
                     checkboxes={[
                         { id: 'delete_volumes', label: 'All associated volumes will be permanently deleted.', default: true },
-                        { id: 'delete_connected_networks', label: 'All connected networks will be deleted (predefined networks are not).', default: true },
+                        {
+                            id: 'delete_connected_networks',
+                            label: 'All connected networks will be deleted (predefined networks are not).',
+                            default: true,
+                        },
                         { id: 'delete_configurations', label: 'All configuration files will be permanently deleted from the server.', default: true },
                         { id: 'docker_cleanup', label: 'Run Docker Cleanup (remove unused images and builder cache).', default: true },
                     ]}
@@ -138,7 +142,7 @@ export function WebhooksTab({ deployWebhook, manualWebhooks }) {
                   bitbucketManualWebhookSecret: manualWebhooks.providers.bitbucket.secret ?? '',
                   giteaManualWebhookSecret: manualWebhooks.providers.gitea.secret ?? '',
               }
-            : {}
+            : {},
     );
 
     function submit(e) {
@@ -221,14 +225,7 @@ export function ResourceLimitsTab({ limits, limitsUpdateUrl, canUpdate }) {
     const field = (key, label, extra = {}) => (
         <label className="flex flex-col flex-1 gap-1">
             {label}
-            <input
-                id={key}
-                name={key}
-                disabled={!canUpdate}
-                value={data[key] ?? ''}
-                onChange={(e) => setData(key, e.target.value)}
-                {...extra}
-            />
+            <input id={key} name={key} disabled={!canUpdate} value={data[key] ?? ''} onChange={(e) => setData(key, e.target.value)} {...extra} />
             {errors[key] && <span className="text-error">{errors[key]}</span>}
         </label>
     );
@@ -298,8 +295,8 @@ export function ResourceOperationsTab({ servers, projects, currentProjectId, cur
             <h3 className="pt-4">Clone Resource</h3>
             <div className="pb-2">Duplicate this resource to another server or network destination.</div>
             <div className="pb-4 text-sm dark:text-neutral-400">
-                Cloning only duplicates resource configuration (such as environment variables, build settings etc..). It does not include
-                any resource data, such as databases or stored files.
+                Cloning only duplicates resource configuration (such as environment variables, build settings etc..). It does not include any resource
+                data, such as databases or stored files.
             </div>
             <div className="flex flex-col gap-4 pb-8 lg:flex-row">
                 <label className="flex flex-col flex-1 gap-1">
@@ -421,4 +418,3 @@ export function ServersTab({ primaryServer }) {
         </div>
     );
 }
-

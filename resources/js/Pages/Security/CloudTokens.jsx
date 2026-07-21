@@ -34,7 +34,9 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                 <div className="navbar-main">
                     <nav className="flex items-center gap-6 scrollbar min-h-10">
                         <a href="/security/private-key">Private Keys</a>
-                        <a href="/security/cloud-tokens" className="dark:text-white">Cloud Tokens</a>
+                        <a href="/security/cloud-tokens" className="dark:text-white">
+                            Cloud Tokens
+                        </a>
                         <a href="/security/cloud-init-scripts">Cloud-Init Scripts</a>
                         <a href="/security/api-tokens">API Tokens</a>
                     </nav>

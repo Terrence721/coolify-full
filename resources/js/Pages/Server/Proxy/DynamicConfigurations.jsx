@@ -141,13 +141,7 @@ export default function DynamicConfigurations({ serverNavbar, sidebar, isFunctio
                 )}
             </div>
 
-            {showAddModal && (
-                <DynamicConfigurationModal
-                    newFile
-                    storeUrl={storeUrl}
-                    onClose={() => setShowAddModal(false)}
-                />
-            )}
+            {showAddModal && <DynamicConfigurationModal newFile storeUrl={storeUrl} onClose={() => setShowAddModal(false)} />}
             {editingFile && (
                 <DynamicConfigurationModal
                     initialFileName={editingFile.fileName}

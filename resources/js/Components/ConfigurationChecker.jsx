@@ -85,9 +85,7 @@ export default function ConfigurationChecker({ configurationChecker }) {
                             <div className="space-y-4">
                                 {Object.entries(groups).map(([sectionLabel, sectionChanges]) => (
                                     <div key={sectionLabel}>
-                                        <div className="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-wide opacity-60">
-                                            {sectionLabel}
-                                        </div>
+                                        <div className="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-wide opacity-60">{sectionLabel}</div>
                                         <div className="rounded-sm border border-neutral-300 dark:border-coolgray-200">
                                             <div className="grid grid-cols-[12rem_1fr_1.5rem_1fr] items-center gap-2 bg-neutral-100 px-3 py-1.5 text-[0.65rem] font-semibold uppercase tracking-wide dark:bg-coolgray-200">
                                                 <div>Field</div>
@@ -104,7 +102,10 @@ export default function ConfigurationChecker({ configurationChecker }) {
                                                     const isExpanded = !!expandedRows[key];
 
                                                     return (
-                                                        <div key={key} className="grid grid-cols-[12rem_1fr_1.5rem_1fr] items-start gap-2 px-3 py-1.5 text-sm">
+                                                        <div
+                                                            key={key}
+                                                            className="grid grid-cols-[12rem_1fr_1.5rem_1fr] items-start gap-2 px-3 py-1.5 text-sm"
+                                                        >
                                                             <div className="min-w-0 shrink-0 font-medium">
                                                                 <div className={isExpanded ? 'wrap-break-word' : 'truncate'}>
                                                                     {isExpanded ? change.label : String(change.label ?? '').slice(0, 20)}
@@ -112,14 +113,18 @@ export default function ConfigurationChecker({ configurationChecker }) {
                                                             </div>
                                                             <div className="min-w-0 text-red-700 dark:text-red-400/80">
                                                                 <div className={isExpanded ? 'wrap-break-word whitespace-pre-wrap' : 'truncate'}>
-                                                                    {isExpanded ? (change.old_full_value ?? change.old_display_value) : change.old_display_value}
+                                                                    {isExpanded
+                                                                        ? (change.old_full_value ?? change.old_display_value)
+                                                                        : change.old_display_value}
                                                                 </div>
                                                             </div>
                                                             <div className="text-center opacity-50">→</div>
                                                             <div className="flex min-w-0 items-start gap-1 text-green-700 dark:text-green-500">
                                                                 <div className="min-w-0 flex-1">
                                                                     <div className={isExpanded ? 'wrap-break-word whitespace-pre-wrap' : 'truncate'}>
-                                                                        {isExpanded ? (change.new_full_value ?? change.new_display_value) : change.new_display_value}
+                                                                        {isExpanded
+                                                                            ? (change.new_full_value ?? change.new_display_value)
+                                                                            : change.new_display_value}
                                                                     </div>
                                                                 </div>
                                                                 {rowExpandable && (

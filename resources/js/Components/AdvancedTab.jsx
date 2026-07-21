@@ -133,8 +133,8 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                     onChange={(e) => setCustomInternalName(e.target.value)}
                                 />
                                 <span className="text-xs text-neutral-500">
-                                    You can add a custom name for your container. The name will be converted to slug format when you save it. You will lose
-                                    the rolling update feature!
+                                    You can add a custom name for your container. The name will be converted to slug format when you save it. You will
+                                    lose the rolling update feature!
                                 </span>
                             </label>
                             {canUpdate && <button type="submit">Save</button>}
@@ -288,8 +288,8 @@ export default function AdvancedTab({ advanced, advancedUrls, canUpdate }) {
                                 onChange={(e) => setMaxRestartCount(e.target.value)}
                             />
                             <span className="text-xs text-neutral-500">
-                                Maximum number of crash restarts before Coolify automatically stops the application and sends a notification. Set to 0 to
-                                disable the limit.
+                                Maximum number of crash restarts before Coolify automatically stops the application and sends a notification. Set to 0
+                                to disable the limit.
                             </span>
                         </label>
                         {canUpdate && <button type="submit">Save</button>}

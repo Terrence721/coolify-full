@@ -11,7 +11,15 @@ import GithubAppCreateModal from '../../../Components/GithubAppCreateModal';
  * in Phase 53, restoring the in-page modal this page briefly linked away for); the original's
  * id-valued datalist is replaced by a filter input + select showing repository names.
  */
-export default function GithubPrivateRepository({ githubApps, githubAppStoreUrl, githubAppDefaultName, isCloud, repositoriesUrl, branchesUrl, submitUrl }) {
+export default function GithubPrivateRepository({
+    githubApps,
+    githubAppStoreUrl,
+    githubAppDefaultName,
+    isCloud,
+    repositoriesUrl,
+    branchesUrl,
+    submitUrl,
+}) {
     const { data, setData, post, processing, errors } = useForm({
         github_app_id: null,
         repository_id: null,

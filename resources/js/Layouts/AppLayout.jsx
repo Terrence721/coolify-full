@@ -94,9 +94,7 @@ export default function AppLayout({ children }) {
                     <Link href="/" className="text-2xl font-bold tracking-tight dark:text-white">
                         Coolify
                     </Link>
-                    {currentTeam && (
-                        <div className="text-sm text-neutral-500 dark:text-coolgray-400">{currentTeam.name}</div>
-                    )}
+                    {currentTeam && <div className="text-sm text-neutral-500 dark:text-coolgray-400">{currentTeam.name}</div>}
                 </div>
                 {auth?.user && (
                     <div className="px-4 pb-2">
@@ -106,10 +104,18 @@ export default function AppLayout({ children }) {
                             title="Search (Press / or ⌘K)"
                             className="flex h-8 w-full items-center justify-between gap-1.5 px-2.5 py-1.5 bg-neutral-100 dark:bg-coolgray-100 border border-neutral-300 dark:border-coolgray-200 rounded-md hover:bg-neutral-200 dark:hover:bg-coolgray-200 transition-colors"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-neutral-500 dark:text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 text-neutral-500 dark:text-neutral-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <kbd className="px-1 py-0.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 bg-neutral-200 dark:bg-coolgray-200 rounded">/</kbd>
+                            <kbd className="px-1 py-0.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 bg-neutral-200 dark:bg-coolgray-200 rounded">
+                                /
+                            </kbd>
                         </button>
                     </div>
                 )}
@@ -118,11 +124,7 @@ export default function AppLayout({ children }) {
                         const isActive = item.match === '/' ? currentPath === '/' : currentPath.startsWith(item.match);
 
                         return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className={`menu-item ${isActive ? 'menu-item-active' : ''}`}
-                            >
+                            <Link key={item.href} href={item.href} className={`menu-item ${isActive ? 'menu-item-active' : ''}`}>
                                 {item.label}
                             </Link>
                         );
@@ -149,7 +151,11 @@ export default function AppLayout({ children }) {
                 <header className="sticky top-0 z-40 flex items-center justify-end gap-2 px-6 py-3 border-b border-neutral-300/50 dark:border-coolgray-200/50 bg-white/95 dark:bg-base/95 backdrop-blur-sm">
                     <ThemeSwitcher />
                     {auth?.user && changelog && (
-                        <WhatsNewButton unreadCount={changelog.unreadCount} currentVersion={changelog.currentVersion} canFetchLatest={permissions?.isDev} />
+                        <WhatsNewButton
+                            unreadCount={changelog.unreadCount}
+                            currentVersion={changelog.currentVersion}
+                            canFetchLatest={permissions?.isDev}
+                        />
                     )}
                 </header>
                 <main className={`flex-1 p-6 w-full ${pageWidthClass(pageWidth)}`}>{children}</main>

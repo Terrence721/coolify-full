@@ -69,12 +69,7 @@ export default function Index({ servers, containers, terminalConfig, connectUrl 
             <Deferred data="containers" fallback={<div className="pt-1">Loading servers and containers...</div>}>
                 {servers.length > 0 ? (
                     <form className="flex flex-col gap-2 justify-center xl:items-end xl:flex-row" onSubmit={connect}>
-                        <select
-                            id="selected_uuid"
-                            required
-                            value={selectedUuid}
-                            onChange={(e) => setSelectedUuid(e.target.value)}
-                        >
+                        <select id="selected_uuid" required value={selectedUuid} onChange={(e) => setSelectedUuid(e.target.value)}>
                             <option value="default">Select a server or container</option>
                             {servers.map((server) => (
                                 <optgroup key={server.uuid} label={server.name}>

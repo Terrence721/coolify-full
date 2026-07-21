@@ -30,7 +30,9 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
         router.post(urls.backupNow, {}, { preserveScroll: true });
     }
 
-    const isMysqlFamily = ['App\\Models\\StandalonePostgresql', 'App\\Models\\StandaloneMysql', 'App\\Models\\StandaloneMariadb'].includes(backup.databaseType);
+    const isMysqlFamily = ['App\\Models\\StandalonePostgresql', 'App\\Models\\StandaloneMysql', 'App\\Models\\StandaloneMariadb'].includes(
+        backup.databaseType,
+    );
     const isMongo = backup.databaseType === 'App\\Models\\StandaloneMongodb';
 
     return (
@@ -105,7 +107,12 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                 {isMysqlFamily && (
                     <>
                         <label className="flex items-center gap-2 w-48">
-                            <input id="backup-dump-all" type="checkbox" checked={data.dump_all} onChange={(e) => setData('dump_all', e.target.checked)} />
+                            <input
+                                id="backup-dump-all"
+                                type="checkbox"
+                                checked={data.dump_all}
+                                onChange={(e) => setData('dump_all', e.target.checked)}
+                            />
                             Backup All Databases
                         </label>
                         {!data.dump_all && (
@@ -272,7 +279,10 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                     ]}
                     checkboxes={[
                         { id: 'delete_associated_backups_locally', label: 'All backups will be permanently deleted from local storage.' },
-                        { id: 'delete_associated_backups_s3', label: 'All backups will be permanently deleted (associated with this backup job) from the selected S3 Storage.' },
+                        {
+                            id: 'delete_associated_backups_s3',
+                            label: 'All backups will be permanently deleted (associated with this backup job) from the selected S3 Storage.',
+                        },
                     ]}
                     confirmationText={backup.databaseName}
                     confirmationLabel="Please confirm the execution of the actions by entering the Database Name of the scheduled backups below"

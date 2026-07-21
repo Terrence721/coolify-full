@@ -50,7 +50,11 @@ export default function GithubPrivateRepositoryDeployKey({ defaultRepositoryUrl,
                                 </div>
                             )}
                             {privateKeys.map((privateKey) => (
-                                <div key={privateKey.id} className="gap-2 py-4 cursor-pointer group coolbox" onClick={() => selectPrivateKey(privateKey.id)}>
+                                <div
+                                    key={privateKey.id}
+                                    className="gap-2 py-4 cursor-pointer group coolbox"
+                                    onClick={() => selectPrivateKey(privateKey.id)}
+                                >
                                     <div className="flex flex-col mx-6">
                                         <div className="box-title">{privateKey.name}</div>
                                         <div className="box-description">{privateKey.description}</div>

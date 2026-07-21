@@ -172,10 +172,7 @@ export default function Hetzner({ tokens: initialTokens, privateKeys: initialPri
                     {tokens.length > 0 && (
                         <div className="grid gap-2">
                             {tokens.map((token) => (
-                                <label
-                                    key={token.id}
-                                    className="flex items-center gap-2 box-without-bg dark:bg-coolgray-100 bg-white cursor-pointer"
-                                >
+                                <label key={token.id} className="flex items-center gap-2 box-without-bg dark:bg-coolgray-100 bg-white cursor-pointer">
                                     <input
                                         id={`hetzner-token-${token.id}`}
                                         name="hetzner-token"

@@ -4,16 +4,7 @@ import ExecutionCard from './ExecutionCard';
 import PasswordConfirmModal from './PasswordConfirmModal';
 import { useTeamChannel } from '../hooks/useTeamChannel';
 
-export default function BackupExecutionsList({
-    executions,
-    executionsCount,
-    skip,
-    defaultTake,
-    currentPage,
-    showNext,
-    showPrev,
-    urls,
-}) {
+export default function BackupExecutionsList({ executions, executionsCount, skip, defaultTake, currentPage, showNext, showPrev, urls }) {
     const [showCleanupDeletedModal, setShowCleanupDeletedModal] = useState(false);
     const pollRef = useRef(null);
 

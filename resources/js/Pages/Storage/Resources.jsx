@@ -105,9 +105,7 @@ export default function Resources({ storage, backups, allStorages, canUpdate, sh
                                                             className="w-full input"
                                                             disabled={!canUpdate}
                                                             value={selected[backup.id] ?? ''}
-                                                            onChange={(e) =>
-                                                                setSelected((prev) => ({ ...prev, [backup.id]: e.target.value }))
-                                                            }
+                                                            onChange={(e) => setSelected((prev) => ({ ...prev, [backup.id]: e.target.value }))}
                                                         >
                                                             {allStorages.map((s3) => (
                                                                 <option key={s3.id} value={s3.id} disabled={!s3.isUsable}>

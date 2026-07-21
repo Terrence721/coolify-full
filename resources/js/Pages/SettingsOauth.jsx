@@ -114,9 +114,7 @@ export default function SettingsOauth({ providers, updateUrl }) {
                                     </label>
                                 )}
                             </div>
-                            {errors[`providers.${index}.client_id`] && (
-                                <span className="text-error">{errors[`providers.${index}.client_id`]}</span>
-                            )}
+                            {errors[`providers.${index}.client_id`] && <span className="text-error">{errors[`providers.${index}.client_id`]}</span>}
                         </div>
                     ))}
                 </div>

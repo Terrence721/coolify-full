@@ -169,19 +169,31 @@ export default function Proxy({
 
                             {proxyOutOfSync && (
                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded my-4">
-                                    The saved proxy configuration differs from the currently running configuration. Restart the proxy to
-                                    apply your changes.
+                                    The saved proxy configuration differs from the currently running configuration. Restart the proxy to apply your
+                                    changes.
                                 </div>
                             )}
 
                             <h3>Advanced</h3>
                             <div className="pb-6 w-full sm:w-96">
                                 <label className="flex items-center gap-2">
-                                    <input id="proxy-generate-exact-labels" type="checkbox" disabled={!canUpdate} checked={generateExactLabels} onChange={toggleGenerateExactLabels} />
+                                    <input
+                                        id="proxy-generate-exact-labels"
+                                        type="checkbox"
+                                        disabled={!canUpdate}
+                                        checked={generateExactLabels}
+                                        onChange={toggleGenerateExactLabels}
+                                    />
                                     Generate labels only for {isTraefik ? 'Traefik' : 'Caddy'}
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input id="proxy-redirect-enabled" type="checkbox" disabled={!canUpdate} checked={redirectEnabled} onChange={toggleRedirectEnabled} />
+                                    <input
+                                        id="proxy-redirect-enabled"
+                                        type="checkbox"
+                                        disabled={!canUpdate}
+                                        checked={redirectEnabled}
+                                        onChange={toggleRedirectEnabled}
+                                    />
                                     Override default request handler
                                 </label>
                                 {redirectEnabled && (
@@ -221,9 +233,8 @@ export default function Proxy({
                                             {detectedTraefikVersion === 'latest' ? (
                                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded">
                                                     <div className="font-bold">Using 'latest' Traefik Tag</div>
-                                                    Your proxy container is running the <span className="font-mono">latest</span> tag. While
-                                                    this ensures you always have the newest version, it may introduce unexpected breaking
-                                                    changes.
+                                                    Your proxy container is running the <span className="font-mono">latest</span> tag. While this
+                                                    ensures you always have the newest version, it may introduce unexpected breaking changes.
                                                     <br />
                                                     <br />
                                                     <strong>Recommendation:</strong> Pin to a specific version (e.g.,{' '}
@@ -244,8 +255,8 @@ export default function Proxy({
                                                         <span className="font-mono">{latestTraefikVersion}</span> is available.
                                                         <br />
                                                         <br />
-                                                        <strong>Recommendation:</strong> Update to the latest patch version for security fixes
-                                                        and bug fixes. Please test in a non-production environment first.
+                                                        <strong>Recommendation:</strong> Update to the latest patch version for security fixes and bug
+                                                        fixes. Please test in a non-production environment first.
                                                         <div className="pt-2">
                                                             <button type="button" onClick={dismissWarnings}>
                                                                 Dismiss
@@ -256,14 +267,13 @@ export default function Proxy({
                                             )}
                                             {newerTraefikBranchAvailable && (
                                                 <div className="p-3 border border-sky-500/30 bg-sky-500/10 text-sm rounded">
-                                                    <div className="font-bold">New Minor Traefik Version Available</div>
-                                                    A new minor version of Traefik is available:{' '}
-                                                    <span className="font-mono">{newerTraefikBranchAvailable}</span>
+                                                    <div className="font-bold">New Minor Traefik Version Available</div>A new minor version of Traefik
+                                                    is available: <span className="font-mono">{newerTraefikBranchAvailable}</span>
                                                     <br />
                                                     <br />
-                                                    You are currently running <span className="font-mono">v{detectedTraefikVersion}</span>.
-                                                    Upgrading to <span className="font-mono">{newerTraefikBranchAvailable}</span> will give you
-                                                    access to new features and improvements.
+                                                    You are currently running <span className="font-mono">v{detectedTraefikVersion}</span>. Upgrading
+                                                    to <span className="font-mono">{newerTraefikBranchAvailable}</span> will give you access to new
+                                                    features and improvements.
                                                     <br />
                                                     <br />
                                                     <strong>Important:</strong> Before upgrading to a new minor version, please read the{' '}

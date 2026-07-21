@@ -29,9 +29,7 @@ export default function Index({ sources, canCreate, storeUrl, defaultName, isClo
                         <div className="text-left dark:group-hover:text-white flex flex-col justify-center mx-6">
                             <div className="box-title">{source.name}</div>
                             {!source.configured && <span className="box-description text-error!">Configuration is not finished.</span>}
-                            {source.configured && source.organization && (
-                                <span className="box-description">Organization: {source.organization}</span>
-                            )}
+                            {source.configured && source.organization && <span className="box-description">Organization: {source.organization}</span>}
                         </div>
                     </a>
                 ))}

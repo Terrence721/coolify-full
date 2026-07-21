@@ -345,9 +345,7 @@ export default function Change({
 
                 {!githubApp.installationId ? (
                     <>
-                        <div className="mb-10 rounded-sm alert-error">
-                            You must complete this step before you can use this source!
-                        </div>
+                        <div className="mb-10 rounded-sm alert-error">You must complete this step before you can use this source!</div>
                         <a className="items-center justify-center coolbox" href={installationPath}>
                             Install Repositories on GitHub
                         </a>
@@ -393,9 +391,7 @@ export default function Change({
                                                 Rename
                                             </a>
                                         )}
-                                        {canUpdate && (
-                                            <a href={installationPath}>Update Repositories</a>
-                                        )}
+                                        {canUpdate && <a href={installationPath}>Update Repositories</a>}
                                     </div>
                                     <label className="flex flex-col gap-1">
                                         Organization
@@ -422,9 +418,9 @@ export default function Change({
                                             </label>
                                             {data.isSystemWide && (
                                                 <div className="alert-warning">
-                                                    System-wide GitHub Apps are shared across all teams on this Coolify instance. This means any
-                                                    team can use this GitHub App to deploy applications from your repositories. For better security
-                                                    and isolation, it's recommended to create team-specific GitHub Apps instead.
+                                                    System-wide GitHub Apps are shared across all teams on this Coolify instance. This means any team
+                                                    can use this GitHub App to deploy applications from your repositories. For better security and
+                                                    isolation, it's recommended to create team-specific GitHub Apps instead.
                                                 </div>
                                             )}
                                         </>

@@ -66,13 +66,7 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                     <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                         <label className="flex flex-col gap-1 w-full">
                             IP Address/Domain
-                            <input
-                                id="add-server-ip"
-                                name="add-server-ip"
-                                required
-                                value={data.ip}
-                                onChange={(e) => setData('ip', e.target.value)}
-                            />
+                            <input id="add-server-ip" name="add-server-ip" required value={data.ip} onChange={(e) => setData('ip', e.target.value)} />
                             {errors.ip && <span className="text-error">{errors.ip}</span>}
                         </label>
                         <label className="flex flex-col gap-1">

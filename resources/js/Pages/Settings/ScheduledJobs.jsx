@@ -142,7 +142,10 @@ export default function ScheduledJobs({
                                         </tr>
                                     ) : (
                                         executions.map((execution) => (
-                                            <tr key={`exec-${execution.type}-${execution.id}`} className="border-b border-gray-200 dark:border-coolgray-400">
+                                            <tr
+                                                key={`exec-${execution.type}-${execution.id}`}
+                                                className="border-b border-gray-200 dark:border-coolgray-400"
+                                            >
                                                 <td className="px-4 py-3">
                                                     <span className={`px-2 py-1 rounded-md text-xs font-medium ${TYPE_STYLES[execution.type] ?? ''}`}>
                                                         {execution.type.charAt(0).toUpperCase() + execution.type.slice(1)}
@@ -160,7 +163,11 @@ export default function ScheduledJobs({
                                                     <span className="block text-xs text-gray-500">{execution.created_at_formatted}</span>
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap">
-                                                    {execution.duration_seconds !== null ? `${execution.duration_seconds}s` : execution.status === 'running' ? '…' : '-'}
+                                                    {execution.duration_seconds !== null
+                                                        ? `${execution.duration_seconds}s`
+                                                        : execution.status === 'running'
+                                                          ? '…'
+                                                          : '-'}
                                                 </td>
                                                 <td className="px-4 py-3 max-w-xs truncate" title={execution.message}>
                                                     {execution.message}
@@ -205,7 +212,11 @@ export default function ScheduledJobs({
                                                 <td className="px-4 py-2">{run.duration_ms !== null ? `${run.duration_ms}ms` : '-'}</td>
                                                 <td className="px-4 py-2">{run.dispatched ?? '-'}</td>
                                                 <td className="px-4 py-2">
-                                                    {(run.skipped ?? 0) > 0 ? <span className="text-warning">{run.skipped}</span> : (run.skipped ?? '-')}
+                                                    {(run.skipped ?? 0) > 0 ? (
+                                                        <span className="text-warning">{run.skipped}</span>
+                                                    ) : (
+                                                        (run.skipped ?? '-')
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))

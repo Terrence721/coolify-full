@@ -5,16 +5,7 @@ import ServerSidebar from '../../../Components/ServerSidebar';
 
 const CA_CERT_PATH = '/data/coolify/ssl/coolify-ca.crt';
 
-export default function Show({
-    serverNavbar,
-    sidebar,
-    certificateContent,
-    certificateValidUntil,
-    canManage,
-    canView,
-    saveUrl,
-    regenerateUrl,
-}) {
+export default function Show({ serverNavbar, sidebar, certificateContent, certificateValidUntil, canManage, canView, saveUrl, regenerateUrl }) {
     const [showCertificate, setShowCertificate] = useState(false);
     const { data, setData, post, processing } = useForm({ certificateContent });
 
@@ -42,7 +33,9 @@ export default function Show({
             <span className="text-sm">
                 (Valid until:{' '}
                 {isExpired || isExpiringSoon ? (
-                    <span className="text-red-500">{formatted} - {isExpired ? 'Expired' : 'Expiring soon'})</span>
+                    <span className="text-red-500">
+                        {formatted} - {isExpired ? 'Expired' : 'Expiring soon'})
+                    </span>
                 ) : (
                     <span>{formatted})</span>
                 )}
@@ -84,14 +77,20 @@ export default function Show({
                             <p className="font-medium mb-2">Recommended Configuration:</p>
                             <ul className="list-disc pl-5 space-y-1">
                                 <li>
-                                    Mount this CA certificate of Coolify into all containers that need to connect to one of
-                                    your databases over SSL. You can see and copy the bind mount below.
+                                    Mount this CA certificate of Coolify into all containers that need to connect to one of your databases over SSL.
+                                    You can see and copy the bind mount below.
                                 </li>
                                 <li>
                                     Read more when and why this is needed{' '}
-                                    <a className="underline dark:text-white" href="https://coolify.io/docs/databases/ssl" target="_blank" rel="noreferrer">
+                                    <a
+                                        className="underline dark:text-white"
+                                        href="https://coolify.io/docs/databases/ssl"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
                                         here
-                                    </a>.
+                                    </a>
+                                    .
                                 </li>
                             </ul>
                         </div>

@@ -22,7 +22,9 @@ export default function ExecutionCard({ execution }) {
                 : execution.status;
 
     return (
-        <div className={`relative flex flex-col border-l-2 transition-colors p-4 bg-white dark:bg-coolgray-100 text-black dark:text-white ${STATUS_BORDER[execution.status] ?? ''}`}>
+        <div
+            className={`relative flex flex-col border-l-2 transition-colors p-4 bg-white dark:bg-coolgray-100 text-black dark:text-white ${STATUS_BORDER[execution.status] ?? ''}`}
+        >
             <div className="flex items-center gap-2 mb-2">
                 <span className="px-3 py-1 rounded-md text-xs font-medium tracking-wide shadow-xs bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-200">
                     {statusText}

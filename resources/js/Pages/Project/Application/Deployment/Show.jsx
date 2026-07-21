@@ -52,10 +52,7 @@ export default function Show({ application, heading, configurationChecker, deplo
 
     const query = searchQuery.trim().toLowerCase();
 
-    const displayLines = useMemo(
-        () => logLines.map((line) => ({ ...line, text: (line.command ? '[CMD]: ' : '') + line.line })),
-        [logLines]
-    );
+    const displayLines = useMemo(() => logLines.map((line) => ({ ...line, text: (line.command ? '[CMD]: ' : '') + line.line })), [logLines]);
 
     const visibleLines = useMemo(() => {
         if (!query) return displayLines;
@@ -97,7 +94,7 @@ export default function Show({ application, heading, configurationChecker, deplo
             parts.push(
                 <span key={key++} className="log-highlight">
                     {text.slice(index, index + query.length)}
-                </span>
+                </span>,
             );
             lastIndex = index + query.length;
             index = lower.indexOf(query, lastIndex);

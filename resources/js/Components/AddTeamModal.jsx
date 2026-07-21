@@ -26,13 +26,7 @@ export default function AddTeamModal({ createUrl, onClose }) {
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <label className="flex flex-col gap-1">
                         Name
-                        <input
-                            id="add-team-name"
-                            name="add-team-name"
-                            required
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                        />
+                        <input id="add-team-name" name="add-team-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
                         {errors.name && <span className="text-error">{errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">

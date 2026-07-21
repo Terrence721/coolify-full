@@ -2,16 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import DeleteEnvironmentModal from '../../Components/DeleteEnvironmentModal';
 
-export default function EnvironmentEdit({
-    project,
-    environment,
-    canUpdate,
-    canDelete,
-    projectShowUrl,
-    resourceIndexUrl,
-    updateUrl,
-    deleteUrl,
-}) {
+export default function EnvironmentEdit({ project, environment, canUpdate, canDelete, projectShowUrl, resourceIndexUrl, updateUrl, deleteUrl }) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const { data, setData, put, processing, errors } = useForm({
         name: environment.name ?? '',
@@ -80,13 +71,7 @@ export default function EnvironmentEdit({
                 </div>
             </form>
 
-            {showDeleteModal && (
-                <DeleteEnvironmentModal
-                    environment={environment}
-                    deleteUrl={deleteUrl}
-                    onClose={() => setShowDeleteModal(false)}
-                />
-            )}
+            {showDeleteModal && <DeleteEnvironmentModal environment={environment} deleteUrl={deleteUrl} onClose={() => setShowDeleteModal(false)} />}
         </div>
     );
 }

@@ -26,15 +26,7 @@ function getLogLevel(content) {
  * per-container in the original) isn't ported — every container's logs are always
  * fetched eagerly instead of lazily on expand.
  */
-export default function ContainerLogs({
-    displayName,
-    logLines,
-    numberOfLines,
-    showTimestamps,
-    urls,
-    reloadKeys = ['logLines'],
-    queryPrefix = '',
-}) {
+export default function ContainerLogs({ displayName, logLines, numberOfLines, showTimestamps, urls, reloadKeys = ['logLines'], queryPrefix = '' }) {
     const [fullscreen, setFullscreen] = useState(false);
     const [alwaysScroll, setAlwaysScroll] = useState(false);
     const [streaming, setStreaming] = useState(false);
@@ -65,10 +57,7 @@ export default function ContainerLogs({
 
     const query = searchQuery.trim().toLowerCase();
 
-    const displayLines = useMemo(
-        () => logLines.map((line) => ({ ...line, level: getLogLevel(line.line) })),
-        [logLines]
-    );
+    const displayLines = useMemo(() => logLines.map((line) => ({ ...line, level: getLogLevel(line.line) })), [logLines]);
 
     const visibleLines = useMemo(
         () =>
@@ -77,7 +66,7 @@ export default function ContainerLogs({
 
                 return !query || line.line.toLowerCase().includes(query);
             }),
-        [displayLines, logFilters, query]
+        [displayLines, logFilters, query],
     );
 
     const matchCount = query ? visibleLines.length : 0;
@@ -114,7 +103,7 @@ export default function ContainerLogs({
             parts.push(
                 <span key={key++} className="log-highlight">
                     {text.slice(index, index + query.length)}
-                </span>
+                </span>,
             );
             lastIndex = index + query.length;
             index = lower.indexOf(query, lastIndex);
@@ -156,7 +145,7 @@ export default function ContainerLogs({
         router.get(
             window.location.pathname,
             { ...currentQueryParams(), [`${queryPrefix}lines`]: newLines, [`${queryPrefix}timestamps`]: newTimestamps ? 1 : 0 },
-            { preserveState: true, preserveScroll: true, only: reloadKeys }
+            { preserveState: true, preserveScroll: true, only: reloadKeys },
         );
     }
 
@@ -231,7 +220,12 @@ export default function ContainerLogs({
                         <button type="button" title="Refresh Logs" disabled={streaming} onClick={refresh}>
                             Refresh
                         </button>
-                        <button type="button" title={streaming ? 'Stop Streaming' : 'Stream Logs'} className={streaming ? 'text-warning!' : ''} onClick={() => setStreaming((v) => !v)}>
+                        <button
+                            type="button"
+                            title={streaming ? 'Stop Streaming' : 'Stream Logs'}
+                            className={streaming ? 'text-warning!' : ''}
+                            onClick={() => setStreaming((v) => !v)}
+                        >
                             {streaming ? 'Stop' : 'Stream'}
                         </button>
                         <button type="button" title="Copy Logs" onClick={copyLogs}>
@@ -278,7 +272,12 @@ export default function ContainerLogs({
                                     <div className="py-1">
                                         {Object.keys(LEVEL_COLORS).map((level) => (
                                             <label key={level} className="flex items-center gap-2 px-4 py-1.5 text-sm cursor-pointer select-none">
-                                                <input id={`${queryPrefix}logs-filter-${level}`} type="checkbox" checked={logFilters[level]} onChange={() => toggleLogFilter(level)} />
+                                                <input
+                                                    id={`${queryPrefix}logs-filter-${level}`}
+                                                    type="checkbox"
+                                                    checked={logFilters[level]}
+                                                    onChange={() => toggleLogFilter(level)}
+                                                />
                                                 <span className={`w-2.5 h-2.5 rounded-full ${LEVEL_COLORS[level]}`} />
                                                 {level.charAt(0).toUpperCase() + level.slice(1)}
                                             </label>
@@ -287,7 +286,12 @@ export default function ContainerLogs({
                                 </div>
                             )}
                         </div>
-                        <button type="button" title="Follow Logs" className={alwaysScroll ? 'text-warning!' : ''} onClick={() => setAlwaysScroll((v) => !v)}>
+                        <button
+                            type="button"
+                            title="Follow Logs"
+                            className={alwaysScroll ? 'text-warning!' : ''}
+                            onClick={() => setAlwaysScroll((v) => !v)}
+                        >
                             Follow
                         </button>
                         <button type="button" title={fullscreen ? 'Minimize' : 'Fullscreen'} onClick={() => setFullscreen((v) => !v)}>

@@ -34,7 +34,9 @@ export default function Advanced({
                     <div>
                         <div className="flex items-center gap-2">
                             <h2>Advanced</h2>
-                            <button type="submit" disabled={processing}>Save</button>
+                            <button type="submit" disabled={processing}>
+                                Save
+                            </button>
                         </div>
                         <div className="mb-4">Advanced configuration for your server.</div>
                     </div>
@@ -52,9 +54,7 @@ export default function Advanced({
                                     value={data.serverDiskUsageCheckFrequency}
                                     onChange={(e) => setData('serverDiskUsageCheckFrequency', e.target.value)}
                                 />
-                                {errors.serverDiskUsageCheckFrequency && (
-                                    <span className="text-error">{errors.serverDiskUsageCheckFrequency}</span>
-                                )}
+                                {errors.serverDiskUsageCheckFrequency && <span className="text-error">{errors.serverDiskUsageCheckFrequency}</span>}
                             </label>
                             <label className="flex flex-col gap-1">
                                 Server disk usage notification threshold (%)

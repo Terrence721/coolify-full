@@ -25,9 +25,7 @@ export default function Sentinel({
     const [isSentinelDebugEnabled, setIsSentinelDebugEnabled] = useState(initialIsSentinelDebugEnabled);
     const [sentinelToken, setSentinelToken] = useState(initialSentinelToken ?? '');
     const [sentinelCustomUrl, setSentinelCustomUrl] = useState(initialSentinelCustomUrl ?? '');
-    const [sentinelMetricsRefreshRateSeconds, setSentinelMetricsRefreshRateSeconds] = useState(
-        initialSentinelMetricsRefreshRateSeconds,
-    );
+    const [sentinelMetricsRefreshRateSeconds, setSentinelMetricsRefreshRateSeconds] = useState(initialSentinelMetricsRefreshRateSeconds);
     const [sentinelMetricsHistoryDays, setSentinelMetricsHistoryDays] = useState(initialSentinelMetricsHistoryDays);
     const [sentinelPushIntervalSeconds, setSentinelPushIntervalSeconds] = useState(initialSentinelPushIntervalSeconds);
     const [submitting, setSubmitting] = useState(false);

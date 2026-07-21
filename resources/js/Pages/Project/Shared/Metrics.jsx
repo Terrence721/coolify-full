@@ -24,25 +24,65 @@ function ApplicationSidebar({ parameters, sidebarFlags }) {
 
     return (
         <div className="sub-menu-wrapper">
-            <a className="sub-menu-item" href={base}>General</a>
-            <a className="sub-menu-item" href={`${base}/advanced`}>Advanced</a>
-            {sidebarFlags.isSwarm && <a className="sub-menu-item" href={`${base}/swarm`}>Swarm</a>}
-            <a className="sub-menu-item" href={`${base}/environment-variables`}>Environment Variables</a>
-            <a className="sub-menu-item" href={`${base}/persistent-storage`}>Persistent Storage</a>
-            {sidebarFlags.isGitBased && <a className="sub-menu-item" href={`${base}/source`}>Git Source</a>}
-            <a className="sub-menu-item" href={`${base}/servers`}>Servers</a>
-            <a className="sub-menu-item" href={`${base}/scheduled-tasks`}>Scheduled Tasks</a>
-            <a className="sub-menu-item" href={`${base}/webhooks`}>Webhooks</a>
-            {(sidebarFlags.isGitBased || sidebarFlags.isDockerImage) && (
-                <a className="sub-menu-item" href={`${base}/preview-deployments`}>Preview Deployments</a>
+            <a className="sub-menu-item" href={base}>
+                General
+            </a>
+            <a className="sub-menu-item" href={`${base}/advanced`}>
+                Advanced
+            </a>
+            {sidebarFlags.isSwarm && (
+                <a className="sub-menu-item" href={`${base}/swarm`}>
+                    Swarm
+                </a>
             )}
-            {!sidebarFlags.isDockerCompose && <a className="sub-menu-item" href={`${base}/healthcheck`}>Healthcheck</a>}
-            <a className="sub-menu-item" href={`${base}/rollback`}>Rollback</a>
-            <a className="sub-menu-item" href={`${base}/resource-limits`}>Resource Limits</a>
-            <a className="sub-menu-item" href={`${base}/resource-operations`}>Resource Operations</a>
-            <a className="sub-menu-item menu-item-active" href={`${base}/metrics`}>Metrics</a>
-            <a className="sub-menu-item" href={`${base}/tags`}>Tags</a>
-            <a className="sub-menu-item" href={`${base}/danger`}>Danger Zone</a>
+            <a className="sub-menu-item" href={`${base}/environment-variables`}>
+                Environment Variables
+            </a>
+            <a className="sub-menu-item" href={`${base}/persistent-storage`}>
+                Persistent Storage
+            </a>
+            {sidebarFlags.isGitBased && (
+                <a className="sub-menu-item" href={`${base}/source`}>
+                    Git Source
+                </a>
+            )}
+            <a className="sub-menu-item" href={`${base}/servers`}>
+                Servers
+            </a>
+            <a className="sub-menu-item" href={`${base}/scheduled-tasks`}>
+                Scheduled Tasks
+            </a>
+            <a className="sub-menu-item" href={`${base}/webhooks`}>
+                Webhooks
+            </a>
+            {(sidebarFlags.isGitBased || sidebarFlags.isDockerImage) && (
+                <a className="sub-menu-item" href={`${base}/preview-deployments`}>
+                    Preview Deployments
+                </a>
+            )}
+            {!sidebarFlags.isDockerCompose && (
+                <a className="sub-menu-item" href={`${base}/healthcheck`}>
+                    Healthcheck
+                </a>
+            )}
+            <a className="sub-menu-item" href={`${base}/rollback`}>
+                Rollback
+            </a>
+            <a className="sub-menu-item" href={`${base}/resource-limits`}>
+                Resource Limits
+            </a>
+            <a className="sub-menu-item" href={`${base}/resource-operations`}>
+                Resource Operations
+            </a>
+            <a className="sub-menu-item menu-item-active" href={`${base}/metrics`}>
+                Metrics
+            </a>
+            <a className="sub-menu-item" href={`${base}/tags`}>
+                Tags
+            </a>
+            <a className="sub-menu-item" href={`${base}/danger`}>
+                Danger Zone
+            </a>
         </div>
     );
 }
@@ -52,18 +92,44 @@ function DatabaseSidebar({ parameters, sidebarFlags }) {
 
     return (
         <div className="sub-menu-wrapper">
-            <a className="sub-menu-item" href={base}>General</a>
-            <a className="sub-menu-item" href={`${base}/environment-variables`}>Environment Variables</a>
-            <a className="sub-menu-item" href={`${base}/servers`}>Servers</a>
-            <a className="sub-menu-item" href={`${base}/persistent-storage`}>Persistent Storage</a>
-            {sidebarFlags.canUpdate && <a className="sub-menu-item" href={`${base}/import-backup`}>Import Backup</a>}
-            <a className="sub-menu-item" href={`${base}/webhooks`}>Webhooks</a>
-            <a className="sub-menu-item" href={`${base}/healthcheck`}>Healthcheck</a>
-            <a className="sub-menu-item" href={`${base}/resource-limits`}>Resource Limits</a>
-            <a className="sub-menu-item" href={`${base}/resource-operations`}>Resource Operations</a>
-            <a className="sub-menu-item menu-item-active" href={`${base}/metrics`}>Metrics</a>
-            <a className="sub-menu-item" href={`${base}/tags`}>Tags</a>
-            <a className="sub-menu-item" href={`${base}/danger`}>Danger Zone</a>
+            <a className="sub-menu-item" href={base}>
+                General
+            </a>
+            <a className="sub-menu-item" href={`${base}/environment-variables`}>
+                Environment Variables
+            </a>
+            <a className="sub-menu-item" href={`${base}/servers`}>
+                Servers
+            </a>
+            <a className="sub-menu-item" href={`${base}/persistent-storage`}>
+                Persistent Storage
+            </a>
+            {sidebarFlags.canUpdate && (
+                <a className="sub-menu-item" href={`${base}/import-backup`}>
+                    Import Backup
+                </a>
+            )}
+            <a className="sub-menu-item" href={`${base}/webhooks`}>
+                Webhooks
+            </a>
+            <a className="sub-menu-item" href={`${base}/healthcheck`}>
+                Healthcheck
+            </a>
+            <a className="sub-menu-item" href={`${base}/resource-limits`}>
+                Resource Limits
+            </a>
+            <a className="sub-menu-item" href={`${base}/resource-operations`}>
+                Resource Operations
+            </a>
+            <a className="sub-menu-item menu-item-active" href={`${base}/metrics`}>
+                Metrics
+            </a>
+            <a className="sub-menu-item" href={`${base}/tags`}>
+                Tags
+            </a>
+            <a className="sub-menu-item" href={`${base}/danger`}>
+                Danger Zone
+            </a>
         </div>
     );
 }
@@ -170,7 +236,9 @@ export default function Metrics({
         <div>
             <h1>Configuration</h1>
             <ConfigurationChecker configurationChecker={configurationChecker} />
-            {resourceType === 'application' && <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={headingUrls} />}
+            {resourceType === 'application' && (
+                <ApplicationHeading application={application} heading={heading} parameters={parameters} urls={headingUrls} />
+            )}
             {resourceType === 'database' && <DatabaseHeading heading={databaseHeading} urls={headingUrls} />}
 
             <div className="flex flex-col h-full gap-8 sm:flex-row">
@@ -183,9 +251,7 @@ export default function Metrics({
                     <div className="flex items-center gap-2">
                         <h2>Metrics</h2>
                     </div>
-                    <div className="pb-4">
-                        Basic metrics for your {resourceType === 'application' ? 'application' : 'database'} container.
-                    </div>
+                    <div className="pb-4">Basic metrics for your {resourceType === 'application' ? 'application' : 'database'} container.</div>
 
                     {isUnavailable ? (
                         <div className="p-3 border border-yellow-500/30 bg-yellow-500/10 text-sm rounded">

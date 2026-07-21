@@ -7,11 +7,7 @@ import { Link } from '@inertiajs/react';
  */
 export default function ServerSidebar({ sidebar }) {
     const item = (key, label, href) => (
-        <Link
-            key={key}
-            className={`sub-menu-item ${sidebar.activeMenu === key ? 'menu-item-active' : ''}`}
-            href={href}
-        >
+        <Link key={key} className={`sub-menu-item ${sidebar.activeMenu === key ? 'menu-item-active' : ''}`} href={href}>
             <span className="menu-item-label">{label}</span>
         </Link>
     );
@@ -37,10 +33,7 @@ export default function ServerSidebar({ sidebar }) {
                         >
                             <span className="menu-item-label">Dynamic Configurations</span>
                         </a>
-                        <a
-                            className={`sub-menu-item ${sidebar.activeMenu === 'logs' ? 'menu-item-active' : ''}`}
-                            href={sidebar.urls.logs}
-                        >
+                        <a className={`sub-menu-item ${sidebar.activeMenu === 'logs' ? 'menu-item-active' : ''}`} href={sidebar.urls.logs}>
                             <span className="menu-item-label">Logs</span>
                         </a>
                     </>
@@ -53,10 +46,7 @@ export default function ServerSidebar({ sidebar }) {
         return (
             <div className="sub-menu-wrapper">
                 {item('configuration', 'Configuration', sidebar.urls.configuration)}
-                <a
-                    className={`sub-menu-item ${sidebar.activeMenu === 'logs' ? 'menu-item-active' : ''}`}
-                    href={sidebar.urls.logs}
-                >
+                <a className={`sub-menu-item ${sidebar.activeMenu === 'logs' ? 'menu-item-active' : ''}`} href={sidebar.urls.logs}>
                     <span className="menu-item-label">Logs</span>
                 </a>
             </div>

@@ -59,9 +59,13 @@ export default function Configuration(props) {
                             canUpdate={canUpdate}
                         />
                     )}
-                    {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={canUpdate} />}
+                    {tab === 'tags' && (
+                        <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={canUpdate} />
+                    )}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}
-                    {tab === 'resource-limits' && <ResourceLimitsTab limits={props.limits} limitsUpdateUrl={props.limitsUpdateUrl} canUpdate={canUpdate} />}
+                    {tab === 'resource-limits' && (
+                        <ResourceLimitsTab limits={props.limits} limitsUpdateUrl={props.limitsUpdateUrl} canUpdate={canUpdate} />
+                    )}
                     {tab === 'resource-operations' && (
                         <ResourceOperationsTab
                             servers={props.servers}
@@ -98,7 +102,12 @@ export default function Configuration(props) {
                     {tab === 'swarm' && <SwarmTab swarm={props.swarm} swarmUpdateUrl={props.swarmUpdateUrl} canUpdate={canUpdate} />}
                     {tab === 'rollback' && <RollbackTab rollback={props.rollback} rollbackUrls={props.rollbackUrls} />}
                     {tab === 'configuration' && (
-                        <ApplicationGeneralTab general={props.general} resourceDetails={props.resourceDetails} generalUrls={props.generalUrls} canUpdate={canUpdate} />
+                        <ApplicationGeneralTab
+                            general={props.general}
+                            resourceDetails={props.resourceDetails}
+                            generalUrls={props.generalUrls}
+                            canUpdate={canUpdate}
+                        />
                     )}
                     {tab === 'preview-deployments' && (
                         <PreviewDeploymentsTab previews={props.previews} previewUrls={props.previewUrls} canUpdate={canUpdate} />

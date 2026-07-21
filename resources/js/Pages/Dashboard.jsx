@@ -141,9 +141,7 @@ export default function Dashboard({
                 )}
             </section>
 
-            {showAddProjectModal && (
-                <AddProjectModal createUrl={createProjectUrl} onClose={() => setShowAddProjectModal(false)} />
-            )}
+            {showAddProjectModal && <AddProjectModal createUrl={createProjectUrl} onClose={() => setShowAddProjectModal(false)} />}
             {showAddServerModal && (
                 <AddServerModal
                     privateKeys={privateKeys}

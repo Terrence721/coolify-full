@@ -50,7 +50,13 @@ export default function GitApplicationFields({ data, setData, errors, children }
                 {children}
                 <label className="flex flex-col flex-1 gap-1">
                     Build Pack
-                    <select id="git-fields-build-pack" name="git-fields-build-pack" required value={data.build_pack} onChange={(e) => setBuildPack(e.target.value)}>
+                    <select
+                        id="git-fields-build-pack"
+                        name="git-fields-build-pack"
+                        required
+                        value={data.build_pack}
+                        onChange={(e) => setBuildPack(e.target.value)}
+                    >
                         <option value="nixpacks">Nixpacks</option>
                         <option value="railpack">Railpack (Beta)</option>
                         <option value="static">Static</option>
@@ -138,7 +144,12 @@ export default function GitApplicationFields({ data, setData, errors, children }
                     </label>
                     <div className="w-64">
                         <label className="flex gap-2 items-center">
-                            <input id="git-fields-is-static" type="checkbox" checked={data.is_static} onChange={(e) => toggleIsStatic(e.target.checked)} />
+                            <input
+                                id="git-fields-is-static"
+                                type="checkbox"
+                                checked={data.is_static}
+                                onChange={(e) => toggleIsStatic(e.target.checked)}
+                            />
                             Is it a static site?
                         </label>
                     </div>

@@ -42,9 +42,7 @@ function ResourceCard({ item }) {
                     <div className="max-w-full px-4 pt-1 truncate box-description">
                         Server: <span>{item.destination?.server?.name || 'Unknown'}</span>
                     </div>
-                    {item.server_status === false && (
-                        <div className="px-4 text-xs font-bold text-error">Server is unreachable or misconfigured</div>
-                    )}
+                    {item.server_status === false && <div className="px-4 text-xs font-bold text-error">Server is unreachable or misconfigured</div>}
                 </div>
             </a>
             <div className="flex flex-wrap gap-1 pt-1 dark:group-hover:text-white group-hover:text-black group min-h-6">
@@ -233,9 +231,7 @@ export default function Index({
                                     <p className="text-neutral-600 dark:text-neutral-400">
                                         No resource found with the search term "<span className="font-semibold">{search}</span>".
                                     </p>
-                                    <p className="text-sm text-neutral-500 dark:text-neutral-500 mt-1">
-                                        Try adjusting your search criteria.
-                                    </p>
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-500 mt-1">Try adjusting your search criteria.</p>
                                 </div>
                             ) : (
                                 <div>
@@ -285,13 +281,7 @@ export default function Index({
                 </div>
             )}
 
-            {showDeleteModal && (
-                <DeleteEnvironmentModal
-                    environment={environment}
-                    deleteUrl={deleteUrl}
-                    onClose={() => setShowDeleteModal(false)}
-                />
-            )}
+            {showDeleteModal && <DeleteEnvironmentModal environment={environment} deleteUrl={deleteUrl} onClose={() => setShowDeleteModal(false)} />}
         </div>
     );
 }

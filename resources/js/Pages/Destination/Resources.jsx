@@ -49,15 +49,14 @@ export default function Resources({ destination, resources, showUrl }) {
                                 </thead>
                                 <tbody className="divide-y">
                                     {filtered.map((row) => (
-                                        <tr key={`destination-resource-${row.type}-${row.uuid}`} className="dark:hover:bg-coolgray-300 hover:bg-neutral-100">
+                                        <tr
+                                            key={`destination-resource-${row.type}-${row.uuid}`}
+                                            className="dark:hover:bg-coolgray-300 hover:bg-neutral-100"
+                                        >
                                             <td className="px-5 py-4 text-sm whitespace-nowrap">{row.project}</td>
                                             <td className="px-5 py-4 text-sm whitespace-nowrap">{row.environment}</td>
                                             <td className="px-5 py-4 text-sm whitespace-nowrap">
-                                                {row.url ? (
-                                                    <a href={row.url}>{row.name}</a>
-                                                ) : (
-                                                    <span>{row.name}</span>
-                                                )}
+                                                {row.url ? <a href={row.url}>{row.name}</a> : <span>{row.name}</span>}
                                             </td>
                                             <td className="px-5 py-4 text-sm whitespace-nowrap">
                                                 {row.type.charAt(0).toUpperCase() + row.type.slice(1)}

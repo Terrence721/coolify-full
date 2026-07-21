@@ -53,18 +53,14 @@ export default function CloneMe({ project, environment, destinations, resources,
                             >
                                 <td
                                     className={`px-5 py-4 text-sm whitespace-nowrap dark:text-white ${
-                                        destinationId === destination.destinationId
-                                            ? 'bg-coollabs text-white'
-                                            : 'dark:bg-coolgray-100 bg-white'
+                                        destinationId === destination.destinationId ? 'bg-coollabs text-white' : 'dark:bg-coolgray-100 bg-white'
                                     }`}
                                 >
                                     {destination.serverName}
                                 </td>
                                 <td
                                     className={`px-5 py-4 text-sm whitespace-nowrap dark:text-white ${
-                                        destinationId === destination.destinationId
-                                            ? 'bg-coollabs text-white'
-                                            : 'dark:bg-coolgray-100 bg-white'
+                                        destinationId === destination.destinationId ? 'bg-coollabs text-white' : 'dark:bg-coolgray-100 bg-white'
                                     }`}
                                 >
                                     {destination.destinationName}
@@ -100,30 +96,15 @@ export default function CloneMe({ project, environment, destinations, resources,
             </div>
 
             <label className="flex items-center gap-2 pt-4">
-                <input
-                    id="clone-volume-data"
-                    type="checkbox"
-                    checked={cloneVolumeData}
-                    onChange={(e) => setCloneVolumeData(e.target.checked)}
-                />
+                <input id="clone-volume-data" type="checkbox" checked={cloneVolumeData} onChange={(e) => setCloneVolumeData(e.target.checked)} />
                 Clone volume data too
             </label>
 
             <div className="flex gap-4 pt-4 w-full">
-                <button
-                    type="button"
-                    className="w-full"
-                    disabled={processing || !destinationId}
-                    onClick={() => submit('project')}
-                >
+                <button type="button" className="w-full" disabled={processing || !destinationId} onClick={() => submit('project')}>
                     Clone to new Project
                 </button>
-                <button
-                    type="button"
-                    className="w-full"
-                    disabled={processing || !destinationId}
-                    onClick={() => submit('environment')}
-                >
+                <button type="button" className="w-full" disabled={processing || !destinationId} onClick={() => submit('environment')}>
                     Clone to new Environment
                 </button>
             </div>

@@ -58,12 +58,7 @@ export default function Show({
                                     <div className="box-description">{key.description}</div>
                                 </div>
                                 {currentPrivateKeyUuid !== key.uuid ? (
-                                    <button
-                                        type="button"
-                                        className="w-full"
-                                        disabled={!canUpdate}
-                                        onClick={() => useKey(key.id)}
-                                    >
+                                    <button type="button" className="w-full" disabled={!canUpdate} onClick={() => useKey(key.id)}>
                                         Use this key
                                     </button>
                                 ) : (

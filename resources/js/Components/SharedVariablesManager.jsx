@@ -360,8 +360,7 @@ export default function SharedVariablesManager({ label, scope, canUpdate, variab
                 )}
             </div>
             <div className="flex items-center gap-1 subtitle">
-                You can use these variables anywhere with{' '}
-                <span className="dark:text-warning text-coollabs">{`{{ ${scope}.VARIABLENAME }}`}</span>
+                You can use these variables anywhere with <span className="dark:text-warning text-coollabs">{`{{ ${scope}.VARIABLENAME }}`}</span>
             </div>
 
             {view === 'normal' ? (

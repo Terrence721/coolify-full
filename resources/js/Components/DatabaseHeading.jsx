@@ -45,16 +45,14 @@ export default function DatabaseHeading({ heading, urls }) {
 
     function restart() {
         const confirmation = window.confirm(
-            'This database will be unavailable during the restart. If the database is currently in use data could be lost. Continue?'
+            'This database will be unavailable during the restart. If the database is currently in use data could be lost. Continue?',
         );
         if (!confirmation) return;
         router.post(urls.restart, {}, { preserveScroll: true });
     }
 
     function stop() {
-        const confirmation = window.confirm(
-            'This database will be stopped. If the database is currently in use data could be lost. Continue?'
-        );
+        const confirmation = window.confirm('This database will be stopped. If the database is currently in use data could be lost. Continue?');
         if (!confirmation) return;
         router.post(urls.stop, { docker_cleanup: heading.dockerCleanupDefault }, { preserveScroll: true });
     }

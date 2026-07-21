@@ -33,35 +33,71 @@ export default function AddStorageModal({ createUrl, onClose }) {
                     <div className="flex gap-2">
                         <label className="flex flex-col gap-1 w-full">
                             Name
-                            <input id="add-storage-name" name="add-storage-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            <input
+                                id="add-storage-name"
+                                name="add-storage-name"
+                                required
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                            />
                             {errors.name && <span className="text-error">{errors.name}</span>}
                         </label>
                         <label className="flex flex-col gap-1 w-full">
                             Description
-                            <input id="add-storage-description" name="add-storage-description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                            <input
+                                id="add-storage-description"
+                                name="add-storage-description"
+                                value={data.description}
+                                onChange={(e) => setData('description', e.target.value)}
+                            />
                             {errors.description && <span className="text-error">{errors.description}</span>}
                         </label>
                     </div>
                     <label className="flex flex-col gap-1">
                         Region
-                        <input id="add-storage-region" name="add-storage-region" required value={data.region} onChange={(e) => setData('region', e.target.value)} />
+                        <input
+                            id="add-storage-region"
+                            name="add-storage-region"
+                            required
+                            value={data.region}
+                            onChange={(e) => setData('region', e.target.value)}
+                        />
                         {errors.region && <span className="text-error">{errors.region}</span>}
                     </label>
                     <div className="flex gap-2">
                         <label className="flex flex-col gap-1 w-full">
                             Access Key
-                            <input id="add-storage-key" name="add-storage-key" required value={data.key} onChange={(e) => setData('key', e.target.value)} />
+                            <input
+                                id="add-storage-key"
+                                name="add-storage-key"
+                                required
+                                value={data.key}
+                                onChange={(e) => setData('key', e.target.value)}
+                            />
                             {errors.key && <span className="text-error">{errors.key}</span>}
                         </label>
                         <label className="flex flex-col gap-1 w-full">
                             Secret Key
-                            <input id="add-storage-secret" name="add-storage-secret" type="password" required value={data.secret} onChange={(e) => setData('secret', e.target.value)} />
+                            <input
+                                id="add-storage-secret"
+                                name="add-storage-secret"
+                                type="password"
+                                required
+                                value={data.secret}
+                                onChange={(e) => setData('secret', e.target.value)}
+                            />
                             {errors.secret && <span className="text-error">{errors.secret}</span>}
                         </label>
                     </div>
                     <label className="flex flex-col gap-1">
                         Bucket
-                        <input id="add-storage-bucket" name="add-storage-bucket" required value={data.bucket} onChange={(e) => setData('bucket', e.target.value)} />
+                        <input
+                            id="add-storage-bucket"
+                            name="add-storage-bucket"
+                            required
+                            value={data.bucket}
+                            onChange={(e) => setData('bucket', e.target.value)}
+                        />
                         {errors.bucket && <span className="text-error">{errors.bucket}</span>}
                     </label>
                     <label className="flex flex-col gap-1">

@@ -5,14 +5,7 @@ import DatabaseHeading from '../../../Components/DatabaseHeading';
 import DatabaseImportTab from '../../../Components/DatabaseImportTab';
 import EnvironmentVariablesTab from '../../../Components/EnvironmentVariablesTab';
 import StoragesTab from '../../../Components/StoragesTab';
-import {
-    DangerTab,
-    ResourceLimitsTab,
-    ResourceOperationsTab,
-    ServersTab,
-    TagsTab,
-    WebhooksTab,
-} from '../../../Components/ResourceTabs';
+import { DangerTab, ResourceLimitsTab, ResourceOperationsTab, ServersTab, TagsTab, WebhooksTab } from '../../../Components/ResourceTabs';
 
 /**
  * React port of App\Livewire\Project\Database\Configuration — all 12 tabs (General, Tags,
@@ -34,7 +27,11 @@ export default function Configuration(props) {
             <div className="flex flex-col h-full gap-8 sm:flex-row">
                 <div className="sub-menu-wrapper">
                     {tabs.map((link) => (
-                        <a key={link.href} className={`sub-menu-item${window.location.href.split('#')[0] === link.href ? ' menu-item-active' : ''}`} href={link.href}>
+                        <a
+                            key={link.href}
+                            className={`sub-menu-item${window.location.href.split('#')[0] === link.href ? ' menu-item-active' : ''}`}
+                            href={link.href}
+                        >
                             <span className="menu-item-label">{link.label}</span>
                         </a>
                     ))}
@@ -69,10 +66,19 @@ export default function Configuration(props) {
                         <DatabaseHealthcheckTab healthcheck={props.healthcheck} healthcheckUrls={props.healthcheckUrls} canUpdate={props.canUpdate} />
                     )}
                     {tab === 'import-backup' && <DatabaseImportTab importTab={props.importTab} flash={props.flash} />}
-                    {tab === 'tags' && <TagsTab tags={props.tags} availableTags={props.availableTags} tagsStoreUrl={props.tagsStoreUrl} canUpdate={props.canUpdate} />}
+                    {tab === 'tags' && (
+                        <TagsTab
+                            tags={props.tags}
+                            availableTags={props.availableTags}
+                            tagsStoreUrl={props.tagsStoreUrl}
+                            canUpdate={props.canUpdate}
+                        />
+                    )}
                     {tab === 'danger' && <DangerTab resourceName={props.resourceName} canDelete={props.canDelete} destroyUrl={props.destroyUrl} />}
                     {tab === 'webhooks' && <WebhooksTab deployWebhook={props.deployWebhook} />}
-                    {tab === 'resource-limits' && <ResourceLimitsTab limits={props.limits} limitsUpdateUrl={props.limitsUpdateUrl} canUpdate={props.canUpdate} />}
+                    {tab === 'resource-limits' && (
+                        <ResourceLimitsTab limits={props.limits} limitsUpdateUrl={props.limitsUpdateUrl} canUpdate={props.canUpdate} />
+                    )}
                     {tab === 'resource-operations' && (
                         <ResourceOperationsTab
                             servers={props.servers}

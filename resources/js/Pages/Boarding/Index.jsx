@@ -345,11 +345,19 @@ export default function Index({
                                     </div>
                                 )}
                                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                                    <button type="button" onClick={() => setShowCreateKeyModal(true)} className="flex flex-col items-center gap-2 py-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCreateKeyModal(true)}
+                                        className="flex flex-col items-center gap-2 py-6"
+                                    >
                                         <h3 className="text-xl font-bold">Use Existing Key</h3>
                                         <p className="text-sm dark:text-neutral-400">I have my own SSH key</p>
                                     </button>
-                                    <button type="button" onClick={() => setShowCreateKeyModal(true)} className="flex flex-col items-center gap-2 py-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCreateKeyModal(true)}
+                                        className="flex flex-col items-center gap-2 py-6"
+                                    >
                                         <h3 className="text-xl font-bold">Generate New Key</h3>
                                         <p className="text-sm dark:text-neutral-400">Create ED25519 key pair</p>
                                     </button>
@@ -417,9 +425,7 @@ export default function Index({
                                     </div>
                                 )}
 
-                                {error && (
-                                    <div className="p-4 text-sm border rounded-lg border-error text-error whitespace-pre-line">{error}</div>
-                                )}
+                                {error && <div className="p-4 text-sm border rounded-lg border-error text-error whitespace-pre-line">{error}</div>}
 
                                 {!installActivity && (
                                     <button
@@ -570,7 +576,9 @@ function ServerDetailsStep({ createServerUrl, privateKeyId, onCreated, error, se
         });
         setSubmitting(false);
         if (!ok) {
-            const fieldErrors = Object.values(data.errors ?? {}).flat().join(' ');
+            const fieldErrors = Object.values(data.errors ?? {})
+                .flat()
+                .join(' ');
             setError(data.message || fieldErrors || 'Failed to create server.');
 
             return;

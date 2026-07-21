@@ -203,7 +203,14 @@ function ProxySection({ generalForm, generalUrls, canUpdate }) {
         <div className="flex flex-col gap-2">
             <h3 className="py-2">Proxy</h3>
             <label className="flex items-center gap-2 w-64">
-                <input id="isPublic" name="isPublic" type="checkbox" checked={isPublic} disabled={!canUpdate} onChange={(e) => toggle(e.target.checked)} />
+                <input
+                    id="isPublic"
+                    name="isPublic"
+                    type="checkbox"
+                    checked={isPublic}
+                    disabled={!canUpdate}
+                    onChange={(e) => toggle(e.target.checked)}
+                />
                 Make it publicly available
             </label>
             <form onSubmit={saveConnection} className="flex flex-col gap-2">
@@ -532,7 +539,14 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
             <div className="flex flex-col gap-4 pt-4">
                 <h3>Advanced</h3>
                 <label className="flex items-center gap-2 w-64">
-                    <input id="isLogDrainEnabled" name="isLogDrainEnabled" type="checkbox" checked={isLogDrainEnabled} disabled={!canUpdate} onChange={(e) => toggleLogDrain(e.target.checked)} />
+                    <input
+                        id="isLogDrainEnabled"
+                        name="isLogDrainEnabled"
+                        type="checkbox"
+                        checked={isLogDrainEnabled}
+                        disabled={!canUpdate}
+                        onChange={(e) => toggleLogDrain(e.target.checked)}
+                    />
                     <span title="Drain logs to your configured log drain endpoint in your Server settings.">Drain Logs</span>
                 </label>
 

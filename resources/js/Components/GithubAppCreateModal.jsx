@@ -43,7 +43,13 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                     <div className="flex gap-2">
                         <label className="flex flex-col flex-1 gap-1">
                             Name
-                            <input id="github-app-create-name" name="github-app-create-name" required value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            <input
+                                id="github-app-create-name"
+                                name="github-app-create-name"
+                                required
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                            />
                             {errors.name && <span className="text-error">{errors.name}</span>}
                         </label>
                         <label className="flex flex-col flex-1 gap-1">
@@ -73,9 +79,9 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                                 <div className="w-full max-w-2xl mx-auto pt-2 dark:text-warning">
                                     <div className="font-bold">Not Recommended</div>
                                     <div className="whitespace-normal wrap-break-word">
-                                        System-wide GitHub Apps are shared across all teams on this Coolify instance. This means any
-                                        team can use this GitHub App to deploy applications from your repositories. For better
-                                        security and isolation, it's recommended to create team-specific GitHub Apps instead.
+                                        System-wide GitHub Apps are shared across all teams on this Coolify instance. This means any team can use this
+                                        GitHub App to deploy applications from your repositories. For better security and isolation, it's recommended
+                                        to create team-specific GitHub Apps instead.
                                     </div>
                                 </div>
                             )}
@@ -96,19 +102,37 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                                 <div className="flex gap-2">
                                     <label className="flex flex-col flex-1 gap-1">
                                         HTML Url
-                                        <input id="github-app-create-html-url" name="github-app-create-html-url" required value={data.htmlUrl} onChange={(e) => setData('htmlUrl', e.target.value)} />
+                                        <input
+                                            id="github-app-create-html-url"
+                                            name="github-app-create-html-url"
+                                            required
+                                            value={data.htmlUrl}
+                                            onChange={(e) => setData('htmlUrl', e.target.value)}
+                                        />
                                         {errors.htmlUrl && <span className="text-error">{errors.htmlUrl}</span>}
                                     </label>
                                     <label className="flex flex-col flex-1 gap-1">
                                         API Url
-                                        <input id="github-app-create-api-url" name="github-app-create-api-url" required value={data.apiUrl} onChange={(e) => setData('apiUrl', e.target.value)} />
+                                        <input
+                                            id="github-app-create-api-url"
+                                            name="github-app-create-api-url"
+                                            required
+                                            value={data.apiUrl}
+                                            onChange={(e) => setData('apiUrl', e.target.value)}
+                                        />
                                         {errors.apiUrl && <span className="text-error">{errors.apiUrl}</span>}
                                     </label>
                                 </div>
                                 <div className="flex gap-2">
                                     <label className="flex flex-col flex-1 gap-1">
                                         Custom Git User
-                                        <input id="github-app-create-custom-user" name="github-app-create-custom-user" required value={data.customUser} onChange={(e) => setData('customUser', e.target.value)} />
+                                        <input
+                                            id="github-app-create-custom-user"
+                                            name="github-app-create-custom-user"
+                                            required
+                                            value={data.customUser}
+                                            onChange={(e) => setData('customUser', e.target.value)}
+                                        />
                                         {errors.customUser && <span className="text-error">{errors.customUser}</span>}
                                     </label>
                                     <label className="flex flex-col flex-1 gap-1">
@@ -127,9 +151,7 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                             </div>
                         )}
                     </div>
-                    {(errors.apiUrl || errors.htmlUrl) && !showAdvanced && (
-                        <span className="text-error">{errors.apiUrl || errors.htmlUrl}</span>
-                    )}
+                    {(errors.apiUrl || errors.htmlUrl) && !showAdvanced && <span className="text-error">{errors.apiUrl || errors.htmlUrl}</span>}
                     <button type="submit" className="mt-4" disabled={processing}>
                         Continue
                     </button>

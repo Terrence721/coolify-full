@@ -100,12 +100,22 @@ export default function ApiTokens({
                     <div className="flex gap-2 items-end w-lg">
                         <label className="flex flex-col gap-1 w-64">
                             Description
-                            <input id="api-token-description" name="api-token-description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                            <input
+                                id="api-token-description"
+                                name="api-token-description"
+                                value={data.description}
+                                onChange={(e) => setData('description', e.target.value)}
+                            />
                             {errors.description && <span className="text-error">{errors.description}</span>}
                         </label>
                         <label className="flex flex-col gap-1">
                             Expires in
-                            <select id="api-token-expires-in-days" name="api-token-expires-in-days" value={data.expires_in_days} onChange={(e) => setData('expires_in_days', e.target.value)}>
+                            <select
+                                id="api-token-expires-in-days"
+                                name="api-token-expires-in-days"
+                                value={data.expires_in_days}
+                                onChange={(e) => setData('expires_in_days', e.target.value)}
+                            >
                                 {Object.entries(expirationOptions).map(([days, label]) => (
                                     <option key={days} value={days}>
                                         {label}
@@ -128,7 +138,13 @@ export default function ApiTokens({
                     </div>
                     <div className="w-64">
                         <label className="flex items-center gap-2">
-                            <input id="api-token-permission-root" type="checkbox" disabled={!canUseRootPermissions} checked={hasRoot} onChange={() => togglePermission('root')} />
+                            <input
+                                id="api-token-permission-root"
+                                type="checkbox"
+                                disabled={!canUseRootPermissions}
+                                checked={hasRoot}
+                                onChange={() => togglePermission('root')}
+                            />
                             {canUseRootPermissions ? 'root' : 'root (admin/owner only)'}
                         </label>
                         {!hasRoot && (
@@ -144,11 +160,21 @@ export default function ApiTokens({
                                     {canUseWritePermissions ? 'write' : 'write (admin/owner only)'}
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input id="api-token-permission-deploy" type="checkbox" checked={data.permissions.includes('deploy')} onChange={() => togglePermission('deploy')} />
+                                    <input
+                                        id="api-token-permission-deploy"
+                                        type="checkbox"
+                                        checked={data.permissions.includes('deploy')}
+                                        onChange={() => togglePermission('deploy')}
+                                    />
                                     deploy
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input id="api-token-permission-read" type="checkbox" checked={data.permissions.includes('read')} onChange={() => togglePermission('read')} />
+                                    <input
+                                        id="api-token-permission-read"
+                                        type="checkbox"
+                                        checked={data.permissions.includes('read')}
+                                        onChange={() => togglePermission('read')}
+                                    />
                                     read
                                 </label>
                                 <label className="flex items-center gap-2">
@@ -169,9 +195,7 @@ export default function ApiTokens({
 
             {newlyCreatedToken && (
                 <>
-                    <div className="py-4 font-bold dark:text-warning">
-                        Please copy this token now. For your security, it won't be shown again.
-                    </div>
+                    <div className="py-4 font-bold dark:text-warning">Please copy this token now. For your security, it won't be shown again.</div>
                     <div className="pb-4 font-bold dark:text-white">{newlyCreatedToken}</div>
                 </>
             )}

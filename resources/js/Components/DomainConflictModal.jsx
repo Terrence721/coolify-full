@@ -20,9 +20,8 @@ export default function DomainConflictModal({ conflicts, onCancel, onConfirm, co
                 </div>
                 <div className="flex flex-col gap-4 p-6">
                     <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20 text-sm">
-                        <strong>Domain Conflict Detected.</strong> The following domain(s) are already in use by other
-                        resources. Using the same domain for multiple resources can cause routing conflicts and
-                        unpredictable behavior.
+                        <strong>Domain Conflict Detected.</strong> The following domain(s) are already in use by other resources. Using the same
+                        domain for multiple resources can cause routing conflicts and unpredictable behavior.
                     </div>
 
                     <ul className="space-y-2 text-sm">

@@ -27,9 +27,7 @@ export default function DeleteProjectModal({ open, onClose, projectName, disable
             <div className="relative flex w-full flex-col rounded-sm border border-neutral-200 bg-white p-6 shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-lg">
                 <h3 className="text-2xl font-bold pb-4">Confirm Project Deletion?</h3>
                 {disabled ? (
-                    <div className="pb-4 text-sm text-warning">
-                        This project has resources defined, please delete them first.
-                    </div>
+                    <div className="pb-4 text-sm text-warning">This project has resources defined, please delete them first.</div>
                 ) : (
                     <>
                         <ul className="list-disc pl-4 pb-4 text-sm">

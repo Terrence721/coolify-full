@@ -81,7 +81,12 @@ export default function Index({
                 <div className="flex flex-col gap-2 lg:flex-row items-end">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input id="profile-name" name="profile-name" value={profile.data.name} onChange={(e) => profile.setData('name', e.target.value)} />
+                        <input
+                            id="profile-name"
+                            name="profile-name"
+                            value={profile.data.name}
+                            onChange={(e) => profile.setData('name', e.target.value)}
+                        />
                         {profile.errors.name && <span className="text-error">{profile.errors.name}</span>}
                     </label>
                     <label className="flex flex-col gap-1">
@@ -110,9 +115,7 @@ export default function Index({
                                 Send Verification Code
                             </button>
                         </div>
-                        <div className="text-xs font-bold dark:text-warning pt-2">
-                            A verification code will be sent to your new email address.
-                        </div>
+                        <div className="text-xs font-bold dark:text-warning pt-2">A verification code will be sent to your new email address.</div>
                     </form>
                 )}
 
@@ -128,9 +131,7 @@ export default function Index({
                                     value={verify.data.email_verification_code}
                                     onChange={(e) => verify.setData('email_verification_code', e.target.value)}
                                 />
-                                {verify.errors.email_verification_code && (
-                                    <span className="text-error">{verify.errors.email_verification_code}</span>
-                                )}
+                                {verify.errors.email_verification_code && <span className="text-error">{verify.errors.email_verification_code}</span>}
                             </label>
                             <button type="submit" disabled={verify.processing}>
                                 Verify &amp; Update Email
@@ -231,7 +232,9 @@ export default function Index({
                     <div>
                         <div className="pb-6">Here are the recovery codes for your account. Please store them in a secure location.</div>
                         <div className="dark:text-white">
-                            {twoFactor.recoveryCodes?.map((code) => <div key={code}>{code}</div>)}
+                            {twoFactor.recoveryCodes?.map((code) => (
+                                <div key={code}>{code}</div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -258,7 +261,9 @@ export default function Index({
                                 <div>
                                     <div className="py-6">Here are the recovery codes for your account. Please store them in a secure location.</div>
                                     <div className="dark:text-white">
-                                        {twoFactor.recoveryCodes?.map((code) => <div key={code}>{code}</div>)}
+                                        {twoFactor.recoveryCodes?.map((code) => (
+                                            <div key={code}>{code}</div>
+                                        ))}
                                     </div>
                                 </div>
                             )}

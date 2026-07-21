@@ -93,19 +93,30 @@ function ApplicationGeneral({ application, urls }) {
             <div className="flex flex-col gap-2">
                 {application.requiredPort && !application.isKnownServiceType && (
                     <div className="text-sm">
-                        This service requires port <strong>{application.requiredPort}</strong> to function correctly. All domains must
-                        include this port number (or any other port if you know what you're doing).
+                        This service requires port <strong>{application.requiredPort}</strong> to function correctly. All domains must include this
+                        port number (or any other port if you know what you're doing).
                     </div>
                 )}
 
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input id="human_name" name="human_name" value={data.human_name} onChange={(e) => setData('human_name', e.target.value)} placeholder="Human readable name" />
+                        <input
+                            id="human_name"
+                            name="human_name"
+                            value={data.human_name}
+                            onChange={(e) => setData('human_name', e.target.value)}
+                            placeholder="Human readable name"
+                        />
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input id="description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input
+                            id="description"
+                            name="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                     </label>
                 </div>
                 <div className="flex gap-2">
@@ -145,8 +156,8 @@ function ApplicationGeneral({ application, urls }) {
                     <div className="relative w-full max-w-lg rounded-sm border border-neutral-200 bg-white p-6 shadow-lg dark:border-coolgray-300 dark:bg-base">
                         <h3 className="text-lg font-bold pb-2">Remove Required Port?</h3>
                         <p className="text-sm pb-4">
-                            This service requires port <strong>{props.flash?.requiredPort}</strong> to function correctly. One or more of
-                            your domains are missing a port number. The service may become unreachable or fail to start if you continue.
+                            This service requires port <strong>{props.flash?.requiredPort}</strong> to function correctly. One or more of your domains
+                            are missing a port number. The service may become unreachable or fail to start if you continue.
                         </p>
                         <div className="flex justify-between gap-2">
                             <button type="button" onClick={() => setConfirmingPort(false)}>
@@ -216,15 +227,36 @@ function ApplicationAdvanced({ application, urls }) {
                     Enable Gzip Compression
                 </label>
                 <label className="flex items-center gap-2">
-                    <input id="is_stripprefix_enabled" name="is_stripprefix_enabled" type="checkbox" checked={data.is_stripprefix_enabled} disabled={processing} onChange={() => toggle('is_stripprefix_enabled')} />
+                    <input
+                        id="is_stripprefix_enabled"
+                        name="is_stripprefix_enabled"
+                        type="checkbox"
+                        checked={data.is_stripprefix_enabled}
+                        disabled={processing}
+                        onChange={() => toggle('is_stripprefix_enabled')}
+                    />
                     Strip Prefixes
                 </label>
                 <label className="flex items-center gap-2">
-                    <input id="exclude_from_status" name="exclude_from_status" type="checkbox" checked={data.exclude_from_status} disabled={processing} onChange={() => toggle('exclude_from_status')} />
+                    <input
+                        id="exclude_from_status"
+                        name="exclude_from_status"
+                        type="checkbox"
+                        checked={data.exclude_from_status}
+                        disabled={processing}
+                        onChange={() => toggle('exclude_from_status')}
+                    />
                     Exclude from service status
                 </label>
                 <label className="flex items-center gap-2">
-                    <input id="is_log_drain_enabled" name="is_log_drain_enabled" type="checkbox" checked={data.is_log_drain_enabled} disabled={processing} onChange={() => toggle('is_log_drain_enabled')} />
+                    <input
+                        id="is_log_drain_enabled"
+                        name="is_log_drain_enabled"
+                        type="checkbox"
+                        checked={data.is_log_drain_enabled}
+                        disabled={processing}
+                        onChange={() => toggle('is_log_drain_enabled')}
+                    />
                     Drain Logs
                 </label>
             </div>
@@ -278,11 +310,22 @@ function DatabaseGeneral({ database, urls }) {
                 <div className="flex gap-2">
                     <label className="flex flex-col gap-1">
                         Name
-                        <input id="database_human_name" name="human_name" value={data.human_name} onChange={(e) => setData('human_name', e.target.value)} placeholder="Name" />
+                        <input
+                            id="database_human_name"
+                            name="human_name"
+                            value={data.human_name}
+                            onChange={(e) => setData('human_name', e.target.value)}
+                            placeholder="Name"
+                        />
                     </label>
                     <label className="flex flex-col gap-1">
                         Description
-                        <input id="database_description" name="description" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                        <input
+                            id="database_description"
+                            name="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                     </label>
                     <label className="flex flex-col gap-1">
                         Image
@@ -301,7 +344,14 @@ function DatabaseGeneral({ database, urls }) {
                         )}
                     </div>
                     <label className="flex items-center gap-2">
-                        <input id="is_public" name="is_public" type="checkbox" checked={publicData.is_public} disabled={publicProcessing} onChange={togglePublic} />
+                        <input
+                            id="is_public"
+                            name="is_public"
+                            type="checkbox"
+                            checked={publicData.is_public}
+                            disabled={publicProcessing}
+                            onChange={togglePublic}
+                        />
                         Make it publicly available
                     </label>
                     <label className="flex flex-col gap-1 w-64">
@@ -420,11 +470,25 @@ function DatabaseAdvanced({ database, urls }) {
             <h2>Advanced</h2>
             <div className="w-full sm:w-96 flex flex-col gap-1 pt-4">
                 <label className="flex items-center gap-2">
-                    <input id="database_exclude_from_status" name="exclude_from_status" type="checkbox" checked={data.exclude_from_status} disabled={processing} onChange={() => toggle('exclude_from_status')} />
+                    <input
+                        id="database_exclude_from_status"
+                        name="exclude_from_status"
+                        type="checkbox"
+                        checked={data.exclude_from_status}
+                        disabled={processing}
+                        onChange={() => toggle('exclude_from_status')}
+                    />
                     Exclude from service status
                 </label>
                 <label className="flex items-center gap-2">
-                    <input id="database_is_log_drain_enabled" name="is_log_drain_enabled" type="checkbox" checked={data.is_log_drain_enabled} disabled={processing} onChange={() => toggle('is_log_drain_enabled')} />
+                    <input
+                        id="database_is_log_drain_enabled"
+                        name="is_log_drain_enabled"
+                        type="checkbox"
+                        checked={data.is_log_drain_enabled}
+                        disabled={processing}
+                        onChange={() => toggle('is_log_drain_enabled')}
+                    />
                     Drain Logs
                 </label>
             </div>
@@ -437,7 +501,18 @@ function DatabaseAdvanced({ database, urls }) {
  * `project.service.index.advanced` routes. `project.service.database.import` deliberately
  * stays on the original Livewire page — see ProjectServiceResourceController's docblock.
  */
-export default function Resource({ resourceType, tab, service, serviceHeadingUrls, parameters, serviceParameters, application, database, urls, importTab }) {
+export default function Resource({
+    resourceType,
+    tab,
+    service,
+    serviceHeadingUrls,
+    parameters,
+    serviceParameters,
+    application,
+    database,
+    urls,
+    importTab,
+}) {
     const { props: pageProps } = usePage();
     return (
         <div>
@@ -450,7 +525,9 @@ export default function Resource({ resourceType, tab, service, serviceHeadingUrl
                     {resourceType === 'application' && tab === 'advanced' && <ApplicationAdvanced application={application} urls={urls} />}
                     {resourceType === 'database' && tab === 'general' && <DatabaseGeneral database={database} urls={urls} />}
                     {resourceType === 'database' && tab === 'advanced' && <DatabaseAdvanced database={database} urls={urls} />}
-                    {resourceType === 'database' && tab === 'import' && importTab && <DatabaseImportTab importTab={importTab} flash={pageProps.flash} />}
+                    {resourceType === 'database' && tab === 'import' && importTab && (
+                        <DatabaseImportTab importTab={importTab} flash={pageProps.flash} />
+                    )}
                 </div>
             </div>
         </div>

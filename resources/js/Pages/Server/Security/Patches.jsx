@@ -96,7 +96,9 @@ export default function Patches({
                     <div className="relative flex h-[85vh] w-full flex-col rounded-sm border border-neutral-200 bg-white shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-4xl">
                         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-6 py-5 dark:border-coolgray-300">
                             <h3 className="text-2xl font-bold">Updating Packages</h3>
-                            <button type="button" onClick={() => setShowLogs(false)}>✕</button>
+                            <button type="button" onClick={() => setShowLogs(false)}>
+                                ✕
+                            </button>
                         </div>
                         <div className="flex-1 min-h-0 overflow-hidden p-6">
                             <ActivityLog activityId={activityId} header="Logs" fullHeight onFinished={onUpdateFinished} />
@@ -160,7 +162,10 @@ export default function Patches({
                                                         <td className="whitespace-nowrap">
                                                             <span>{update.new_version}</span>
                                                             {packageManager !== 'dnf' && update.current_version && (
-                                                                <span className="text-xs text-neutral-500 pl-1" title={`Current: ${update.current_version}`}>
+                                                                <span
+                                                                    className="text-xs text-neutral-500 pl-1"
+                                                                    title={`Current: ${update.current_version}`}
+                                                                >
                                                                     (current: {update.current_version})
                                                                 </span>
                                                             )}

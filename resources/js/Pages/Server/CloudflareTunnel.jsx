@@ -29,9 +29,7 @@ export default function CloudflareTunnel({
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     function disableTunnel() {
-        const confirmation = window.prompt(
-            'Cloudflare Tunnel will be disabled for this server. Type "DISABLE CLOUDFLARE TUNNEL" to confirm:',
-        );
+        const confirmation = window.prompt('Cloudflare Tunnel will be disabled for this server. Type "DISABLE CLOUDFLARE TUNNEL" to confirm:');
         if (confirmation !== 'DISABLE CLOUDFLARE TUNNEL') return;
         router.post(toggleUrl, {}, { preserveScroll: true });
     }
@@ -59,7 +57,9 @@ export default function CloudflareTunnel({
                     <div className="relative flex h-[85vh] w-full flex-col rounded-sm border border-neutral-200 bg-white shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-4xl">
                         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-6 py-5 dark:border-coolgray-300">
                             <h3 className="text-2xl font-bold">Cloudflare Tunnel Configuration</h3>
-                            <button type="button" onClick={() => setShowLogs(false)}>✕</button>
+                            <button type="button" onClick={() => setShowLogs(false)}>
+                                ✕
+                            </button>
                         </div>
                         <div className="flex-1 min-h-0 overflow-hidden p-6">
                             <ActivityLog activityId={activityId} header="Logs" fullHeight />
@@ -93,9 +93,9 @@ export default function CloudflareTunnel({
                         {isCloudflareTunnelsEnabled ? (
                             <div className="flex flex-col gap-4">
                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded">
-                                    Warning! If you disable Cloudflare Tunnel, you will need to update the server's IP
-                                    address back to its real IP address in the server "General" settings. The server may
-                                    become inaccessible if the IP address is not updated correctly.
+                                    Warning! If you disable Cloudflare Tunnel, you will need to update the server's IP address back to its real IP
+                                    address in the server "General" settings. The server may become inaccessible if the IP address is not updated
+                                    correctly.
                                 </div>
                                 <div className="w-64">
                                     <button type="button" className="text-error" onClick={disableTunnel}>
@@ -106,11 +106,10 @@ export default function CloudflareTunnel({
                         ) : (
                             !isFunctional && (
                                 <div className="p-3 border border-sky-500/30 bg-sky-500/10 text-sm rounded mb-4">
-                                    To <strong>automatically</strong> configure Cloudflare Tunnel, please validate your
-                                    server first. Then you will need a Cloudflare token and an SSH domain configured.
+                                    To <strong>automatically</strong> configure Cloudflare Tunnel, please validate your server first. Then you will
+                                    need a Cloudflare token and an SSH domain configured.
                                     <br />
-                                    To <strong>manually</strong> configure Cloudflare Tunnel, please click below, then
-                                    you should validate the server.
+                                    To <strong>manually</strong> configure Cloudflare Tunnel, please click below, then you should validate the server.
                                 </div>
                             )
                         )}
@@ -143,7 +142,9 @@ export default function CloudflareTunnel({
                                             />
                                             {errors.ssh_domain && <span className="text-error">{errors.ssh_domain}</span>}
                                         </label>
-                                        <button type="submit" disabled={processing}>Continue</button>
+                                        <button type="submit" disabled={processing}>
+                                            Continue
+                                        </button>
                                     </form>
                                 ) : (
                                     <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded mb-4">

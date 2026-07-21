@@ -71,8 +71,8 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                         </div>
                         {errors.update_check_frequency && <span className="text-error">{errors.update_check_frequency}</span>}
                         <div className="text-xs opacity-70">
-                            Frequency (cron expression) to check for new Coolify versions and pull new Service Templates from CDN.
-                            You can use every_minute, hourly, daily, weekly, monthly, yearly. Default is every hour.
+                            Frequency (cron expression) to check for new Coolify versions and pull new Service Templates from CDN. You can use
+                            every_minute, hourly, daily, weekly, monthly, yearly. Default is every hour.
                         </div>
 
                         <h4 className="pt-4">Auto Update</h4>
@@ -107,8 +107,8 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                         )}
                         {errors.auto_update_frequency && <span className="text-error">{errors.auto_update_frequency}</span>}
                         <div className="text-xs opacity-70">
-                            Frequency (cron expression) to automatically update Coolify. You can use every_minute, hourly,
-                            daily, weekly, monthly, yearly. Default is every day at 00:00.
+                            Frequency (cron expression) to automatically update Coolify. You can use every_minute, hourly, daily, weekly, monthly,
+                            yearly. Default is every day at 00:00.
                         </div>
                     </div>
                 </form>

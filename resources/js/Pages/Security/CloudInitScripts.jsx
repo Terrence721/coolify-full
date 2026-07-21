@@ -48,7 +48,9 @@ export default function CloudInitScripts({ scripts, canCreate, storeUrl }) {
                     <nav className="flex items-center gap-6 scrollbar min-h-10">
                         <a href="/security/private-key">Private Keys</a>
                         <a href="/security/cloud-tokens">Cloud Tokens</a>
-                        <a href="/security/cloud-init-scripts" className="dark:text-white">Cloud-Init Scripts</a>
+                        <a href="/security/cloud-init-scripts" className="dark:text-white">
+                            Cloud-Init Scripts
+                        </a>
                         <a href="/security/api-tokens">API Tokens</a>
                     </nav>
                 </div>
@@ -68,9 +70,7 @@ export default function CloudInitScripts({ scripts, canCreate, storeUrl }) {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-                {scripts.length === 0 && (
-                    <div className="text-neutral-500">No cloud-init scripts found. Create one to get started.</div>
-                )}
+                {scripts.length === 0 && <div className="text-neutral-500">No cloud-init scripts found. Create one to get started.</div>}
                 {scripts.map((script) => (
                     <div key={script.id} className="flex flex-col gap-1 p-2 border dark:border-coolgray-200 hover:no-underline">
                         <div className="flex justify-between items-center">
@@ -100,9 +100,7 @@ export default function CloudInitScripts({ scripts, canCreate, storeUrl }) {
                     <div className="absolute inset-0 h-full w-full bg-black/20 backdrop-blur-xs" onClick={closeModal} />
                     <div className="relative flex max-h-[85vh] w-full flex-col rounded-sm border border-neutral-200 bg-white shadow-lg dark:border-coolgray-300 dark:bg-base lg:max-w-2xl">
                         <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-6 py-5 dark:border-coolgray-300">
-                            <h3 className="text-2xl font-bold">
-                                {modalScript.id ? 'Edit Cloud-Init Script' : 'New Cloud-Init Script'}
-                            </h3>
+                            <h3 className="text-2xl font-bold">{modalScript.id ? 'Edit Cloud-Init Script' : 'New Cloud-Init Script'}</h3>
                             <button type="button" onClick={closeModal}>
                                 ✕
                             </button>
