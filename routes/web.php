@@ -78,7 +78,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 Route::post('/forgot-password', [Controller::class, 'forgot_password'])->name('password.forgot')->middleware('throttle:forgot-password');
 Route::get('/realtime', [Controller::class, 'realtime_test'])->middleware('auth');
-Route::get('/verify', [Controller::class, 'verify'])->middleware('auth')->name('verify.email');
+// Named verification.notice (not verify.email) to match Laravel's own convention: the stock
+// 'verified' middleware (Illuminate\Auth\Middleware\EnsureEmailIsVerified) hardcodes a redirect
+// to route('verification.notice'). Without this exact name, any unverified user reaching a
+// 'verified'-protected route (nearly the whole app, see the route group below) got a
+// RouteNotFoundException/500 instead of being redirected to this verify-email screen.
+Route::get('/verify', [Controller::class, 'verify'])->middleware('auth')->name('verification.notice');
 Route::post('/verify/resend', [Controller::class, 'resendVerificationEmail'])->middleware('auth')->name('verify.resend');
 Route::get('/email/verify/{id}/{hash}', [Controller::class, 'email_verify'])->middleware(['auth'])->name('verify.verify');
 Route::middleware(['throttle:login'])->group(function () {

@@ -27,7 +27,7 @@ function verifyEmailActingAs(): User
 it('renders the verify email Inertia page for an unverified user', function () {
     verifyEmailActingAs();
 
-    $response = test()->get(route('verify.email'));
+    $response = test()->get(route('verification.notice'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page

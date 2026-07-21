@@ -39,7 +39,7 @@ class DecideWhatToDoWithUser
                 return $next($request);
             }
 
-            return redirect()->route('verify.email');
+            return redirect()->route('verification.notice');
         }
         if (showBoarding() && ! in_array($request->path(), allowedPathsForBoardingAccounts())) {
             if (Str::startsWith($request->path(), 'invitations')) {

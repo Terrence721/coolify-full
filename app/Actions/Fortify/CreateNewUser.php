@@ -51,6 +51,11 @@ class CreateNewUser implements CreatesNewUsers
             if ($team !== null && ! $user->teams()->where('team_id', $team->id)->exists()) {
                 $user->teams()->attach($team, ['role' => 'owner']);
             }
+            if (isCloud()) {
+                $user->sendVerificationEmail();
+            } else {
+                $user->markEmailAsVerified();
+            }
 
             // Disable registration after first user is created
             $settings = instanceSettings();

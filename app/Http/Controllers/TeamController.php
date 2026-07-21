@@ -317,6 +317,11 @@ class TeamController extends Controller
                 'password' => Hash::make($password),
                 'force_password_reset' => true,
             ]);
+            if (isCloud()) {
+                $user->sendVerificationEmail();
+            } else {
+                $user->markEmailAsVerified();
+            }
             $token = Crypt::encryptString("{$user->email}@@@{$uuid}@@@{$password}");
             $link = route('auth.link', ['token' => $token]);
         }

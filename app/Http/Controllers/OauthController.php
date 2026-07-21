@@ -38,6 +38,10 @@ class OauthController extends Controller
                     'name' => $oauthUser->name,
                     'email' => $email,
                 ]);
+                // The OAuth provider already confirmed this email address as part of its own
+                // login flow, regardless of cloud/non-cloud - unlike the other user-creation
+                // paths, there's no "send our own verification email" case here at all.
+                $user->markEmailAsVerified();
             }
             Auth::login($user);
 
