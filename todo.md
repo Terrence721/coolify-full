@@ -1,7 +1,7 @@
 # 📝 TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 20, 2026**
+**Last Updated: July 21, 2026**
 
 > The WSL2 dev-environment showcase that briefly replaced this file lives at [docs/wsl2-environment.md](docs/wsl2-environment.md).
 
@@ -317,6 +317,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 | Coverage | 80 tests across 11 suites — `Toast.jsx`, `useTeamChannel.js`, `Notifications/Email.jsx`, `ServerNavbar.jsx`, `AppLayout.jsx`, `useAppearance.js`'s `applyZoom()`, `Project/Resource/Create.jsx`, `app.js` (password toggle, info tooltip, 2FA challenge), `GlobalSearchModal.jsx`, `LayoutPopups.jsx`, `WhatsNewButton.jsx` |
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
 | Full detail | Scrum issue #32 (setup, per-suite rationale, verification) |
+| CI | Vitest + Prettier format-check wired into `.github/workflows/quality.yml` as their own jobs (2026-07-21) — both fully clean, no baseline debt. ESLint held out of CI until item 7's `set-state-in-effect` findings are resolved. See `docs/command.md`'s "CI parity" section and issue #34. |
 
 ## 🚧 Still to do
 
@@ -330,7 +331,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 | 4 | Pest browser-testing plugin can't run in this dev setup | Backlog (#11) — Vitest + Testing Library (added 2026-07-20) covers component logic but not real-browser/console behavior. See "Frontend component testing" |
 | 5 | Low-level audit: every top-level folder/file still necessary | Not yet started — Backlog (#2) |
 | 6 | `Application`/`Service` compose-file parsing might be unifiable | Not a known bug, no urgency — not yet on the board |
-| 7 | ESLint's `set-state-in-effect` findings (20) need per-effect review | Prettier baseline (110 files) and 84 of 104 ESLint findings resolved 2026-07-21 — this is what's left, not mechanical, needs individual review — Planned (#33) |
+| 7 | ESLint's `set-state-in-effect` findings (20) need per-effect review | Prettier baseline (110 files) and 84 of 104 ESLint findings resolved 2026-07-21 — this is what's left, not mechanical, needs individual review — Planned (#33). Vitest + Prettier now run in CI (`.github/workflows/quality.yml`'s `vitest`/`prettier` jobs, added 2026-07-21, #34); ESLint follows once this item closes |
 
 ### Migration follow-up
 
