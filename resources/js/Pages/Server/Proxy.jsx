@@ -131,7 +131,7 @@ export default function Proxy({
                                 </div>
                             ) : (
                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded mb-4">
-                                    You don't have permission to configure proxy settings for this server.
+                                    You don&apos;t have permission to configure proxy settings for this server.
                                 </div>
                             )}
                         </div>
@@ -232,7 +232,7 @@ export default function Proxy({
                                         <div className="flex flex-col gap-2 my-4">
                                             {detectedTraefikVersion === 'latest' ? (
                                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded">
-                                                    <div className="font-bold">Using 'latest' Traefik Tag</div>
+                                                    <div className="font-bold">Using &apos;latest&apos; Traefik Tag</div>
                                                     Your proxy container is running the <span className="font-mono">latest</span> tag. While this
                                                     ensures you always have the newest version, it may introduce unexpected breaking changes.
                                                     <br />

@@ -16,7 +16,7 @@ export default function Index({ servers, canCreate, privateKeys, defaultPrivateK
             </div>
             <div className="subtitle">All your servers are here.</div>
             <div className="grid gap-4 lg:grid-cols-2 -mt-1">
-                {servers.length === 0 && <div>No servers found. Without a server, you won't be able to do much.</div>}
+                {servers.length === 0 && <div>No servers found. Without a server, you won&apos;t be able to do much.</div>}
                 {servers.map((server) => (
                     <a
                         key={server.uuid}

@@ -184,8 +184,8 @@ export default function DatabaseImportTab({ importTab, flash }) {
                             </label>
                             {importTab.dbType === 'standalone-postgresql' && (
                                 <div className="flex flex-col gap-1 pt-1 text-xs">
-                                    <span>You can add "--clean" to drop objects before creating them, avoiding conflicts.</span>
-                                    <span>You can add "--verbose" to log more things.</span>
+                                    <span>You can add &quot;--clean&quot; to drop objects before creating them, avoiding conflicts.</span>
+                                    <span>You can add &quot;--verbose&quot; to log more things.</span>
                                 </div>
                             )}
                         </>

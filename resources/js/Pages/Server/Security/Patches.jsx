@@ -33,7 +33,6 @@ export default function Patches({
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     async function checkForUpdates() {

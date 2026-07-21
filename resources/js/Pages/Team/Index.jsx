@@ -77,8 +77,8 @@ export default function Index({ team, canUpdate, canDelete, deletionBlockedReaso
                     <h2>Danger Zone</h2>
                     <div className="pb-4">Woah. I hope you know what are you doing.</div>
                     <h4 className="pb-4">Delete Team</h4>
-                    {deletionBlockedReason === 'default-team' && <div>This is the default team. You can't delete it.</div>}
-                    {deletionBlockedReason === 'last-team' && <div>You can't delete your last / personal team.</div>}
+                    {deletionBlockedReason === 'default-team' && <div>This is the default team. You can&apos;t delete it.</div>}
+                    {deletionBlockedReason === 'last-team' && <div>You can&apos;t delete your last / personal team.</div>}
                     {deletionBlockedReason === 'not-empty' && (
                         <div>
                             <div className="pb-4">You need to delete the following resources to be able to delete the team:</div>

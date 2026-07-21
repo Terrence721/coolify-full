@@ -24,7 +24,6 @@ export default function CloudflareTunnel({
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     function disableTunnel() {
@@ -92,9 +91,9 @@ export default function CloudflareTunnel({
                         {isCloudflareTunnelsEnabled ? (
                             <div className="flex flex-col gap-4">
                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded">
-                                    Warning! If you disable Cloudflare Tunnel, you will need to update the server's IP address back to its real IP
-                                    address in the server "General" settings. The server may become inaccessible if the IP address is not updated
-                                    correctly.
+                                    Warning! If you disable Cloudflare Tunnel, you will need to update the server&apos;s IP address back to its real
+                                    IP address in the server &quot;General&quot; settings. The server may become inaccessible if the IP address is not
+                                    updated correctly.
                                 </div>
                                 <div className="w-64">
                                     <button type="button" className="text-error" onClick={disableTunnel}>
@@ -147,7 +146,7 @@ export default function CloudflareTunnel({
                                     </form>
                                 ) : (
                                     <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded mb-4">
-                                        You don't have permission to configure Cloudflare Tunnel for this server.
+                                        You don&apos;t have permission to configure Cloudflare Tunnel for this server.
                                     </div>
                                 )}
                             </div>
@@ -161,7 +160,7 @@ export default function CloudflareTunnel({
                                 </button>
                             ) : (
                                 <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded mb-4">
-                                    You don't have permission to configure Cloudflare Tunnel for this server.
+                                    You don&apos;t have permission to configure Cloudflare Tunnel for this server.
                                 </div>
                             )}
                         </div>

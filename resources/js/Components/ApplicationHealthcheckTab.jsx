@@ -69,7 +69,7 @@ export default function ApplicationHealthcheckTab({ healthcheck, healthcheckUrls
                     </>
                 )}
             </div>
-            <div className="mt-1 pb-4">Define how your resource's health should be checked.</div>
+            <div className="mt-1 pb-4">Define how your resource&apos;s health should be checked.</div>
             <div className="flex flex-col gap-4">
                 {healthcheck.customHealthcheckFound && (
                     <div className="w-full p-3 text-sm rounded bg-warning/10 text-warning">

@@ -45,7 +45,7 @@ export default function Show({
                             </button>
                         )}
                     </div>
-                    <div className="pb-4">Change your server's private key.</div>
+                    <div className="pb-4">Change your server&apos;s private key.</div>
                     <div className="grid xl:grid-cols-2 grid-cols-1 gap-2">
                         {privateKeys.length === 0 && <div>No private keys found.</div>}
                         {privateKeys.map((key) => (

@@ -64,7 +64,7 @@ export default function CloudProviderToken({
                                     </button>
                                 )}
                             </div>
-                            <div className="pb-4">Change your server's Hetzner token.</div>
+                            <div className="pb-4">Change your server&apos;s Hetzner token.</div>
                             <div className="grid xl:grid-cols-2 grid-cols-1 gap-2">
                                 {tokens.length === 0 && <div>No Hetzner tokens found.</div>}
                                 {tokens.map((token) => (

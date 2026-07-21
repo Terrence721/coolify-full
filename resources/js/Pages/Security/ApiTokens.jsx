@@ -195,7 +195,9 @@ export default function ApiTokens({
 
             {newlyCreatedToken && (
                 <>
-                    <div className="py-4 font-bold dark:text-warning">Please copy this token now. For your security, it won't be shown again.</div>
+                    <div className="py-4 font-bold dark:text-warning">
+                        Please copy this token now. For your security, it won&apos;t be shown again.
+                    </div>
                     <div className="pb-4 font-bold dark:text-white">{newlyCreatedToken}</div>
                 </>
             )}

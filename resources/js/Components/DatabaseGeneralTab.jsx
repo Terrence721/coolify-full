@@ -476,7 +476,7 @@ export default function DatabaseGeneralTab({ generalForm, generalUrls, resourceD
                     />
                 </div>
                 <div className="pt-2 dark:text-warning">
-                    If you change the values in the database, please sync it here, otherwise automations (like backups) won't work.
+                    If you change the values in the database, please sync it here, otherwise automations (like backups) won&apos;t work.
                 </div>
 
                 <div className="flex xl:flex-row flex-col gap-2">

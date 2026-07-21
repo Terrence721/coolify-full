@@ -117,7 +117,7 @@ export default function Sentinel({
                         {isSentinelEnabled && !isSentinelLive && (
                             <div className="p-3 border border-warning/30 bg-warning/10 text-warning text-sm rounded mt-2">
                                 <div className="font-bold">Out of Sync</div>
-                                Sentinel is not in sync with your server. Click "Sync" to re-sync.
+                                Sentinel is not in sync with your server. Click &quot;Sync&quot; to re-sync.
                             </div>
                         )}
 

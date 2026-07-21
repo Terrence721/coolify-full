@@ -80,8 +80,8 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                                     <div className="font-bold">Not Recommended</div>
                                     <div className="whitespace-normal wrap-break-word">
                                         System-wide GitHub Apps are shared across all teams on this Coolify instance. This means any team can use this
-                                        GitHub App to deploy applications from your repositories. For better security and isolation, it's recommended
-                                        to create team-specific GitHub Apps instead.
+                                        GitHub App to deploy applications from your repositories. For better security and isolation, it&apos;s
+                                        recommended to create team-specific GitHub Apps instead.
                                     </div>
                                 </div>
                             )}

@@ -50,7 +50,7 @@ export function TagsTab({ tags, availableTags, tagsStoreUrl, canUpdate }) {
                     </button>
                 </form>
             ) : (
-                <div className="mt-4 dark:text-warning">You don't have permission to manage tags.</div>
+                <div className="mt-4 dark:text-warning">You don&apos;t have permission to manage tags.</div>
             )}
             {tags.length > 0 && (
                 <>
@@ -100,7 +100,7 @@ export function DangerTab({ resourceName, canDelete, destroyUrl }) {
                     Delete
                 </button>
             ) : (
-                <div className="dark:text-warning">You don't have permission to delete this resource.</div>
+                <div className="dark:text-warning">You don&apos;t have permission to delete this resource.</div>
             )}
             {modalOpen && (
                 <PasswordConfirmModal
@@ -282,7 +282,7 @@ export function ResourceOperationsTab({ servers, projects, currentProjectId, cur
         return (
             <div>
                 <h2>Resource Operations</h2>
-                <div className="pt-4 dark:text-warning">You don't have permission to clone or move resources.</div>
+                <div className="pt-4 dark:text-warning">You don&apos;t have permission to clone or move resources.</div>
             </div>
         );
     }

@@ -121,7 +121,7 @@ export default function Metrics({ serverNavbar, sidebar, canUpdate, isMetricsEna
                         </div>
                     ) : isSentinelEnabled ? (
                         <div className="p-3 border border-sky-500/30 bg-sky-500/10 text-sm rounded">
-                            Metrics are disabled for this server. Click "Enable Metrics" above to start collecting metrics.
+                            Metrics are disabled for this server. Click &quot;Enable Metrics&quot; above to start collecting metrics.
                         </div>
                     ) : (
                         <div className="p-3 border border-sky-500/30 bg-sky-500/10 text-sm rounded">

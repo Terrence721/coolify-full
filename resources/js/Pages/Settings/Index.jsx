@@ -22,7 +22,6 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
         if (props.flash?.activityContext === 'settings-helper-image' && props.flash?.activityId) {
             setActivityId(props.flash.activityId);
         }
-         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     function submit(e) {
@@ -113,7 +112,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                 <span className="text-xs opacity-70">
                                     Enter the full URL of the instance (for example, https://dashboard.example.com). Important: if you want the
                                     dashboard to be accessible over HTTPS, you must include https:// at the start of the URL — without it, the
-                                    dashboard will use HTTP and won't be secured.
+                                    dashboard will use HTTP and won&apos;t be secured.
                                 </span>
                                 {errors.fqdn && <span className="text-error">{errors.fqdn}</span>}
                             </label>
@@ -166,7 +165,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
 
                         <div className="flex gap-2 md:flex-row flex-col">
                             <label className="flex flex-col gap-1 w-full">
-                                Instance's Public IPv4
+                                Instance&apos;s Public IPv4
                                 <input
                                     id="settings-public-ipv4"
                                     name="settings-public-ipv4"
@@ -182,7 +181,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                 {errors.public_ipv4 && <span className="text-error">{errors.public_ipv4}</span>}
                             </label>
                             <label className="flex flex-col gap-1 w-full">
-                                Instance's Public IPv6
+                                Instance&apos;s Public IPv6
                                 <input
                                     id="settings-public-ipv6"
                                     name="settings-public-ipv6"

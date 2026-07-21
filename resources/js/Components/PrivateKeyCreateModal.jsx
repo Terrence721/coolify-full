@@ -127,7 +127,7 @@ export default function PrivateKeyCreateModal({ open, onClose, createKeyUrl, gen
                     )}
                     {publicKey && (
                         <span className="pt-2 pb-4 font-bold dark:text-warning">
-                            ACTION REQUIRED: Copy the 'Public Key' to your server's ~/.ssh/authorized_keys file
+                            ACTION REQUIRED: Copy the &apos;Public Key&apos; to your server&apos;s ~/.ssh/authorized_keys file
                         </span>
                     )}
                     <button type="submit" disabled={processing}>

@@ -297,7 +297,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 {server.validationLogs && (
                                     <>
                                         <h4>Previous Validation Logs</h4>
-                                        { }
+                                        {}
                                         <div className="pb-4" dangerouslySetInnerHTML={{ __html: server.validationLogs }} />
                                     </>
                                 )}

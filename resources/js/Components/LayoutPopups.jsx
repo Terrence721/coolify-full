@@ -80,7 +80,6 @@ export default function LayoutPopups() {
         }, 2000);
 
         return () => clearInterval(interval);
-         
     }, [isCloud, props.echo]);
 
     useTeamChannel(['TestEvent'], () => {

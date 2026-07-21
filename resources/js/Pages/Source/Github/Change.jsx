@@ -219,7 +219,7 @@ export default function Change({
                                     <div className="flex flex-col gap-4 text-left h-full">
                                         <h3 className="text-xl font-bold">Automated Installation (Recommended)</h3>
                                         <p className="text-sm dark:text-neutral-400">
-                                            Register a GitHub App via GitHub's manifest flow. Permissions and webhooks are pre-configured.
+                                            Register a GitHub App via GitHub&apos;s manifest flow. Permissions and webhooks are pre-configured.
                                         </p>
                                         {(!isCloud || isDev) && (
                                             <div className="flex flex-col gap-3 pt-4 border-t border-neutral-200 dark:border-coolgray-400">
@@ -306,7 +306,9 @@ export default function Change({
                                 </section>
                             </>
                         ) : (
-                            <div className="pb-10">You don't have permission to create new GitHub Apps. Please contact your team administrator.</div>
+                            <div className="pb-10">
+                                You don&apos;t have permission to create new GitHub Apps. Please contact your team administrator.
+                            </div>
                         )}
                     </div>
                 </div>
@@ -420,7 +422,7 @@ export default function Change({
                                                 <div className="alert-warning">
                                                     System-wide GitHub Apps are shared across all teams on this Coolify instance. This means any team
                                                     can use this GitHub App to deploy applications from your repositories. For better security and
-                                                    isolation, it's recommended to create team-specific GitHub Apps instead.
+                                                    isolation, it&apos;s recommended to create team-specific GitHub Apps instead.
                                                 </div>
                                             )}
                                         </>

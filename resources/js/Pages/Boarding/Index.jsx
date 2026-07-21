@@ -138,7 +138,6 @@ export default function Index({
             setShowCreateKeyModal(false);
             goTo('create-server');
         }
-         
     }, [props.flash?.createdPrivateKeyId]);
 
     async function runValidate(serverUuid, attemptNumber) {
@@ -222,7 +221,7 @@ export default function Index({
                     <p className="text-lg dark:text-neutral-400">Connect your first server and start deploying in minutes</p>
                     <div className="flex flex-col items-center gap-3 pt-4">
                         <button type="button" onClick={startWelcome} className="px-12 py-4 text-lg font-bold">
-                            Let's go!
+                            Let&apos;s go!
                         </button>
                         <button type="button" onClick={skipBoarding} className="text-sm dark:text-neutral-400 hover:underline">
                             Skip Setup
@@ -315,7 +314,7 @@ export default function Index({
                                     access.
                                 </p>
                                 <p>
-                                    <Highlighted text="Public Key Deployment:" /> Add the public key to your server's{' '}
+                                    <Highlighted text="Public Key Deployment:" /> Add the public key to your server&apos;s{' '}
                                     <code className="px-1 py-0.5 text-xs rounded bg-coolgray-300">~/.ssh/authorized_keys</code> file.
                                 </p>
                             </>
@@ -466,7 +465,7 @@ export default function Index({
                         actions={
                             <div className="w-full space-y-4">
                                 <button type="button" onClick={createProject} className="w-full py-4 font-bold">
-                                    Create "My First Project"
+                                    Create &quot;My First Project&quot;
                                 </button>
                                 {projects.length > 0 && (
                                     <>

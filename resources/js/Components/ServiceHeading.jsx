@@ -23,7 +23,6 @@ export default function ServiceHeading({ service, parameters, urls }) {
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     useTeamChannel(['ServiceStatusChanged', 'ServiceChecked'], () => {

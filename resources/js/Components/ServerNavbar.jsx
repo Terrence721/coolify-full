@@ -30,7 +30,6 @@ export default function ServerNavbar({ serverNavbar }) {
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     useTeamChannel(['ProxyStatusChangedUI'], () => {

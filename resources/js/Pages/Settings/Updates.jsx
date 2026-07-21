@@ -50,7 +50,7 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                             Save
                         </button>
                     </div>
-                    <div className="pb-4">Your instance's update settings.</div>
+                    <div className="pb-4">Your instance&apos;s update settings.</div>
 
                     <div className="flex flex-col gap-2">
                         <div className="flex items-end gap-2">

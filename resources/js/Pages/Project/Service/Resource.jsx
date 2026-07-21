@@ -94,7 +94,7 @@ function ApplicationGeneral({ application, urls }) {
                 {application.requiredPort && !application.isKnownServiceType && (
                     <div className="text-sm">
                         This service requires port <strong>{application.requiredPort}</strong> to function correctly. All domains must include this
-                        port number (or any other port if you know what you're doing).
+                        port number (or any other port if you know what you&apos;re doing).
                     </div>
                 )}
 

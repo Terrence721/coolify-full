@@ -208,7 +208,7 @@ export default function Index({
                     <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-neutral-300 dark:border-coolgray-300 rounded-lg">
                         <h3 className="mb-2 text-lg font-semibold text-neutral-600 dark:text-neutral-400">No Resources Found</h3>
                         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                            This environment doesn't have any resources yet.
+                            This environment doesn&apos;t have any resources yet.
                             <br />
                             Contact your team administrator to add resources.
                         </p>
@@ -229,7 +229,7 @@ export default function Index({
                             {search.length > 0 ? (
                                 <div>
                                     <p className="text-neutral-600 dark:text-neutral-400">
-                                        No resource found with the search term "<span className="font-semibold">{search}</span>".
+                                        No resource found with the search term &quot;<span className="font-semibold">{search}</span>&quot;.
                                     </p>
                                     <p className="text-sm text-neutral-500 dark:text-neutral-500 mt-1">Try adjusting your search criteria.</p>
                                 </div>

@@ -127,7 +127,7 @@ export default function Show({ serverNavbar, sidebar, certificateContent, certif
                             <div className="w-full h-92.5 input">
                                 <div className="h-full flex flex-col items-center justify-center text-gray-300">
                                     <div className="mb-2">━━━━━━━━ CERTIFICATE CONTENT ━━━━━━━━</div>
-                                    <div className="text-sm">Click "Show" to view or edit</div>
+                                    <div className="text-sm">Click &quot;Show&quot; to view or edit</div>
                                 </div>
                             </div>
                         )}
