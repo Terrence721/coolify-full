@@ -122,11 +122,7 @@ describe('RollbackTab', () => {
 
         act(() => button.click());
 
-        expect(postSpy).toHaveBeenCalledWith(
-            '/rollback/deploy',
-            { tag: 'abc1234' },
-            expect.objectContaining({ preserveScroll: true }),
-        );
+        expect(postSpy).toHaveBeenCalledWith('/rollback/deploy', { tag: 'abc1234' }, expect.objectContaining({ preserveScroll: true }));
     });
 
     it('hides the rollback button entirely when the user cannot deploy', () => {
@@ -142,11 +138,7 @@ describe('RollbackTab', () => {
 
         act(() => screen.getByText('Reload Available Images').click());
 
-        expect(postSpy).toHaveBeenCalledWith(
-            '/rollback/load-images',
-            { showToast: true },
-            expect.objectContaining({ preserveScroll: true }),
-        );
+        expect(postSpy).toHaveBeenCalledWith('/rollback/load-images', { showToast: true }, expect.objectContaining({ preserveScroll: true }));
     });
 
     it('shows the retention-disabled warning and disables the keep-images input/save button', () => {
