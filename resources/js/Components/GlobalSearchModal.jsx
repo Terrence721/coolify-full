@@ -723,6 +723,10 @@ function SelectionStep({ title, subtitle, loading, items, emptyMessage, onBack, 
                     </svg>
                 </button>
                 <div>
+                    {/* tailwindcss-intellisense false positive: flags text-base (font-size) and text-neutral-900
+                        (color) as a "conflict" since Tailwind v4 shares the text- prefix between its font-size
+                        scale and its color palette. Different CSS properties, not a real conflict - same
+                        text-base + text-{color} pattern is already used in app.css:147. */}
                     <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{title}</h2>
                     {subtitle && <div className="text-xs text-neutral-500 dark:text-neutral-400">for {subtitle}</div>}
                 </div>
