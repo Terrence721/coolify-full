@@ -156,7 +156,7 @@ export default function WhatsNewButton({ unreadCount: initialUnreadCount, curren
                                                         {entry.title && (
                                                             <span className="px-2 py-1 text-xs font-semibold dark:bg-coolgray-300 dark:text-neutral-200 rounded-sm">
                                                                 <a
-                                                                    href={`https://github.com/coollabsio/coolify/releases/tag/${entry.tag_name}`}
+                                                                    href={`https://github.com/Terrence721/coolify-full/releases/tag/${entry.tag_name}`}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     className="inline-flex items-center gap-1 hover:text-coolgray-500"

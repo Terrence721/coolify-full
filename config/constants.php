@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'coolify' => [
-        'version' => '1.0',
+        'version' => '0.4.0',
         'helper_version' => '1.0.14',
         'realtime_version' => '1.0.16',
         'railpack_version' => '0.23.0',
@@ -18,7 +18,11 @@ return [
         'cdn_url' => env('CDN_URL', 'https://cdn.coollabs.io'),
         'versions_url' => env('VERSIONS_URL', env('CDN_URL', 'https://cdn.coollabs.io').'/coolify/versions.json'),
         'upgrade_script_url' => env('UPGRADE_SCRIPT_URL', env('CDN_URL', 'https://cdn.coollabs.io').'/coolify/upgrade.sh'),
-        'releases_url' => env('RELEASES_URL', 'https://raw.githubusercontent.com/coollabsio/coolify-cdn/main/json/releases.json'),
+        // Hits GitHub's own public Releases API directly rather than a pre-aggregated CDN mirror
+        // (upstream's CDN indirection exists to avoid GitHub's 60 req/hour unauthenticated rate
+        // limit across their many self-hosted instances - doesn't apply to a single portfolio
+        // fork). Returns the same tag_name/name/body/published_at/draft shape this job expects.
+        'releases_url' => env('RELEASES_URL', 'https://api.github.com/repos/Terrence721/coolify-full/releases'),
     ],
 
     'urls' => [
