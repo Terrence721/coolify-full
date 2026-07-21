@@ -1,6 +1,6 @@
 {
-    "name": "coollabsio/coolify",
-    "description": "The Coolify project.",
+    "name": "terrence721/coolify-full",
+    "description": "A self-hosted-only fork of Coolify - portfolio project.",
     "license": "Apache-2.0",
     "type": "project",
     "keywords": [
