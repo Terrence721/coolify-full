@@ -1,7 +1,7 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 20, 2026**
+**Last Updated: July 21, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). The Livewire→React migration itself completed 2026-07-14; this checklist now serves as a standing regression suite — run it after any batch of work touching these flows, not just migration work. See `docs/command.md` for the commands to start the dev stack.
 

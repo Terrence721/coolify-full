@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 19, 2026**
+**Last Updated: July 21, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
