@@ -136,7 +136,11 @@ composer psalm                            # separate CI job: "psalm" (taint anal
 yarn install --frozen-lockfile
 yarn build
 php artisan test --compact                # separate CI job: "tests" — note it builds frontend assets first, unlike local dev
+yarn test                                 # separate CI job: "vitest" — React component tests, no PHP/build needed
+yarn format:check                         # separate CI job: "prettier" — no PHP/build needed
 ```
+
+`yarn lint` (ESLint) is deliberately **not** in CI yet — the codebase currently has 20 known `react-hooks/set-state-in-effect` findings (see `todo.md`'s still-open items and Scrum issue #33) that need individual per-effect review, not a mechanical fix. Adding the CI gate before that's done would mean every push fails from day one; it'll be added once that cleanup lands.
 
 `.github/workflows/codeql.yml` runs separately (its own workflow, not part of `quality.yml`) and scans `resources/js/` only — CodeQL has no PHP support, so there's nothing to reproduce locally for the PHP side beyond the `psalm` job above. See `todo.md`'s "GitHub repo-level security features" entry for why both tools exist.
 
