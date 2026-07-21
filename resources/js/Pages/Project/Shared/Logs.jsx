@@ -12,7 +12,6 @@ import ServiceHeading from '../../../Components/ServiceHeading';
  */
 export default function Logs({
     type,
-    title,
     application,
     heading,
     headingUrls,

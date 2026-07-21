@@ -108,7 +108,9 @@ export default function GlobalSearchModal() {
     const [open, setOpen] = useState(false);
     const [loadingInitial, setLoadingInitial] = useState(false);
     const [query, setQuery] = useState('');
-    const [selectedIndex, setSelectedIndex] = useState(-1);
+    // Tracks arrow-key navigation position via imperative DOM focus (results[next].focus()), never
+    // rendered - a ref avoids a wasted re-render on every arrow-key press for a value nothing displays.
+    const selectedIndexRef = useRef(-1);
     const [searchableItems, setSearchableItems] = useState([]);
     const [creatableItems, setCreatableItems] = useState([]);
     const [createUrls, setCreateUrls] = useState({});
@@ -160,14 +162,14 @@ export default function GlobalSearchModal() {
 
     function closeModal() {
         setOpen(false);
-        setSelectedIndex(-1);
+        selectedIndexRef.current = -1;
         setQuery('');
         cancelWizard();
     }
 
     async function openModal() {
         setOpen(true);
-        setSelectedIndex(-1);
+        selectedIndexRef.current = -1;
         setQuery('');
         setLoadingInitial(true);
         try {
@@ -188,17 +190,16 @@ export default function GlobalSearchModal() {
         const results = container.querySelectorAll('.search-result-item');
         if (results.length === 0) return;
 
-        setSelectedIndex((prev) => {
-            const next = direction === 'down' ? Math.min(prev + 1, results.length - 1) : Math.max(prev - 1, -1);
-            if (next >= 0 && next < results.length) {
-                results[next].focus();
-                results[next].scrollIntoView({ block: 'nearest' });
-            } else if (next === -1) {
-                inputRef.current?.focus();
-            }
+        const prev = selectedIndexRef.current;
+        const next = direction === 'down' ? Math.min(prev + 1, results.length - 1) : Math.max(prev - 1, -1);
+        if (next >= 0 && next < results.length) {
+            results[next].focus();
+            results[next].scrollIntoView({ block: 'nearest' });
+        } else if (next === -1) {
+            inputRef.current?.focus();
+        }
 
-            return next;
-        });
+        selectedIndexRef.current = next;
     }
 
     useEffect(() => {
@@ -212,13 +213,13 @@ export default function GlobalSearchModal() {
                     openModal();
                 } else {
                     inputRef.current?.focus();
-                    setSelectedIndex(-1);
+                    selectedIndexRef.current = -1;
                 }
             } else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
                 if (openRef.current) {
                     inputRef.current?.focus();
-                    setSelectedIndex(-1);
+                    selectedIndexRef.current = -1;
                 } else {
                     openModal();
                 }
@@ -254,7 +255,7 @@ export default function GlobalSearchModal() {
     }, []);
 
     useEffect(() => {
-        setSelectedIndex(-1);
+        selectedIndexRef.current = -1;
         const trimmed = query.trim().toLowerCase();
 
         if (trimmed === '') {

@@ -22,7 +22,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
         if (props.flash?.activityContext === 'settings-helper-image' && props.flash?.activityId) {
             setActivityId(props.flash.activityId);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     function submit(e) {

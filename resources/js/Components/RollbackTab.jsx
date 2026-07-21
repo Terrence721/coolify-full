@@ -16,7 +16,6 @@ const PR_TAG_PATTERN = /^pr-\d+$/;
 export default function RollbackTab({ rollback, rollbackUrls }) {
     const [dockerImagesToKeep, setDockerImagesToKeep] = useState(rollback.dockerImagesToKeep);
     const [images, setImages] = useState([]);
-    const [currentTag, setCurrentTag] = useState(null);
     const [loading, setLoading] = useState(true);
 
     function loadImages(showToast = false) {
@@ -28,7 +27,6 @@ export default function RollbackTab({ rollback, rollbackUrls }) {
                 preserveScroll: true,
                 onSuccess: (page) => {
                     setImages(page.props.flash?.rollbackImages ?? []);
-                    setCurrentTag(page.props.flash?.rollbackCurrentTag ?? null);
                     setLoading(false);
                 },
                 onError: () => setLoading(false),

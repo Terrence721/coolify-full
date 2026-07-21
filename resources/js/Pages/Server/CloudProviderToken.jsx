@@ -27,7 +27,7 @@ export default function CloudProviderToken({
         setShowAddModal(true);
     }
 
-    function useToken(tokenId) {
+    function selectToken(tokenId) {
         router.post(setTokenUrl, { token_id: tokenId }, { preserveScroll: true });
     }
 
@@ -77,7 +77,7 @@ export default function CloudProviderToken({
                                             <div className="box-description">Created {token.createdAt}</div>
                                         </div>
                                         {currentTokenId !== token.id ? (
-                                            <button type="button" className="w-full" disabled={!canUpdate} onClick={() => useToken(token.id)}>
+                                            <button type="button" className="w-full" disabled={!canUpdate} onClick={() => selectToken(token.id)}>
                                                 Use this token
                                             </button>
                                         ) : (

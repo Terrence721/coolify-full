@@ -42,7 +42,7 @@ export default function ActivityLog({ activityId, header, fullHeight = false, sh
                     if (onFinished) onFinished(data.exitCode);
                     return;
                 }
-            } catch (_) {
+            } catch {
                 // ignore — retry on next tick
             }
 

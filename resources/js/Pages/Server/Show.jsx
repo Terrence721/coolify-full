@@ -1,4 +1,4 @@
-import { router, useForm, usePage } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import ActivityLog from '../../Components/ActivityLog';
 import PasswordConfirmModal from '../../Components/PasswordConfirmModal';
@@ -31,7 +31,6 @@ const HETZNER_POLLING_STATUSES = ['starting', 'initializing'];
  * ServerValidationService instead of a third implementation.
  */
 export default function Show({ serverNavbar, sidebar, server, timezones, availableHetznerTokens, isCloud, urls }) {
-    const { props } = usePage();
     const { data, setData, patch, processing, errors } = useForm({
         name: server.name,
         description: server.description ?? '',
@@ -298,7 +297,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                                 {server.validationLogs && (
                                     <>
                                         <h4>Previous Validation Logs</h4>
-                                        {/* eslint-disable-next-line react/no-danger */}
+                                        { }
                                         <div className="pb-4" dangerouslySetInnerHTML={{ __html: server.validationLogs }} />
                                     </>
                                 )}

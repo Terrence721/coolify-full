@@ -9,7 +9,6 @@ export default function CloudflareTunnel({
     sidebar,
     isCloudflareTunnelsEnabled,
     isFunctional,
-    hasPreviousIp,
     canUpdate,
     toggleUrl,
     manualConfigUrl,
@@ -25,7 +24,7 @@ export default function CloudflareTunnel({
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     function disableTunnel() {

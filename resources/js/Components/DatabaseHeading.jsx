@@ -22,7 +22,7 @@ export default function DatabaseHeading({ heading, urls }) {
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     useTeamChannel(['ServiceStatusChanged', 'ServiceChecked'], () => {

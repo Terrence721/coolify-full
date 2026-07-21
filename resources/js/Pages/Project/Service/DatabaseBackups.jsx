@@ -119,11 +119,9 @@ function SetTypeForm({ setTypeUrl }) {
 
 export default function DatabaseBackups({
     service,
-    serviceDatabase,
     configurationChecker,
     needsCustomType,
     scheduledBackups,
-    selectedBackupId,
     selectedBackup,
     s3Storages,
     executions,

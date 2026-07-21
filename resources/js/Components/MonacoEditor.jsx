@@ -36,7 +36,9 @@ export default function MonacoEditor({ value, onChange, language = 'yaml', readO
     const containerRef = useRef(null);
     const editorRef = useRef(null);
     const onChangeRef = useRef(onChange);
-    onChangeRef.current = onChange;
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    });
 
     useEffect(() => {
         let cancelled = false;

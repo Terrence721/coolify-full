@@ -43,7 +43,7 @@ export default function Index({ servers, containers, terminalConfig, connectUrl 
             }
 
             setPendingCommand({ command: data.command, key: Date.now() });
-        } catch (error) {
+        } catch {
             setConnectError('Failed to connect.');
         } finally {
             setConnecting(false);

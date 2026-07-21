@@ -6,7 +6,7 @@
  * visibility, toggling "static site" swaps port 80 + /dist defaults in and out, and the compose
  * paths normalize on blur with a live computed-location preview.
  */
-export function normalizeGitPath(path) {
+function normalizeGitPath(path) {
     if (!path || path.trim() === '') return '/';
     let normalized = path.trim().replace(/\/+$/, '');
     if (!normalized.startsWith('/')) {

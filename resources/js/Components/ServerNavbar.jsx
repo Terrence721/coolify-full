@@ -30,7 +30,7 @@ export default function ServerNavbar({ serverNavbar }) {
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     useTeamChannel(['ProxyStatusChangedUI'], () => {

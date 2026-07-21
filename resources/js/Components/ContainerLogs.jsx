@@ -36,7 +36,7 @@ export default function ContainerLogs({ displayName, logLines, numberOfLines, sh
     const [logFilters, setLogFilters] = useState(() => {
         try {
             return JSON.parse(localStorage.getItem('coolify-log-filters')) ?? { error: true, warning: true, debug: true, info: true };
-        } catch (_) {
+        } catch {
             return { error: true, warning: true, debug: true, info: true };
         }
     });

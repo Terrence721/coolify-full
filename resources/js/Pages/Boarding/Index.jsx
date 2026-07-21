@@ -138,7 +138,7 @@ export default function Index({
             setShowCreateKeyModal(false);
             goTo('create-server');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [props.flash?.createdPrivateKeyId]);
 
     async function runValidate(serverUuid, attemptNumber) {

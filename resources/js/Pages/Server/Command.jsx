@@ -42,7 +42,7 @@ export default function Command({ serverNavbar, isFunctional, isTerminalEnabled,
             }
 
             setPendingCommand({ command: data.command, key: Date.now() });
-        } catch (error) {
+        } catch {
             setConnectError('Failed to connect.');
         } finally {
             setConnecting(false);

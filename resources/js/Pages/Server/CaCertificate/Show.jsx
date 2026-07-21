@@ -8,6 +8,9 @@ const CA_CERT_PATH = '/data/coolify/ssl/coolify-ca.crt';
 export default function Show({ serverNavbar, sidebar, certificateContent, certificateValidUntil, canManage, canView, saveUrl, regenerateUrl }) {
     const [showCertificate, setShowCertificate] = useState(false);
     const { data, setData, post, processing } = useForm({ certificateContent });
+    // Date.now() is impure to call during render (react-hooks/purity) - a lazy state initializer
+    // runs it exactly once, at mount, instead of on every re-render.
+    const [now] = useState(() => Date.now());
 
     function confirmAndSubmit(url, confirmMessage) {
         const confirmation = window.prompt(`${confirmMessage} Type the CA certificate path to confirm:`);
@@ -27,8 +30,8 @@ export default function Show({ serverNavbar, sidebar, certificateContent, certif
     if (certificateValidUntil) {
         const validUntil = new Date(certificateValidUntil);
         const formatted = validUntil.toLocaleString();
-        const isExpired = new Date() > validUntil;
-        const isExpiringSoon = !isExpired && new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) > validUntil;
+        const isExpired = now > validUntil.getTime();
+        const isExpiringSoon = !isExpired && now + 30 * 24 * 60 * 60 * 1000 > validUntil.getTime();
         validUntilLabel = (
             <span className="text-sm">
                 (Valid until:{' '}

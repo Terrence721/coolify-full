@@ -33,7 +33,7 @@ export default function Patches({
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [props.flash?.activityId, props.flash?.activityContext]);
 
     async function checkForUpdates() {
@@ -59,7 +59,7 @@ export default function Patches({
                 setOsId(data.osId);
                 setPackageManager(data.packageManager);
             }
-        } catch (_) {
+        } catch {
             setError('Something went wrong.');
         } finally {
             setChecking(false);

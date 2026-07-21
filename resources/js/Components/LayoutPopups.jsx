@@ -80,7 +80,7 @@ export default function LayoutPopups() {
         }, 2000);
 
         return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+         
     }, [isCloud, props.echo]);
 
     useTeamChannel(['TestEvent'], () => {

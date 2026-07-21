@@ -16,8 +16,13 @@ export default function Appearance() {
     const [pageWidth, setPageWidthState] = useState(() => localStorage.getItem('pageWidth') || 'full');
     const [zoom, setZoomState] = useState(() => localStorage.getItem('zoom') || '100');
 
+    // Deliberately mount-only: applies the theme captured from localStorage before the first
+    // click. setTheme() below already calls applyTheme() directly on every subsequent change, so
+    // adding `theme` here would only make it re-run redundantly (harmless but pointless) on top
+    // of that, not fix a real gap.
     useEffect(() => {
         applyTheme(theme);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function setTheme(type) {

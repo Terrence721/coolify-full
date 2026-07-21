@@ -189,7 +189,7 @@ export class TerminalSession {
             this.socket.onclose = null;
             try {
                 this.socket.close(code, reason);
-            } catch (_) {
+            } catch {
                 // Ignore close errors; socket can already be closing/closed.
             }
             this.socket = null;
@@ -236,7 +236,7 @@ export class TerminalSession {
             try {
                 const stamp = new Date().toLocaleTimeString();
                 this.term.write(`\r\n\x1b[33m── Connection lost at ${stamp}, reconnecting... ──\x1b[0m\r\n`);
-            } catch (_) {
+            } catch {
                 // ignore — terminal not ready to receive writes
             }
             this.pendingWrites = 0;
@@ -468,7 +468,7 @@ export class TerminalSession {
                 try {
                     const stamp = new Date().toLocaleTimeString();
                     this.term.write(`\r\n\x1b[32m── Reconnected at ${stamp} ──\x1b[0m\r\n`);
-                } catch (_) {
+                } catch {
                     // ignore — fall through; xterm will render the new prompt anyway
                 }
             }
@@ -668,7 +668,7 @@ export class TerminalSession {
                     logTerminal('warn', '[Terminal] Visibility-resume ping timed out, forcing reconnect.');
                     try {
                         this.socket.close(4000, 'Visibility-resume timeout');
-                    } catch (_) {
+                    } catch {
                         // ignore — close handler will run on its own
                     }
                 }, 5000);

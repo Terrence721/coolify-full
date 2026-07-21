@@ -1,7 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function CloneMe({ project, environment, destinations, resources, defaultName, cloneUrl }) {
+export default function CloneMe({ destinations, resources, defaultName, cloneUrl }) {
     const [name, setName] = useState(defaultName);
     const [destinationId, setDestinationId] = useState('');
     const [cloneVolumeData, setCloneVolumeData] = useState(false);
