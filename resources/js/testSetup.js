@@ -8,6 +8,13 @@ import { afterEach } from 'vitest';
 // simulating an async callback firing after mount, like a WebSocket event handler).
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
+// jsdom doesn't implement Element.scrollIntoView (a real, supported browser API) - stub it so
+// components that call it (e.g. keyboard-navigating a scrollable result list) don't throw in
+// tests. No-op is fine here: nothing in these tests asserts on actual scroll position.
+if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = () => {};
+}
+
 // Vitest doesn't expose global test hooks by default (test.globals is off in
 // vitest.config.js), so Testing Library's own auto-cleanup - which detects a
 // global afterEach - never fires. Registering it explicitly here instead of
