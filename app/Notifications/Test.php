@@ -98,7 +98,10 @@ class Test extends Notification implements ShouldQueue
             'buttons' => [
                 [
                     'text' => 'Go to your dashboard',
-                    'url' => isDev() ? 'https://staging-but-dev.coolify.io' : base_url(),
+                    // Telegram's Bot API requires a real, publicly-reachable https:// URL for
+                    // inline buttons - base_url() resolves to a local dev URL Telegram rejects,
+                    // so dev mode substitutes a real, neutral placeholder domain instead.
+                    'url' => isDev() ? 'https://example.com' : base_url(),
                 ],
             ],
         ];
