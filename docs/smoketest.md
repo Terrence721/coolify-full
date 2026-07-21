@@ -52,7 +52,7 @@ Profile & Security:
 Team & Admin:
 
 - [x] `/team` — rename the team; confirm the delete-team section shows the correct blocking reason if resources exist. **Confirmed 2026-07-21**, real browser session: renamed the team, saved, reloaded to confirm it persisted, then reverted back to the original name. Danger Zone correctly shows "This is the default team. You can't delete it." (this dev team is `id=0`) with no Delete button rendered. **Found and fixed dev-data drift along the way, not an app bug**: the team's name had drifted to "Root Teamd" (stray trailing character) from earlier testing this session — corrected back to the real seeded value, "Root Team".
-- [ ] `/team/admin-view` — search users, delete-user flow (password-confirmed).
+- [x] `/team/admin-view` — search users, delete-user flow (password-confirmed). **Confirmed 2026-07-21**, real browser session: seeded a throwaway user directly (no UI path to create one from this admin page), searched for them by partial email match, confirmed the row rendered correctly, then deleted via the two-step confirmation (type the target's name, then the *logged-in root user's own* password) and confirmed the row and success message. Verified fully clean afterward — the user, and their auto-created personal team, are both genuinely gone (no orphaned team left behind). No bugs found.
 - [ ] `/admin` (root only) — user search + "switch to user" impersonation, then switch back.
 
 Tags & Destinations:
