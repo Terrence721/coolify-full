@@ -330,7 +330,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 | 4 | Pest browser-testing plugin can't run in this dev setup | Backlog (#11) — Vitest + Testing Library (added 2026-07-20) covers component logic but not real-browser/console behavior. See "Frontend component testing" |
 | 5 | Low-level audit: every top-level folder/file still necessary | Not yet started — Backlog (#2) |
 | 6 | `Application`/`Service` compose-file parsing might be unifiable | Not a known bug, no urgency — not yet on the board |
-| 7 | ESLint/Prettier's 104-problem validation baseline isn't fixed yet | No live bugs, mostly cosmetic — Planned (#33) |
+| 7 | ESLint's `set-state-in-effect` findings (20) need per-effect review | Prettier baseline (110 files) and 84 of 104 ESLint findings resolved 2026-07-21 — this is what's left, not mechanical, needs individual review — Planned (#33) |
 
 ### Migration follow-up
 
