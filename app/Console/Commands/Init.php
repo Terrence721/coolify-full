@@ -72,10 +72,6 @@ class Init extends Command
         $this->settings = instanceSettings();
         $this->servers = Server::all();
 
-        $do_not_track = data_get($this->settings, 'do_not_track', true);
-        if ($do_not_track == false) {
-            $this->sendAliveSignal();
-        }
         get_public_ips();
 
         // Backward compatibility
@@ -296,19 +292,6 @@ class Init extends Command
 
                 echo "Error in restoring coolify db backup: {$e->getMessage()}\n";
             }
-        }
-    }
-
-    private function sendAliveSignal(): void
-    {
-        $id = config('app.id');
-        $version = config('constants.coolify.version');
-        try {
-            Http::get("https://undead.coolify.io/v4/alive?appId=$id&version=$version");
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in sendAliveSignal().', ['error' => $e->getMessage()]);
-
-            echo "Error in sending live signal: {$e->getMessage()}\n";
         }
     }
 
