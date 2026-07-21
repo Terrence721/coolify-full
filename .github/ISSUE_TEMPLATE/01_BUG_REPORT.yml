@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         > [!IMPORTANT]
-        > **Please ensure you are using the latest version of Coolify before submitting an issue, as the bug may have already been fixed in a recent update.** (Of course, if you're experiencing an issue on the latest version that wasn't present in a previous version, please let us know.)
+        > **Please ensure you're on the latest commit before filing an issue, as the bug may have already been fixed.**
 
   - type: textarea
     attributes:
@@ -35,18 +35,9 @@ body:
 
   - type: input
     attributes:
-      label: Coolify Version
-      description: Please provide the Coolify version you are using. This can be found in the top left corner of your Coolify dashboard.
-      placeholder: "v4.0.0-beta.335"
-    validations:
-      required: true
-
-  - type: dropdown
-    attributes:
-      label: Are you using Coolify Cloud?
-      options:
-        - "No (self-hosted)"
-        - "Yes (Coolify Cloud)"
+      label: Commit / Version
+      description: The commit hash or version you're running (`git rev-parse HEAD`, or the version shown in the dashboard).
+      placeholder: "e.g. 7784f0e91"
     validations:
       required: true
 
