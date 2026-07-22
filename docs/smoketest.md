@@ -63,7 +63,7 @@ Tags & Destinations:
 Settings (instance-wide, root/admin only):
 
 - [x] `/settings/updates` — check-for-updates action, auto-update toggle. **Confirmed 2026-07-22**, real browser session: "Check Manually" correctly shows a "No new version available" success modal with zero HTTP calls or errors logged (confirms this session's self-update disable, issue #47, works end-to-end through the UI, not just in unit tests). Auto Update checkbox toggles and `is_auto_update_enabled` persists correctly on Save, reverted after. Found and fixed stale UI copy while there — see issue #21.
-- [ ] `/settings/advanced` — toggle each setting; specifically confirm the two password-confirmed one-way toggles (enable registration, disable two-step confirmation) require the password.
+- [x] `/settings/advanced` — toggle each setting; specifically confirm the two password-confirmed one-way toggles (enable registration, disable two-step confirmation) require the password. **Confirmed 2026-07-22**, real browser session. Found and fixed two real issues: both one-way toggles used raw `window.prompt()`, which breaks entirely inside embedded webviews (confirmed via VS Code's Edge Tools) — refactored to the app's own `PasswordConfirmModal` component; also added a missing inline hint for non-matching confirmation text (previously silent, easily mistaken for a broken button). See issue #21.
 - [ ] `/settings/oauth` — edit a provider's fields, save.
 - [ ] `/settings/scheduled-jobs` — all 3 tabs (Failures/Scheduler Runs/Skipped Jobs) load and filter correctly.
 - [ ] `/settings/email` — same SMTP/Resend/test-send pattern as Notifications Email, at instance scope.

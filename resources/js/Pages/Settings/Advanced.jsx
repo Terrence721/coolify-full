@@ -1,27 +1,15 @@
-import { router, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import PasswordConfirmModal from '../../Components/PasswordConfirmModal';
 
 export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrationUrl, disableTwoStepConfirmationUrl }) {
     const { data, setData, put, processing, errors } = useForm({ ...settings });
+    const [showEnableRegistration, setShowEnableRegistration] = useState(false);
+    const [showDisableTwoStep, setShowDisableTwoStep] = useState(false);
 
     function submit(e) {
         e.preventDefault();
         put(updateUrl);
-    }
-
-    function enableRegistration() {
-        const confirmation = window.prompt('Type ENABLE REGISTRATION to confirm enabling registration for everyone:');
-        if (confirmation !== 'ENABLE REGISTRATION') return;
-        const password = window.prompt('Enter your password to confirm:');
-        if (!password) return;
-        router.post(enableRegistrationUrl, { password });
-    }
-
-    function disableTwoStepConfirmation() {
-        const confirmation = window.prompt('Type DISABLE TWO STEP CONFIRMATION to confirm:');
-        if (confirmation !== 'DISABLE TWO STEP CONFIRMATION') return;
-        const password = window.prompt('Enter your password to confirm:');
-        if (!password) return;
-        router.post(disableTwoStepConfirmationUrl, { password });
     }
 
     return (
@@ -76,7 +64,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         ) : (
                             <div className="flex items-center justify-between gap-2 md:w-96">
                                 <label>Registration Allowed</label>
-                                <button type="button" onClick={enableRegistration}>
+                                <button type="button" onClick={() => setShowEnableRegistration(true)}>
                                     Enable
                                 </button>
                             </div>
@@ -203,7 +191,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <>
                                 <div className="pb-4 flex items-center justify-between gap-2 md:w-96">
                                     <label>Disable Two Step Confirmation</label>
-                                    <button type="button" onClick={disableTwoStepConfirmation}>
+                                    <button type="button" onClick={() => setShowDisableTwoStep(true)}>
                                         Disable
                                     </button>
                                 </div>
@@ -215,6 +203,30 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                         )}
                     </div>
                 </form>
+                {showEnableRegistration && (
+                    <PasswordConfirmModal
+                        title="Confirm Enabling Registration?"
+                        actions={['Anyone will be able to register an account on this instance.']}
+                        action={{ url: enableRegistrationUrl, method: 'post' }}
+                        confirmationText="ENABLE REGISTRATION"
+                        confirmationLabel="Type ENABLE REGISTRATION to confirm enabling registration for everyone"
+                        onClose={() => setShowEnableRegistration(false)}
+                        onDone={() => setShowEnableRegistration(false)}
+                    />
+                )}
+                {showDisableTwoStep && (
+                    <PasswordConfirmModal
+                        title="Confirm Disabling Two Step Confirmation?"
+                        actions={[
+                            'Disabling two step confirmation reduces security (as anyone can easily delete anything) and increases the risk of accidental actions. This is not recommended for production servers.',
+                        ]}
+                        action={{ url: disableTwoStepConfirmationUrl, method: 'post' }}
+                        confirmationText="DISABLE TWO STEP CONFIRMATION"
+                        confirmationLabel="Type DISABLE TWO STEP CONFIRMATION to confirm"
+                        onClose={() => setShowDisableTwoStep(false)}
+                        onDone={() => setShowDisableTwoStep(false)}
+                    />
+                )}
             </div>
         </div>
     );

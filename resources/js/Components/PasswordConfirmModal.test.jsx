@@ -78,6 +78,26 @@ describe('PasswordConfirmModal', () => {
         expect(confirmButton).not.toBeDisabled();
     });
 
+    it('shows an inline hint once the typed confirmation text does not match, and hides it once it does', () => {
+        // Found via real smoke-test usage: the Confirm button silently stayed disabled with
+        // zero feedback while the confirmation field still only showed its placeholder text,
+        // easily mistaken for "the button is broken" rather than "nothing has been typed yet."
+        render(
+            <PasswordConfirmModal
+                {...baseProps({ withPassword: false, confirmationText: 'my-server', confirmationLabel: 'Type the server name' })}
+            />,
+        );
+
+        const input = screen.getByLabelText('Type the server name');
+        expect(screen.queryByText(/doesn't match yet/i)).not.toBeInTheDocument();
+
+        act(() => typeInto(input, 'my-serve'));
+        expect(screen.getByText(/doesn't match yet/i)).toBeInTheDocument();
+
+        act(() => typeInto(input, 'my-server'));
+        expect(screen.queryByText(/doesn't match yet/i)).not.toBeInTheDocument();
+    });
+
     it('requires both password AND matching confirmation text when both are configured', () => {
         render(<PasswordConfirmModal {...baseProps({ confirmationText: 'my-server', confirmationLabel: 'Type the server name' })} />);
 

@@ -82,6 +82,9 @@ export default function PasswordConfirmModal({
                                 onChange={(e) => setConfirmation(e.target.value)}
                                 placeholder={confirmationText}
                             />
+                            {confirmation && confirmation !== confirmationText && (
+                                <span className="text-xs text-warning">Doesn&apos;t match yet — type it exactly as shown above.</span>
+                            )}
                         </label>
                     )}
                     {withPassword && (
