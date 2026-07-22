@@ -1,7 +1,7 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 21, 2026**
+**Last Updated: July 22, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). The Livewire→React migration itself completed 2026-07-14; this checklist now serves as a standing regression suite — run it after any batch of work touching these flows, not just migration work. See `docs/command.md` for the commands to start the dev stack.
 
@@ -62,7 +62,7 @@ Tags & Destinations:
 
 Settings (instance-wide, root/admin only):
 
-- [ ] `/settings/updates` — check-for-updates action, auto-update toggle.
+- [x] `/settings/updates` — check-for-updates action, auto-update toggle. **Confirmed 2026-07-22**, real browser session: "Check Manually" correctly shows a "No new version available" success modal with zero HTTP calls or errors logged (confirms this session's self-update disable, issue #47, works end-to-end through the UI, not just in unit tests). Auto Update checkbox toggles and `is_auto_update_enabled` persists correctly on Save, reverted after. Found and fixed stale UI copy while there — see issue #21.
 - [ ] `/settings/advanced` — toggle each setting; specifically confirm the two password-confirmed one-way toggles (enable registration, disable two-step confirmation) require the password.
 - [ ] `/settings/oauth` — edit a provider's fields, save.
 - [ ] `/settings/scheduled-jobs` — all 3 tabs (Failures/Scheduler Runs/Skipped Jobs) load and filter correctly.

@@ -29,12 +29,13 @@ class PullChangelog implements ShouldBeEncrypted, ShouldQueue
     public function handle(): void
     {
         try {
-            // Fetch from CDN instead of GitHub API to avoid rate limits
-            $cdnUrl = config('constants.coolify.releases_url');
+            // This fork's own GitHub Releases API (see config/constants.php's releases_url
+            // comment) - not a CDN mirror, so no separate rate-limit-avoidance concern applies.
+            $releasesUrl = config('constants.coolify.releases_url');
 
             $response = Http::retry(3, 1000)
                 ->timeout(30)
-                ->get($cdnUrl);
+                ->get($releasesUrl);
 
             if ($response->successful()) {
                 $releases = $response->json();
@@ -48,9 +49,9 @@ class PullChangelog implements ShouldBeEncrypted, ShouldQueue
                 $this->saveChangelogEntries($changelog);
             } else {
                 // Log error instead of sending notification
-                Log::error('PullChangelogFromGitHub: Failed to fetch from CDN', [
+                Log::error('PullChangelogFromGitHub: Failed to fetch releases', [
                     'status' => $response->status(),
-                    'url' => $cdnUrl,
+                    'url' => $releasesUrl,
                 ]);
             }
         } catch (\Throwable $e) {
