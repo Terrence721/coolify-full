@@ -92,9 +92,7 @@ describe('DatabaseGeneralTab', () => {
         render(<DatabaseGeneralTab {...baseProps()} />);
 
         act(() => screen.getByLabelText('Proxy Timeout (seconds)').focus());
-        act(() =>
-            screen.getByLabelText('Proxy Timeout (seconds)').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })),
-        );
+        act(() => screen.getByLabelText('Proxy Timeout (seconds)').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
 
         expect(patchSpy).toHaveBeenCalledWith('/db/1/proxy', { isPublic: false, publicPort: '', publicPortTimeout: 3600 }, expect.any(Object));
     });
