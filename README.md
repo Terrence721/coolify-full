@@ -25,7 +25,7 @@ This project is not affiliated with the Coolify team and is intended solely as a
 
 **At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,240 Pest tests passing (5,092 assertions) · 203 Vitest/Testing Library React component tests (22 suites) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 385 commits total — 64 are PHPStan hardening phases, 206 are other engineering work (features, bug fixes, the React migration), and 115 touch only documentation/tracking files (`todo.md`, `README.md`, `docs/*.md`). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
+**Reading the commit history:** 387 commits total — 64 are PHPStan hardening phases, 207 are other engineering work (features, bug fixes, the React migration), and 116 touch only documentation/tracking files (`todo.md`, `README.md`, `docs/*.md`). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
 
 ---
 
@@ -84,7 +84,7 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 ```text
 ┌───────────────────────────────────────────────┐
 │                 Laravel app                   │  (nginx + PHP-FPM, one container)
-│   Inertia/React pages (96 .jsx pages) — all   │  ← migration complete,
+│   Inertia/React pages (94 .jsx pages) — all   │  ← migration complete,
 │   full-page routes, same Laravel routes/auth  │     no Livewire remains
 │   Horizon queue workers (deploys, backups)    │
 └──────┬──────────┬─────────────┬───────────────┘
