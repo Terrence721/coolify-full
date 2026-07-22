@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 21, 2026**
+**Last Updated: July 22, 2026**
 
 This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -23,9 +23,9 @@ It showcases real-world engineering work including:
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
-**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,234 Pest tests passing (5,082 assertions) · 154 Vitest/Testing Library React component tests (17 suites) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
+**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,238 Pest tests passing (5,088 assertions) · 185 Vitest/Testing Library React component tests (20 suites) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 360 commits total — 64 are PHPStan hardening phases, 202 are other engineering work (features, bug fixes, the React migration), and 94 touch only documentation/tracking files (`todo.md`, `README.md`, `docs/*.md`). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
+**Reading the commit history:** 381 commits total — 64 are PHPStan hardening phases, 204 are other engineering work (features, bug fixes, the React migration), and 113 touch only documentation/tracking files (`todo.md`, `README.md`, `docs/*.md`). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
 
 ---
 
