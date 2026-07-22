@@ -70,7 +70,7 @@ Settings (instance-wide, root/admin only):
 
 Auth:
 
-- [ ] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done.
+- [x] Force-password-reset flow — log in as a user with `force_password_reset` set, confirm you're routed to the bare (no sidebar) reset page and can't navigate away until it's done. **Confirmed 2026-07-22**, real browser session: created a throwaway user (`force_password_reset=true`), logged in and was correctly routed to the bare `ForcePasswordReset.jsx` page (no navbar/sidebar); confirmed navigating directly to `/` or `/profile` bounces straight back to `/force-password-reset` (navigation genuinely blocked); submitted a new password, confirmed via tinker that `force_password_reset` flipped to `false` and the new hash actually took; logged out and back in with the new password, landed normally on the Dashboard. Not an app bug, but a real environment gotcha worth documenting: the reset-success redirect lands on a plain Blade (non-Inertia) login page using a real `<form method="POST">`, and testing this inside VS Code's embedded "Preview in Editor" browser (a sandboxed `about:srcdoc` iframe) silently blocked that POST entirely (`Blocked form submission... sandboxed and 'allow-forms' permission is not set`) — invisible without checking DevTools Console, since the click just appeared to do nothing. Re-tested in a genuine standalone browser tab and the full loop passed clean. Test user deleted after. See issue #21.
 
 "+ New" resource wizard (`/project/{uuid}/environment/{uuid}/new`, Phase 51):
 

@@ -27,7 +27,7 @@ class CheckForcePasswordReset
             }
             $force_password_reset = auth()->user()->force_password_reset;
             if ($force_password_reset) {
-                if ($request->routeIs('auth.force-password-reset') || $request->path() === 'force-password-reset' || $request->path() === 'two-factor-challenge' || $request->path() === 'livewire/update' || $request->path() === 'logout') {
+                if ($request->routeIs('auth.force-password-reset') || $request->path() === 'force-password-reset' || $request->path() === 'two-factor-challenge' || $request->path() === 'logout') {
                     return $next($request);
                 }
 

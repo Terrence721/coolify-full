@@ -55,3 +55,28 @@ it('resets the password and clears the force_password_reset flag', function () {
     expect($user->force_password_reset)->toBeFalse();
     expect(Hash::check('a-brand-new-strong-password-123', $user->password))->toBeTrue();
 });
+
+it('blocks navigation to other pages while a reset is required', function () {
+    $user = User::factory()->create(['force_password_reset' => true]);
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get('/profile');
+
+    $response->assertRedirect(route('auth.force-password-reset'));
+});
+
+it('still allows logout while a reset is required', function () {
+    $user = User::factory()->create(['force_password_reset' => true]);
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post('/logout');
+
+    $response->assertRedirect();
+    $this->assertGuest();
+});
