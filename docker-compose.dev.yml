@@ -110,6 +110,7 @@ services:
     image: node:24-alpine
     pull_policy: always
     container_name: coolify-vite
+    restart: unless-stopped
     working_dir: /var/www/html
     environment:
       VITE_HOST: "${VITE_HOST:-localhost}"
@@ -129,6 +130,7 @@ services:
       dockerfile: ./docker/testing-host/Dockerfile
     init: true
     container_name: coolify-testing-host
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - dev_coolify_data:/data/coolify
@@ -143,6 +145,7 @@ services:
     image: axllent/mailpit:latest
     pull_policy: always
     container_name: coolify-mail
+    restart: unless-stopped
     ports:
       - "${FORWARD_MAILPIT_PORT:-1025}:1025"
       - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
@@ -152,6 +155,7 @@ services:
     image: coollabsio/maxio:latest
     pull_policy: always
     container_name: coolify-minio
+    restart: unless-stopped
     ports:
       - "${FORWARD_MINIO_PORT:-9000}:9000"
       - "${FORWARD_MINIO_PORT_CONSOLE:-9001}:9001"

@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 21, 2026**
+**Last Updated: July 22, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -32,6 +32,8 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml ps        # check
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify        # tail app logs
 docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify-vite   # tail Vite dev server logs
 ```
+
+**After a Windows/WSL2 reboot**, run `./scripts/dev-up.sh` once you're back at the machine. It detects and fixes the Docker Desktop/WSL2 bind-mount race that can leave `coolify` (and occasionally `soketi`/`autoheal`/`testing-host`) unhealthy or `Exited (127)` right after boot. A container-native auto-fix (`mount-doctor`) was tried but had to be removed — it needed `docker.sock`, which is itself caught in the same race, so nothing in-container can reliably self-heal this; a host-side script is the one thing immune to it. See `DEVELOPING_IN_CONTAINERS_WINDOWS.md`'s "After a Windows reboot, `coolify` comes up unhealthy" section for the full story.
 
 App: `http://localhost:8000` · Vite dev server: `http://localhost:5173` · Mailpit UI: `http://localhost:8025` · MinIO console: `http://localhost:9001`
 

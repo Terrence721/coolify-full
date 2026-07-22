@@ -1,7 +1,7 @@
 # Developing Coolify In Containers (Windows)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 20, 2026**
+**Last Updated: July 22, 2026**
 
 **The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in `docs/command.md` runs identically.
 
@@ -230,7 +230,21 @@ Confirmed 2026-07-19: not a bug in this app. The Soketi WebSocket server (port 6
 
 Confirmed 2026-07-20: a Docker Desktop/WSL2 filesystem-readiness race, not an app bug. Right after a host reboot, the `coolify` container can start before WSL2's filesystem is fully ready, so its bind mount to the repo (`.:/var/www/html`) attaches empty — `docker exec coolify ls /var/www/html` shows just an empty `storage/` directory, no `artisan`, and every scheduled/queue process loops on `Could not open input file: artisan`. A plain `docker restart coolify` (once WSL2 has actually settled) re-attaches the real mount and fixes it immediately — confirmed live.
 
-**Fixed for good, not just documented**: `docker-compose.dev.yml` now runs a `willfarrell/autoheal` sidecar (`autoheal` service) that watches for any container labeled `autoheal=true` — currently just `coolify` — going `unhealthy`, and restarts it automatically. Verified end-to-end with a real controlled test (not assumed): forced `coolify`'s healthcheck to fail for 30+ seconds (`s6-svc -d /run/service/nginx` inside the container, not just `pkill nginx` — s6 auto-restarts a merely-killed process too fast to sustain a failure), watched the container's own `StartedAt` timestamp change once it crossed the unhealthy threshold, and confirmed the bind mount and app were fully healthy again afterward with zero manual intervention. Deliberately scoped to just `coolify` via the label (not stack-wide) — a blind auto-restart on genuine Postgres/Redis unhealthiness could mask a real problem instead of just re-attaching a stale mount.
+`docker-compose.dev.yml` runs a `willfarrell/autoheal` sidecar (`autoheal` service) that watches for any container labeled `autoheal=true` — currently just `coolify` — going `unhealthy`, and restarts it automatically. This alone was verified end-to-end once with a real controlled test (forcing `coolify`'s healthcheck to fail via `s6-svc -d /run/service/nginx`, confirming a real unattended recovery).
+
+**Correction, 2026-07-22 (two real reboots, not a synthetic test):** autoheal alone is not sufficient in practice. On two separate real reboots — including one *after* enabling Docker Desktop's own "start on sign-in" setting, which does eliminate the "Docker isn't even running yet" case but not this one — the same race hit multiple containers simultaneously, including `coolify-autoheal` itself (`Exited (127)`), along with `mailpit`/`minio`/`vite`/`testing-host`, none of which had any `restart:` policy set at all (silent gap — they simply never self-heal from any crash, reboot-related or not). With the very sidecar meant to fix `coolify` also knocked out by the same root cause, nothing was actually auto-recovering; manual intervention (`docker compose up -d` + `docker restart coolify`) was needed both times.
+
+**Correction, 2026-07-22 (third real reboot — `mount-doctor` itself failed):** a container-native fix (`mount-doctor`, a sidecar with `restart: always` and no bind mount of its own except the Docker socket) was built and shipped on the theory that a socket-only container would be immune to the race. A third real reboot disproved this: `mount-doctor` came up `Exited (127)`, same as `coolify-autoheal`, `coolify-realtime` (soketi), and `coolify-testing-host`. `docker inspect` on all four showed the *actual* mechanism is broader than "directory bind mount attaches empty" — it's two distinct failure shapes:
+- **Directory** bind mounts (`coolify`'s `.:/var/www/html`) attach empty — the container starts, just with nothing in it.
+- **File** bind mounts (`/var/run/docker.sock`, or soketi's individual `terminal-server.js`/`terminal-utils.js`) fail *harder*: the container's OCI creation itself errors (`mounting a directory onto a file (or vice-versa)`), so the container never starts at all.
+
+`mount-doctor` needs `docker.sock` — a file mount — to do anything at all, so it's a victim of the exact failure it exists to repair. This isn't fixable by editing the container's script: nothing running *inside* a container can recover from a failure that happens *before* that container can be created. Only code running outside the container runtime is immune, since it talks to the already-running `dockerd` directly instead of needing its own mount. `mount-doctor` has been removed.
+
+**Actual fix now in place, two parts:**
+1. `mailpit`, `minio`, `vite`, and `testing-host` have `restart: unless-stopped` in `docker-compose.dev.yml` (previously unset, defaulting to Docker's `no` — a real robustness gap independent of this specific bug).
+2. **`./scripts/dev-up.sh` (run this after logging back in following a reboot)** — host-side, so it's immune to the file-mount OCI-creation race that killed the container-native attempt. Detects and fixes both failure shapes: retries `docker restart coolify` until its directory mount is populated, and separately retries `docker restart` on `coolify-realtime`/`coolify-autoheal`/`coolify-testing-host` until each reports `running`. In real testing the file-mount race took up to ~10 minutes post-boot to clear on its own, so the script retries with real persistence (up to 3 minutes per service) rather than giving up after a few seconds.
+
+A Windows Task Scheduler entry to run this automatically at login was considered and deliberately rejected earlier in favor of a container-native approach, on portability grounds — that approach turned out to be a technical dead end for this specific race, so for now this remains a one-command manual step after a reboot: `./scripts/dev-up.sh`.
 
 ### A brand-new component/file doesn't show up in the browser, even after editing it a few times
 
