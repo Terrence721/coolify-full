@@ -22,6 +22,16 @@
 # own - this script retries with real persistence rather than assuming a few seconds is
 # enough.
 #
+# A third variant confirmed 2026-07-22 (Docker Desktop upgrade, not just a reboot):
+# coolify-testing-host can come up with container status "running" while its
+# docker.sock mount is still a stale/broken socket internally - `docker version` inside
+# it returns a Client block but a null Server block ("Cannot connect to the Docker
+# daemon"). This silently breaks any server-connectivity/Docker-availability check that
+# uses this host as the target (e.g. ScheduledJobManager's docker-cleanup skip check),
+# without the container ever showing as unhealthy or exited. A plain restart fixes it,
+# but "container status is running" alone isn't sufficient evidence for this one -
+# functionally verified below.
+#
 # Usage: ./scripts/dev-up.sh   (run this after logging back in following any reboot)
 
 set -euo pipefail
@@ -81,6 +91,25 @@ for service in coolify-realtime coolify-autoheal coolify-testing-host; do
         sleep "$SLEEP_SECONDS"
         attempt=$((attempt + 1))
     done
+done
+
+echo "==> Verifying coolify-testing-host's docker.sock actually works (not just that the container is running)..."
+# "running" alone doesn't prove the socket reconnected - docker version's Server block is
+# null when it's stale. A restart of an already-"running" container still re-attaches the
+# mount, same remedy as the exited-container case above.
+attempt=1
+while true; do
+    if docker exec coolify-testing-host docker version --format '{{json .Server}}' 2>/dev/null | grep -qv '^null$'; then
+        break
+    fi
+    if [ "$attempt" -gt "$MAX_ATTEMPTS" ]; then
+        echo "    - coolify-testing-host's docker.sock is still not functional after $MAX_ATTEMPTS attempts - giving up on it."
+        break
+    fi
+    echo "    - coolify-testing-host's docker.sock isn't functional yet (attempt $attempt/$MAX_ATTEMPTS), restarting..."
+    docker restart coolify-testing-host >/dev/null 2>&1 || true
+    sleep "$SLEEP_SECONDS"
+    attempt=$((attempt + 1))
 done
 
 echo "==> Waiting for healthchecks to settle..."
