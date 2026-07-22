@@ -213,7 +213,18 @@ function ProxySection({ generalForm, generalUrls, canUpdate }) {
                 />
                 Make it publicly available
             </label>
-            <form onSubmit={saveConnection} className="flex flex-col gap-2">
+            {/* A <div>, not a <form> - this renders inside DatabaseGeneralTab's own outer <form>,
+                and nested forms are invalid HTML (React logs a hydration error and browsers
+                implicitly close the outer form when they hit a nested one). Enter-to-submit on
+                these two fields is preserved via onKeyDown instead. */}
+            <div
+                className="flex flex-col gap-2"
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        saveConnection(e);
+                    }
+                }}
+            >
                 <Field
                     id="db-general-public-port"
                     name="db-general-public-port"
@@ -235,7 +246,7 @@ function ProxySection({ generalForm, generalUrls, canUpdate }) {
                     value={publicPortTimeout}
                     onChange={(e) => setPublicPortTimeout(e.target.value)}
                 />
-            </form>
+            </div>
         </div>
     );
 }

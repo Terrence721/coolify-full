@@ -45,6 +45,34 @@ it('creates an environment variable with a null value without crashing', functio
     expect($environmentVariable->fresh()->value)->toBeNull();
 });
 
+it('reads real_value on a null-value environment variable without crashing', function () {
+    // realValue()'s JSON-passthrough check used to call json_validate($real_value) unguarded -
+    // a TypeError under strict_types=1 whenever $real_value was null (e.g. a required variable
+    // with no default, like a fresh one-click service's API-token placeholder before the user
+    // fills it in). Reachable any time a resource's env vars are rendered before every required
+    // value has been set. Found via the "+ New" resource wizard smoke test.
+    $team = Team::factory()->create();
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $environment = $project->environments()->first();
+    $destination = $server->standaloneDockers()->first();
+    $application = Application::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+        'destination_type' => StandaloneDocker::class,
+    ]);
+
+    $environmentVariable = EnvironmentVariable::create([
+        'key' => 'REQUIRED_NO_DEFAULT',
+        'value' => null,
+        'resourceable_type' => get_class($application),
+        'resourceable_id' => $application->id,
+        'is_preview' => false,
+    ]);
+
+    expect($environmentVariable->fresh()->real_value)->toBeNull();
+});
+
 it('creates an environment variable with an empty-string value without crashing', function () {
     $team = Team::factory()->create();
     $server = Server::factory()->create(['team_id' => $team->id]);

@@ -188,8 +188,8 @@ class EnvironmentVariable extends BaseModel
     }
 
     /**
-     * @param  Builder<EnvironmentVariable>  $query
-     * @return Builder<EnvironmentVariable>
+     * @param  Builder<ModelsEnvironmentVariable>  $query
+     * @return Builder<ModelsEnvironmentVariable>
      */
     public function scopeWithoutBuildpackControlVariables(Builder $query): Builder
     {
@@ -268,6 +268,10 @@ class EnvironmentVariable extends BaseModel
                 }
 
                 $real_value = $this->get_real_environment_variables(data_get($this, 'value'), $resource);
+
+                if ($real_value === null) {
+                    return null;
+                }
 
                 // Skip escaping for valid JSON objects/arrays to prevent quote corruption (see #6160)
                 if (json_validate($real_value) && (str_starts_with($real_value, '{') || str_starts_with($real_value, '['))) {
