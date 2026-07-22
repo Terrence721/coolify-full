@@ -10,8 +10,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class CheckHelperImageJob implements ShouldBeEncrypted, ShouldQueue
 {
@@ -23,22 +21,8 @@ class CheckHelperImageJob implements ShouldBeEncrypted, ShouldQueue
 
     public function handle(): void
     {
-        try {
-            $response = Http::retry(3, 1000)->get(config('constants.coolify.versions_url'));
-            if ($response->successful()) {
-                $versions = $response->json();
-                $settings = instanceSettings();
-                $latest_version = data_get($versions, 'coolify.helper.version');
-                $current_version = $settings->helper_version;
-                if (version_compare($latest_version, $current_version, '>')) {
-                    $settings->update(['helper_version' => $latest_version]);
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in handle().', ['error' => $e->getMessage()]);
-
-            send_internal_notification('CheckHelperImageJob failed with: '.$e->getMessage());
-            throw $e;
-        }
+        // This fork has no CDN/upgrade pipeline of its own (see RELEASE.md) - the helper
+        // image version stays pinned to config('constants.coolify.helper_version')
+        // instead of being bumped from upstream's version feed. Disabled entirely.
     }
 }
