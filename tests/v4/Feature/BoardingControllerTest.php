@@ -54,7 +54,7 @@ it('renders the onboarding page with servers, keys, and projects', function () {
     );
 });
 
-it('creates a server and returns its uuid as json', function () {
+it('creates a server and returns its id, uuid, and name as json', function () {
     [, $team] = boardingActingAs();
     $key = PrivateKey::create([
         'name' => 'Deploy Key',
@@ -76,7 +76,29 @@ it('creates a server and returns its uuid as json', function () {
     expect($server)->not->toBeNull();
     expect($server->name)->toBe('onboarding-server');
     expect($server->team_id)->toBe($team->id);
-    $response->assertJson(['uuid' => $server->uuid, 'name' => 'onboarding-server']);
+    // 'id' is required here, not just uuid/name: Boarding/Index.jsx's "Deploy Your First
+    // Resource" link builds its server_id query param from this response, and
+    // ProjectResourceCreateController expects that param to be the server's numeric id
+    // (`$servers->firstWhere('id', (int) $server_id)`), not its uuid.
+    $response->assertJson(['id' => $server->id, 'uuid' => $server->uuid, 'name' => 'onboarding-server']);
+});
+
+it('exposes the localhost server\'s id, not just its uuid and name', function () {
+    [, $team] = boardingActingAs();
+    // Mirrors the real id-0 localhost server every instance seeds; the "This Machine" tile's
+    // "Deploy Your First Resource" link needs `id` for the same server_id-must-be-numeric
+    // reason as the createServer() test above.
+    $server = Server::factory()->create(['id' => 0, 'team_id' => $team->id, 'name' => 'localhost']);
+
+    $response = $this->get(route('onboarding'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Boarding/Index')
+        ->where('localhostServer.id', $server->id)
+        ->where('localhostServer.uuid', $server->uuid)
+        ->where('localhostServer.name', 'localhost')
+    );
 });
 
 it('rejects a server with an IP already used by the current team', function () {

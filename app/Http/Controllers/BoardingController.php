@@ -64,6 +64,7 @@ class BoardingController extends Controller
 
         return Inertia::render('Boarding/Index', [
             'localhostServer' => $localhostServer ? [
+                'id' => $localhostServer->id,
                 'uuid' => $localhostServer->uuid,
                 'name' => $localhostServer->name,
             ] : null,
@@ -116,7 +117,7 @@ class BoardingController extends Controller
             'team_id' => currentTeam()->id,
         ]);
 
-        return response()->json(['uuid' => $server->uuid, 'name' => $server->name]);
+        return response()->json(['id' => $server->id, 'uuid' => $server->uuid, 'name' => $server->name]);
     }
 
     public function validateServer(Request $request, ServerValidationService $validationService): JsonResponse
