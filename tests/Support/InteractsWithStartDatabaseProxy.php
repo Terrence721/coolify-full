@@ -11,6 +11,8 @@ use App\Models\StandaloneRedis;
 use Tests\Support\Fakes\DatabaseActionFake;
 use Tests\Support\Fakes\RemoteProcessFake;
 
+require_once __DIR__.'/Fakes/database_action_overrides.php';
+
 /** Shared fixture builder + setUp() for StartDatabaseProxyTest. */
 trait InteractsWithStartDatabaseProxy
 {

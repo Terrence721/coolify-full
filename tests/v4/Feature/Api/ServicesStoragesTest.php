@@ -15,6 +15,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\Support\InteractsWithApiV1;
 
+require_once __DIR__.'/../../../Support/Fakes/model_remote_process_overrides.php';
+
 uses(RefreshDatabase::class, InteractsWithApiV1::class);
 
 beforeEach(function () {

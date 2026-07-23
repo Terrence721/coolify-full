@@ -13,6 +13,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+require_once __DIR__.'/../../Support/Fakes/model_remote_process_overrides.php';
+
 /**
  * Regression coverage for the 5 factories added to close out PHPStan's
  * HasFactory<TFactory> findings (LocalFileVolume/OauthSetting/S3Storage/
