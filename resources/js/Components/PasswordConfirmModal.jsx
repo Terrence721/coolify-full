@@ -54,7 +54,18 @@ export default function PasswordConfirmModal({
                         ✕
                     </button>
                 </div>
-                <form onSubmit={submit} className="flex flex-col gap-3 p-6">
+                {/* A <div>, not a <form> - this modal is rendered inside several pages' own outer
+                    <form> (e.g. BackupEditForm), and nested forms are invalid HTML (React logs a
+                    hydration error and browsers implicitly close the outer form when they hit a
+                    nested one). Enter-to-submit is preserved via onKeyDown instead. */}
+                <div
+                    className="flex flex-col gap-3 p-6"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            submit(e);
+                        }
+                    }}
+                >
                     <ul className="list-disc pl-4 text-sm">
                         {actions.map((a) => (
                             <li key={a}>{a}</li>
@@ -99,14 +110,15 @@ export default function PasswordConfirmModal({
                             Cancel
                         </button>
                         <button
-                            type="submit"
+                            type="button"
                             className="text-error"
+                            onClick={submit}
                             disabled={processing || (withPassword && !password) || (confirmationText && confirmation !== confirmationText)}
                         >
                             Confirm
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

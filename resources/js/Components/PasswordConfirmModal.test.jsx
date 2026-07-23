@@ -110,14 +110,36 @@ describe('PasswordConfirmModal', () => {
         expect(confirmButton).not.toBeDisabled();
     });
 
-    it('submit() is a no-op guard even if the form is force-submitted with mismatched confirmation text', () => {
-        render(<PasswordConfirmModal {...baseProps({ withPassword: false, confirmationText: 'my-server' })} />);
+    it('submit() is a no-op guard even if Enter is pressed with mismatched confirmation text', () => {
+        render(
+            <PasswordConfirmModal
+                {...baseProps({ withPassword: false, confirmationText: 'my-server', confirmationLabel: 'Type the server name' })}
+            />,
+        );
 
-        // Simulate a form submit event bypassing the disabled button (e.g. pressing Enter)
-        const form = screen.getByRole('button', { name: 'Cancel' }).closest('form');
-        act(() => form.requestSubmit());
+        // Simulate pressing Enter in the confirmation field, bypassing the disabled button
+        act(() => screen.getByLabelText('Type the server name').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
 
         expect(deleteSpy).not.toHaveBeenCalled();
+    });
+
+    it('is not rendered as a <form>, so it can nest inside a caller-provided outer <form> without a hydration error', () => {
+        // Real bug found live: BackupEditForm wraps the whole page in its own <form>, and this
+        // modal used to render its own nested <form onSubmit={...}> inside it - invalid HTML,
+        // and React logs a hydration error for it every time the modal opens on any of the 13+
+        // pages that use it.
+        const { container } = render(<PasswordConfirmModal {...baseProps({ withPassword: false })} />);
+
+        expect(container.querySelector('form')).not.toBeInTheDocument();
+    });
+
+    it('submits when Enter is pressed in the Password field', () => {
+        render(<PasswordConfirmModal {...baseProps()} />);
+
+        act(() => typeInto(screen.getByLabelText('Password'), 'hunter2'));
+        act(() => screen.getByLabelText('Password').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
+
+        expect(deleteSpy).toHaveBeenCalledWith('/resource/1', expect.objectContaining({ preserveScroll: true }));
     });
 
     it('pre-selects checkboxes flagged as default, and toggling updates selection', () => {
