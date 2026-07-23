@@ -23,7 +23,7 @@ It showcases real-world engineering work including:
 
 This project is not affiliated with the Coolify team and is intended solely as a technical portfolio artifact.
 
-**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,245 Pest tests passing (5,098 assertions) · 235 Vitest/Testing Library React component tests (26 suites) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
+**At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,245 Pest tests passing (5,098 assertions) · 246 Vitest/Testing Library React component tests (27 suites) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
 **Reading the commit history:** 389 commits total — 64 are PHPStan hardening phases, 208 are other engineering work (features, bug fixes, the React migration), and 117 touch only documentation/tracking files (`todo.md`, `README.md`, `docs/*.md`). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
 
