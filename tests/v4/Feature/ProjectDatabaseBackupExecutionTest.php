@@ -86,6 +86,33 @@ it('renders the backup execution page with executions', function () {
     );
 });
 
+it('includes the full DatabaseHeading url set so its status poll and Start/Stop/Restart buttons work', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    [$database, $backup] = makeTestPostgresWithBackup($team, $server);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('project.database.backup.execution', executionRouteParams($database, $backup)));
+
+    $databaseParams = [
+        'project_uuid' => $database->environment->project->uuid,
+        'environment_uuid' => $database->environment->uuid,
+        'database_uuid' => $database->uuid,
+    ];
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Project/Database/Backup/Execution')
+        ->where('urls.start', route('project.database.start', $databaseParams))
+        ->where('urls.stop', route('project.database.stop', $databaseParams))
+        ->where('urls.restart', route('project.database.restart', $databaseParams))
+        ->where('urls.checkStatus', route('project.database.check-status', $databaseParams))
+    );
+});
+
 it('redirects to the dashboard for a backup that does not belong to the database', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

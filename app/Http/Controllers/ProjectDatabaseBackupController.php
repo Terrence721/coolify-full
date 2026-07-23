@@ -8,11 +8,11 @@ use App\Actions\Database\RestartDatabase;
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
 use App\Actions\Docker\GetContainersStatus;
-use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesScheduledDatabaseBackups;
 use App\Jobs\DatabaseBackupJob;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
+use App\Models\StandaloneDatabaseInstance;
 use App\Support\DatabaseEngineRegistry;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -120,6 +120,10 @@ class ProjectDatabaseBackupController extends Controller
             'showPrev' => $skip > 0,
             'canManageBackups' => auth()->user()?->can('manageBackups', $database) ?? false,
             'urls' => [
+                'start' => route('project.database.start', $parameters),
+                'stop' => route('project.database.stop', $parameters),
+                'restart' => route('project.database.restart', $parameters),
+                'checkStatus' => route('project.database.check-status', $parameters),
                 'update' => route('project.database.backup.update', [...$parameters, 'backup_uuid' => $backup_uuid]),
                 'destroy' => route('project.database.backup.destroy', [...$parameters, 'backup_uuid' => $backup_uuid]),
                 'backupNow' => route('project.database.backup.backup-now', [...$parameters, 'backup_uuid' => $backup_uuid]),
