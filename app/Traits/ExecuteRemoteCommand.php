@@ -163,7 +163,7 @@ trait ExecuteRemoteCommand
             }
 
             // Sanitize output to ensure valid UTF-8 encoding before JSON encoding
-            $sanitized_output = sanitize_utf8_text($output);
+            $sanitized_output = sanitize_utf8_text((string) $output);
 
             $new_log_entry = [
                 'command' => $command_hidden ? null : $this->redact_sensitive_info($command),
