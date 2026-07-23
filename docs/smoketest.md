@@ -93,11 +93,11 @@ These need the most attention — they're the pages automated checks can't fully
 
 **`/project/.../deployment` (Application Deployment Index)**
 
-- [ ] Trigger a deploy. Confirm the Heading's status badge updates **without a manual refresh** (Echo-driven via `ServiceStatusChanged`/`ServiceChecked`).
-- [ ] Confirm the deployment list updates live as the deployment progresses (5s poll + Echo).
-- [ ] Change an environment variable, confirm the "configuration changed" banner appears and the diff modal shows the right redaction (non-admins see masked env values, admins see real ones).
-- [ ] Test Stop/Restart/Force-deploy buttons.
-- [ ] Filter by PR ID, confirm pagination (prev/next) works.
+- [x] Trigger a deploy. Confirm the Heading's status badge updates **without a manual refresh** (Echo-driven via `ServiceStatusChanged`/`ServiceChecked`). **Confirmed 2026-07-23**, real Playwright session: found and fixed two severe crash bugs first (see `todo.md`'s two entries this date — the `sanitize_utf8_text()`/`Stringable` crash and the `convertDockerRunToCompose()` null crash), then a real deployment against the seeded dev server actually succeeded end-to-end (real build, real rolling update). Watched the Deployment Show page's status transition "In Progress" → "Finished" via its own 2s poll with zero manual refreshes.
+- [x] Confirm the deployment list updates live as the deployment progresses (5s poll + Echo). **Confirmed 2026-07-23**: same session, watched the Deployment Index page's list transition "In Progress" → "Success" via its own 5s poll, no manual refresh, no navigation.
+- [ ] Change an environment variable, confirm the "configuration changed" banner appears and the diff modal shows the right redaction (non-admins see masked env values, admins see real ones). Not yet tested.
+- [x] Test Stop/Restart/Force-deploy buttons. **Confirmed 2026-07-23**: Restart, Stop, and Force Deploy (without cache) all individually triggered live and confirmed to do the real thing (real container stop, real rebuild-without-cache), not just render the right button. **Found and fixed a severe, systemic bug along the way** while testing Stop: `composer.json`'s `autoload-dev.files` was unconditionally loading 3 test-fake files into every real dev request (not just test runs), silently shadowing real functions — including `isDev()` and this session's own earlier `convertDockerRunToCompose()` fix — inside `App\Actions\Application`, `App\Actions\Database`, and `App\Models`. Fixed properly: removed the 3 entries from `composer.json`, added explicit `require_once` to the 16 real tests that relied on the eager load. Full detail in `todo.md`.
+- [ ] Filter by PR ID, confirm pagination (prev/next) works. Not yet tested — this app only has single-digit deployments seeded so far, would need enough real deployments across pages to exercise pagination meaningfully.
 
 **`/project/{uuid}/environment/{uuid}/database/{uuid}/backups/{backup_uuid}` (Database Backup Execution)**
 

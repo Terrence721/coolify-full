@@ -94,12 +94,7 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        },
-        "files": [
-            "tests/Support/Fakes/action_remote_process_overrides.php",
-            "tests/Support/Fakes/database_action_overrides.php",
-            "tests/Support/Fakes/model_remote_process_overrides.php"
-        ]
+        }
     },
     "config": {
         "allow-plugins": {

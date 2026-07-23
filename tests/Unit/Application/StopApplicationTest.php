@@ -21,6 +21,8 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\TestCase;
 
+require_once __DIR__.'/../../Support/Fakes/action_remote_process_overrides.php';
+
 class StopApplicationTest extends TestCase
 {
     use RefreshDatabase;
