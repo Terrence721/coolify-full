@@ -280,22 +280,25 @@ export default function Index({
                             </>
                         }
                         actions={
-                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                                <button type="button" onClick={chooseLocalhost} className="flex flex-col items-start gap-2 p-6 text-left">
-                                    <span className="text-xs font-bold tracking-wide uppercase">Quick Start</span>
-                                    <h3 className="text-xl font-bold">This Machine</h3>
-                                    <p className="text-sm dark:text-neutral-400">
-                                        Deploy on the server running Coolify. Best for testing and single-server setups.
-                                    </p>
-                                </button>
-                                <button type="button" onClick={chooseRemote} className="flex flex-col items-start gap-2 p-6 text-left">
-                                    <span className="text-xs font-bold tracking-wide uppercase">Recommended</span>
-                                    <h3 className="text-xl font-bold">Remote Server</h3>
-                                    <p className="text-sm dark:text-neutral-400">
-                                        Connect via SSH to any server—cloud VPS, bare metal, or home infrastructure.
-                                    </p>
-                                </button>
-                            </div>
+                            <>
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                    <button type="button" onClick={chooseLocalhost} className="flex flex-col items-start gap-2 p-6 text-left">
+                                        <span className="text-xs font-bold tracking-wide uppercase">Quick Start</span>
+                                        <h3 className="text-xl font-bold">This Machine</h3>
+                                        <p className="text-sm dark:text-neutral-400">
+                                            Deploy on the server running Coolify. Best for testing and single-server setups.
+                                        </p>
+                                    </button>
+                                    <button type="button" onClick={chooseRemote} className="flex flex-col items-start gap-2 p-6 text-left">
+                                        <span className="text-xs font-bold tracking-wide uppercase">Recommended</span>
+                                        <h3 className="text-xl font-bold">Remote Server</h3>
+                                        <p className="text-sm dark:text-neutral-400">
+                                            Connect via SSH to any server—cloud VPS, bare metal, or home infrastructure.
+                                        </p>
+                                    </button>
+                                </div>
+                                {error && <div className="text-sm text-error">{error}</div>}
+                            </>
                         }
                     />
                 </>
