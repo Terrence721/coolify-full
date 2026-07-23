@@ -83,9 +83,9 @@ Auth:
 
 Sources (`/sources`, Phase 53):
 
-- [ ] List renders team GitHub Apps; unregistered ones show "Configuration is not finished."
-- [ ] "+ Add" opens the create modal; `/sources?create=1` opens it automatically (this is how GlobalSearch's "GitHub App" quick action arrives).
-- [ ] Creating an app (default name pre-filled, optional organization, self-hosted accordion, system-wide warning callout) redirects to the new app's configuration page.
+- [x] List renders team GitHub Apps; unregistered ones show "Configuration is not finished." **Confirmed 2026-07-23**, real Playwright session: found dev-data drift first — this dev DB had zero `GithubApp` rows at all (`GithubAppSeeder` never having been (re-)run against this instance, same category of gap as the earlier `/settings/oauth` finding). Re-seeded, then confirmed the real page: the seeded `coolify-laravel-dev-public` app (has a real `app_id`) shows its organization; creating a fresh app via "+ Add" (no `app_id` yet, matching a genuinely just-registered app) correctly shows "Configuration is not finished." Also confirmed `Team::sources()` deliberately excludes the `is_public=true` "Public GitHub" system source from this list by design (not a bug — that entry is an implicit fallback for public-repo deploys, not a team-managed source).
+- [x] "+ Add" opens the create modal; `/sources?create=1` opens it automatically (this is how GlobalSearch's "GitHub App" quick action arrives). **Confirmed 2026-07-23**: modal closed by default, "+ Add" opens it with the default random name pre-filled, the ✕ button closes it, and navigating directly to `/sources?create=1` opens it automatically without any click.
+- [x] Creating an app (default name pre-filled, optional organization, self-hosted accordion, system-wide warning callout) redirects to the new app's configuration page. **Confirmed 2026-07-23**: the Self-hosted/Enterprise accordion is collapsed by default and reveals the HTML/API URL fields on click; checking "System Wide" reveals the "Not Recommended" warning callout and hides it again when unchecked; submitting with an organization filled in creates the app and redirects to `/source/github/{uuid}`, zero console errors. Throwaway app cleaned up after (re-seeded `GithubApp` baseline rows kept). This was the last item on issue #21 — now 28/28. See issue #21.
 
 ## 4. Hard bucket (59 pages) — real-time and non-trivial
 
