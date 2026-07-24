@@ -159,7 +159,14 @@ describe('Team/Member/Index', () => {
             <Index
                 {...baseProps({
                     invitations: [
-                        { id: 9, email: 'pending@example.com', via: 'link', role: 'member', link: 'https://example.test/invite/abc', deleteUrl: '/team/invitations/9' },
+                        {
+                            id: 9,
+                            email: 'pending@example.com',
+                            via: 'link',
+                            role: 'member',
+                            link: 'https://example.test/invite/abc',
+                            deleteUrl: '/team/invitations/9',
+                        },
                     ],
                 })}
             />,
@@ -181,7 +188,14 @@ describe('Team/Member/Index', () => {
             <Index
                 {...baseProps({
                     invitations: [
-                        { id: 9, email: 'pending@example.com', via: 'link', role: 'member', link: 'https://example.test/invite/abc', deleteUrl: '/team/invitations/9' },
+                        {
+                            id: 9,
+                            email: 'pending@example.com',
+                            via: 'link',
+                            role: 'member',
+                            link: 'https://example.test/invite/abc',
+                            deleteUrl: '/team/invitations/9',
+                        },
                     ],
                 })}
             />,
@@ -197,7 +211,14 @@ describe('Team/Member/Index', () => {
             <Index
                 {...baseProps({
                     invitations: [
-                        { id: 9, email: 'pending@example.com', via: 'link', role: 'member', link: 'https://example.test/invite/abc', deleteUrl: '/team/invitations/9' },
+                        {
+                            id: 9,
+                            email: 'pending@example.com',
+                            via: 'link',
+                            role: 'member',
+                            link: 'https://example.test/invite/abc',
+                            deleteUrl: '/team/invitations/9',
+                        },
                     ],
                 })}
             />,
