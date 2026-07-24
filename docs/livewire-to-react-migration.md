@@ -1,7 +1,7 @@
 # Livewire → React Migration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 20, 2026**
+**Last Updated: July 24, 2026**
 
 ## 1. Why
 
@@ -13,6 +13,8 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 - **Plain React SPA + REST API**: would require designing, building, and versioning a whole new API surface (auth, CSRF, serialization, pagination, etc.) before we could move a single page, on top of the React migration itself.
 - **Inertia.js** (chosen): each page stays a normal Laravel route + controller that returns data as props. Routing, auth, CSRF, and session handling keep working as they do today. Migrated and not-yet-migrated pages coexist under the same Laravel app with no parallel API to maintain.
+
+See the **[rendered diagram](https://terrence721.github.io/coolify-full/diagrams/livewire-to-inertia-request-flow.html)** for a visual side-by-side of the request flow before and after — same route, same controller, different rendering layer underneath.
 
 ## 3. Current status
 

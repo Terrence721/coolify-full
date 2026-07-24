@@ -1,9 +1,11 @@
 # Smoke Test
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 23, 2026**
+**Last Updated: July 24, 2026**
 
 A manual, browser-based checklist for verifying the app actually works end-to-end — the thing every phase of `docs/livewire-to-react-migration.md` explicitly skipped in favor of automated checks (Pint/Pest/`yarn build`). The Livewire→React migration itself completed 2026-07-14; this checklist now serves as a standing regression suite — run it after any batch of work touching these flows, not just migration work. See `docs/command.md` for the commands to start the dev stack.
+
+This checklist is the third of three testing layers — Pest (backend), Vitest (frontend in isolation), and this file (real browser, real HTTP) — each blind to what the other two cover. See the **[rendered diagram](https://terrence721.github.io/coolify-full/diagrams/testing-strategy-layers.html)** for what each layer actually proves, with real examples of bugs only one layer caught.
 
 Check items off as `[x]` as you go, or just read top to bottom and confirm each still works. If something fails, note the page and the exact error (console + Laravel Debugbar) before fixing — that detail is what makes a bug report actionable.
 
