@@ -136,7 +136,7 @@ export default function Index({
     sendInvitationUrl,
 }) {
     const { permissions } = usePage().props;
-    const { data, setData, post, processing, errors, reset } = useForm({ email: '', role: 'member' });
+    const { data, setData, processing, errors, reset } = useForm({ email: '', role: 'member' });
 
     function submitInvite(e) {
         e.preventDefault();
