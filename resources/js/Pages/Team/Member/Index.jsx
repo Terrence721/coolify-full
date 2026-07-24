@@ -140,11 +140,11 @@ export default function Index({
 
     function submitInvite(e) {
         e.preventDefault();
-        post(sendInvitationUrl, {
-            data: { ...data, via: 'link' },
-            preserveScroll: true,
-            onSuccess: () => reset(),
-        });
+        // useForm's own post(url, options) doesn't accept a data override in options - only
+        // router.post(url, data, options) does. This used to silently submit without `via` at
+        // all (options.data was ignored), failing the backend's required `via` validation on
+        // every click with zero visible feedback, since nothing here renders errors.via.
+        router.post(sendInvitationUrl, { ...data, via: 'link' }, { preserveScroll: true, onSuccess: () => reset() });
     }
 
     function sendViaEmail() {
