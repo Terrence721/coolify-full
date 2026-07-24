@@ -6,7 +6,7 @@
 <!-- markdownlint-disable-next-line MD036 -->
 **Last Updated: July 23, 2026**
 
-This repository is a professionally enhanced fork of [Coolify](https://coolify.io), created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
+This repository is a professionally enhanced fork of Coolify, created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
 **Evaluating this for a specific role?** See [`POSITION_ALIGNMENT.md`](POSITION_ALIGNMENT.md) for a direct, requirement-by-requirement mapping between this repo and a real job description — not a generic "skills" list, an actual line-by-line comparison.
 
