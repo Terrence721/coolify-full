@@ -1,5 +1,5 @@
 import { router, useForm, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function DeleteGithubAppModal({ githubApp, hasApplications, deleteUrl, onClose }) {
     const [confirmation, setConfirmation] = useState('');
@@ -164,6 +164,29 @@ export default function Change({
         isSystemWide: githubApp.isSystemWide,
         privateKeyId: githubApp.privateKeyId ?? '',
     });
+
+    // Several actions on this page (Manual Installation, Sync Name, toggling System Wide, ...) are
+    // Inertia soft navigations that redirect back to this same route/component, so Inertia reuses
+    // the existing component instance rather than remounting it - useForm's initial data snapshot is
+    // taken once at mount and won't otherwise pick up the fresh githubApp values those actions bring.
+    useEffect(() => {
+        setData({
+            name: githubApp.name,
+            organization: githubApp.organization ?? '',
+            apiUrl: githubApp.apiUrl,
+            htmlUrl: githubApp.htmlUrl,
+            customUser: githubApp.customUser,
+            customPort: githubApp.customPort,
+            appId: githubApp.appId,
+            installationId: githubApp.installationId,
+            clientId: githubApp.clientId ?? '',
+            clientSecret: githubApp.clientSecret ?? '',
+            webhookSecret: githubApp.webhookSecret ?? '',
+            isSystemWide: githubApp.isSystemWide,
+            privateKeyId: githubApp.privateKeyId ?? '',
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [githubApp]);
 
     function submit(e) {
         e.preventDefault();
