@@ -1,0 +1,365 @@
+<title>Livewire → Inertia + React — Request Flow</title>
+<style>
+  :root {
+    --ink: #1b1f1e;
+    --ink-soft: #4b544f;
+    --paper: #e9ece9;
+    --surface: #ffffff;
+    --line: #b7bfba;
+    --before: #8b5e3c;
+    --before-bg: #f1e6da;
+    --after: #2b6e63;
+    --after-bg: #e1ede9;
+    --shared: #3c4440;
+    --shared-bg: #eef1ef;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", "Liberation Mono", monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eceeec;
+    --ink-soft: #a9b2ac;
+    --paper: #141716;
+    --surface: #1c2120;
+    --line: #3a423e;
+    --before: #d99a63;
+    --before-bg: #2c2119;
+    --after: #5cb3a4;
+    --after-bg: #172925;
+    --shared: #cdd3d0;
+    --shared-bg: #222725;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eceeec;
+      --ink-soft: #a9b2ac;
+      --paper: #141716;
+      --surface: #1c2120;
+      --line: #3a423e;
+      --before: #d99a63;
+      --before-bg: #2c2119;
+      --after: #5cb3a4;
+      --after-bg: #172925;
+      --shared: #cdd3d0;
+      --shared-bg: #222725;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    padding: 2.5rem 1.5rem 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.6rem;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .dek {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0 0 2.4rem;
+  }
+
+  .dek code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+
+  .lane {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 1.4rem 1.5rem 1.6rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .lane-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .lane-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .lane--before .lane-tag { color: var(--before); background: var(--before-bg); }
+  .lane--after .lane-tag { color: var(--after); background: var(--after-bg); }
+
+  .lane-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+  }
+
+  .node {
+    flex: 1 1 0;
+    min-width: 132px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--paper);
+    padding: 0.75rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .node--shared {
+    border-color: var(--shared);
+    background: var(--shared-bg);
+    position: relative;
+  }
+
+  .node--shared::before {
+    content: "unchanged";
+    position: absolute;
+    top: -0.55rem;
+    left: 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: var(--surface);
+    color: var(--shared);
+    padding: 0 0.35rem;
+    border: 1px solid var(--shared);
+    border-radius: 3px;
+  }
+
+  .node-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .node-sub {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .arrow {
+    flex: 0 0 auto;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--line);
+    font-size: 1rem;
+    position: relative;
+    top: 1px;
+  }
+
+  .lane--before .node-label { color: var(--before); }
+  .lane--after .node-label { color: var(--after); }
+
+  .result {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--line);
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+  }
+
+  .result strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1.8rem 0 2rem;
+  }
+
+  .fact {
+    background: var(--surface);
+    padding: 1rem 1.1rem;
+  }
+
+  .fact-num {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--after);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .fact-label {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-top: 0.15rem;
+    line-height: 1.35;
+  }
+
+  .note {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    max-width: 66ch;
+  }
+
+  .note strong { color: var(--ink); }
+
+  footer {
+    margin-top: 2.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 640px) {
+    .flow { flex-direction: column; }
+    .arrow { width: auto; height: 20px; transform: rotate(90deg); }
+    .facts { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page">
+  <p class="eyebrow">coolify-full — architecture note</p>
+  <h1>Same routes, same controllers. The delivery mechanism changed underneath them.</h1>
+  <p class="dek">
+    84 pages migrated from Blade + Livewire to Inertia.js + React, one page at a time,
+    with both stacks running side by side until each page was fully converted, tested,
+    and verified — never a big-bang rewrite. The request still lands on the same
+    <code>routes/web.php</code> entry and the same controller either way.
+  </p>
+
+  <div class="lane lane--before">
+    <div class="lane-head">
+      <span class="lane-tag">Before</span>
+      <p class="lane-title">Blade + Livewire</p>
+    </div>
+    <div class="flow">
+      <div class="node">
+        <div class="node-label">Browser</div>
+        <div class="node-sub">full page GET</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node--shared">
+        <div class="node-label">Route + Controller</div>
+        <div class="node-sub">ProjectController::index</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="node-label">Blade view</div>
+        <div class="node-sub">renders a Livewire component</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="node-label">Livewire runtime</div>
+        <div class="node-sub">wire:click → AJAX → same Blade template, re-rendered server-side</div>
+      </div>
+    </div>
+    <div class="result">Response: <strong>full HTML document</strong>, then server-rendered partials for every interaction</div>
+  </div>
+
+  <div class="lane lane--after">
+    <div class="lane-head">
+      <span class="lane-tag">After</span>
+      <p class="lane-title">Inertia.js + React</p>
+    </div>
+    <div class="flow">
+      <div class="node">
+        <div class="node-label">Browser</div>
+        <div class="node-sub">Inertia visit, XHR</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node node--shared">
+        <div class="node-label">Route + Controller</div>
+        <div class="node-sub">ProjectController::index</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="node-label">Inertia::render()</div>
+        <div class="node-sub">component name + props, as JSON</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="node">
+        <div class="node-label">React component</div>
+        <div class="node-sub">renders client-side, pushState — no reload</div>
+      </div>
+    </div>
+    <div class="result">Response: <strong>JSON props</strong> on navigation, real DOM diffing for every interaction</div>
+  </div>
+
+  <div class="facts">
+    <div class="fact">
+      <div class="fact-num">84 / 84</div>
+      <div class="fact-label">pages converted, page by page — both stacks coexisted the whole time</div>
+    </div>
+    <div class="fact">
+      <div class="fact-num">0</div>
+      <div class="fact-label">new API endpoints written — controllers kept returning props, not a separate JSON API</div>
+    </div>
+    <div class="fact">
+      <div class="fact-num">1</div>
+      <div class="fact-label">thing that never moved: auth, sessions, and CSRF, unchanged on both sides</div>
+    </div>
+  </div>
+
+  <p class="note">
+    <strong>Why this shape, not a decoupled SPA:</strong> a fully separate API would have meant
+    designing and versioning an entire API surface before migrating even one page. Inertia let
+    each page keep using its existing controller almost unchanged — the trade was giving up
+    independent deployability and a reusable API layer a future non-web client could have consumed.
+  </p>
+
+  <footer>coolify-full · docs/livewire-to-react-migration.md</footer>
+</div>

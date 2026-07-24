@@ -1,0 +1,275 @@
+<title>Three Testing Layers — What Each One Proves</title>
+<style>
+  :root {
+    --ink: #1b1f1e;
+    --ink-soft: #4b544f;
+    --paper: #e9ece9;
+    --surface: #ffffff;
+    --line: #b7bfba;
+    --backend: #8b5e3c;
+    --backend-bg: #f1e6da;
+    --frontend: #2b6e63;
+    --frontend-bg: #e1ede9;
+    --manual: #5b4b8a;
+    --manual-bg: #e9e5f4;
+    --shared: #3c4440;
+    --shared-bg: #eef1ef;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", "Liberation Mono", monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eceeec;
+    --ink-soft: #a9b2ac;
+    --paper: #141716;
+    --surface: #1c2120;
+    --line: #3a423e;
+    --backend: #d99a63;
+    --backend-bg: #2c2119;
+    --frontend: #5cb3a4;
+    --frontend-bg: #172925;
+    --manual: #a794e0;
+    --manual-bg: #221d33;
+    --shared: #cdd3d0;
+    --shared-bg: #222725;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eceeec;
+      --ink-soft: #a9b2ac;
+      --paper: #141716;
+      --surface: #1c2120;
+      --line: #3a423e;
+      --backend: #d99a63;
+      --backend-bg: #2c2119;
+      --frontend: #5cb3a4;
+      --frontend-bg: #172925;
+      --manual: #a794e0;
+      --manual-bg: #221d33;
+      --shared: #cdd3d0;
+      --shared-bg: #222725;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    padding: 2.5rem 1.5rem 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 980px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.6rem;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .dek {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 68ch;
+    margin: 0 0 2.4rem;
+  }
+
+  .dek code { font-family: var(--mono); font-size: 0.9em; color: var(--ink); }
+
+  .layers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.1rem;
+    align-items: stretch;
+    margin-bottom: 1.6rem;
+  }
+
+  .layer {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 1.3rem 1.3rem 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .layer-tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  .layer--backend .layer-tag { color: var(--backend); background: var(--backend-bg); }
+  .layer--frontend .layer-tag { color: var(--frontend); background: var(--frontend-bg); }
+  .layer--manual .layer-tag { color: var(--manual); background: var(--manual-bg); }
+
+  .layer-title { font-size: 1.02rem; font-weight: 600; margin: 0; }
+  .layer-title span {
+    display: block;
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-top: 0.15rem;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 0.3rem; }
+
+  .field-label {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .field-body { font-size: 0.86rem; line-height: 1.48; }
+
+  .layer--backend .field--proves .field-body { border-left: 2px solid var(--backend); padding-left: 0.6rem; }
+  .layer--frontend .field--proves .field-body { border-left: 2px solid var(--frontend); padding-left: 0.6rem; }
+  .layer--manual .field--proves .field-body { border-left: 2px solid var(--manual); padding-left: 0.6rem; }
+
+  .field--blind .field-body {
+    border-left: 2px dashed var(--line);
+    padding-left: 0.6rem;
+    color: var(--ink-soft);
+  }
+
+  .example {
+    margin-top: auto;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--line);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .example strong { color: var(--ink); font-weight: 600; }
+  .example code { font-family: var(--mono); font-size: 0.92em; }
+
+  .union {
+    border: 1px solid var(--shared);
+    background: var(--shared-bg);
+    border-radius: 10px;
+    padding: 1.1rem 1.4rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  .union-mark {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: var(--shared);
+    font-weight: 600;
+    flex: 0 0 auto;
+  }
+
+  .union p { margin: 0; font-size: 0.9rem; line-height: 1.55; color: var(--ink); }
+  .union strong { font-weight: 600; }
+
+  footer {
+    margin-top: 2.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 760px) {
+    .layers { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page">
+  <p class="eyebrow">coolify-full — testing strategy</p>
+  <h1>Three layers, run together — each one blind to what the others cover.</h1>
+  <p class="dek">
+    None of these three substitute for each other. A backend that's provably correct and a
+    frontend that's provably correct in isolation still don't prove the two are wired together
+    correctly for a real user in a real browser.
+  </p>
+
+  <div class="layers">
+    <div class="layer layer--backend">
+      <span class="layer-tag">Pest 4</span>
+      <p class="layer-title">Backend<span>controllers, models, jobs, validation</span></p>
+      <div class="field field--proves">
+        <div class="field-label">Proves</div>
+        <div class="field-body">The right Inertia component and props come back, redirects and validation errors fire correctly, database state ends up right.</div>
+      </div>
+      <div class="field field--blind">
+        <div class="field-label">Blind to</div>
+        <div class="field-body">Never renders a React component or executes any JavaScript.</div>
+      </div>
+      <div class="example">
+        <strong>Missed it:</strong> <code>TeamMemberIndexTest.php</code> posted <code>via</code> directly to the route — it never caught the frontend silently dropping that field on every real click.
+      </div>
+    </div>
+
+    <div class="layer layer--frontend">
+      <span class="layer-tag">Vitest</span>
+      <p class="layer-title">Frontend, in isolation<span>React Testing Library, mocked router</span></p>
+      <div class="field field--proves">
+        <div class="field-label">Proves</div>
+        <div class="field-body">Given a set of props, the right thing renders — buttons shown or hidden, and clicking something calls the correct operation with the correct payload.</div>
+      </div>
+      <div class="field field--blind">
+        <div class="field-label">Blind to</div>
+        <div class="field-body">Every router call is mocked — no backend code runs, nothing touches the database.</div>
+      </div>
+      <div class="example">
+        <strong>Missed it:</strong> a component can pass every test here while the button it's testing stays permanently disabled in the real DOM — see the <code>!destinationId</code> falsy-zero bug, caught only by a live click.
+      </div>
+    </div>
+
+    <div class="layer layer--manual">
+      <span class="layer-tag">Playwright, by hand</span>
+      <p class="layer-title">Real browser<span>real HTTP, real database writes</span></p>
+      <div class="field field--proves">
+        <div class="field-label">Proves</div>
+        <div class="field-body">The whole application actually works end-to-end, for a real user, on the actual seeded dev server.</div>
+      </div>
+      <div class="field field--blind">
+        <div class="field-label">Blind to</div>
+        <div class="field-body">Nothing structurally — but it's manual, so it only covers what actually gets clicked through.</div>
+      </div>
+      <div class="example">
+        <strong>Caught it:</strong> a <code>window.prompt()</code> failure invisible to jsdom, and a <code>docker.sock</code> stale-socket bug — an infrastructure problem neither test suite could ever see.
+      </div>
+    </div>
+  </div>
+
+  <div class="union">
+    <span class="union-mark">∴</span>
+    <p>All three run <strong>together</strong>, not as substitutes — backend-correct plus frontend-correct-in-isolation still doesn't prove the two are wired together for a real user in a real browser.</p>
+  </div>
+
+  <footer>coolify-full · Pest 1250 tests · Vitest 397 tests (37 suites) · manual smoke-test checklist, docs/smoketest.md</footer>
+</div>
