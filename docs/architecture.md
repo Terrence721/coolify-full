@@ -98,7 +98,7 @@ See [DEVELOPING_IN_CONTAINERS_WINDOWS.md](../DEVELOPING_IN_CONTAINERS_WINDOWS.md
 
 - **`.circleci/config.yml`** — CircleCI pipeline.
 - **`.github/workflows/quality.yml`** — GitHub Actions: Pint, PHPStan, Psalm (`--taint-analysis`, PHP-side security dataflow scanning), and the Pest suite.
-- **`.github/workflows/codeql.yml`** + **`.github/codeql/codeql-config.yml`** — GitHub Actions: CodeQL, scoped to `javascript` only (CodeQL has no PHP support — Psalm's taint analysis above is the PHP-side equivalent). See `todo.md`'s "GitHub repo-level security features" entry for why two tools were needed and what each one actually covers.
+- **`.github/workflows/codeql.yml`** + **`.github/codeql/codeql-config.yml`** — GitHub Actions: CodeQL, scoped to `javascript` only (CodeQL has no PHP support — Psalm's taint analysis above is the PHP-side equivalent). See [`todo.md`](../todo.md)'s "GitHub repo-level security features" entry for why two tools were needed and what each one actually covers.
 
 ## 8. Where to go next
 

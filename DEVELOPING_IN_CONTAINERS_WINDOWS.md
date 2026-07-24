@@ -3,9 +3,9 @@
 <!-- markdownlint-disable-next-line MD036 -->
 **Last Updated: July 22, 2026**
 
-**The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in `docs/command.md` runs identically.
+**The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in [`docs/command.md`](docs/command.md) runs identically.
 
-**The repo lives inside a WSL2 Linux distro's native filesystem, not under `C:\Users\...`.** Docker Desktop's WSL2 backend bridges Windows and Linux file access over a 9P protocol layer that is extremely slow for anything bind-mounted from an NTFS path (a `yarn build` that takes ~2 seconds from WSL2-native storage took over 3 hours from a Windows path — see `docs/command.md`'s "RESOLVED" section for the full root-cause writeup). Keeping the working tree on WSL2-native storage (e.g. `/root/projects/coolify-full`) avoids that bridge entirely for every container operation, not just builds.
+**The repo lives inside a WSL2 Linux distro's native filesystem, not under `C:\Users\...`.** Docker Desktop's WSL2 backend bridges Windows and Linux file access over a 9P protocol layer that is extremely slow for anything bind-mounted from an NTFS path (a `yarn build` that takes ~2 seconds from WSL2-native storage took over 3 hours from a Windows path — see [`docs/command.md`](docs/command.md)'s "WSL2 migration" section for the full root-cause writeup). Keeping the working tree on WSL2-native storage (e.g. `/root/projects/coolify-full`) avoids that bridge entirely for every container operation, not just builds.
 
 ## 0. 5-Command Quick Start
 
@@ -35,7 +35,7 @@ Open after startup (these ports are exposed to the Windows host, so plain `local
 
 1. Install a real WSL2 distro if you don't already have one: `wsl --install -d Ubuntu` (avoid storing the project in Docker Desktop's own internal `docker-desktop` distro — it can be wiped/reset on Docker Desktop updates).
 2. Install Docker Desktop, then enable WSL2 integration for that distro: **Settings → Resources → WSL Integration**, toggle the distro on, Apply & Restart.
-3. Get the repo onto the WSL2 filesystem (clone directly there, or `rsync` an existing Windows-path checkout across — see `docs/command.md` for the exact `rsync` flags and a mistake to avoid with unanchored `--exclude` patterns).
+3. Get the repo onto the WSL2 filesystem (clone directly there, or `rsync` an existing Windows-path checkout across — see [`docs/command.md`](docs/command.md) for the exact `rsync` flags and a mistake to avoid with unanchored `--exclude` patterns).
 4. From a WSL2 terminal, in the repo root, create `.env` from the development template if needed:
 
 ```bash
@@ -96,7 +96,7 @@ docker exec coolify sh -lc "cd /var/www/html && php artisan test --compact"
 docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pint --dirty --format agent"
 ```
 
-See `docs/command.md` for the full command reference (Artisan, Pint, PHPStan, Pest, Yarn/Vite, Horizon, logs).
+See [`docs/command.md`](docs/command.md) for the full command reference (Artisan, Pint, PHPStan, Pest, Yarn/Vite, Horizon, logs).
 
 ## 6. Dependencies
 
@@ -262,7 +262,7 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 
 ### `service "redis" has neither an image nor a build context specified`
 
-You ran `docker compose -f docker-compose.dev.yml` without the base `docker-compose.yml`. `docker-compose.dev.yml` is an override, not a standalone file — always pass both (see `docs/command.md`).
+You ran `docker compose -f docker-compose.dev.yml` without the base `docker-compose.yml`. `docker-compose.dev.yml` is an override, not a standalone file — always pass both (see [`docs/command.md`](docs/command.md)).
 
 ## 10. Stop, Restart, Reset
 
