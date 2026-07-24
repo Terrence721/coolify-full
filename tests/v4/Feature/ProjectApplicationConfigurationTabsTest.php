@@ -3,13 +3,19 @@
 declare(strict_types=1);
 
 use App\Jobs\ApplicationDeploymentJob;
+use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
+use App\Models\ApplicationPreview;
 use App\Models\Environment;
+use App\Models\EnvironmentVariable;
+use App\Models\GithubApp;
 use App\Models\InstanceSettings;
+use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
+use App\Models\SwarmDocker;
 use App\Models\Tag;
 use App\Models\Team;
 use App\Models\User;
@@ -221,6 +227,48 @@ it('clones an application via clone_application()', function () {
         ->and($clone->name)->toContain('clone-of');
 });
 
+it('does not duplicate NIXPACKS_NODE_VERSION when cloning a nixpacks app with a customized value', function () {
+    // Regression test for a real bug found via a live smoke test (issue #25, environment clone):
+    // Application::booted()'s created() hook auto-seeds NIXPACKS_NODE_VERSION=22 for any new
+    // nixpacks app - including the freshly-created clone - and clone_application()'s
+    // env-var-cloning loop then also copied the source's own env vars verbatim, leaving two
+    // EnvironmentVariable rows with the same key and different values on the same application.
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['build_pack' => 'nixpacks']);
+
+    // The app factory/created hook already seeded one NIXPACKS_NODE_VERSION=22 row; simulate the
+    // user having customized it, same as the real dev environment's storefront-web app did.
+    // Must go through the model (not a query-builder update()) since value is an
+    // encrypt-on-write mutated attribute - a raw update() writes unencrypted plaintext and
+    // corrupts the row for every future read.
+    $nodeVersionVar = $application->environment_variables()->where('key', 'NIXPACKS_NODE_VERSION')->first();
+    $nodeVersionVar->value = '20';
+    $nodeVersionVar->save();
+
+    $newServer = Server::factory()->create(['team_id' => $team->id]);
+    $newDestination = $newServer->standaloneDockers()->first();
+
+    $response = $this->post(route('project.application.clone', appTabsParams($application)), [
+        'destination_id' => $newDestination->id,
+    ]);
+
+    $response->assertRedirect();
+    $clone = Application::where('id', '!=', $application->id)->where('destination_id', $newDestination->id)->first();
+
+    // Application::booted()'s created() hook seeds a default NIXPACKS_NODE_VERSION for any new
+    // nixpacks app, and EnvironmentVariable::booted()'s created() hook auto-mirrors any new
+    // non-preview Application var into a preview copy too - so a fresh nixpacks app genuinely
+    // has one row in each scope. The bug was ending up with *more* than one per scope, not
+    // having a preview row at all.
+    $nonPreviewVars = $clone->environment_variables()->where('key', 'NIXPACKS_NODE_VERSION')->get();
+    $previewVars = $clone->environment_variables_preview()->where('key', 'NIXPACKS_NODE_VERSION')->get();
+
+    expect($nonPreviewVars)->toHaveCount(1)
+        ->and($nonPreviewVars->first()->value)->toBe('20')
+        ->and($previewVars)->toHaveCount(1);
+});
+
 it('rejects cloning to a destination not owned by the team', function () {
     $team = Team::factory()->create();
     appTabsActingAs($team);
@@ -359,10 +407,10 @@ it('requires a host path for a volume on a swarm destination', function () {
     appTabsActingAs($team);
     $server = Server::factory()->create(['team_id' => $team->id]);
     $server->settings->update(['is_swarm_manager' => true]);
-    $swarmDestination = \App\Models\SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
+    $swarmDestination = SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
     $application = appTabsMakeApplication($team, [
         'destination_id' => $swarmDestination->id,
-        'destination_type' => \App\Models\SwarmDocker::class,
+        'destination_type' => SwarmDocker::class,
     ]);
 
     $this->post(route('project.application.storages.volume.store', appTabsParams($application)), [
@@ -435,11 +483,11 @@ function appTabsMakeSwarmApplication(Team $team, array $attrs = []): Application
 {
     $server = Server::factory()->create(['team_id' => $team->id]);
     $server->settings->update(['is_swarm_manager' => true]);
-    $swarmDestination = \App\Models\SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
+    $swarmDestination = SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
 
     return appTabsMakeApplication($team, [
         'destination_id' => $swarmDestination->id,
-        'destination_type' => \App\Models\SwarmDocker::class,
+        'destination_type' => SwarmDocker::class,
         ...$attrs,
     ]);
 }
@@ -1054,8 +1102,8 @@ it('soft-deletes a preview and queues async cleanup', function () {
 
     $response->assertSessionHas('success', 'Preview deletion started. It may take a few moments to complete.');
     expect($application->previews()->where('pull_request_id', 31)->exists())->toBeFalse();
-    expect(\App\Models\ApplicationPreview::onlyTrashed()->where('pull_request_id', 31)->exists())->toBeTrue();
-    Queue::assertPushed(\App\Jobs\DeleteResourceJob::class);
+    expect(ApplicationPreview::onlyTrashed()->where('pull_request_id', 31)->exists())->toBeTrue();
+    Queue::assertPushed(DeleteResourceJob::class);
 });
 
 function appAdvancedPayload(Application $application, array $overrides = []): array
@@ -1584,7 +1632,7 @@ it('sets the deploy private key', function () {
     $team = Team::factory()->create();
     appTabsActingAs($team);
     $application = appTabsMakeApplication($team);
-    $privateKey = \App\Models\PrivateKey::create([
+    $privateKey = PrivateKey::create([
         'name' => 'deploy-key',
         'private_key' => generateSSHKey('ed25519')['private'],
         'team_id' => $team->id,
@@ -1615,7 +1663,7 @@ it('changes the git source, tolerating a failed GitHub API lookup', function () 
     $team = Team::factory()->create();
     appTabsActingAs($team);
     $application = appTabsMakeApplication($team);
-    $githubApp = \App\Models\GithubApp::create([
+    $githubApp = GithubApp::create([
         'name' => 'my-github-app',
         'api_url' => 'https://api.github.com',
         'html_url' => 'https://github.com',
@@ -1624,11 +1672,11 @@ it('changes the git source, tolerating a failed GitHub API lookup', function () 
 
     $response = $this->post(route('project.application.source.change', appTabsParams($application)), [
         'sourceId' => $githubApp->id,
-        'sourceType' => \App\Models\GithubApp::class,
+        'sourceType' => GithubApp::class,
     ]);
 
     $response->assertSessionHas('success', 'Source updated!');
     $application->refresh();
     expect($application->source_id)->toBe($githubApp->id)
-        ->and($application->source_type)->toBe(\App\Models\GithubApp::class);
+        ->and($application->source_type)->toBe(GithubApp::class);
 });
