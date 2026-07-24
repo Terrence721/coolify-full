@@ -9,6 +9,7 @@ export default function Dashboard({
     privateKeys,
     canCreateProject,
     canCreateServer,
+    canCreateKey,
     defaultServerName,
     defaultPrivateKeyId,
     createProjectUrl,
@@ -65,10 +66,12 @@ export default function Dashboard({
                     <div className="flex flex-col gap-1">
                         <div className="font-bold dark:text-warning">No projects found.</div>
                         <div className="flex items-center gap-1">
-                            <button type="button" onClick={() => setShowAddProjectModal(true)}>
-                                Add
-                            </button>
-                            your first project or go to the{' '}
+                            {canCreateProject && (
+                                <button type="button" onClick={() => setShowAddProjectModal(true)}>
+                                    Add
+                                </button>
+                            )}
+                            {canCreateProject ? 'your first project or go to the ' : 'Contact your team administrator, or go to the '}
                             <a className="underline dark:text-white" href={onboardingUrl}>
                                 onboarding
                             </a>{' '}
@@ -113,11 +116,17 @@ export default function Dashboard({
                     <div className="flex flex-col gap-1">
                         <div className="font-bold dark:text-warning">No private keys found.</div>
                         <div className="flex items-center gap-1">
-                            Before you can add your server, first{' '}
-                            <button type="button" onClick={() => setShowAddKeyModal(true)}>
-                                add
-                            </button>{' '}
-                            a private key or go to the{' '}
+                            {canCreateKey ? (
+                                <>
+                                    Before you can add your server, first{' '}
+                                    <button type="button" onClick={() => setShowAddKeyModal(true)}>
+                                        add
+                                    </button>{' '}
+                                    a private key or go to the{' '}
+                                </>
+                            ) : (
+                                'Contact your team administrator to add a private key, or go to the '
+                            )}
                             <a className="underline dark:text-white" href={onboardingUrl}>
                                 onboarding
                             </a>{' '}
@@ -128,10 +137,12 @@ export default function Dashboard({
                     <div className="flex flex-col gap-1">
                         <div className="font-bold dark:text-warning">No servers found.</div>
                         <div className="flex items-center gap-1">
-                            <button type="button" onClick={() => setShowAddServerModal(true)}>
-                                Add
-                            </button>
-                            your first server or go to the{' '}
+                            {canCreateServer && (
+                                <button type="button" onClick={() => setShowAddServerModal(true)}>
+                                    Add
+                                </button>
+                            )}
+                            {canCreateServer ? 'your first server or go to the ' : 'Contact your team administrator, or go to the '}
                             <a className="underline dark:text-white" href={onboardingUrl}>
                                 onboarding
                             </a>{' '}
