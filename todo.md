@@ -1,7 +1,7 @@
 # 📝 TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 23, 2026**
+**Last Updated: July 24, 2026**
 
 > The WSL2 dev-environment showcase that briefly replaced this file lives at [docs/wsl2-environment.md](docs/wsl2-environment.md).
 
@@ -382,7 +382,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Manual SSH-touching smoke-test checklist | In progress — 11 tracked sub-issues (#5), 5 of 11 done (including #21, now 28/28, #23 terminal, and #24 onboarding - all 10 items). See "Migration follow-up" and `docs/smoketest.md` |
+| 1 | Manual SSH-touching smoke-test checklist | In progress — 11 tracked sub-issues (#5), 6 of 11 done (including #21, now 28/28, #22 deployment+backups, #23 terminal, and #24 onboarding - all 10 items; #25 in progress, 12/19). See "Migration follow-up" and `docs/smoketest.md` |
 | 2 | Zero Laravel API Resource classes | Deliberate style choice, not a bug — optional refactor, Backlog (#9) |
 | 3 | Fresh-clone end-to-end boot test | Deferred on purpose, destructive — Planned (#6) |
 | 4 | Pest browser-testing plugin can't run in this dev setup | Backlog (#11) — Vitest + Testing Library (added 2026-07-20) covers component logic but not real-browser/console behavior. See "Frontend component testing" |
@@ -396,7 +396,7 @@ The migration itself is complete (see **Done** above) — this heading exists fo
 
 | Item | Status |
 |---|---|
-| Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) | In progress — manual QA checklist in `docs/smoketest.md`, split across 11 tracked sub-issues (issue #5), 5 of 11 done (including #21, now 28/28, #23 terminal, and #24 onboarding - all 10 items) |
+| Every SSH-touching action converted so far has an untested happy-path gap (verified only via safe/validation-rejection paths in Pest) | In progress — manual QA checklist in `docs/smoketest.md`, split across 11 tracked sub-issues (issue #5), 6 of 11 done (including #21, now 28/28, #22 deployment+backups, #23 terminal, and #24 onboarding - all 10 items; #25 in progress, 12/19) |
 
 ### Laravel backend improvements — still open
 
