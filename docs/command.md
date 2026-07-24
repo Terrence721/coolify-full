@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 22, 2026**
+**Last Updated: July 24, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -51,7 +51,7 @@ docker exec coolify-vite yarn add -D <package>      # add a dev dependency
 
 If a frontend change isn't showing up in the browser, first check `coolify-vite` is actually running (`docker compose -f docker-compose.yml -f docker-compose.dev.yml ps`) before assuming a build is needed — the dev server hot-reloads automatically.
 
-### RESOLVED: `docker exec coolify-vite yarn build` was extremely slow on Windows — fixed 2026-07-12 by moving the repo into WSL2
+### WSL2 migration — RESOLVED: `docker exec coolify-vite yarn build` was extremely slow on Windows, fixed 2026-07-12 by moving the repo into WSL2
 
 Originally confirmed 2026-07-11: `docker exec coolify-vite yarn build` ran for **over 3 hours** without finishing. Root-caused via `/proc/<pid>/stat`/`wchan`: the build process sat in uninterruptible sleep (`D` state) blocked on `p9_client_rpc` — the 9P protocol Docker Desktop's WSL2 backend uses to bridge file access between the Linux VM and the Windows NTFS host filesystem. The repo lived at `C:\Users\...` and every container bind-mounted it (`.:/var/www/html`), so every file the build touched crossed that boundary, with Windows Defender re-scanning each crossing on top. The same build run natively on the Windows host (bypassing the bridge entirely) took under 10 seconds — proving the bottleneck was the bridge itself, not the build.
 
