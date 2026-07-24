@@ -101,10 +101,10 @@ export default function CloneMe({ destinations, resources, defaultName, cloneUrl
             </label>
 
             <div className="flex gap-4 pt-4 w-full">
-                <button type="button" className="w-full" disabled={processing || !destinationId} onClick={() => submit('project')}>
+                <button type="button" className="w-full" disabled={processing || destinationId === ''} onClick={() => submit('project')}>
                     Clone to new Project
                 </button>
-                <button type="button" className="w-full" disabled={processing || !destinationId} onClick={() => submit('environment')}>
+                <button type="button" className="w-full" disabled={processing || destinationId === ''} onClick={() => submit('environment')}>
                     Clone to new Environment
                 </button>
             </div>

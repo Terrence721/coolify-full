@@ -349,10 +349,24 @@ function clone_application(Application $source, $destination, array $overrides =
         $newStorage->save();
     }
 
-    // Clone production environment variables without triggering the created hook
+    // Clone production environment variables without triggering the created hook. Deletes any
+    // colliding row first rather than a blind insert, since Application::booted()'s created()
+    // hook already seeded a default NIXPACKS_NODE_VERSION row above for nixpacks apps - a plain
+    // create() here would leave two rows with the same key, and which one a build actually uses
+    // would be undefined. Deliberately not ->toArray()/updateOrCreate(): value is a
+    // decrypt-on-read/encrypt-on-write mutated attribute, and replicate() is what safely copies
+    // its already-encrypted raw value without running it through either mutator again -
+    // toArray() forces the decrypt mutator to run and throws on this replicated data.
     $environmentVariables = $source->environment_variables()->get();
     foreach ($environmentVariables as $environmentVariable) {
         EnvironmentVariable::withoutEvents(function () use ($environmentVariable, $newApplication) {
+            EnvironmentVariable::where([
+                'resourceable_id' => $newApplication->id,
+                'resourceable_type' => $newApplication->getMorphClass(),
+                'key' => $environmentVariable->key,
+                'is_preview' => false,
+            ])->delete();
+
             $newEnvironmentVariable = $environmentVariable->replicate([
                 'id',
                 'created_at',
@@ -366,10 +380,21 @@ function clone_application(Application $source, $destination, array $overrides =
         });
     }
 
-    // Clone preview environment variables
+    // Clone preview environment variables. Same duplicate-key hazard as the non-preview loop
+    // above, and worse: EnvironmentVariable::booted()'s own created() hook auto-mirrors every
+    // new non-preview Application var into a preview copy, so the default NIXPACKS_NODE_VERSION
+    // seeded above already produced both a non-preview row *and* an auto-mirrored preview one
+    // before this loop even runs. Delete any colliding preview row first, same as above.
     $previewEnvironmentVariables = $source->environment_variables_preview()->get();
     foreach ($previewEnvironmentVariables as $previewEnvironmentVariable) {
         EnvironmentVariable::withoutEvents(function () use ($previewEnvironmentVariable, $newApplication) {
+            EnvironmentVariable::where([
+                'resourceable_id' => $newApplication->id,
+                'resourceable_type' => $newApplication->getMorphClass(),
+                'key' => $previewEnvironmentVariable->key,
+                'is_preview' => true,
+            ])->delete();
+
             $newPreviewEnvironmentVariable = $previewEnvironmentVariable->replicate([
                 'id',
                 'created_at',
