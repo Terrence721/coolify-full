@@ -15,8 +15,8 @@ This repository is a professionally enhanced fork of Coolify, created to demonst
 It showcases real-world engineering work including:
 
 - Migrating a legacy Laravel Livewire UI to Inertia.js + React, page by page — **complete** as of 2026-07-14, every phase documented and verified
-- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 60 across 65 phases, each verified with a full test-suite run — the remaining 60 are individually confirmed analysis-tool limitations (documented in `todo.md`), not unaddressed work
-- Security-specific static analysis beyond type-safety — CodeQL for the React frontend, Psalm taint analysis for the PHP backend, added as part of this hardening pass, catching 11 real CVE advisories and 2 real findings in the process (see `todo.md`)
+- A sustained static-analysis hardening pass: PHPStan's suppressed-error baseline taken from 1,306 down to 60 across 65 phases, each verified with a full test-suite run — the remaining 60 are individually confirmed analysis-tool limitations (documented in [`todo.md`](todo.md#phpstan-baseline-reductions)), not unaddressed work
+- Security-specific static analysis beyond type-safety — CodeQL for the React frontend, Psalm taint analysis for the PHP backend, added as part of this hardening pass, catching 11 real CVE advisories and 2 real findings in the process (see [`todo.md`](todo.md))
 - Removing the commercial/billing surface area to produce a clean, self-hosted-only fork
 - Working inside — and being honest about the constraints of — a large, real-world Laravel monolith rather than a greenfield rewrite
 - Linux-native engineering throughout: every process (PHP, Node, Docker, Postgres, Redis) runs in **Ubuntu Linux** — the Windows machine is only the host (WSL2)
@@ -25,7 +25,7 @@ This project is not affiliated with the Coolify team and is intended solely as a
 
 **At a glance:** 84/84 Livewire pages converted to React · PHPStan baseline 1,306 → 60 (65 phases) · 1,250 Pest tests passing (5,157 assertions) · 397 Vitest/Testing Library React component tests (37 suites) · zero known regressions — every number here is reproducible from this repo's own commit history, not a claim to take on faith.
 
-**Reading the commit history:** 427 commits total — 64 are PHPStan hardening phases, 119 touch only documentation/tracking files (`todo.md`, `README.md`, `docs/*.md`), 2 are merge commits, and the remaining 242 are other engineering work (features, bug fixes, the React migration). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). `todo.md`'s "PHPStan baseline reductions" section has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit (`3894266f4`) rather than its own "Phase 59 —" commit.
+**Reading the commit history:** 427 commits total — 64 are PHPStan hardening phases, 119 touch only documentation/tracking files ([`todo.md`](todo.md), [`README.md`](README.md), [`docs/*.md`](docs)), 2 are merge commits, and the remaining 242 are other engineering work (features, bug fixes, the React migration). `git log --oneline | grep -E "^[a-f0-9]+ Phase [0-9]+ —"` isolates just the PHPStan phases if you want to skip straight to that thread (plain `git log --grep=`, unlike this, also matches "Phase N" mentions inside unrelated commit bodies — worth knowing if you go digging further yourself). [`todo.md`'s "PHPStan baseline reductions" section](todo.md#phpstan-baseline-reductions) has a per-phase summary table (baseline delta, focus, highlight) plus a "PHPStan baseline milestones" table for the phases that found a real bug or a structural fix, including one phase (59) that landed folded into an emergency CI-fix commit ([`3894266f4`](https://github.com/Terrence721/coolify-full/commit/3894266f41d8e82ae42ab51306966b12d9e7601a)) rather than its own "Phase 59 —" commit.
 
 ---
 
@@ -48,7 +48,7 @@ This project demonstrates hands-on experience across:
 - Frontend modernization (Livewire → Inertia.js/React, now complete)
 - Backend refactoring (Laravel controllers, policies, validation)
 - Containerized development environments (Docker Compose, multiple coordinated services)
-- Test-driven verification: Pest 4 feature tests written alongside every converted page (backend), Vitest + React Testing Library for frontend component behavior (see `todo.md`'s "Frontend component testing" section)
+- Test-driven verification: Pest 4 feature tests written alongside every converted page (backend), Vitest + React Testing Library for frontend component behavior (see [`todo.md`'s "Frontend component testing" section](todo.md#frontend-component-testing))
 - Documentation and architectural communication as a first-class deliverable, not an afterthought
 
 ---
@@ -65,7 +65,7 @@ All PHP, Node, Composer, Docker, and Laravel processes run inside the Linux subs
 - Keeps Laravel’s file watchers, Vite HMR, and queue workers responsive
 - Prevents Windows-specific PHP extension and path inconsistencies
 
-The repository **must** be cloned into the WSL filesystem (e.g. `~/projects/coolify-full`), not under `C:\...`, to avoid 5–10× slower I/O and degraded Docker/Vite performance. See `DEVELOPING_IN_CONTAINERS_WINDOWS.md` and `docs/command.md`’s “WSL2 migration” section for details.
+The repository **must** be cloned into the WSL filesystem (e.g. `~/projects/coolify-full`), not under `C:\...`, to avoid 5–10× slower I/O and degraded Docker/Vite performance. See [`DEVELOPING_IN_CONTAINERS_WINDOWS.md`](DEVELOPING_IN_CONTAINERS_WINDOWS.md) and [`docs/command.md`](docs/command.md) for details (its "WSL2 migration" section covers the full root-cause story).
 
 **Reviewing from native Linux (or macOS)?** Nothing in this repo is Windows-specific. The entire toolchain — bash, Docker Compose, Composer, Artisan, Vite — is Linux-native and runs identically on any Linux machine: clone, `cp .env.development.example .env`, `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`, done. The WSL2 notes exist only because the host hardware happens to run Windows; the development experience is Ubuntu all the way down.
 
@@ -105,4 +105,4 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 Work on this fork is tracked two ways:
 
 - **[`todo.md`](todo.md)** — the primary, detailed record: a phase-by-phase written log of everything done and everything still open, with dates, verified deltas, and the reasoning behind each decision. This is the source of truth.
-- **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Backlog/Planned/In Progress/Verification & QA/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with `todo.md`.
+- **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Backlog/Planned/In Progress/Verification & QA/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with [`todo.md`](todo.md).

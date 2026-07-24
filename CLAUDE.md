@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Vercel). It manages servers, applications, databases, and services via SSH. Built with Laravel 12 (using Laravel 10 file structure) and Tailwind CSS v4. The UI's migration from Livewire 3 to Inertia.js + React is **complete** — every full-page route and every piece of navigation/chrome infrastructure is React; `livewire/livewire` and Alpine.js have both been removed from `composer.json`/`package.json`, and `app/Livewire/`/`resources/views/livewire/` no longer exist. See `docs/livewire-to-react-migration.md` for the full phase-by-phase history.
+Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Vercel). It manages servers, applications, databases, and services via SSH. Built with Laravel 12 (using Laravel 10 file structure) and Tailwind CSS v4. The UI's migration from Livewire 3 to Inertia.js + React is **complete** — every full-page route and every piece of navigation/chrome infrastructure is React; `livewire/livewire` and Alpine.js have both been removed from `composer.json`/`package.json`, and `app/Livewire/`/`resources/views/livewire/` no longer exist. See [`docs/livewire-to-react-migration.md`](docs/livewire-to-react-migration.md) for the full phase-by-phase history.
 
 ## Development Environment
 
 Docker Compose-based dev setup with services: coolify (app), postgres, redis, soketi (WebSockets), vite, testing-host, mailpit, minio.
 
-**On Windows: the repo lives inside a WSL2 distro's native filesystem (e.g. `/root/projects/coolify-full`), not under `C:\Users\...`.** A Windows-path bind mount works but is dramatically slower for every container operation (a `yarn build` that takes ~2s from WSL2-native storage can take 3+ hours from an NTFS bind mount) — see `docs/command.md`'s "WSL2 migration" section and `DEVELOPING_IN_CONTAINERS_WINDOWS.md`. Run all commands below from a WSL2 terminal; edit via VS Code's Remote - WSL extension connected to the same distro, not a window opened on the Windows path.
+**On Windows: the repo lives inside a WSL2 distro's native filesystem (e.g. `/root/projects/coolify-full`), not under `C:\Users\...`.** A Windows-path bind mount works but is dramatically slower for every container operation (a `yarn build` that takes ~2s from WSL2-native storage can take 3+ hours from an NTFS bind mount) — see [`docs/command.md`](docs/command.md)'s "WSL2 migration" section and [`DEVELOPING_IN_CONTAINERS_WINDOWS.md`](DEVELOPING_IN_CONTAINERS_WINDOWS.md). Run all commands below from a WSL2 terminal; edit via VS Code's Remote - WSL extension connected to the same distro, not a window opened on the Windows path.
 
 `docker-compose.dev.yml` is a Compose **override**, not standalone — it only adds dev-specific bits on top of the base `docker-compose.yml` (which defines the actual `redis`/`postgres`/`soketi` images). Always pass both files explicitly, or use `spin`, which does this for you.
 
@@ -49,7 +49,7 @@ yarn format:check               # Prettier check (.prettierrc.json), resources/j
 ## Architecture
 
 ### Backend Structure (app/)
-- **Actions/** — Domain actions organized by area (Application, Database, Docker, Proxy, Server, Service, Shared, User, CoolifyTask, Fortify). Uses `lorisleiva/laravel-actions` with `AsAction` trait — actions can be called as objects, dispatched as jobs, or used as controllers. (Note: this fork has no `Stripe/` actions — the billing subsystem was fully removed; see de-commercialization notes in `todo.md`.)
+- **Actions/** — Domain actions organized by area (Application, Database, Docker, Proxy, Server, Service, Shared, User, CoolifyTask, Fortify). Uses `lorisleiva/laravel-actions` with `AsAction` trait — actions can be called as objects, dispatched as jobs, or used as controllers. (Note: this fork has no `Stripe/` actions — the billing subsystem was fully removed; see de-commercialization notes in [`todo.md`](todo.md).)
 - **Jobs/** — Queue jobs for deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, server management, proxy configuration. Uses Redis queue with Horizon for monitoring.
 - **Models/** — Eloquent models extending `BaseModel` which provides auto-CUID2 UUID generation. Key models: `Server`, `Application`, `Service`, `Project`, `Environment`, `Team`, plus standalone database models (`StandalonePostgresql`, `StandaloneMysql`, etc.). Common traits: `HasConfiguration`, `HasMetrics`, `HasSafeStringAttribute`, `ClearsGlobalSearchCache`.
 - **Services/** — Business logic services (ConfigurationGenerator, DockerImageParser, ContainerStatusAggregator, HetznerService, etc.). Use Services for complex orchestration; use Actions for single-purpose domain operations.
@@ -90,8 +90,8 @@ yarn format:check               # Prettier check (.prettierrc.json), resources/j
 - Real-time updates use Laravel Echo (`useTeamChannel`) against Soketi broadcasts
 - Tailwind CSS v4 with `@tailwindcss/forms` and `@tailwindcss/typography`
 - Vite for asset bundling (two entrypoints: `app.js` for the remaining plain-Blade pages, `inertia-app.jsx` for React)
-- Component tests: Vitest + Testing Library (`resources/js/**/*.test.jsx`, `vitest.config.js`, run via `yarn test`) — jsdom-based, no real browser. Plain-JS logic (no React) is tested separately via Node's built-in `node --test` (`resources/js/**/*.test.js`), unchanged. Pest 4's browser-testing plugin (the planned path for full browser-level JS testing) can't run in this dev setup — see `todo.md` issue #11.
-- Linting/formatting: ESLint (`eslint.config.js`, flat config) + Prettier (`.prettierrc.json`) for `resources/js/`, run via `yarn lint`/`yarn format:check`. Validated against the whole tree but not yet enforced or auto-fixed repo-wide — see `todo.md` issue #33 for the current baseline and what's real vs. cosmetic.
+- Component tests: Vitest + Testing Library (`resources/js/**/*.test.jsx`, `vitest.config.js`, run via `yarn test`) — jsdom-based, no real browser. Plain-JS logic (no React) is tested separately via Node's built-in `node --test` (`resources/js/**/*.test.js`), unchanged. Pest 4's browser-testing plugin (the planned path for full browser-level JS testing) can't run in this dev setup — see [`todo.md`](todo.md) / [issue #11](https://github.com/Terrence721/coolify-full/issues/11).
+- Linting/formatting: ESLint (`eslint.config.js`, flat config) + Prettier (`.prettierrc.json`) for `resources/js/`, run via `yarn lint`/`yarn format:check`. Validated against the whole tree but not yet enforced or auto-fixed repo-wide — see [`todo.md`](todo.md) / [issue #33](https://github.com/Terrence721/coolify-full/issues/33) for the current baseline and what's real vs. cosmetic.
 
 ### Laravel 10 Structure (NOT Laravel 11+ slim structure)
 - Middleware in `app/Http/Middleware/` — custom middleware includes `CheckForcePasswordReset`, `DecideWhatToDoWithUser`, `ApiAbility`, `ApiSensitiveData`
@@ -111,7 +111,7 @@ yarn format:check               # Prettier check (.prettierrc.json), resources/j
 
 ## Git Workflow
 
-This fork works directly on a single `main` branch (verify with `git branch -vv` if unsure) — commit and push there rather than targeting `v4.x`/`next`, which are upstream `coollabsio/coolify` branch names that don't exist in this repo. See `CONTRIBUTING.md` for this fork's actual process.
+This fork works directly on a single `main` branch (verify with `git branch -vv` if unsure) — commit and push there rather than targeting `v4.x`/`next`, which are upstream `coollabsio/coolify` branch names that don't exist in this repo. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for this fork's actual process.
 
 <laravel-boost-guidelines>
 === foundation rules ===
