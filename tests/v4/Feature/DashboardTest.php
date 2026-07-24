@@ -32,6 +32,28 @@ it('renders the dashboard with no projects or servers', function () {
         ->has('servers', 0)
         ->has('privateKeys', 0)
         ->where('canCreateProject', true)
+        ->where('canCreateKey', true)
+    );
+});
+
+it('sets canCreateKey to false for a plain member, matching PrivateKeyPolicy::create()', function () {
+    // Regression test: Dashboard.jsx's "No private keys found" empty state used to render its
+    // "add" button unconditionally, with no permission check at all, unlike the equivalent
+    // "Add" buttons elsewhere on the same page. PrivateKey::create() is admin-only
+    // (app/Policies/PrivateKeyPolicy.php), so a member clicking that button would have hit a
+    // real 403 with zero warning. canCreateKey closes that gap.
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('dashboard'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Dashboard')
+        ->where('canCreateKey', false)
     );
 });
 

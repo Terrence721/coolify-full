@@ -48,6 +48,7 @@ class DashboardController extends Controller
             ]),
             'canCreateProject' => auth()->user()?->can('createAnyResource') ?? false,
             'canCreateServer' => auth()->user()?->can('createAnyResource') ?? false,
+            'canCreateKey' => auth()->user()?->can('create', PrivateKey::class) ?? false,
             'defaultServerName' => generate_random_name(),
             'defaultPrivateKeyId' => $privateKeys->first()?->id,
             'createProjectUrl' => route('project.store'),
