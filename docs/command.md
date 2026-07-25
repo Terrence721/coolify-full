@@ -25,15 +25,15 @@ Container names (from `docker-compose.dev.yml`, confirmed via `docker ps`):
 | `coolify-minio` | MinIO — an S3-compatible object store standing in for a real S3 provider, so backup-to-S3 code paths can be tested against a real (if local) S3 API; console at `http://localhost:9001` |
 | `coolify-minio-init` | One-shot init job — waits for MinIO to come up, then creates its default bucket. Runs once per `spin up` and exits (`restart: no`); an `Exited (0)` status for this one specifically is success, not a crash |
 | `coolify-autoheal` | Watches containers carrying an `autoheal=true` label (only `coolify` itself) and restarts them if their healthcheck fails — specifically for the Docker Desktop/WSL2 post-reboot bind-mount race, not general-purpose crash recovery |
-| `coolify-stray-pruner` | Added 2026-07-25: periodically removes stopped containers with no `com.docker.compose.project` label at all — i.e. leftovers from a manual, ad-hoc `docker run` on the host, never anything from this stack or a real Coolify-managed resource (both always carry that label). See `docker-compose.dev.yml` for the full story of why it exists. |
+| `coolify-stray-pruner` | Added 2026-07-25: periodically removes stopped containers with **neither** a `com.docker.compose.project` label **nor** a `coolify.managed` label — leftovers from a manual, ad-hoc `docker run` on the host match neither. Checking only the first label was tried initially and genuinely deleted the real `coolify-sentinel` container within hours (it carries `coolify.managed` but no compose-project label, unlike every other Coolify-managed container) — see `docker-compose.dev.yml` for the full incident and why both checks are now required. |
 
 **Not started by these compose files at all — created and torn down by Coolify's own backend at runtime, the same way they would be on a real production install:**
 
 | Container | Role |
 | --- | --- |
-| `coolify-proxy` | Traefik — the reverse proxy Coolify manages for every deployed application/service's domain routing |
-| `coolify-sentinel` | Coolify's own lightweight metrics/monitoring agent |
-| *(one per deployed resource)* | Every application, database, and service you actually deploy through the UI gets its own container (and often its own Compose project), named after that resource's UUID — this is Coolify managing the very thing it's a PaaS for, not part of the dev environment itself |
+| `coolify-proxy` | Traefik — the reverse proxy Coolify manages for every deployed application/service's domain routing. Carries `coolify.managed=true` and its own Compose project label (`coolify-proxy`) |
+| `coolify-sentinel` | Coolify's own lightweight metrics/monitoring agent. Carries `coolify.managed=true` but **no Compose project label at all** (created via a direct Docker API call, not `docker compose`) — the one exception worth knowing, since anything filtering "real" containers by compose-project label alone will miss this one. Recreate it via the real app flow if it's ever gone: `/server/{uuid}/sentinel` page → "Sync" button (`StartSentinel::run()`), not by hand |
+| *(one per deployed resource)* | Every application, database, and service you actually deploy through the UI gets its own container (and often its own Compose project), named after that resource's UUID, carrying `coolify.managed=true` — this is Coolify managing the very thing it's a PaaS for, not part of the dev environment itself |
 
 Because none of these three carry this repo's own Compose project label, Docker Desktop will always show them as separate, "ungrouped" entries alongside the `coolify-full` stack above — that's expected on any Coolify install, dev or real, not a sign of anything broken.
 
