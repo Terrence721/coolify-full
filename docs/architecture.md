@@ -1,7 +1,7 @@
 # Architecture Overview
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 19, 2026**
+**Last Updated: July 25, 2026**
 
 This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
 
@@ -85,7 +85,7 @@ A deployment does not go through a separate agent service — it's a Laravel job
 | File | Purpose |
 | --- | --- |
 | `docker-compose.yml` | Base/production service definitions |
-| `docker-compose.dev.yml` | Local development override — adds `postgres`, `redis`, `soketi`, `vite`, `testing-host`, `mailpit`, `minio` alongside the `coolify` app container |
+| `docker-compose.dev.yml` | Local development override — adds `postgres`, `redis`, `soketi`, `vite`, `testing-host`, `mailpit`, `minio`, `autoheal`, `stray-pruner` alongside the `coolify` app container. See [`docs/command.md`](command.md) for what each one actually does |
 | `docker-compose.prod.yml` | Production-specific overrides |
 | `docker-compose.windows.yml` | Windows Docker Desktop-specific overrides |
 | `docker/` | Dockerfiles for the `coolify-helper` and `coolify-realtime` images, plus dev/prod/testing-host variants |

@@ -8,7 +8,7 @@ Coolify is an open-source, self-hostable PaaS (alternative to Heroku/Netlify/Ver
 
 ## Development Environment
 
-Docker Compose-based dev setup with services: coolify (app), postgres, redis, soketi (WebSockets), vite, testing-host, mailpit, minio.
+Docker Compose-based dev setup with services: coolify (app), postgres, redis, soketi (WebSockets), vite, testing-host, mailpit, minio, autoheal, stray-pruner. See `docs/command.md` for what each one does.
 
 **On Windows: the repo lives inside a WSL2 distro's native filesystem (e.g. `/root/projects/coolify-full`), not under `C:\Users\...`.** A Windows-path bind mount works but is dramatically slower for every container operation (a `yarn build` that takes ~2s from WSL2-native storage can take 3+ hours from an NTFS bind mount) — see [`docs/command.md`](docs/command.md)'s "WSL2 migration" section and [`DEVELOPING_IN_CONTAINERS_WINDOWS.md`](DEVELOPING_IN_CONTAINERS_WINDOWS.md). Run all commands below from a WSL2 terminal; edit via VS Code's Remote - WSL extension connected to the same distro, not a window opened on the Windows path.
 
