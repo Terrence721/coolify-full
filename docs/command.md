@@ -17,9 +17,27 @@ Container names (from `docker-compose.dev.yml`, confirmed via `docker ps`):
 | --- | --- |
 | `coolify` | Laravel app (PHP-FPM + web server) — serves the Inertia/React app plus a handful of plain Blade guest/auth/error pages |
 | `coolify-vite` | Node/Vite dev server (hot module reload for JS/CSS/JSX) |
-| `coolify-db` | PostgreSQL |
+| `coolify-db` | PostgreSQL — the app's own database |
 | `coolify-redis` | Redis (cache, queues, broadcasting) |
 | `coolify-realtime` | Soketi (WebSocket server for Echo/broadcast events) |
+| `coolify-testing-host` | A Docker-in-Docker stand-in "remote server" — mounts `docker.sock` plus the same named volumes Coolify itself would use on a real managed server, so SSH-touching deploy/backup/terminal code paths have something real to target locally instead of needing an actual second machine |
+| `coolify-mail` | Mailpit — catches every outgoing email in dev instead of sending it for real; UI at `http://localhost:8025` |
+| `coolify-minio` | MinIO — an S3-compatible object store standing in for a real S3 provider, so backup-to-S3 code paths can be tested against a real (if local) S3 API; console at `http://localhost:9001` |
+| `coolify-minio-init` | One-shot init job — waits for MinIO to come up, then creates its default bucket. Runs once per `spin up` and exits (`restart: no`); an `Exited (0)` status for this one specifically is success, not a crash |
+| `coolify-autoheal` | Watches containers carrying an `autoheal=true` label (only `coolify` itself) and restarts them if their healthcheck fails — specifically for the Docker Desktop/WSL2 post-reboot bind-mount race, not general-purpose crash recovery |
+| `coolify-stray-pruner` | Added 2026-07-25: periodically removes stopped containers with no `com.docker.compose.project` label at all — i.e. leftovers from a manual, ad-hoc `docker run` on the host, never anything from this stack or a real Coolify-managed resource (both always carry that label). See `docker-compose.dev.yml` for the full story of why it exists. |
+
+**Not started by these compose files at all — created and torn down by Coolify's own backend at runtime, the same way they would be on a real production install:**
+
+| Container | Role |
+| --- | --- |
+| `coolify-proxy` | Traefik — the reverse proxy Coolify manages for every deployed application/service's domain routing |
+| `coolify-sentinel` | Coolify's own lightweight metrics/monitoring agent |
+| *(one per deployed resource)* | Every application, database, and service you actually deploy through the UI gets its own container (and often its own Compose project), named after that resource's UUID — this is Coolify managing the very thing it's a PaaS for, not part of the dev environment itself |
+
+Because none of these three carry this repo's own Compose project label, Docker Desktop will always show them as separate, "ungrouped" entries alongside the `coolify-full` stack above — that's expected on any Coolify install, dev or real, not a sign of anything broken.
+
+**The UUID container names aren't cosmetic — don't rename them.** Every action Coolify takes against a deployed resource (start/stop/restart, running a command inside it, streaming its logs, taking a backup) recomputes the target container's name from the resource's own `uuid` column fresh, every single time — e.g. `app/Actions/Database/StartPostgresql.php:36`: `$container_name = $this->database->uuid;`. Nothing caches or stores the container's name separately; the UUID *is* the name, by contract. Renaming the Docker container directly (`docker rename`, or via Docker Desktop) desyncs that contract instantly — the next start/stop/backup/terminal action looks for a container that, as far as it's concerned, no longer exists. If a resource's container needs a human-friendly label for browsing, that's what its `name` field in the Coolify UI is for; the Docker-level container name is internal plumbing, not user-facing.
 
 ## Starting/stopping the whole dev environment
 
