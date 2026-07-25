@@ -33,6 +33,12 @@ jobs:
           languages: javascript
           queries: security-extended
           config-file: ./.github/codeql/codeql-config.yml
+          # TRAP caching is keyed per-commit-SHA, so on a repo with no reused base
+          # commits it never produces a cache hit - just a fresh ~108MB write-and-
+          # discard on every run. Found 2026-07-25: 95 of 96 Actions cache entries
+          # (9.94 of the account's 10GB budget) were exactly this, none ever reused
+          # by a later run. Matches a known upstream issue (github/codeql-action#2030).
+          trap-caching: false
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
