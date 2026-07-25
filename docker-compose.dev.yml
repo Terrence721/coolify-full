@@ -48,6 +48,40 @@ services:
       AUTOHEAL_START_PERIOD: 30
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  stray-pruner:
+    # Removes stray, stopped, non-Coolify containers left over from ad-hoc `docker run`
+    # commands (e.g. a manual `docker run hello-world`/`docker run -it ubuntu bash` while
+    # poking at the host) - found 2026-07-25 via two such containers sitting exited for
+    # 2+ weeks with nobody able to say where they came from. `willfarrell/autoheal` above
+    # is a fixed-purpose binary (restart unhealthy containers) with no hook for arbitrary
+    # logic, so this is a separate minimal sidecar instead of an extension of it.
+    #
+    # Targets only containers with NO `com.docker.compose.project` label at all - every
+    # container from this stack's own compose files, and every container Coolify itself
+    # deploys for a real resource, always carries that label (confirmed by inspecting a
+    # real Coolify-deployed service container). A container missing it entirely can only
+    # have come from a bare `docker run`, never from this app - so this can't touch a
+    # real resource, running or genuinely stopped-on-purpose, only pure debris.
+    image: docker:cli
+    container_name: coolify-stray-pruner
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true; do
+          for id in $$(docker ps -a -q --filter status=exited); do
+            project=$$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$$id" 2>/dev/null)
+            if [ -z "$$project" ]; then
+              name=$$(docker inspect -f '{{ .Name }}' "$$id" 2>/dev/null)
+              echo "[stray-pruner] removing $$name ($$id) - exited, no compose project label"
+              docker rm "$$id" >/dev/null 2>&1
+            fi
+          done
+          sleep 300
+        done
   postgres:
     pull_policy: always
     ports:
