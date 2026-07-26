@@ -32,7 +32,6 @@ services:
       - coolify
   autoheal:
     image: willfarrell/autoheal:latest
-    pull_policy: always
     container_name: coolify-autoheal
     restart: unless-stopped
     environment:
@@ -88,7 +87,6 @@ services:
           sleep 300
         done
   postgres:
-    pull_policy: always
     ports:
       - "${FORWARD_DB_PORT:-5432}:5432"
     env_file:
@@ -106,7 +104,6 @@ services:
     volumes:
       - dev_postgres_data:/var/lib/postgresql/data
   redis:
-    pull_policy: always
     ports:
       - "${FORWARD_REDIS_PORT:-6379}:6379"
     env_file:
@@ -147,7 +144,6 @@ services:
     entrypoint: ["/bin/sh", "/soketi-entrypoint.sh"]
   vite:
     image: node:24-alpine
-    pull_policy: always
     container_name: coolify-vite
     restart: unless-stopped
     working_dir: /var/www/html
@@ -182,7 +178,6 @@ services:
       - coolify
   mailpit:
     image: axllent/mailpit:latest
-    pull_policy: always
     container_name: coolify-mail
     restart: unless-stopped
     ports:
@@ -192,7 +187,6 @@ services:
       - coolify
   minio:
     image: coollabsio/maxio:latest
-    pull_policy: always
     container_name: coolify-minio
     restart: unless-stopped
     ports:
@@ -207,7 +201,6 @@ services:
       - coolify
   minio-init:
     image: minio/mc:latest
-    pull_policy: always
     container_name: coolify-minio-init
     restart: no
     depends_on:
