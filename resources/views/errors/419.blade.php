@@ -1,5 +1,5 @@
-@extends('layouts.base')
-<div class="flex flex-col items-center justify-center h-full">
+<x-layout-simple>
+<div class="flex flex-col items-center justify-center min-h-screen">
     <div>
         <p class="font-mono font-semibold text-7xl dark:text-warning">419</p>
         <h1 class="mt-4 font-bold tracking-tight dark:text-white">This page is definitely old, not like you!</h1>
@@ -24,3 +24,4 @@
         </div>
     </div>
 </div>
+</x-layout-simple>
