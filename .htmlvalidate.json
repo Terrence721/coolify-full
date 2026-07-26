@@ -1,0 +1,7 @@
+{
+    "extends": ["html-validate:recommended", "html-validate:document"],
+    "rules": {
+        "void-style": "off",
+        "require-sri": "off"
+    }
+}

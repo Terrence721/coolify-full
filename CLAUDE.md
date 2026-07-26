@@ -44,6 +44,7 @@ yarn test                       # React component tests (Vitest + Testing Librar
 node --test resources/js/*.test.js resources/js/**/*.test.js  # plain-JS logic tests (Node's built-in runner, no jsdom)
 yarn lint                       # ESLint (eslint.config.js) — validates resources/js/; see todo.md issue #33 for the current baseline
 yarn format:check               # Prettier check (.prettierrc.json), resources/js/ — not yet enforced repo-wide
+php artisan app:snapshot-error-pages && yarn validate:html  # HTML5 structural validity (html-validate) on rendered errors/*.blade.php snapshots
 ```
 
 ## Architecture

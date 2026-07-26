@@ -131,6 +131,51 @@ jobs:
       - name: Run Vitest suite
         run: yarn test
 
+  html-validate:
+    name: HTML5 validity (error pages)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, dom, fileinfo, pdo_sqlite, bcmath, gd, zip, intl
+          coverage: none
+
+      - name: Copy environment file
+        run: cp .env.testing .env
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: yarn
+
+      - name: Install Node dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build frontend assets
+        run: yarn build
+
+      - name: Snapshot error pages
+        run: php artisan app:snapshot-error-pages
+
+      - name: Validate HTML5 structure
+        run: yarn validate:html
+
   prettier:
     name: Prettier (format check)
     runs-on: ubuntu-latest
