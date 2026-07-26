@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html data-theme="dark" lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<script>
-    // Immediate theme application - runs before any rendering
-    (function () {
-        const t = localStorage.theme || 'dark';
-        const d = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.classList[d ? 'add' : 'remove']('dark');
-        document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
-    })();
-</script>
-
 <head>
+    <script>
+        // Immediate theme application - runs before any rendering
+        (function () {
+            const t = localStorage.theme || 'dark';
+            const d = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.classList[d ? 'add' : 'remove']('dark');
+            document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light');
+        })();
+    </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
@@ -60,9 +59,8 @@
         <script type="text/javascript" src="{{ URL::asset('js/apexcharts.js') }}"></script>
     @endauth
 </head>
-@section('body')
-
 <body class="dark:text-inherit text-black">
+    @yield('content')
     <script data-navigate-once>
         // Initialize theme if not set
         if (!('theme' in localStorage)) {
@@ -130,6 +128,5 @@
         let checkIfIamDeadInterval = null;
     </script>
 </body>
-@show
 
 </html>

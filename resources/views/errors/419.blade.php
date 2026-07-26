@@ -14,9 +14,7 @@
             </ul>
         </details>
         <div class="flex items-center mt-6 gap-x-2">
-            <a href="/login">
-                <x-forms.button>Back to Login</x-forms.button>
-            </a>
+            <a href="/login" class="button">Back to Login</a>
             <a target="_blank" class="text-xs" href="{{ config('constants.urls.contact') }}">Contact
                 support
                 <x-external-link />
