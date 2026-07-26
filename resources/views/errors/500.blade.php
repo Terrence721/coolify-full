@@ -1,4 +1,4 @@
-@extends('layouts.base')
+<x-layout-simple>
 <div class="flex items-center justify-center min-h-screen">
     <div class="w-full max-w-3xl px-8">
         <p class="font-mono font-semibold text-red-500 text-[200px] leading-none">500</p>
@@ -24,3 +24,4 @@
         </div>
     </div>
 </div>
+</x-layout-simple>
