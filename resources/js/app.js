@@ -8,6 +8,10 @@
 // non-executing directives - found via a full-repo sweep after the same failure pattern broke
 // toast notifications (see Toast.jsx's docblock and todo.md's "Correction" note).
 
+import { reloadOnBFCacheRestore } from './hooks/reloadOnBFCacheRestore';
+
+reloadOnBFCacheRestore();
+
 // Password show/hide toggle (components/forms/input.blade.php)
 document.addEventListener('click', (event) => {
     const toggle = event.target.closest('[data-password-toggle]');
