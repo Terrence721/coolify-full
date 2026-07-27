@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
@@ -54,7 +55,7 @@ it('updates the password', function () {
         ]);
 
     $response->assertRedirect();
-    expect(\Illuminate\Support\Facades\Hash::check('new-strong-password-123', $user->fresh()->password))->toBeTrue();
+    expect(Hash::check('new-strong-password-123', $user->fresh()->password))->toBeTrue();
 });
 
 it('rejects a password update with an incorrect current password', function () {

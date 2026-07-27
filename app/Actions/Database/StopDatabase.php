@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Actions\Database;
 
 use App\Actions\Server\CleanupDocker;
-use App\Models\StandaloneDatabaseInstance;
 use App\Events\ServiceStatusChanged;
+use App\Models\StandaloneDatabaseInstance;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StopDatabase

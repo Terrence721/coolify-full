@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Models\S3Storage;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ScheduledDatabaseBackupExecution;
 use App\Models\Server;
 use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -162,6 +162,7 @@ trait ManagesScheduledDatabaseBackups
                 validateDatabasesBackupInput($validated['databases_to_backup']);
             } catch (\Throwable $e) {
                 Log::error('Unhandled exception in applyBackupScheduleUpdate().', ['error' => $e->getMessage()]);
+
                 return $e->getMessage();
             }
         }
@@ -248,6 +249,7 @@ trait ManagesScheduledDatabaseBackups
             return null;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in deleteBackupExecution().', ['error' => $e->getMessage()]);
+
             return 'Failed to delete backup: '.$e->getMessage();
         }
     }

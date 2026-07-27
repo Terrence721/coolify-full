@@ -9,9 +9,9 @@ use App\Models\Application;
 use App\Models\ScheduledTask;
 use App\Models\Service;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -215,9 +215,9 @@ trait ManagesResourceScheduledTasks
      * a service lists its child application/database names; a docker-compose application
      * lists its parsed compose service keys; anything else has no candidates.
      *
-     * @return \Illuminate\Support\Collection<int, string>
+     * @return Collection<int, string>
      */
-    private function scheduledTaskContainerNames(Application|Service $resource): \Illuminate\Support\Collection
+    private function scheduledTaskContainerNames(Application|Service $resource): Collection
     {
         if ($resource instanceof Service) {
             return $resource->applications()->pluck('name')
@@ -226,7 +226,7 @@ trait ManagesResourceScheduledTasks
         }
 
         if ($resource->build_pack === 'dockercompose') {
-            /** @var array<string, mixed>|\Illuminate\Support\Collection<string, mixed>|null $services */
+            /** @var array<string, mixed>|Collection<string, mixed>|null $services */
             $services = data_get($resource->parse(), 'services');
 
             return collect($services)->keys();

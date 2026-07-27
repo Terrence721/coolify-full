@@ -9,6 +9,7 @@ use App\Traits\HasDatabaseHealthCheck;
 use App\Traits\HasMetrics;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasStandaloneDatabaseCommon;
+use Database\Factories\StandaloneDragonflyFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -129,7 +130,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneDragonfly extends StandaloneDatabaseInstance
 {
-    /** @use HasFactory<\Database\Factories\StandaloneDragonflyFactory> */
+    /** @use HasFactory<StandaloneDragonflyFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

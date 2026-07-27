@@ -9,6 +9,7 @@ use App\Traits\HasDatabaseHealthCheck;
 use App\Traits\HasMetrics;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasStandaloneDatabaseCommon;
+use Database\Factories\StandaloneMongodbFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -138,7 +139,7 @@ use Illuminate\Support\Facades\Log;
  */
 class StandaloneMongodb extends StandaloneDatabaseInstance
 {
-    /** @use HasFactory<\Database\Factories\StandaloneMongodbFactory> */
+    /** @use HasFactory<StandaloneMongodbFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

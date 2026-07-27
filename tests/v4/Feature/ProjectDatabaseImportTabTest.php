@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Models\Environment;
 use App\Models\InstanceSettings;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\Service;
 use App\Models\ServiceDatabase;
+use App\Models\StandaloneDocker;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
+use App\Models\SwarmDocker;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,7 +32,7 @@ function importTabActingAs(Team $team): User
     return $user;
 }
 
-/** @return array{0: \App\Models\Environment, 1: \App\Models\StandaloneDocker|\App\Models\SwarmDocker, 2: Server} */
+/** @return array{0: Environment, 1: StandaloneDocker|SwarmDocker, 2: Server} */
 function importTabInfra(Team $team): array
 {
     $server = Server::factory()->create(['team_id' => $team->id]);

@@ -82,6 +82,7 @@ trait BuildsTerminalCommand
             return true;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in checkShellAvailability().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

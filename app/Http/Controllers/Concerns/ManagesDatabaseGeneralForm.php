@@ -6,9 +6,9 @@ namespace App\Http\Controllers\Concerns;
 
 use App\Actions\Database\StartDatabaseProxy;
 use App\Actions\Database\StopDatabaseProxy;
-use App\Models\StandaloneDatabaseInstance;
 use App\Helpers\SslHelper;
 use App\Models\StandaloneClickhouse;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
 use App\Models\StandaloneMariadb;
@@ -375,6 +375,7 @@ trait ManagesDatabaseGeneralForm
             validateFilenameSafe($validated['filename'], 'init script filename');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in storeDatabaseInitScript().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 

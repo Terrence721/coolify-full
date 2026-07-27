@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\EnvironmentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -78,8 +79,10 @@ use OpenApi\Attributes as OA;
 class Environment extends BaseModel
 {
     use ClearsGlobalSearchCache;
-    /** @use HasFactory<\Database\Factories\EnvironmentFactory> */
+
+    /** @use HasFactory<EnvironmentFactory> */
     use HasFactory;
+
     use HasSafeStringAttribute;
 
     protected $fillable = [

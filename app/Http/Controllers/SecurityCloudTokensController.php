@@ -121,6 +121,7 @@ class SecurityCloudTokensController extends Controller
             return false;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in validateProviderToken().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -135,6 +136,7 @@ class SecurityCloudTokensController extends Controller
             return $response->successful();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in validateHetznerToken().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }
@@ -149,6 +151,7 @@ class SecurityCloudTokensController extends Controller
             return $response->successful();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in validateDigitalOceanToken().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

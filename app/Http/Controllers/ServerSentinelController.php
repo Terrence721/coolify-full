@@ -126,6 +126,7 @@ class ServerSentinelController extends Controller
             return back()->with('success', 'Sentinel settings updated.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in submit().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -158,6 +159,7 @@ class ServerSentinelController extends Controller
             return back()->with('info', 'Restarting Sentinel.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in toggle().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -174,6 +176,7 @@ class ServerSentinelController extends Controller
             return back()->with('info', 'Restarting Sentinel.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in restart().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -189,6 +192,7 @@ class ServerSentinelController extends Controller
             return back()->with('success', 'Token regenerated. Restarting Sentinel.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in regenerateToken().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }

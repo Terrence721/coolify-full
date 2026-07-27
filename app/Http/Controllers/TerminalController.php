@@ -6,12 +6,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\BuildsTerminalCommand;
 use App\Models\Server;
-use Throwable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 class TerminalController extends Controller
 {

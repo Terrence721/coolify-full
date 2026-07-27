@@ -6,6 +6,7 @@ use App\Jobs\ApplicationDeploymentJob;
 use App\Models\Application;
 use App\Models\ApplicationDeploymentQueue;
 use App\Models\InstanceSettings;
+use App\Models\Project;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
@@ -32,7 +33,7 @@ function headingActionsActingAs(Team $team): User
 function headingActionsMakeApplication(Team $team, array $attrs = []): Application
 {
     $server = Server::factory()->create(['team_id' => $team->id]);
-    $project = \App\Models\Project::factory()->create(['team_id' => $team->id]);
+    $project = Project::factory()->create(['team_id' => $team->id]);
     $environment = $project->environments()->first();
     $destination = $server->standaloneDockers()->first();
 
@@ -105,7 +106,7 @@ it('refuses to deploy to a swarm cluster with no docker image name set', functio
     $server = Server::factory()->create(['team_id' => $team->id]);
     $server->settings->update(['is_swarm_manager' => true]);
     $swarmDestination = SwarmDocker::create(['name' => 'swarm', 'server_id' => $server->id, 'network' => 'swarm_network']);
-    $project = \App\Models\Project::factory()->create(['team_id' => $team->id]);
+    $project = Project::factory()->create(['team_id' => $team->id]);
     $environment = $project->environments()->first();
     $application = Application::factory()->create([
         'name' => 'my-swarm-app',

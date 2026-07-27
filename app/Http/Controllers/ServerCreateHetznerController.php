@@ -95,6 +95,7 @@ class ServerCreateHetznerController extends Controller
             return $response;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in data().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to fetch Hetzner Cloud data: '.$e->getMessage()], 422);
         }
     }
@@ -157,6 +158,7 @@ class ServerCreateHetznerController extends Controller
             return back()->with('error', $e->getMessage());
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in store().', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Failed to create Hetzner server: '.$e->getMessage());
         }
 

@@ -247,6 +247,7 @@ class SourceGithubController extends Controller
             return back()->with('error', "Failed to fetch GitHub App information: {$errorMessage}");
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in updateName().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }

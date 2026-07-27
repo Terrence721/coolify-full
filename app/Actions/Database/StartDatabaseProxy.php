@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use App\Notifications\Container\ContainerRestarted;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Decorators\JobDecorator;

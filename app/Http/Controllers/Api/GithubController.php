@@ -287,6 +287,7 @@ class GithubController extends Controller
             return response()->json($githubApp, 201);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in create_github_app().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }
@@ -391,6 +392,7 @@ class GithubController extends Controller
             return response()->json(['message' => 'GitHub app not found'], 404);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in load_repositories().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }
@@ -494,6 +496,7 @@ class GithubController extends Controller
             return response()->json(['message' => 'GitHub app not found'], 404);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in load_branches().', ['error' => $e->getMessage()]);
+
             return handleError($e);
         }
     }

@@ -20,6 +20,7 @@ use App\Traits\HasProxyConfiguration;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasSentinel;
 use App\Traits\ValidatesDockerEnvironment;
+use Database\Factories\ServerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -198,7 +199,7 @@ use Visus\Cuid2\Cuid2;
 
 class Server extends BaseModel
 {
-    /** @use HasFactory<\Database\Factories\ServerFactory> */
+    /** @use HasFactory<ServerFactory> */
     use ClearsGlobalSearchCache, HasDockerContainers, HasFactory, HasMetrics, HasProxyConfiguration, HasSentinel, SchemalessAttributesTrait, SoftDeletes, ValidatesDockerEnvironment;
 
     public static int $batch_counter = 0;

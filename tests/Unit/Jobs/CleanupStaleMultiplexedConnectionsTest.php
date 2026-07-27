@@ -41,5 +41,5 @@ it('removes a mux file instead of crashing when its content is unreadable', func
             'reason' => 'content_unreadable',
         ]);
 
-    expect(fn () => (new CleanupStaleMultiplexedConnections)->handle())->not->toThrow(\TypeError::class);
+    expect(fn () => (new CleanupStaleMultiplexedConnections)->handle())->not->toThrow(TypeError::class);
 });

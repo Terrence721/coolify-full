@@ -170,6 +170,7 @@ class ServerProxyController extends Controller
             $server->setupDefaultRedirect();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in instantSaveRedirect().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -193,6 +194,7 @@ class ServerProxyController extends Controller
             $server->setupDefaultRedirect();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in submit().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -210,6 +212,7 @@ class ServerProxyController extends Controller
             $server->save();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in resetConfiguration().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -291,6 +294,7 @@ class ServerProxyController extends Controller
             }
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in storeDynamicConfiguration().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -324,6 +328,7 @@ class ServerProxyController extends Controller
             }
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in destroyDynamicConfiguration().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -392,6 +397,7 @@ class ServerProxyController extends Controller
             return $newestVersion ? "v{$newestVersion}" : null;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in latestTraefikVersion().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -464,6 +470,7 @@ class ServerProxyController extends Controller
             return $newestBranch ? "v{$newestBranch}" : null;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in newerTraefikBranchAvailable().', ['error' => $e->getMessage()]);
+
             return null;
         }
     }

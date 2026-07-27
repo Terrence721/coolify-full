@@ -637,6 +637,7 @@ class Github extends Controller
                 && (string) data_get($response->json(), 'app_id') === (string) $github_app->app_id;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in githubInstallationBelongsToApp().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

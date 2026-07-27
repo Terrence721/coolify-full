@@ -56,6 +56,7 @@ class ServerMetricsController extends Controller
             return back()->with('success', 'Metrics disabled. Restarting Sentinel.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in toggleMetrics().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -73,6 +74,7 @@ class ServerMetricsController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in data().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

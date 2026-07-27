@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\BuildsConfigurationCheckerProps;
 use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
+use App\Models\StandaloneDatabaseInstance;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -138,6 +138,7 @@ class ProjectMetricsController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in metricsData().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

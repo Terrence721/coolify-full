@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\ScheduledTaskFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,8 +76,9 @@ use OpenApi\Attributes as OA;
 )]
 class ScheduledTask extends BaseModel
 {
-    /** @use HasFactory<\Database\Factories\ScheduledTaskFactory> */
+    /** @use HasFactory<ScheduledTaskFactory> */
     use HasFactory;
+
     use HasSafeStringAttribute;
 
     protected $fillable = [
