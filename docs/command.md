@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 25, 2026**
+**Last Updated: July 27, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -152,6 +152,7 @@ From `.github/workflows/quality.yml` — reproduce these exactly when debugging 
 cp .env.testing .env
 composer install --no-interaction --prefer-dist --optimize-autoloader
 composer phpstan                          # separate CI job: "phpstan"
+vendor/bin/pint --test                    # separate CI job: "pint" (format check, not --dirty — the whole repo)
 composer psalm                            # separate CI job: "psalm" (taint analysis)
 yarn install --frozen-lockfile
 yarn build
