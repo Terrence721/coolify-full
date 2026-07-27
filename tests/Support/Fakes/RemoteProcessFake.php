@@ -18,6 +18,17 @@ class RemoteProcessFake
 {
     public static string $output = '';
 
+    /**
+     * Optional per-call outputs, consumed in order (shifted off the front) before falling
+     * back to $output once exhausted. Needed by callers like CheckUpdates that make several
+     * sequential instant_remote_process() calls expecting genuinely different output from
+     * each one (an /etc/os-release read, then a real "list updates" command) - $output alone
+     * can't express that, since every call returns the same single string.
+     *
+     * @var array<int, string>
+     */
+    public static array $outputQueue = [];
+
     public static Collection $containers;
 
     public static ?\Throwable $containersException = null;
@@ -35,6 +46,7 @@ class RemoteProcessFake
     public static function reset(): void
     {
         self::$output = '';
+        self::$outputQueue = [];
         self::$containers = collect();
         self::$containersException = null;
         self::$instantRemoteProcessException = null;

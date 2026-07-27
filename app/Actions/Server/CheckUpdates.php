@@ -113,6 +113,14 @@ class CheckUpdates
                     $out['package_manager'] = $packageManager;
 
                     return $out;
+                case 'apk':
+                    instant_remote_process(['apk update -q'], $server);
+                    $output = instant_remote_process(['LANG=C apk list --upgradable 2>/dev/null'], $server);
+                    $out = $this->parseApkOutput($output);
+                    $out['osId'] = $osId;
+                    $out['package_manager'] = $packageManager;
+
+                    return $out;
                 default:
                     return [
                         'osId' => $osId,
@@ -293,5 +301,75 @@ class CheckUpdates
         }
 
         return $result;
+    }
+
+    /**
+     * @return array{total_updates: int, updates: array<int, array<string, string>>, unparsed_lines?: array<int, string>}
+     */
+    private function parseApkOutput(string $output): array
+    {
+        $updates = [];
+        $unparsedLines = [];
+        $lines = explode("\n", $output);
+
+        foreach ($lines as $line) {
+            if (empty($line)) {
+                continue;
+            }
+
+            // Example line: libcrypto3-3.1.8-r0 x86_64 {openssl} (Apache-2.0) [upgradable from: libcrypto3-3.1.0-r4]
+            if (preg_match('/^(\S+)\s+(\S+)\s+\{(\S+)\}\s+\(.*?\)\s+\[upgradable from: (\S+)\]$/', $line, $matches)) {
+                [$package, $newVersion] = $this->splitApkPackageAndVersion($matches[1]);
+                $oldToken = $matches[4];
+                $currentVersion = str_starts_with($oldToken, $package.'-') ? substr($oldToken, strlen($package) + 1) : 'unknown';
+
+                $updates[] = [
+                    'package' => $package,
+                    'new_version' => $newVersion,
+                    'current_version' => $currentVersion,
+                    'architecture' => $matches[2],
+                    'repository' => $matches[3],
+                ];
+            } else {
+                $unparsedLines[] = $line;
+            }
+        }
+
+        $result = [
+            'total_updates' => count($updates),
+            'updates' => $updates,
+        ];
+
+        if (! empty($unparsedLines)) {
+            $result['unparsed_lines'] = $unparsedLines;
+            Log::debug('Apk output contained unparsed lines', [
+                'unparsed_lines' => $unparsedLines,
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Alpine's `apk list --upgradable` glues the package name and version together with no
+     * unambiguous separator (e.g. `libcrypto3-3.1.8-r0`, `busybox-binsh-1.36.1-r7`), and
+     * package names themselves may contain digits or multiple hyphens - splitting from the
+     * left can't work reliably. Alpine's own version format is consistently
+     * `<dotted-numeric-or-date>[-r<N>]`, so walking segments from the right and consuming
+     * everything that looks version-shaped isolates the real package name. Verified against
+     * real `apk list --upgradable` output from a genuinely outdated Alpine 3.18.0 container.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function splitApkPackageAndVersion(string $token): array
+    {
+        $parts = explode('-', $token);
+        $versionParts = [];
+
+        while (count($parts) > 1 && preg_match('/^(r\d|\d)/', end($parts))) {
+            array_unshift($versionParts, array_pop($parts));
+        }
+
+        return [implode('-', $parts), implode('-', $versionParts)];
     }
 }

@@ -114,7 +114,7 @@ export default function Patches({
                         <span className="text-xs text-neutral-500">(experimental)</span>
                         <span
                             className="cursor-help text-xs text-neutral-500"
-                            title="Only available for apt, dnf and zypper package managers atm, more coming soon. Status notifications sent every week. You can disable notifications in the notification settings."
+                            title="Only available for apt, dnf, zypper, pacman, and apk package managers. Status notifications sent every week. You can disable notifications in the notification settings."
                         >
                             (?)
                         </span>
