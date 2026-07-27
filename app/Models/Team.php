@@ -11,6 +11,7 @@ use App\Notifications\Channels\SendsPushover;
 use App\Notifications\Channels\SendsSlack;
 use App\Traits\HasNotificationSettings;
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -98,7 +99,7 @@ use OpenApi\Attributes as OA;
 )]
 class Team extends Model implements SendsDiscord, SendsEmail, SendsPushover, SendsSlack
 {
-    /** @use HasFactory<\Database\Factories\TeamFactory> */
+    /** @use HasFactory<TeamFactory> */
     use HasFactory, HasNotificationSettings, HasSafeStringAttribute, Notifiable;
 
     protected $fillable = [

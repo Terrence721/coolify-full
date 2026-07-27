@@ -10,6 +10,7 @@ use App\Notifications\TransactionalEmails\EmailChangeVerification;
 use App\Notifications\TransactionalEmails\ResetPassword as TransactionalEmailsResetPassword;
 use App\Services\ChangelogService;
 use App\Traits\DeletesUserSessions;
+use Database\Factories\UserFactory;
 use DateTimeInterface;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -102,7 +103,7 @@ use OpenApi\Attributes as OA;
 )]
 class User extends Authenticatable implements MustVerifyEmail, SendsEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use DeletesUserSessions, HasApiTokens, HasFactory, MustVerifyEmailTrait, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [

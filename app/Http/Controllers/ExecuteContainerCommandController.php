@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\BuildsTerminalCommand;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Models\Application;
 use App\Models\Server;
 use App\Models\Service;
+use App\Models\StandaloneDatabaseInstance;
 use App\Support\ServerChromeData;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;

@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
-use Spatie\Url\Url;
 
 /**
  * React port of the former App\Livewire\Project\Service\Index's `project.service.index`
@@ -474,5 +473,4 @@ class ProjectServiceResourceController extends Controller
 
         return [$service, $serviceDatabase];
     }
-
 }

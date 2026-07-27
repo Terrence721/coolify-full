@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Application\StopApplicationOneServer;
+use App\Actions\Docker\GetContainersStatus;
+use App\Events\ApplicationStatusChanged;
 use App\Http\Controllers\Concerns\ManagesApplicationHeading;
 use App\Http\Controllers\Concerns\ManagesResourceDanger;
 use App\Http\Controllers\Concerns\ManagesResourceEnvironmentVariables;
@@ -14,9 +17,6 @@ use App\Http\Controllers\Concerns\ManagesResourceStorages;
 use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
-use App\Actions\Application\StopApplicationOneServer;
-use App\Actions\Docker\GetContainersStatus;
-use App\Events\ApplicationStatusChanged;
 use App\Jobs\ApplicationDeploymentJob;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
@@ -554,6 +554,7 @@ class ProjectApplicationConfigurationController extends Controller
             $commit = validateGitRef($validated['tag'], 'rollback commit');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in rollbackDeploy().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -1135,6 +1136,7 @@ class ProjectApplicationConfigurationController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in loadPullRequests().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -1294,6 +1296,7 @@ class ProjectApplicationConfigurationController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in deployPreviewInternal().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -1494,6 +1497,7 @@ class ProjectApplicationConfigurationController extends Controller
             return back()->with('success', 'Preview Deployment stopped.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in stopPreview().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -1708,6 +1712,7 @@ class ProjectApplicationConfigurationController extends Controller
             $this->reloadComposeFile($application, isInit: $isInit, showToast: true);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in loadComposeFileEndpoint().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -1858,7 +1863,7 @@ class ProjectApplicationConfigurationController extends Controller
      */
     /**
      * @return array<int, mixed>|null null means no conflict (or the check was skipped/forced);
-     *                                 a non-null array is the conflict list to flash.
+     *                                a non-null array is the conflict list to flash.
      */
     private function fqdnConflicts(Request $request, Application $application): ?array
     {

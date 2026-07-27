@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Traits;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Models\Application;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\StandaloneDocker;
 use App\Models\SwarmDocker;
 use App\Support\DatabaseEngineRegistry;

@@ -167,6 +167,7 @@ class ServerDockerCleanupController extends Controller
             return Carbon::parse($lastExecution->created_at)->diffInMinutes($now) > $threshold;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in isCleanupStale().', ['error' => $e->getMessage()]);
+
             return false;
         }
     }

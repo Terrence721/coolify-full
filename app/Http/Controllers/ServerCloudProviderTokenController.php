@@ -99,6 +99,7 @@ class ServerCloudProviderTokenController extends Controller
             return back()->with('error', 'Hetzner token is invalid or has insufficient permissions.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in validateToken().', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Failed to validate token: '.$e->getMessage());
         }
     }
@@ -134,6 +135,7 @@ class ServerCloudProviderTokenController extends Controller
             ]);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in store().', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Failed to validate token: '.$e->getMessage());
         }
 
@@ -173,6 +175,7 @@ class ServerCloudProviderTokenController extends Controller
             return ['valid' => true];
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in validateTokenForServer().', ['error' => $e->getMessage()]);
+
             return [
                 'valid' => false,
                 'error' => 'Failed to validate token: '.$e->getMessage(),

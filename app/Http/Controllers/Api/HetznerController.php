@@ -124,6 +124,7 @@ class HetznerController extends Controller
             return response()->json($locations);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in locations().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to fetch Hetzner locations.'], 500);
         }
     }
@@ -224,6 +225,7 @@ class HetznerController extends Controller
             return response()->json($serverTypes);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in serverTypes().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to fetch Hetzner server types.'], 500);
         }
     }
@@ -337,6 +339,7 @@ class HetznerController extends Controller
             return response()->json(array_values($filtered));
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in images().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to fetch Hetzner images.'], 500);
         }
     }
@@ -434,6 +437,7 @@ class HetznerController extends Controller
             return response()->json($sshKeys);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in sshKeys().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to fetch Hetzner SSH keys.'], 500);
         }
     }
@@ -641,6 +645,7 @@ class HetznerController extends Controller
             return $response;
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in createServer().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => 'Failed to create Hetzner server.'], 500);
         }
     }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Events\DatabaseProxyStopped;
 use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StopDatabaseProxy

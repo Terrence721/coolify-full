@@ -224,6 +224,7 @@ class ProjectResourceGitCreateController extends Controller
             $token = generateGithubInstallationToken($githubApp);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in loadRepositories().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => strip_tags($e->getMessage())], 422);
         }
 
@@ -269,6 +270,7 @@ class ProjectResourceGitCreateController extends Controller
             $token = generateGithubInstallationToken($githubApp);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in loadBranches().', ['error' => $e->getMessage()]);
+
             return response()->json(['message' => strip_tags($e->getMessage())], 422);
         }
 

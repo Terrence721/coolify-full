@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Notifications\Database;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Models\ScheduledDatabaseBackup;
 use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use App\Notifications\CustomEmailNotification;
 use App\Notifications\Dto\DiscordMessage;
 use App\Notifications\Dto\PushoverMessage;

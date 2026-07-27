@@ -10,6 +10,7 @@ use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
 use App\Models\StandaloneClickhouse;
+use App\Models\StandaloneDocker;
 use App\Models\StandaloneDragonfly;
 use App\Models\StandaloneKeydb;
 use App\Models\StandaloneMariadb;
@@ -17,6 +18,7 @@ use App\Models\StandaloneMongodb;
 use App\Models\StandaloneMysql;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
+use App\Models\SwarmDocker;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -73,7 +75,7 @@ function genTabActingAs(Team $team): User
     return $user;
 }
 
-/** @return array{0: Environment, 1: \App\Models\StandaloneDocker|\App\Models\SwarmDocker} */
+/** @return array{0: Environment, 1: StandaloneDocker|SwarmDocker} */
 function genTabInfra(Team $team): array
 {
     $server = Server::factory()->create(['team_id' => $team->id]);

@@ -9,6 +9,7 @@ use App\Traits\HasDatabaseHealthCheck;
 use App\Traits\HasMetrics;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasStandaloneDatabaseCommon;
+use Database\Factories\StandaloneKeydbFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -131,7 +132,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneKeydb extends StandaloneDatabaseInstance
 {
-    /** @use HasFactory<\Database\Factories\StandaloneKeydbFactory> */
+    /** @use HasFactory<StandaloneKeydbFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

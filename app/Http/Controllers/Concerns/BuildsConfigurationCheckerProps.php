@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Models\Application;
+use App\Models\StandaloneDatabaseInstance;
 
 /**
  * Builds the props ConfigurationChecker.jsx needs, extracted from ProjectLogsController

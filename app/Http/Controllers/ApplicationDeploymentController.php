@@ -148,6 +148,7 @@ class ApplicationDeploymentController extends Controller
             force_start_deployment($deployment);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in forceStart().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -216,6 +217,7 @@ class ApplicationDeploymentController extends Controller
             }
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in cancel().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         } finally {
             $deployment->update(['current_process_id' => null]);

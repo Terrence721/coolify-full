@@ -96,7 +96,6 @@ function baseProps(overrides = {}) {
     return {
         serverNavbar: {},
         sidebar: {},
-        server: baseServer(overrides.server),
         timezones: ['UTC', 'America/New_York'],
         availableHetznerTokens: [],
         isCloud: false,

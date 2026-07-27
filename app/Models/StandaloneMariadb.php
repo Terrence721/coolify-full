@@ -9,6 +9,7 @@ use App\Traits\HasDatabaseHealthCheck;
 use App\Traits\HasMetrics;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasStandaloneDatabaseCommon;
+use Database\Factories\StandaloneMariadbFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -135,7 +136,7 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneMariadb extends StandaloneDatabaseInstance
 {
-    /** @use HasFactory<\Database\Factories\StandaloneMariadbFactory> */
+    /** @use HasFactory<StandaloneMariadbFactory> */
     use ClearsGlobalSearchCache, HasDatabaseHealthCheck, HasFactory, HasMetrics, HasSafeStringAttribute, HasStandaloneDatabaseCommon, SoftDeletes;
 
     protected $fillable = [

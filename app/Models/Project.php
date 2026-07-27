@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Support\DatabaseEngineRegistry;
 use App\Traits\ClearsGlobalSearchCache;
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -82,8 +83,10 @@ use Visus\Cuid2\Cuid2;
 class Project extends BaseModel
 {
     use ClearsGlobalSearchCache;
-    /** @use HasFactory<\Database\Factories\ProjectFactory> */
+
+    /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+
     use HasSafeStringAttribute;
 
     protected $fillable = [

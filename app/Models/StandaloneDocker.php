@@ -8,6 +8,7 @@ use App\Jobs\ConnectProxyToNetworksJob;
 use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
 use App\Traits\HasSafeStringAttribute;
+use Database\Factories\StandaloneDockerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -64,8 +65,9 @@ use Illuminate\Support\Carbon;
  */
 class StandaloneDocker extends BaseModel
 {
-    /** @use HasFactory<\Database\Factories\StandaloneDockerFactory> */
+    /** @use HasFactory<StandaloneDockerFactory> */
     use HasFactory;
+
     use HasSafeStringAttribute;
 
     protected $fillable = [

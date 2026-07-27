@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Concerns;
 
-use App\Models\StandaloneDatabaseInstance;
 use App\Models\S3Storage;
+use App\Models\Server;
 use App\Models\ServiceDatabase;
+use App\Models\StandaloneDatabaseInstance;
 use App\Support\DatabaseEngineRegistry;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -180,6 +182,7 @@ trait ManagesDatabaseImport
             return back()->with('success', 'File found in S3. Size: '.formatBytes($disk->size($cleanPath)));
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in importCheckS3().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -293,6 +296,7 @@ trait ManagesDatabaseImport
             ]);
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in importRestoreS3().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -340,7 +344,7 @@ trait ManagesDatabaseImport
         return false;
     }
 
-    private function importServer(ServiceDatabase|StandaloneDatabaseInstance $resource): \App\Models\Server
+    private function importServer(ServiceDatabase|StandaloneDatabaseInstance $resource): Server
     {
         if ($resource instanceof ServiceDatabase) {
             // Service uses SoftDeletes, so this belongsTo can resolve to null at runtime (e.g. a
@@ -409,7 +413,7 @@ trait ManagesDatabaseImport
         };
     }
 
-    private function importS3Disk(S3Storage $s3Storage): \Illuminate\Contracts\Filesystem\Filesystem
+    private function importS3Disk(S3Storage $s3Storage): Filesystem
     {
         return Storage::build([
             'driver' => 's3',

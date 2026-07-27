@@ -120,6 +120,7 @@ trait ManagesResourceStorages
             validateShellSafePath($path, 'file storage path');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in storeStorageFile().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -152,6 +153,7 @@ trait ManagesResourceStorages
             validateShellSafePath($destination, 'storage destination path');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in storeStorageDirectory().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -245,6 +247,7 @@ trait ManagesResourceStorages
             $file->loadStorageOnServer();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in loadStorageFile().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -264,6 +267,7 @@ trait ManagesResourceStorages
             $file->saveStorageOnServer();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in convertStorageFile().', ['error' => $e->getMessage()]);
+
             return back()->with('error', $e->getMessage());
         }
 
@@ -290,6 +294,7 @@ trait ManagesResourceStorages
                 $message = $file->is_directory ? 'Directory deleted from the server.' : 'File deleted from the server.';
             } catch (\Throwable $e) {
                 Log::error('Unhandled exception in destroyStorageFile().', ['error' => $e->getMessage()]);
+
                 return back()->with('error', $e->getMessage());
             }
         }

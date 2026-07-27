@@ -163,6 +163,7 @@ class SettingsBackupController extends Controller
             return back()->with('success', 'Coolify database added for backups.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in addDatabase().', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Failed to add Coolify database: '.$e->getMessage());
         }
     }

@@ -81,6 +81,7 @@ class StorageController extends Controller
             $storage->save();
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in store().', ['error' => $e->getMessage()]);
+
             return back()->withErrors(['endpoint' => 'Failed to create storage: '.$e->getMessage()])->withInput();
         }
 
@@ -165,6 +166,7 @@ class StorageController extends Controller
             });
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in update().', ['error' => $e->getMessage()]);
+
             return back()->withErrors(['endpoint' => $e->getMessage()])->withInput();
         }
 
@@ -182,6 +184,7 @@ class StorageController extends Controller
             return back()->with('success', 'Connection is working. Tested with "ListObjectsV2" action.');
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in testConnection().', ['error' => $e->getMessage()]);
+
             return back()->with('error', 'Failed to test connection: '.$e->getMessage());
         }
     }

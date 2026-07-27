@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Actions\Database\StartDatabase;
 use App\Actions\Database\StopDatabase;
-use App\Models\StandaloneDatabaseInstance;
 use App\Http\Controllers\Concerns\ManagesDatabaseGeneralForm;
 use App\Http\Controllers\Concerns\ManagesDatabaseImport;
 use App\Http\Controllers\Concerns\ManagesResourceDanger;
@@ -18,6 +17,7 @@ use App\Http\Controllers\Concerns\ManagesResourceTags;
 use App\Http\Controllers\Concerns\ManagesResourceWebhooks;
 use App\Http\Controllers\Concerns\ResolvesProjectResources;
 use App\Jobs\VolumeCloneJob;
+use App\Models\StandaloneDatabaseInstance;
 use App\Models\StandaloneDocker;
 use App\Models\StandalonePostgresql;
 use App\Models\SwarmDocker;
