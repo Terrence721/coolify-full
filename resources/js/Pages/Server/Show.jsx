@@ -374,7 +374,6 @@ export default function Show({ serverNavbar, sidebar, server, timezones, isCloud
                             )}
                         </div>
                     )}
-
                 </div>
             </div>
 
