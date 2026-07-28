@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 26, 2026**
+**Last Updated: July 28, 2026**
 
 This repository is a professionally enhanced fork of Coolify, created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -84,7 +84,7 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 ```text
 ┌───────────────────────────────────────────────┐
 │                 Laravel app                   │  (nginx + PHP-FPM, one container)
-│   Inertia/React pages (94 .jsx pages) — all   │  ← migration complete,
+│   Inertia/React pages (92 .jsx pages) — all   │  ← migration complete,
 │   full-page routes, same Laravel routes/auth  │     no Livewire remains
 │   Horizon queue workers (deploys, backups)    │
 └──────┬──────────┬─────────────┬───────────────┘
