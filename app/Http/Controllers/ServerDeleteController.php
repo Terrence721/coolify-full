@@ -30,9 +30,6 @@ class ServerDeleteController extends Controller
                 'label' => 'Delete all resources ('.$server->definedResources()->count().' total)',
             ];
         }
-        if ($server->hetzner_server_id) {
-            $checkboxes[] = ['id' => 'delete_from_hetzner', 'label' => 'Also delete server from Hetzner Cloud'];
-        }
 
         return Inertia::render('Server/Delete', [
             'serverNavbar' => ServerChromeData::navbar($server),
@@ -60,7 +57,6 @@ class ServerDeleteController extends Controller
         $this->authorize('delete', $server);
 
         $selectedActions = $validated['selected_actions'] ?? [];
-        $deleteFromHetzner = in_array('delete_from_hetzner', $selectedActions, true);
         $forceDeleteResources = in_array('force_delete_resources', $selectedActions, true);
 
         if ($server->hasDefinedResources() && ! $forceDeleteResources) {
@@ -74,12 +70,9 @@ class ServerDeleteController extends Controller
         }
 
         $serverId = $server->id;
-        $hetznerServerId = $server->hetzner_server_id;
-        $cloudProviderTokenId = $server->cloud_provider_token_id;
-        $teamId = $server->team_id;
 
         $server->delete();
-        DeleteServer::dispatch($serverId, $deleteFromHetzner, $hetznerServerId, $cloudProviderTokenId, $teamId);
+        DeleteServer::dispatch($serverId);
 
         return redirect()->route('server.index');
     }

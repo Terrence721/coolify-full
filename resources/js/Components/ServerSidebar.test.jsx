@@ -4,9 +4,9 @@ import ServerSidebar from './ServerSidebar';
 
 // Rendered on every single Server\Navbar page (mocked out in all 9 existing Server-page test
 // suites) - previously untested itself despite real logic: 4 distinct variants (main/security/
-// proxy/sentinel), each with its own active-menu highlighting, and the main variant's 8
-// independently-gated conditional nav items (Advanced/Hetzner Token/Cloudflare Tunnel/Docker
-// Cleanup/Destinations/Log Drains/Metrics/Swarm/Danger).
+// proxy/sentinel), each with its own active-menu highlighting, and the main variant's 7
+// independently-gated conditional nav items (Advanced/Cloudflare Tunnel/Docker Cleanup/
+// Destinations/Log Drains/Metrics/Swarm/Danger).
 
 vi.mock('@inertiajs/react', () => ({
     Link: ({ href, className, children }) => (
@@ -21,7 +21,6 @@ function mainSidebar(overrides = {}) {
         variant: 'main',
         activeMenu: 'general',
         isFunctional: true,
-        hasHetznerToken: false,
         isLocalhost: false,
         isCloudflareTunnelEnabled: false,
         isBuildServer: false,
@@ -29,7 +28,6 @@ function mainSidebar(overrides = {}) {
             general: '/server/srv-uuid',
             advanced: '/server/srv-uuid/advanced',
             privateKey: '/server/srv-uuid/private-key',
-            cloudProviderToken: '/server/srv-uuid/cloud-provider-token',
             caCertificate: '/server/srv-uuid/ca-certificate',
             cloudflareTunnel: '/server/srv-uuid/cloudflare-tunnel',
             dockerCleanup: '/server/srv-uuid/docker-cleanup',
@@ -64,14 +62,6 @@ describe('ServerSidebar', () => {
 
             rerender(<ServerSidebar sidebar={mainSidebar({ isFunctional: true })} />);
             expect(screen.getByRole('link', { name: 'Advanced' })).toBeInTheDocument();
-        });
-
-        it('shows Hetzner Token only when hasHetznerToken is true', () => {
-            const { rerender } = render(<ServerSidebar sidebar={mainSidebar({ hasHetznerToken: false })} />);
-            expect(screen.queryByRole('link', { name: 'Hetzner Token' })).not.toBeInTheDocument();
-
-            rerender(<ServerSidebar sidebar={mainSidebar({ hasHetznerToken: true })} />);
-            expect(screen.getByRole('link', { name: 'Hetzner Token' })).toBeInTheDocument();
         });
 
         it('hides Cloudflare Tunnel for localhost, shows it otherwise', () => {

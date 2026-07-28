@@ -21,11 +21,8 @@ use Visus\Cuid2\Cuid2;
 
 /**
  * React port of the former App\Livewire\Boarding\Index — the first-run onboarding wizard. Only
- * IP-based server creation is offered here (explicit user decision, Phase 76). Server\New\ByHetzner
- * and the rest of the Livewire server-creation chain it depended on were deleted once
- * auth/verify-email.blade.php — their last remaining entry point — converted to React (Phase 79);
- * Hetzner Cloud server creation is consequently gone from the UI entirely unless rebuilt as a
- * React flow from scratch, a permanent, deliberately-accepted loss (see todo.md).
+ * IP-based server creation is offered here (explicit user decision, Phase 76) — no cloud-provider
+ * server-creation flow has ever been offered from onboarding itself.
  *
  * Server\ActivityMonitor and Server\ValidateAndInstall, both formerly needed by Server\Show, were
  * deleted in Phase 78 once Show converted — validateServer() below (extracted into

@@ -111,9 +111,7 @@ use Visus\Cuid2\Cuid2;
  * @property string $sentinel_updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $ip_previous
- * @property int|null $hetzner_server_id
  * @property int|null $cloud_provider_token_id
- * @property string|null $hetzner_server_status
  * @property bool $is_validating
  * @property string|null $detected_traefik_version
  * @property array<array-key, mixed>|null $server_metadata
@@ -144,8 +142,6 @@ use Visus\Cuid2\Cuid2;
  * @method static Builder<static>|Server whereDeletedAt($value)
  * @method static Builder<static>|Server whereDescription($value)
  * @method static Builder<static>|Server whereDetectedTraefikVersion($value)
- * @method static Builder<static>|Server whereHetznerServerId($value)
- * @method static Builder<static>|Server whereHetznerServerStatus($value)
  * @method static Builder<static>|Server whereHighDiskUsageNotificationSent($value)
  * @method static Builder<static>|Server whereId($value)
  * @method static Builder<static>|Server whereIp($value)
@@ -364,8 +360,6 @@ class Server extends BaseModel
         'private_key_id',
         'cloud_provider_token_id',
         'team_id',
-        'hetzner_server_id',
-        'hetzner_server_status',
         'is_validating',
         'detected_traefik_version',
         'traefik_outdated_info',

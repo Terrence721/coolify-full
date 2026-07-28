@@ -1,7 +1,7 @@
 # Architecture Overview
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 26, 2026**
+**Last Updated: July 28, 2026**
 
 This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
 
@@ -46,7 +46,7 @@ There is no `agents/` directory and no separate agent codebase in this repositor
 - **`Http/Controllers/`** — REST API controllers (`Api/`) plus the full set of Inertia page controllers created during the React migration (see the migration doc). There is no `Livewire/` directory — the migration completed 2026-07-14 and `app/Livewire/` was deleted once empty; every full-page route is now Inertia/React.
 - **`Models/`** — Eloquent models (`Server`, `Application`, `Service`, `Project`, `Team`, standalone database models, etc.).
 - **`Jobs/`** — queued work: deployments (`ApplicationDeploymentJob`), backups, Docker cleanup, and periodic checks like `CheckAndStartSentinelJob`, `CheckForUpdatesJob`. Runs on Redis-backed queues via Horizon.
-- **`Services/`** — orchestration/business logic (`ConfigurationGenerator`, `DockerImageParser`, `ContainerStatusAggregator`, `HetznerService`, etc.).
+- **`Services/`** — orchestration/business logic (`ConfigurationGenerator`, `DockerImageParser`, `ContainerStatusAggregator`, etc.).
 - **`Policies/`** — authorization, registered in `AuthServiceProvider`.
 
 ## 4. Frontend (`resources/`)

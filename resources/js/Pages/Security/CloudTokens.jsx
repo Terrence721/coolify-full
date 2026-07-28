@@ -2,7 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 
 export default function CloudTokens({ tokens, canCreate, storeUrl }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        provider: 'hetzner',
+        provider: 'digitalocean',
         name: '',
         token: '',
     });
@@ -44,7 +44,7 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
             </div>
 
             <h2>Cloud Provider Tokens</h2>
-            <div className="pb-4">Manage API tokens for cloud providers (Hetzner, DigitalOcean, etc.).</div>
+            <div className="pb-4">Manage API tokens for cloud providers (DigitalOcean).</div>
 
             {canCreate && (
                 <>
@@ -61,7 +61,6 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                                         value={data.provider}
                                         onChange={(e) => setData('provider', e.target.value)}
                                     >
-                                        <option value="hetzner">Hetzner</option>
                                         <option value="digitalocean">DigitalOcean</option>
                                     </select>
                                 </label>
@@ -73,7 +72,7 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                                         id="cloud-token-name"
                                         name="cloud-token-name"
                                         required
-                                        placeholder="e.g., Production Hetzner. tip: add Hetzner project name to identify easier"
+                                        placeholder="e.g., Production DigitalOcean"
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
                                     />
@@ -97,10 +96,15 @@ export default function CloudTokens({ tokens, canCreate, storeUrl }) {
                             </label>
                             <div className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
                                 Create an API token in the{' '}
-                                <a href="https://console.hetzner.com/projects" target="_blank" rel="noreferrer" className="underline dark:text-white">
-                                    Hetzner Console
+                                <a
+                                    href="https://cloud.digitalocean.com/account/api/tokens"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline dark:text-white"
+                                >
+                                    DigitalOcean Control Panel
                                 </a>{' '}
-                                → choose Project → Security → API Tokens.
+                                → API → Tokens.
                             </div>
                         </div>
                         <div>

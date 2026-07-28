@@ -7,8 +7,7 @@ import Show from './Show';
 // against a real throwaway server: non-localhost direct save, the Phase-78 save-before-validate
 // fix (confirmed with a real SSH error against a freshly-typed IP), Fetch Server Details, and the
 // instant-save build-server toggle all worked correctly end-to-end. This suite locks that
-// previously-untested behavior in, plus the Hetzner-linking branch that dev environment can't
-// reach (no real Hetzner token).
+// previously-untested behavior in.
 
 const patchSpy = vi.fn();
 const postSpy = vi.fn();
@@ -83,9 +82,6 @@ function baseServer(overrides = {}) {
         isBuildServer: false,
         isBuildServerLocked: false,
         isForceDisabled: false,
-        hetznerServerId: null,
-        hasCloudProviderToken: false,
-        hetznerServerStatus: null,
         validationLogs: null,
         serverMetadata: null,
         ...overrides,
@@ -97,7 +93,6 @@ function baseProps(overrides = {}) {
         serverNavbar: {},
         sidebar: {},
         timezones: ['UTC', 'America/New_York'],
-        availableHetznerTokens: [],
         isCloud: false,
         urls: {
             update: '/server/srv-uuid',
@@ -105,11 +100,6 @@ function baseProps(overrides = {}) {
             checkLocalhost: '/server/localhost/check',
             refreshMetadata: '/server/srv-uuid/refresh-metadata',
             validate: '/server/srv-uuid/validate',
-            hetznerStatus: '/server/srv-uuid/hetzner-status',
-            hetznerSearchByIp: '/server/srv-uuid/hetzner-search-ip',
-            hetznerSearchById: '/server/srv-uuid/hetzner-search-id',
-            hetznerLink: '/server/srv-uuid/hetzner-link',
-            hetznerStart: '/server/srv-uuid/hetzner-start',
         },
         ...overrides,
         server: baseServer(overrides.server),
@@ -257,64 +247,6 @@ describe('Server/Show', () => {
         render(<Show {...baseProps()} />);
         act(() => screen.getByRole('button', { name: 'Fetch Server Details' }).click());
         expect(postSpy).toHaveBeenCalledWith('/server/srv-uuid/refresh-metadata', undefined, undefined);
-    });
-
-    it('hides the Hetzner-link section when the server is already linked, and when no tokens exist', () => {
-        const { rerender } = render(<Show {...baseProps({ server: { hetznerServerId: 999 }, availableHetznerTokens: [{ id: 1, name: 'tok' }] })} />);
-        expect(screen.queryByText('Link to Hetzner Cloud')).not.toBeInTheDocument();
-
-        rerender(<Show {...baseProps({ server: { hetznerServerId: null }, availableHetznerTokens: [] })} />);
-        expect(screen.queryByText('Link to Hetzner Cloud')).not.toBeInTheDocument();
-    });
-
-    it('shows the Hetzner-link section when unlinked and tokens are available, and requires a token before searching', async () => {
-        render(<Show {...baseProps({ server: { hetznerServerId: null }, availableHetznerTokens: [{ id: 1, name: 'my-token' }] })} />);
-        expect(screen.getByText('Link to Hetzner Cloud')).toBeInTheDocument();
-
-        await act(async () => {
-            screen.getByRole('button', { name: 'Search by IP' }).click();
-        });
-        expect(screen.getByText('Please select a Hetzner token.')).toBeInTheDocument();
-        expect(global.fetch).not.toHaveBeenCalledWith('/server/srv-uuid/hetzner-search-ip', expect.any(Object));
-    });
-
-    it('renders a matched Hetzner server and links it on click', async () => {
-        global.fetch = vi.fn((url) => {
-            if (url === '/server/srv-uuid/hetzner-search-ip') {
-                return jsonResponse({ match: { id: 555, name: 'hetzner-box', status: 'running', server_type: { name: 'cx22' } } });
-            }
-            return jsonResponse({});
-        });
-        render(<Show {...baseProps({ server: { hetznerServerId: null }, availableHetznerTokens: [{ id: 1, name: 'my-token' }] })} />);
-
-        await act(async () => {
-            const select = screen.getByLabelText('Hetzner Token');
-            select.value = '1';
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-        });
-        await act(async () => {
-            screen.getByRole('button', { name: 'Search by IP' }).click();
-        });
-
-        expect(screen.getByText('Match Found!')).toBeInTheDocument();
-        expect(screen.getByText('hetzner-box')).toBeInTheDocument();
-
-        act(() => screen.getByRole('button', { name: 'Link This Server' }).click());
-        expect(postSpy).toHaveBeenCalledWith(
-            '/server/srv-uuid/hetzner-link',
-            { token_id: '1', hetzner_server_id: 555 },
-            expect.objectContaining({ onSuccess: expect.any(Function) }),
-        );
-    });
-
-    it('polls Hetzner status every 5s only while in a starting/initializing status', () => {
-        vi.useFakeTimers();
-        global.fetch = vi.fn(() => jsonResponse({ status: 'running' }));
-        render(<Show {...baseProps({ server: { hetznerServerId: 42, hetznerServerStatus: 'starting' } })} />);
-
-        const callsBefore = global.fetch.mock.calls.length;
-        act(() => vi.advanceTimersByTime(5000));
-        expect(global.fetch.mock.calls.length).toBeGreaterThan(callsBefore);
     });
 
     it('reloads the server prop when a matching ServerValidated event arrives on the team channel', () => {

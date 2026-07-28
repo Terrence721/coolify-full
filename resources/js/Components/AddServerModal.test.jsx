@@ -4,10 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AddServerModal from './AddServerModal';
 
 // Manually verified live end-to-end during the 2026-07-24 Servers smoke test (issue #25) against
-// a real throwaway server: the IP flow's create-and-redirect, the duplicate-IP error, and the
-// "Add via Hetzner Cloud ->" link all worked correctly in the real browser. This suite locks that
-// in as automated coverage - previously entirely untested - plus the defaulted form state, the
-// backdrop/X-button close paths, and error rendering per field.
+// a real throwaway server: the IP flow's create-and-redirect and the duplicate-IP error both
+// worked correctly in the real browser. This suite locks that in as automated coverage -
+// previously entirely untested - plus the defaulted form state, the backdrop/X-button close
+// paths, and error rendering per field.
 
 // React 19 patches the native <input> value setter to track controlled-component state - directly
 // assigning `.value` then dispatching a bare event doesn't notify it. Using the real native setter
@@ -20,14 +20,10 @@ function typeInto(element, value) {
 }
 
 const postSpy = vi.fn();
-const visitSpy = vi.fn();
 let mockErrors = {};
 let mockProcessing = false;
 
 vi.mock('@inertiajs/react', () => ({
-    router: {
-        visit: (url) => visitSpy(url),
-    },
     useForm: (initial) => {
         const [data, setDataState] = useState(initial);
         return {
@@ -57,7 +53,6 @@ function baseProps(overrides = {}) {
 describe('AddServerModal', () => {
     beforeEach(() => {
         postSpy.mockClear();
-        visitSpy.mockClear();
         mockErrors = {};
         mockProcessing = false;
     });
@@ -148,15 +143,5 @@ describe('AddServerModal', () => {
 
         expect(screen.getByText('A server with this IP/Domain already exists in your team.')).toBeInTheDocument();
         expect(screen.queryByText(/name/i, { selector: '.text-error' })).not.toBeInTheDocument();
-    });
-
-    it('closes the modal and navigates to the Hetzner wizard via "Add via Hetzner Cloud"', () => {
-        const onClose = vi.fn();
-        render(<AddServerModal {...baseProps({ onClose })} />);
-
-        act(() => screen.getByRole('button', { name: 'Add via Hetzner Cloud →' }).click());
-
-        expect(onClose).toHaveBeenCalledTimes(1);
-        expect(visitSpy).toHaveBeenCalledWith('/servers/new/hetzner');
     });
 });

@@ -6,10 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Actions\Server\StopSentinel;
 use App\Events\ServerReachabilityChanged;
-use App\Models\CloudProviderToken;
 use App\Models\Server;
 use App\Rules\ValidServerIp;
-use App\Services\HetznerService;
 use App\Services\ServerValidationService;
 use App\Support\ServerChromeData;
 use App\Support\ValidationPatterns;
@@ -17,7 +15,6 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -45,8 +42,6 @@ class ServerShowController extends Controller
         $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
         $settings = $server->settings;
 
-        $availableHetznerTokens = CloudProviderToken::ownedByCurrentTeam()->where('provider', 'hetzner')->get();
-
         return Inertia::render('Server/Show', [
             'serverNavbar' => ServerChromeData::navbar($server),
             'sidebar' => ServerChromeData::sidebar($server, 'main', 'general'),
@@ -71,16 +66,10 @@ class ServerShowController extends Controller
                 'connectionTimeout' => $settings->connection_timeout,
                 'wildcardDomain' => $settings->wildcard_domain,
                 'serverTimezone' => $settings->server_timezone,
-                'hetznerServerId' => $server->hetzner_server_id,
-                'hetznerServerStatus' => $server->hetzner_server_status,
                 'hasCloudProviderToken' => (bool) $server->cloudProviderToken,
                 'serverMetadata' => $server->server_metadata,
             ],
             'timezones' => collect(timezone_identifiers_list())->sort()->values()->all(),
-            'availableHetznerTokens' => $availableHetznerTokens->map(fn (CloudProviderToken $token) => [
-                'id' => $token->id,
-                'name' => $token->name,
-            ]),
             'isCloud' => isCloud(),
             'urls' => [
                 'update' => route('server.show.update', ['server_uuid' => $server->uuid]),
@@ -88,11 +77,6 @@ class ServerShowController extends Controller
                 'checkLocalhost' => route('server.show.check-localhost', ['server_uuid' => $server->uuid]),
                 'refreshMetadata' => route('server.show.refresh-metadata', ['server_uuid' => $server->uuid]),
                 'validate' => route('server.show.validate', ['server_uuid' => $server->uuid]),
-                'hetznerStatus' => route('server.show.hetzner-status', ['server_uuid' => $server->uuid]),
-                'hetznerStart' => route('server.show.hetzner-start', ['server_uuid' => $server->uuid]),
-                'hetznerSearchByIp' => route('server.show.hetzner-search-ip', ['server_uuid' => $server->uuid]),
-                'hetznerSearchById' => route('server.show.hetzner-search-id', ['server_uuid' => $server->uuid]),
-                'hetznerLink' => route('server.show.hetzner-link', ['server_uuid' => $server->uuid]),
             ],
         ]);
     }
@@ -225,139 +209,5 @@ class ServerShowController extends Controller
         }
 
         return response()->json($result);
-    }
-
-    public function checkHetznerStatus(Request $request, string $server_uuid): JsonResponse
-    {
-        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
-        $this->authorize('update', $server);
-
-        if (! $server->hetzner_server_id || ! $server->cloudProviderToken) {
-            return response()->json(['message' => 'This server is not associated with a Hetzner Cloud server or token.'], 422);
-        }
-
-        $hetznerService = new HetznerService($server->cloudProviderToken->token);
-        $serverData = $hetznerService->getServer($server->hetzner_server_id);
-        $status = $serverData['status'] ?? null;
-
-        if ($server->hetzner_server_status !== $status) {
-            $server->update(['hetzner_server_status' => $status]);
-        }
-
-        $reachabilityNote = null;
-        if ($status === 'off' && $server->settings->is_reachable) {
-            $reachabilityNote = $this->refreshReachability($server);
-        }
-
-        return response()->json(['status' => $status, 'reachabilityNote' => $reachabilityNote]);
-    }
-
-    public function startHetznerServer(string $server_uuid): RedirectResponse
-    {
-        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
-        $this->authorize('update', $server);
-
-        if (! $server->hetzner_server_id || ! $server->cloudProviderToken) {
-            return back()->with('error', 'This server is not associated with a Hetzner Cloud server or token.');
-        }
-
-        $hetznerService = new HetznerService($server->cloudProviderToken->token);
-        $hetznerService->powerOnServer($server->hetzner_server_id);
-        $server->update(['hetzner_server_status' => 'starting']);
-
-        return back()->with('success', 'Hetzner server is starting...');
-    }
-
-    public function searchHetznerServerByIp(Request $request, string $server_uuid): JsonResponse
-    {
-        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
-        $this->authorize('update', $server);
-
-        $validated = Validator::make($request->all(), ['token_id' => 'required|integer'])->validate();
-
-        $token = CloudProviderToken::ownedByCurrentTeam()->where('provider', 'hetzner')->find($validated['token_id']);
-        if (! $token) {
-            return response()->json(['message' => 'Invalid token selected.'], 422);
-        }
-
-        try {
-            $matched = (new HetznerService($token->token))->findServerByIp($server->ip);
-        } catch (\Throwable $e) {
-            Log::error('Failed to search Hetzner servers by IP.', ['server_uuid' => $server_uuid, 'error' => $e->getMessage()]);
-
-            return response()->json(['message' => 'Failed to search Hetzner servers: '.$e->getMessage()], 422);
-        }
-
-        return response()->json(['match' => $matched]);
-    }
-
-    public function searchHetznerServerById(Request $request, string $server_uuid): JsonResponse
-    {
-        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
-        $this->authorize('update', $server);
-
-        $validated = Validator::make($request->all(), [
-            'token_id' => 'required|integer',
-            'hetzner_server_id' => 'required|integer',
-        ])->validate();
-
-        $token = CloudProviderToken::ownedByCurrentTeam()->where('provider', 'hetzner')->find($validated['token_id']);
-        if (! $token) {
-            return response()->json(['message' => 'Invalid token selected.'], 422);
-        }
-
-        try {
-            $serverData = (new HetznerService($token->token))->getServer($validated['hetzner_server_id']);
-        } catch (\Throwable $e) {
-            Log::error('Failed to fetch Hetzner server by ID.', ['server_uuid' => $server_uuid, 'hetzner_server_id' => $validated['hetzner_server_id'], 'error' => $e->getMessage()]);
-
-            return response()->json(['message' => 'Failed to fetch Hetzner server: '.$e->getMessage()], 422);
-        }
-
-        return response()->json(['match' => empty($serverData) ? null : $serverData]);
-    }
-
-    public function linkToHetzner(Request $request, string $server_uuid): RedirectResponse
-    {
-        $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
-        $this->authorize('update', $server);
-
-        $validated = Validator::make($request->all(), [
-            'token_id' => 'required|integer',
-            'hetzner_server_id' => 'required|integer',
-        ])->validate();
-
-        $token = CloudProviderToken::ownedByCurrentTeam()->where('provider', 'hetzner')->find($validated['token_id']);
-        if (! $token) {
-            return back()->with('error', 'Invalid token selected.');
-        }
-
-        $serverData = (new HetznerService($token->token))->getServer($validated['hetzner_server_id']);
-        if (empty($serverData)) {
-            return back()->with('error', 'Could not find Hetzner server with ID: '.$validated['hetzner_server_id']);
-        }
-
-        $server->update([
-            'cloud_provider_token_id' => $token->id,
-            'hetzner_server_id' => $validated['hetzner_server_id'],
-            'hetzner_server_status' => $serverData['status'] ?? null,
-        ]);
-
-        return back()->with('success', 'Server successfully linked to Hetzner Cloud!');
-    }
-
-    private function refreshReachability(Server $server): string
-    {
-        ['uptime' => $uptime, 'error' => $error] = $server->validateConnection();
-        if ($uptime) {
-            $server->settings->is_reachable = true;
-            $server->settings->is_usable = true;
-            $server->settings->save();
-            ServerReachabilityChanged::dispatch($server);
-
-            return 'Server is reachable.';
-        }
-
-        return 'Server is not reachable. '.$error;
     }
 }

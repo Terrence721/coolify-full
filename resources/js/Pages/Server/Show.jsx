@@ -1,5 +1,5 @@
 import { router, useForm } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import ActivityLog from '../../Components/ActivityLog';
 import PasswordConfirmModal from '../../Components/PasswordConfirmModal';
 import ServerNavbar from '../../Components/ServerNavbar';
@@ -21,8 +21,6 @@ async function postJson(url, body) {
     return { ok: response.ok, data };
 }
 
-const HETZNER_POLLING_STATUSES = ['starting', 'initializing'];
-
 /**
  * React port of App\Livewire\Server\Show — the "General" tab, and the last full-page Livewire
  * component in the whole migration. See ServerShowController's docblock for the two findings
@@ -30,7 +28,7 @@ const HETZNER_POLLING_STATUSES = ['starting', 'initializing'];
  * the separate /server/{uuid}/swarm page, not here) and why the validate/install flow reuses
  * ServerValidationService instead of a third implementation.
  */
-export default function Show({ serverNavbar, sidebar, server, timezones, availableHetznerTokens, isCloud, urls }) {
+export default function Show({ serverNavbar, sidebar, server, timezones, isCloud, urls }) {
     const { data, setData, patch, processing, errors } = useForm({
         name: server.name,
         description: server.description ?? '',
@@ -44,15 +42,6 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
 
     const [showLocalhostConfirm, setShowLocalhostConfirm] = useState(false);
     const [isBuildServer, setIsBuildServer] = useState(server.isBuildServer);
-    const [hetznerStatus, setHetznerStatus] = useState(server.hetznerServerStatus);
-    const [refreshingHetzner, setRefreshingHetzner] = useState(false);
-
-    const [selectedTokenId, setSelectedTokenId] = useState('');
-    const [manualHetznerServerId, setManualHetznerServerId] = useState('');
-    const [matchedServer, setMatchedServer] = useState(null);
-    const [hetznerSearchError, setHetznerSearchError] = useState(null);
-    const [hetznerNoMatchFound, setHetznerNoMatchFound] = useState(false);
-    const [searching, setSearching] = useState(false);
 
     const [isValidating, setIsValidating] = useState(server.isValidating);
     const [installActivity, setInstallActivity] = useState(null);
@@ -60,38 +49,10 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
     const [attempt, setAttempt] = useState(0);
     const [validating, setValidating] = useState(false);
 
-    const initialHetznerCheckDone = useRef(false);
-
-    useEffect(() => {
-        if (!initialHetznerCheckDone.current && server.hetznerServerId && server.hasCloudProviderToken && !hetznerStatus) {
-            initialHetznerCheckDone.current = true;
-            checkHetznerStatus();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        if (!HETZNER_POLLING_STATUSES.includes(hetznerStatus)) return undefined;
-        const interval = setInterval(() => checkHetznerStatus(), 5000);
-
-        return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hetznerStatus]);
-
     useTeamChannel(['.ServerValidated'], (eventName, payload) => {
         if (payload?.serverUuid && payload.serverUuid !== server.uuid) return;
         router.reload({ only: ['server'] });
     });
-
-    async function checkHetznerStatus() {
-        setRefreshingHetzner(true);
-        const { ok, data: result } = await postJson(urls.hetznerStatus);
-        setRefreshingHetzner(false);
-        if (ok) {
-            setHetznerStatus(result.status);
-            if (result.reachabilityNote) window.toast?.('Info', { type: 'info', description: result.reachabilityNote });
-        }
-    }
 
     function submitGeneral(e) {
         e.preventDefault();
@@ -170,69 +131,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
         runValidate(true, attempt);
     }
 
-    async function searchByIp() {
-        if (!selectedTokenId) {
-            setHetznerSearchError('Please select a Hetzner token.');
-
-            return;
-        }
-        setSearching(true);
-        setHetznerSearchError(null);
-        setHetznerNoMatchFound(false);
-        setMatchedServer(null);
-        const { ok, data: result } = await postJson(urls.hetznerSearchByIp, { token_id: selectedTokenId });
-        setSearching(false);
-        if (!ok) {
-            setHetznerSearchError(result.message ?? 'Search failed.');
-
-            return;
-        }
-        if (result.match) setMatchedServer(result.match);
-        else setHetznerNoMatchFound(true);
-    }
-
-    async function searchById() {
-        if (!selectedTokenId) {
-            setHetznerSearchError('Please select a Hetzner token first.');
-
-            return;
-        }
-        if (!manualHetznerServerId) {
-            setHetznerSearchError('Please enter a Hetzner Server ID.');
-
-            return;
-        }
-        setSearching(true);
-        setHetznerSearchError(null);
-        setHetznerNoMatchFound(false);
-        setMatchedServer(null);
-        const { ok, data: result } = await postJson(urls.hetznerSearchById, {
-            token_id: selectedTokenId,
-            hetzner_server_id: manualHetznerServerId,
-        });
-        setSearching(false);
-        if (!ok) {
-            setHetznerSearchError(result.message ?? 'Search failed.');
-
-            return;
-        }
-        if (result.match) setMatchedServer(result.match);
-        else setHetznerNoMatchFound(true);
-    }
-
-    function linkToHetzner() {
-        router.post(
-            urls.hetznerLink,
-            { token_id: selectedTokenId, hetzner_server_id: matchedServer.id },
-            { onSuccess: () => router.reload({ only: ['server', 'availableHetznerTokens'] }) },
-        );
-    }
-
-    const needsValidation =
-        (!server.isReachable || !server.isUsable) &&
-        server.id !== 0 &&
-        !isValidating &&
-        !['initializing', 'starting', 'stopping', 'off'].includes(hetznerStatus);
+    const needsValidation = (!server.isReachable || !server.isUsable) && server.id !== 0 && !isValidating;
 
     return (
         <div>
@@ -243,32 +142,6 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                     <form onSubmit={submitGeneral} className="flex flex-col">
                         <div className="flex items-center gap-2 flex-wrap">
                             <h2>General</h2>
-                            {server.hetznerServerId && (
-                                <div className="flex items-center gap-1">
-                                    <span className="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold rounded bg-white dark:bg-coolgray-100 dark:text-white">
-                                        {hetznerStatus ? (
-                                            <span
-                                                className={
-                                                    hetznerStatus === 'running' ? 'text-green-500' : hetznerStatus === 'off' ? 'text-red-500' : ''
-                                                }
-                                            >
-                                                {refreshingHetzner && '⟳ '}
-                                                {hetznerStatus.charAt(0).toUpperCase() + hetznerStatus.slice(1)}
-                                            </span>
-                                        ) : (
-                                            <span>Checking status...</span>
-                                        )}
-                                    </span>
-                                    <button type="button" title="Refresh Status" onClick={checkHetznerStatus} disabled={refreshingHetzner}>
-                                        ⟳
-                                    </button>
-                                    {server.hasCloudProviderToken && !server.isFunctional && hetznerStatus === 'off' && (
-                                        <button type="button" onClick={() => router.post(urls.hetznerStart)}>
-                                            Power On
-                                        </button>
-                                    )}
-                                </div>
-                            )}
                             {isValidating && <span className="text-xs font-semibold text-warning">Validating...</span>}
                             <button type="submit" disabled={processing || isValidating}>
                                 Save
@@ -502,85 +375,6 @@ export default function Show({ serverNavbar, sidebar, server, timezones, availab
                         </div>
                     )}
 
-                    {!server.hetznerServerId && availableHetznerTokens.length > 0 && (
-                        <div className="pt-6">
-                            <h3>Link to Hetzner Cloud</h3>
-                            <p className="pb-4 text-sm dark:text-neutral-400">
-                                Link this server to a Hetzner Cloud instance to enable power controls and status monitoring.
-                            </p>
-                            <div className="flex flex-wrap gap-4 items-end">
-                                <label className="flex flex-col gap-1 w-72">
-                                    Hetzner Token
-                                    <select
-                                        id="server-hetzner-token"
-                                        name="server-hetzner-token"
-                                        value={selectedTokenId}
-                                        onChange={(e) => setSelectedTokenId(e.target.value)}
-                                    >
-                                        <option value="">Select a token...</option>
-                                        {availableHetznerTokens.map((token) => (
-                                            <option key={token.id} value={token.id}>
-                                                {token.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
-                                <label className="flex flex-col gap-1 w-48">
-                                    Server ID
-                                    <input
-                                        id="server-hetzner-server-id"
-                                        name="server-hetzner-server-id"
-                                        placeholder="e.g., 12345678"
-                                        value={manualHetznerServerId}
-                                        onChange={(e) => setManualHetznerServerId(e.target.value)}
-                                    />
-                                </label>
-                                <button type="button" onClick={searchById} disabled={searching}>
-                                    {searching ? 'Searching…' : 'Search by ID'}
-                                </button>
-                                <div className="self-end pb-2 text-sm dark:text-neutral-500">OR</div>
-                                <button type="button" onClick={searchByIp} disabled={searching}>
-                                    {searching ? 'Searching…' : 'Search by IP'}
-                                </button>
-                            </div>
-
-                            {hetznerSearchError && (
-                                <div className="mt-4 p-4 border border-red-500 rounded-md text-red-600 dark:text-red-400">{hetznerSearchError}</div>
-                            )}
-
-                            {hetznerNoMatchFound && (
-                                <div className="mt-4 p-4 border border-yellow-500 rounded-md text-yellow-600 dark:text-yellow-400">
-                                    {manualHetznerServerId
-                                        ? `No Hetzner server found with ID: ${manualHetznerServerId}`
-                                        : `No Hetzner server found matching IP: ${server.ip}`}
-                                </div>
-                            )}
-
-                            {matchedServer && (
-                                <div className="mt-4 p-4 border border-green-500 rounded-md">
-                                    <h4 className="font-semibold text-green-700 dark:text-green-400 mb-2">Match Found!</h4>
-                                    <div className="grid grid-cols-2 gap-2 text-sm mb-4">
-                                        <div>
-                                            <span className="font-medium">Name:</span> {matchedServer.name}
-                                        </div>
-                                        <div>
-                                            <span className="font-medium">ID:</span> {matchedServer.id}
-                                        </div>
-                                        <div>
-                                            <span className="font-medium">Status:</span>{' '}
-                                            {matchedServer.status?.charAt(0).toUpperCase() + matchedServer.status?.slice(1)}
-                                        </div>
-                                        <div>
-                                            <span className="font-medium">Type:</span> {matchedServer.server_type?.name ?? 'Unknown'}
-                                        </div>
-                                    </div>
-                                    <button type="button" onClick={linkToHetzner}>
-                                        Link This Server
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </div>
             </div>
 

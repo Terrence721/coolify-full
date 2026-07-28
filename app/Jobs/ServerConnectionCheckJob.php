@@ -8,7 +8,6 @@ use App\Events\ServerReachabilityChanged;
 use App\Helpers\SshMultiplexingHelper;
 use App\Models\Server;
 use App\Services\ConfigurationRepository;
-use App\Services\HetznerService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -65,11 +64,6 @@ class ServerConnectionCheckJob implements ShouldBeEncrypted, ShouldQueue
                 ]);
 
                 return;
-            }
-
-            // Check Hetzner server status if applicable
-            if ($this->server->hetzner_server_id && $this->server->cloudProviderToken) {
-                $this->checkHetznerStatus();
             }
 
             // Temporarily disable mux if requested
@@ -166,31 +160,6 @@ class ServerConnectionCheckJob implements ShouldBeEncrypted, ShouldQueue
         if ($this->server->unreachable_count >= 2 && ! $wasNotified) {
             ServerReachabilityChanged::dispatch($this->server);
         }
-    }
-
-    private function checkHetznerStatus(): void
-    {
-        $status = null;
-
-        try {
-            $hetznerService = new HetznerService($this->server->cloudProviderToken->token);
-            $serverData = $hetznerService->getServer($this->server->hetzner_server_id);
-            $status = $serverData['status'] ?? null;
-
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in checkHetznerStatus().', ['error' => $e->getMessage()]);
-
-            // Silently ignore — server may have been deleted from Hetzner.
-        }
-        if ($this->server->hetzner_server_status !== $status) {
-            $this->server->update(['hetzner_server_status' => $status]);
-            $this->server->hetzner_server_status = $status;
-            if ($status === 'off') {
-                ray('Server is powered off, marking as unreachable');
-                throw new \Exception('Server is powered off');
-            }
-        }
-
     }
 
     private function checkConnection(): bool
