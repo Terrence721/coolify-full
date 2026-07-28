@@ -41,9 +41,7 @@ use App\Http\Controllers\SecurityPrivateKeyController;
 use App\Http\Controllers\ServerAdvancedController;
 use App\Http\Controllers\ServerCaCertificateController;
 use App\Http\Controllers\ServerCloudflareTunnelController;
-use App\Http\Controllers\ServerCloudProviderTokenController;
 use App\Http\Controllers\ServerController;
-use App\Http\Controllers\ServerCreateHetznerController;
 use App\Http\Controllers\ServerDeleteController;
 use App\Http\Controllers\ServerDestinationsController;
 use App\Http\Controllers\ServerDockerCleanupController;
@@ -565,9 +563,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/servers', [ServerController::class, 'index'])->name('server.index');
     Route::post('/servers', [ServerController::class, 'store'])->name('server.store');
-    Route::get('/servers/new/hetzner', [ServerCreateHetznerController::class, 'index'])->name('server.new.hetzner');
-    Route::get('/servers/new/hetzner/data', [ServerCreateHetznerController::class, 'data'])->name('server.new.hetzner.data');
-    Route::post('/servers/new/hetzner', [ServerCreateHetznerController::class, 'store'])->name('server.new.hetzner.store');
 
     Route::prefix('server/{server_uuid}')->group(function () {
         Route::get('/', [ServerShowController::class, 'index'])->name('server.show');
@@ -576,11 +571,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/check-localhost', [ServerShowController::class, 'checkLocalhostConnection'])->name('server.show.check-localhost');
         Route::post('/refresh-metadata', [ServerShowController::class, 'refreshServerMetadata'])->name('server.show.refresh-metadata');
         Route::post('/validate', [ServerShowController::class, 'validateServer'])->name('server.show.validate');
-        Route::post('/hetzner-status', [ServerShowController::class, 'checkHetznerStatus'])->name('server.show.hetzner-status');
-        Route::post('/hetzner-start', [ServerShowController::class, 'startHetznerServer'])->name('server.show.hetzner-start');
-        Route::post('/hetzner-search-ip', [ServerShowController::class, 'searchHetznerServerByIp'])->name('server.show.hetzner-search-ip');
-        Route::post('/hetzner-search-id', [ServerShowController::class, 'searchHetznerServerById'])->name('server.show.hetzner-search-id');
-        Route::post('/hetzner-link', [ServerShowController::class, 'linkToHetzner'])->name('server.show.hetzner-link');
         Route::get('/advanced', [ServerAdvancedController::class, 'index'])->name('server.advanced');
         Route::put('/advanced', [ServerAdvancedController::class, 'update'])->name('server.advanced.update');
         Route::get('/swarm', [ServerSwarmController::class, 'index'])->name('server.swarm');
@@ -595,10 +585,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/private-key', [ServerPrivateKeyController::class, 'index'])->name('server.private-key');
         Route::post('/private-key/set', [ServerPrivateKeyController::class, 'setKey'])->name('server.private-key.set');
         Route::post('/private-key/check-connection', [ServerPrivateKeyController::class, 'checkConnection'])->name('server.private-key.check-connection');
-        Route::get('/cloud-provider-token', [ServerCloudProviderTokenController::class, 'index'])->name('server.cloud-provider-token');
-        Route::post('/cloud-provider-token/set', [ServerCloudProviderTokenController::class, 'setToken'])->name('server.cloud-provider-token.set');
-        Route::post('/cloud-provider-token/validate', [ServerCloudProviderTokenController::class, 'validateToken'])->name('server.cloud-provider-token.validate');
-        Route::post('/cloud-provider-token/store', [ServerCloudProviderTokenController::class, 'store'])->name('server.cloud-provider-token.store');
         Route::get('/ca-certificate', [ServerCaCertificateController::class, 'index'])->name('server.ca-certificate');
         Route::post('/ca-certificate/save', [ServerCaCertificateController::class, 'save'])->name('server.ca-certificate.save');
         Route::post('/ca-certificate/regenerate', [ServerCaCertificateController::class, 'regenerate'])->name('server.ca-certificate.regenerate');

@@ -58,10 +58,10 @@ function ProgressBar({ step }) {
 }
 
 /**
- * React port of App\Livewire\Boarding\Index — the first-run onboarding wizard. See
- * BoardingController's docblock for the full scope writeup (why ByHetzner/ValidateAndInstall
- * stay Livewire, why Hetzner Cloud creation isn't offered here, why validateServer() collapses
- * the original's two overlapping SSH-validation engines into one).
+ * React port of the former App\Livewire\Boarding\Index — the first-run onboarding wizard. See
+ * BoardingController's docblock for the full scope writeup (why only IP-based server creation
+ * is offered here, why validateServer() collapses the original's two overlapping SSH-validation
+ * engines into one).
  *
  * Step state lives in component state, synced to `?step=` via history.replaceState for
  * refresh/back-button friendliness — not full Inertia navigation per step, since most

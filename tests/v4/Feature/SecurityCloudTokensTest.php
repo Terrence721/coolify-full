@@ -48,7 +48,7 @@ it('forbids cloud tokens access for a non-admin member', function () {
 });
 
 it('adds a new cloud provider token once the provider API validates it', function () {
-    Http::fake(['api.hetzner.cloud/*' => Http::response(['servers' => []], 200)]);
+    Http::fake(['api.digitalocean.com/*' => Http::response(['account' => []], 200)]);
     $user = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => 'admin']);
@@ -56,18 +56,18 @@ it('adds a new cloud provider token once the provider API validates it', functio
     $response = $this->actingAs($user)
         ->withSession(['currentTeam' => $team])
         ->post(route('security.cloud-tokens.store'), [
-            'provider' => 'hetzner',
-            'name' => 'Production Hetzner',
+            'provider' => 'digitalocean',
+            'name' => 'Production DigitalOcean',
             'token' => 'fake-token',
         ]);
 
     $response->assertRedirect();
     $response->assertSessionHas('success');
-    expect(CloudProviderToken::where('team_id', $team->id)->where('name', 'Production Hetzner')->exists())->toBeTrue();
+    expect(CloudProviderToken::where('team_id', $team->id)->where('name', 'Production DigitalOcean')->exists())->toBeTrue();
 });
 
 it('rejects a cloud provider token the provider API cannot validate', function () {
-    Http::fake(['api.hetzner.cloud/*' => Http::response([], 401)]);
+    Http::fake(['api.digitalocean.com/*' => Http::response([], 401)]);
     $user = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => 'admin']);
@@ -75,7 +75,7 @@ it('rejects a cloud provider token the provider API cannot validate', function (
     $response = $this->actingAs($user)
         ->withSession(['currentTeam' => $team])
         ->post(route('security.cloud-tokens.store'), [
-            'provider' => 'hetzner',
+            'provider' => 'digitalocean',
             'name' => 'Bad Token',
             'token' => 'fake-token',
         ]);
@@ -91,7 +91,7 @@ it('blocks deleting a cloud provider token that is still in use by a server', fu
     $team->members()->attach($user, ['role' => 'admin']);
     $token = CloudProviderToken::create([
         'team_id' => $team->id,
-        'provider' => 'hetzner',
+        'provider' => 'digitalocean',
         'token' => 'fake-token',
         'name' => 'In Use Token',
     ]);
@@ -112,7 +112,7 @@ it('deletes an unused cloud provider token', function () {
     $team->members()->attach($user, ['role' => 'admin']);
     $token = CloudProviderToken::create([
         'team_id' => $team->id,
-        'provider' => 'hetzner',
+        'provider' => 'digitalocean',
         'token' => 'fake-token',
         'name' => 'Unused Token',
     ]);

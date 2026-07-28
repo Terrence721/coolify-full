@@ -127,14 +127,13 @@ describe('Boarding/Index', () => {
         expect(screen.getByText('Choose Server Type')).toBeInTheDocument();
     });
 
-    it('does not offer a Hetzner tile on the Choose Server Type step', () => {
+    it('offers This Machine and Remote Server tiles on the Choose Server Type step', () => {
         render(<Index {...baseProps()} />);
         act(() => screen.getByRole('button', { name: "Let's go!" }).click());
         act(() => screen.getByRole('button', { name: 'Continue' }).click());
 
         expect(screen.getByText('This Machine')).toBeInTheDocument();
         expect(screen.getByText('Remote Server')).toBeInTheDocument();
-        expect(screen.queryByText(/Hetzner/)).not.toBeInTheDocument();
     });
 
     it('shows an inline error instead of navigating when This Machine is chosen with no localhost server', () => {

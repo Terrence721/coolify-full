@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Application;
-use App\Models\CloudProviderToken;
 use App\Models\Environment;
 use App\Models\InstanceSettings;
 use App\Models\Project;
@@ -11,7 +10,6 @@ use App\Models\Server;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
@@ -162,55 +160,6 @@ it('reports an unreachable localhost connection check without touching real ssh'
 
     $response->assertRedirect();
     $response->assertSessionHas('error');
-});
-
-it('rejects hetzner status check for a server without a linked token', function () {
-    [, $team] = serverShowActingAs();
-    $server = Server::factory()->create(['team_id' => $team->id, 'hetzner_server_id' => null]);
-
-    $response = $this->postJson(route('server.show.hetzner-status', ['server_uuid' => $server->uuid]));
-
-    $response->assertStatus(422);
-});
-
-it('searches for a hetzner server by ip and reports a match', function () {
-    Http::fake([
-        'api.hetzner.cloud/*' => Http::response(['servers' => [
-            ['id' => 555, 'name' => 'hz-box', 'status' => 'running', 'public_net' => ['ipv4' => ['ip' => '192.0.2.40']], 'server_type' => ['name' => 'cx11']],
-        ]], 200),
-    ]);
-
-    [, $team] = serverShowActingAs();
-    $server = Server::factory()->create(['team_id' => $team->id, 'ip' => '192.0.2.40', 'hetzner_server_id' => null]);
-    $token = CloudProviderToken::create(['team_id' => $team->id, 'provider' => 'hetzner', 'token' => 'abc', 'name' => 'My Token']);
-
-    $response = $this->postJson(route('server.show.hetzner-search-ip', ['server_uuid' => $server->uuid]), [
-        'token_id' => $token->id,
-    ]);
-
-    $response->assertOk();
-    $response->assertJson(['match' => ['id' => 555, 'name' => 'hz-box']]);
-});
-
-it('links a server to a matched hetzner server', function () {
-    Http::fake([
-        'api.hetzner.cloud/*' => Http::response(['server' => ['id' => 555, 'name' => 'hz-box', 'status' => 'running']], 200),
-    ]);
-
-    [, $team] = serverShowActingAs();
-    $server = Server::factory()->create(['team_id' => $team->id, 'hetzner_server_id' => null]);
-    $token = CloudProviderToken::create(['team_id' => $team->id, 'provider' => 'hetzner', 'token' => 'abc', 'name' => 'My Token']);
-
-    $response = $this->post(route('server.show.hetzner-link', ['server_uuid' => $server->uuid]), [
-        'token_id' => $token->id,
-        'hetzner_server_id' => 555,
-    ]);
-
-    $response->assertRedirect();
-    $response->assertSessionHas('success', 'Server successfully linked to Hetzner Cloud!');
-    $server->refresh();
-    expect($server->hetzner_server_id)->toBe(555);
-    expect($server->cloud_provider_token_id)->toBe($token->id);
 });
 
 it('rejects server show actions for a server owned by another team', function () {

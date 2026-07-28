@@ -64,10 +64,7 @@ export default function CloudInitScripts({ scripts, canCreate, storeUrl }) {
                     </button>
                 )}
             </div>
-            <div className="pb-4 text-sm">
-                Manage reusable cloud-init scripts for server initialization. Currently working only with{' '}
-                <span className="text-red-500 font-bold">Hetzner&apos;s</span> integration.
-            </div>
+            <div className="pb-4 text-sm">Manage reusable cloud-init scripts for server initialization.</div>
 
             <div className="grid gap-4 lg:grid-cols-2">
                 {scripts.length === 0 && <div className="text-neutral-500">No cloud-init scripts found. Create one to get started.</div>}

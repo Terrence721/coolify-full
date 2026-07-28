@@ -58,7 +58,6 @@ export default function ServerSidebar({ sidebar }) {
             {item('general', 'General', sidebar.urls.general)}
             {sidebar.isFunctional && item('advanced', 'Advanced', sidebar.urls.advanced)}
             {item('private-key', 'Private Key', sidebar.urls.privateKey)}
-            {sidebar.hasHetznerToken && item('cloud-provider-token', 'Hetzner Token', sidebar.urls.cloudProviderToken)}
             {item('ca-certificate', 'CA Certificate', sidebar.urls.caCertificate)}
             {!sidebar.isLocalhost && item('cloudflare-tunnel', 'Cloudflare Tunnel', sidebar.urls.cloudflareTunnel)}
             {sidebar.isFunctional && (

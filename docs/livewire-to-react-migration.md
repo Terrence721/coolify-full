@@ -1,7 +1,7 @@
 # Livewire → React Migration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 24, 2026**
+**Last Updated: July 28, 2026**
 
 ## 1. Why
 
@@ -27,6 +27,8 @@ See the **[rendered diagram](https://terrence721.github.io/coolify-full/diagrams
 | Hard | 59 of 59 (all done) | 0 |
 
 All three big Configuration routers are fully retired (`Service\Configuration`, Phase 59; `Database\Configuration`, Phase 62; `Application\Configuration`, Phase 74), `Boarding\Index` (Phase 77) and `Server\Show` (Phase 78) converted, and `auth/verify-email.blade.php` (Phase 79) — the last page anywhere in the app still using `<x-layout>`/`layouts/app.blade.php` — closed out the rest of the chrome cascade entirely (see Section 146). There is no more "still routed to Livewire" tail at the page or navigation level. Phase 79 left Hetzner Cloud server creation fully unreachable from the UI, with no Livewire fallback remaining — since rebuilt from scratch as a React flow (Section 150 below; see `todo.md` for the full note). This section is a point-in-time summary — `todo.md`'s "Still to do → Migration" list and per-phase sections below (numbered sequentially past Section 44 or so) are the sources of truth for exactly what's left; update the count here whenever it drifts, don't treat this paragraph itself as authoritative if it looks stale.
+
+**2026-07-28 update:** the Hetzner Cloud server-creation flow described above (rebuilt from scratch as React in Section 150) was later removed from the app entirely — not reverted to Livewire, just deleted along with the rest of the Hetzner Cloud integration (server-creation wizard, status polling/linking, its share of `cloud_provider_tokens`). Cloudflare Tunnel support is unaffected. See issue #63 for the full removal record; Section 150 below is left as-written, an accurate account of work that genuinely happened at the time.
 
 **The phase-index table (which page converted in which phase, and when) lives in `todo.md`'s "Livewire → React/Inertia migration" section now, not here** — moved 2026-07-20 so the at-a-glance shape of all 79 phases doesn't require opening this file to see it. This file stays the source of truth for the actual per-phase detail: each numbered section below (starting at Section 8's verification logs, and the full `## N. Phase M — ...` headers from Section 19 onward) has the real design decisions, files touched, and bugs found for that phase.
 

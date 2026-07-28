@@ -44,7 +44,7 @@ class SecurityCloudTokensController extends Controller
         $this->authorize('create', CloudProviderToken::class);
 
         $validated = Validator::make($request->all(), [
-            'provider' => ['required', 'string', 'in:hetzner,digitalocean'],
+            'provider' => ['required', 'string', 'in:digitalocean'],
             'token' => ['required', 'string'],
             'name' => ['required', 'string', 'max:255'],
         ], [
@@ -74,7 +74,6 @@ class SecurityCloudTokensController extends Controller
         $this->authorize('view', $token);
 
         $isValid = match ($token->provider) {
-            'hetzner' => $this->validateHetznerToken($token->token),
             'digitalocean' => $this->validateDigitalOceanToken($token->token),
             default => null,
         };
@@ -106,39 +105,10 @@ class SecurityCloudTokensController extends Controller
 
     private function validateProviderToken(string $provider, string $token): bool
     {
-        try {
-            if ($provider === 'hetzner') {
-                $response = Http::withHeaders(['Authorization' => 'Bearer '.$token])
-                    ->timeout(10)
-                    ->get('https://api.hetzner.cloud/v1/servers');
-
-                return $response->successful();
-            }
-
-            // Add other providers here in the future
-            // if ($provider === 'digitalocean') { ... }
-
-            return false;
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in validateProviderToken().', ['error' => $e->getMessage()]);
-
-            return false;
-        }
-    }
-
-    private function validateHetznerToken(string $token): bool
-    {
-        try {
-            $response = Http::withToken($token)
-                ->timeout(10)
-                ->get('https://api.hetzner.cloud/v1/servers?per_page=1');
-
-            return $response->successful();
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in validateHetznerToken().', ['error' => $e->getMessage()]);
-
-            return false;
-        }
+        return match ($provider) {
+            'digitalocean' => $this->validateDigitalOceanToken($token),
+            default => false,
+        };
     }
 
     private function validateDigitalOceanToken(string $token): bool

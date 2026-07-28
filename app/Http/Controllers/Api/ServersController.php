@@ -854,13 +854,7 @@ class ServersController extends Controller
         $deletedName = $server->name;
         $deletedIp = $server->ip;
         $server->delete();
-        DeleteServer::dispatch(
-            $server->id,
-            false, // Don't delete from Hetzner via API
-            $server->hetzner_server_id,
-            $server->cloud_provider_token_id,
-            $server->team_id
-        );
+        DeleteServer::dispatch($server->id);
 
         auditLog('api.server.deleted', [
             'team_id' => $teamId,

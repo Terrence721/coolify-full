@@ -37,9 +37,6 @@ class CloudProviderTokensController extends Controller
     {
         try {
             $response = match ($provider) {
-                'hetzner' => Http::withHeaders([
-                    'Authorization' => 'Bearer '.$token,
-                ])->timeout(10)->get('https://api.hetzner.cloud/v1/servers'),
                 'digitalocean' => Http::withHeaders([
                     'Authorization' => 'Bearer '.$token,
                 ])->timeout(10)->get('https://api.digitalocean.com/v2/account'),
@@ -88,7 +85,7 @@ class CloudProviderTokensController extends Controller
                                 properties: [
                                     new OA\Property(property: 'uuid', type: 'string'),
                                     new OA\Property(property: 'name', type: 'string'),
-                                    new OA\Property(property: 'provider', type: 'string', enum: ['hetzner', 'digitalocean']),
+                                    new OA\Property(property: 'provider', type: 'string', enum: ['digitalocean']),
                                     new OA\Property(property: 'team_id', type: 'integer'),
                                     new OA\Property(property: 'servers_count', type: 'integer'),
                                     new OA\Property(property: 'created_at', type: 'string'),
@@ -205,9 +202,9 @@ class CloudProviderTokensController extends Controller
                     type: 'object',
                     required: ['provider', 'token', 'name'],
                     properties: [
-                        new OA\Property(property: 'provider', type: 'string', enum: ['hetzner', 'digitalocean'], example: 'hetzner', description: 'The cloud provider.'),
+                        new OA\Property(property: 'provider', type: 'string', enum: ['digitalocean'], example: 'digitalocean', description: 'The cloud provider.'),
                         new OA\Property(property: 'token', type: 'string', example: 'your-api-token-here', description: 'The API token for the cloud provider.'),
-                        new OA\Property(property: 'name', type: 'string', example: 'My Hetzner Token', description: 'A friendly name for the token.'),
+                        new OA\Property(property: 'name', type: 'string', example: 'My DigitalOcean Token', description: 'A friendly name for the token.'),
                     ],
                 ),
             ),
@@ -259,7 +256,7 @@ class CloudProviderTokensController extends Controller
         $body = $request->json()->all();
 
         $validator = customApiValidator($body, [
-            'provider' => 'required|string|in:hetzner,digitalocean',
+            'provider' => 'required|string|in:digitalocean',
             'token' => 'required|string',
             'name' => 'required|string|max:255',
         ]);

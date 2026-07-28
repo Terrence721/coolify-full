@@ -1,4 +1,4 @@
-import { router, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defaultName, storeUrl, onClose }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -29,16 +29,6 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                         ✕
                     </button>
                 </div>
-                <button
-                    type="button"
-                    className="self-start pb-2 text-sm underline"
-                    onClick={() => {
-                        onClose();
-                        router.visit('/servers/new/hetzner');
-                    }}
-                >
-                    Add via Hetzner Cloud →
-                </button>
                 <form className="flex flex-col gap-2" onSubmit={submit}>
                     <div className="flex w-full gap-2 flex-wrap sm:flex-nowrap">
                         <label className="flex flex-col gap-1 w-full">
