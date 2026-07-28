@@ -71,9 +71,9 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                         </div>
                         {errors.update_check_frequency && <span className="text-error">{errors.update_check_frequency}</span>}
                         <div className="text-xs opacity-70">
-                            Frequency (cron expression) for background jobs: pulling Service Templates (from upstream's template catalog) and this
-                            fork's own changelog. Coolify-version checking is disabled on this fork (see RELEASE.md). You can use every_minute,
-                            hourly, daily, weekly, monthly, yearly. Default is every hour.
+                            Frequency (cron expression) for background jobs: pulling Service Templates (from upstream&apos;s template catalog) and
+                            this fork&apos;s own changelog. Coolify-version checking is disabled on this fork (see RELEASE.md). You can use
+                            every_minute, hourly, daily, weekly, monthly, yearly. Default is every hour.
                         </div>
 
                         <h4 className="pt-4">Auto Update</h4>
