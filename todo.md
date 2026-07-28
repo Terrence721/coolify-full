@@ -16,12 +16,12 @@ This file is long and detailed on purpose — every claim below is backed by evi
 | Item | Detail |
 |---|---|
 | Livewire→React migration | 84/84 pages, complete 2026-07-14 — see "Livewire → React/Inertia migration" below |
-| PHPStan baseline hardening | 1,306 → 60, 65 phases — see "PHPStan baseline reductions" below |
+| PHPStan baseline hardening | 1,306 → 55, 65 phases — see "PHPStan baseline reductions" below |
 | De-commercialization | Billing/Stripe fully removed |
 | Security hardening | CodeQL + Psalm, 11 real CVEs patched, 2 real findings fixed — see "GitHub repo-level security features" below |
 | Laravel backend audit | Team-scoping, Sanctum tokens, cross-device reachability — see "Laravel backend improvements" below |
 
-**Actually still open, right now:** 7 items — see the overview table at the top of **Still to do** below.
+**Actually still open, right now:** 8 items — see the overview table at the top of **Still to do** below.
 
 If you only read one section of this file, read this one and that table — everything else is the evidence trail behind them.
 
@@ -130,7 +130,7 @@ If you only read one section of this file, read this one and that table — ever
 |---|---|---|
 | Phases 1–79 (the migration itself) | 84 React pages converted, phase by phase | Verification loop (Pint, PHPStan, full Pest suite, `yarn build`) held fixed across all 79 phases for direct comparability — not changed mid-flight |
 | Phases 80–81 (post-migration stabilization) | Orphaned Livewire classes pruned, vestigial `wire:*` markup stripped, `livewire/livewire` + Alpine.js dependencies removed | Component surface still being actively deleted/restructured — tests written here would need rewriting once the prune landed |
-| PHPStan baseline reduction (65 phases) | Larastan baseline 1,306 → 60 | PHP-only scope (`phpstan.neon.dist` doesn't analyze `resources/js/`) — a separate, sequential initiative, not a dependency of the JS-testing decision |
+| PHPStan baseline reduction (65 phases) | Larastan baseline 1,306 → 55 | PHP-only scope (`phpstan.neon.dist` doesn't analyze `resources/js/`) — a separate, sequential initiative, not a dependency of the JS-testing decision |
 | Smoke testing (current) | Manual QA surfacing real component defects (toast notifications non-functional, Alpine-remnant password toggle/2FA/tooltip) | Concrete, evidence-based trigger — component tests now target the specific surface already proven regression-prone, not written speculatively ahead of it |
 
 ### PHPStan baseline reductions
@@ -204,7 +204,7 @@ This table has the shape of the whole 65-phase effort; the milestones table righ
 | 62 | `e73fe6089` | 85 → 75 | 8 small models + 2 controllers (mixed batch) | 10 small fixes; rest confirmed an accepted false-positive family |
 | 63 | `00420909d` | 75 → 73 | `ManagesDatabaseGeneralForm.php` | Picked up one of Phase 55's deferred `collect()` cases |
 | 64 | `d8c4ccb25` | 73 → 65 | `ApplicationPreview.php` | **Real, TDD'd production bug** — unguarded nullable crashed `json_decode()` |
-| 65 | `7d14d46f8` | 65 → 60 | 5 models (+ 5 new factories) | Last fixable category closed — 5 real, tested factories built |
+| 65 | `7d14d46f8` | 65 → 55 | 5 models (+ 5 new factories) | Last fixable category closed — 5 real, tested factories built |
 
 ### PHPStan baseline milestones
 
@@ -321,7 +321,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 
 | Item | Date | Finding & fix |
 |---|---|---|
-| PHPStan baseline: 1,306 → 60 suppressed errors | — | 65 phases/commits, all 60 remaining entries confirmed as analysis-tool limitations — see "PHPStan baseline reductions" above, not duplicated here. |
+| PHPStan baseline: 1,306 → 55 suppressed errors | — | 65 phases/commits, all 55 remaining entries confirmed as analysis-tool limitations — see "PHPStan baseline reductions" above, not duplicated here. |
 | `Application`/`Service` team-scoping: 3-hop relation join, not indexed | 2026-07-19 | `whereRelation('environment.project.team', ...)` on every team-scoped query, unlike `Server`/`Project`'s direct indexed `team_id`. Added an indexed `team_id` column to both tables + backfill + a `saving()` sync hook; converted 18 more `Service::whereRelation(...)` call sites too. `ServiceApplication`/`ServiceDatabase`/the 8 standalone-database models have the same pattern one level deeper — deliberately out of scope (separate future ticket). One known, deliberately-unfixed edge case: the sync hook doesn't fire if a `Project`'s `team_id` changes after creation (confirmed no real code path does this today). |
 | Sanctum API tokens never expire | 2026-07-19 | Tokens already expire via an explicit per-token `$expiresAt` — the real gap was the "Expires in" dropdown defaulting to `''` (= "Never"). Changed the default to 90 days. Verified live via a headless-browser session. |
 | App reachable from a machine other than the one running Docker | 2026-07-19 | 3 of 4 suspected blockers (Docker port binding, Sanctum stateful domains, CORS) ruled out with direct evidence. Real blocker: Vite's dev server hardcodes `localhost` into asset URLs via `VITE_HOST` — documented fix (`VITE_HOST=<LAN-IP>`), dev-only; production build unaffected. |
