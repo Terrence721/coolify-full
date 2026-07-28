@@ -13,6 +13,8 @@ For the frontend migration specifically (Livewire → Inertia.js/React), see [li
 
 Coolify is a self-hostable PaaS: a Laravel application that manages servers, applications, databases, and services by connecting to them over SSH — there is no separate remote "agent" service running as part of this codebase. The one exception is **Sentinel**, a small metrics-collection binary Coolify installs on managed servers (via `CheckAndStartSentinelJob`) so the dashboard can show CPU/memory/disk graphs without polling over SSH for every metric; it's an installed artifact on the remote host, not a folder in this repo.
 
+For a server with no public IP (behind NAT, a home network, etc.), direct SSH isn't an option — **Cloudflare Tunnel** support (`ServerCloudflareTunnelController`, `app/Actions/Server/ConfigureCloudflared.php`) routes SSH through a `cloudflared` container on that server instead, registered against Cloudflare's edge network. Manual (flag-only) and automated (real tunnel token, provisions the container over the existing SSH connection first) configuration modes are both supported; see `docs/smoketest.md` for the real end-to-end verification against a live Cloudflare account.
+
 ## 2. Repository structure
 
 Verified against the actual top-level layout:

@@ -84,6 +84,7 @@ php artisan app:snapshot-error-pages && yarn validate:html  # HTML5 structural v
 - **Standalone Databases** — Individual database instances (Postgres, MySQL, MariaDB, MongoDB, Redis, Clickhouse, KeyDB, Dragonfly).
 - **Project/Environment** — Organizational hierarchy: Team → Project → Environment → Resources.
 - **Proxy** — Traefik reverse proxy managed per server.
+- **Cloudflare Tunnel** — Alternative connectivity for a server behind NAT/no public IP: routes SSH through a `cloudflared` container instead of a direct connection (`app/Actions/Server/ConfigureCloudflared.php`, `ServerCloudflareTunnelController`). Manual and automated (real Cloudflare token) config modes; the automated path was live-verified end-to-end against a real Cloudflare account (see `todo.md`).
 
 ### Frontend
 - **Inertia.js + React 19** (the entire application): page components in `resources/js/Pages/` (path mirrors the old Livewire namespace, kept for continuity), shared components in `resources/js/Components/`, persistent layouts in `resources/js/Layouts/`; served by plain Laravel controllers via `Inertia::render()`

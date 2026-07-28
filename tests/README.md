@@ -53,6 +53,14 @@ project uses this exact trait unmodified.
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Once::flush();
+        Server::flushIdentityMap();
+    }
 }
 ```
 
@@ -68,10 +76,12 @@ TestCase`). It extends Laravel's own
 2. **Laravel's `TestCase`** — Laravel-specific helpers like `$this->get()`,
    `$this->postJson()`, `$this->actingAs()`, `RefreshDatabase`, and automatic
    app booting/teardown between tests.
-3. **This app's `TestCase`** — currently just wires in `CreatesApplication`,
-   but it's also the place to add project-wide test setup later (e.g. global
-   `setUp()` logic, custom assertions, shared traits) without editing every
-   test file individually.
+3. **This app's `TestCase`** — wires in `CreatesApplication` and overrides
+   `setUp()` to flush two per-process caches (`Once::flush()`, `Server::
+   flushIdentityMap()`) before every test — see the `Pest.php` section below
+   for why that lives here instead of a global `beforeEach()`. This is also
+   the place to add any further project-wide test setup (custom assertions,
+   shared traits) without editing every test file individually.
 
 **Why we need it:** every class-based test in this codebase (`extends
 TestCase`) needs *some* concrete class to extend that already knows how to
