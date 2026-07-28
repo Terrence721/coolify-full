@@ -520,6 +520,7 @@ export default function GlobalSearchModal() {
                             <input
                                 id="global-search-input"
                                 name="global-search"
+                                aria-label="Search resources, paths, everything"
                                 type="text"
                                 autoComplete="off"
                                 value={query}
