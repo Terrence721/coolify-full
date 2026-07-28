@@ -123,7 +123,7 @@ class StartLogDrain
 ");
             } elseif ($type === 'custom') {
                 $config = base64_encode($server->settings->logdrain_custom_config);
-                $parsers = base64_encode($server->settings->logdrain_custom_config_parser);
+                $parsers = base64_encode($server->settings->logdrain_custom_config_parser ?? '');
             } else {
                 throw new \Exception('Unknown log drain type.');
             }
