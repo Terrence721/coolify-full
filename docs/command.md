@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 27, 2026**
+**Last Updated: July 28, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -21,6 +21,7 @@ Container names (from `docker-compose.dev.yml`, confirmed via `docker ps`):
 | `coolify-redis` | Redis (cache, queues, broadcasting) |
 | `coolify-realtime` | Soketi (WebSocket server for Echo/broadcast events) |
 | `coolify-testing-host` | A stand-in "remote server" for SSH-touching deploy/backup/terminal code paths. **Not actually Docker-in-Docker** — it mounts the *host's own* `/var/run/docker.sock` (Docker-**outside**-of-Docker), so any `docker` command Coolify runs against it executes on the real host daemon, seeing and able to affect this repo's own dev-stack containers. **Confirmed 2026-07-25**: creating a second `Server` row pointed at this container (even via its own container IP rather than its hostname, to dodge the IP-uniqueness guard) and validating it deployed a real `coolify-proxy` onto the shared host — a fixed, non-per-server container name — which then showed as "owned" by *both* Server rows simultaneously. Deleting the throwaway Server row did not tear that container down; it had to be stopped via the *other* (real) server's own Proxy tab. Do not create a second `Server` entry pointed at this container without expecting exactly this collision — one throwaway "server" here is the supported/tested pattern, not several. |
+| `coolify-smoketest-host` | **Opt-in, not started by `spin up`/the two default compose files** — added 2026-07-28 to close the gap the row above documents. A genuinely isolated "remote server": its own real `dockerd` (installed via Docker's own apt repo, not a bind-mounted host socket), so destructive actions (container restart/stop, `docker system prune`, an OS package upgrade that might bounce Docker) are actually safe to run against it. Start with `docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.smoketest.yml up -d --build smoketest-host`, then register it with Coolify via `docker exec coolify php artisan db:seed --class=SmoketestHostSeeder --no-interaction` (deliberately excluded from `DatabaseSeeder`'s default chain — this server only exists once the compose file above has actually been started). See `docker/smoketest-host/Dockerfile` and `docker-compose.smoketest.yml`. |
 | `coolify-mail` | Mailpit — catches every outgoing email in dev instead of sending it for real; UI at `http://localhost:8025` |
 | `coolify-minio` | MinIO — an S3-compatible object store standing in for a real S3 provider, so backup-to-S3 code paths can be tested against a real (if local) S3 API; console at `http://localhost:9001` |
 | `coolify-minio-init` | One-shot init job — waits for MinIO to come up, then creates its default bucket. Runs once per `spin up` and exits (`restart: no`); an `Exited (0)` status for this one specifically is success, not a crash |

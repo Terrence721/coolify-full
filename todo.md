@@ -448,6 +448,15 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 | Verification | PHPStan 0 errors, Pint clean, Pest 1238 passed, Vitest 590 passed, ESLint baseline unchanged, `yarn build` clean, no orphaned routes/OpenAPI paths. |
 | Full detail | See issue #63 for the complete file-by-file manifest and incidental bug fixes found along the way. |
 
+### Isolated Docker-in-Docker smoke-test host
+
+| Item | Detail |
+|---|---|
+| Built | 2026-07-28 — `coolify-smoketest-host`, an opt-in (`docker-compose.smoketest.yml`) genuinely isolated remote server with its own real `dockerd`, unblocking the 4 remaining `docker.sock`-sharing-limited items in the Server-management smoke-test checklist (issue #26). |
+| Why | `coolify-testing-host` bind-mounts the real host's `/var/run/docker.sock` (issue #56) — destructive actions (cleanup/restart/patch) against it would hit this session's own dev containers, not a sandbox. |
+| Verification | Real, non-null `dockerd` confirmed inside the container; `docker ps -a` empty (isolated from the real dev stack); SSH reachable from `coolify`; real Coolify "Validate Server" pass through the actual UI (`is_reachable`/`is_usable`/`isFunctional()` all `true`). |
+| Full detail | See issue #65. Actual exercising of the 4 blocked items against this host remains open, tracked under issue #26. |
+
 ## 🚧 Still to do
 
 **Overview — 8 items open right now:**
