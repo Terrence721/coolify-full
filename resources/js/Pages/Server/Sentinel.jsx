@@ -37,7 +37,12 @@ export default function Sentinel({
             {},
             {
                 preserveScroll: true,
-                onSuccess: () => setIsSentinelEnabled((current) => !current),
+                // Read the real, authoritative state back from the reloaded page props rather
+                // than optimistically flipping the previous value - the backend can reject the
+                // toggle (e.g. the build-server guard) while still returning a normal, successful
+                // Inertia response (an error flash via back()), which onSuccess alone can't tell
+                // apart from a real toggle.
+                onSuccess: (page) => setIsSentinelEnabled(page.props.isSentinelEnabled),
             },
         );
     }
