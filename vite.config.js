@@ -2,6 +2,14 @@ import { defineConfig, loadEnv } from "vite";
 import laravel from "laravel-vite-plugin";
 import react from "@vitejs/plugin-react";
 
+// Escapes every regex metacharacter, not just dots - VITE_HOST is interpolated into a RegExp
+// below to allow any port on the LAN host in Vite's dev-server CORS allowlist, so an
+// unescaped metacharacter there (*, +, (, etc.) could make the resulting pattern match more
+// than intended, not just fail to match the literal host.
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '')
     const viteHost = env.VITE_HOST || null;
@@ -35,7 +43,7 @@ export default defineConfig(({ mode }) => {
                     // served from APP_PORT (8000 by default), a different port than Vite
                     // (5173), and it's the app's origin the browser actually sends when
                     // fetching Vite's assets from another device on the LAN.
-                    ...(viteHost ? [new RegExp(`^https?://${viteHost.replace(/\./g, "\\.")}(:\\d+)?$`)] : []),
+                    ...(viteHost ? [new RegExp(`^https?://${escapeRegExp(viteHost)}(:\\d+)?$`)] : []),
                 ],
             },
             origin: viteHost ? `http://${viteHost}:${vitePort}` : undefined,
