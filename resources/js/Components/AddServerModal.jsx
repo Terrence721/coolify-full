@@ -118,6 +118,7 @@ export default function AddServerModal({ privateKeys, defaultPrivateKeyId, defau
                     <label className="flex items-center gap-2">
                         <input
                             id="add-server-is-build-server"
+                            name="add-server-is-build-server"
                             type="checkbox"
                             checked={data.is_build_server}
                             onChange={(e) => setData('is_build_server', e.target.checked)}

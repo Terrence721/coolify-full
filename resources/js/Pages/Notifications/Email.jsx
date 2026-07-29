@@ -171,6 +171,7 @@ export default function Email({
                         <label className="flex items-center gap-2">
                             <input
                                 id="email-use-instance-settings"
+                                name="email-use-instance-settings"
                                 type="checkbox"
                                 checked={main.data.use_instance_email_settings}
                                 onChange={(e) => {
@@ -225,6 +226,7 @@ export default function Email({
                     <label className="flex items-center gap-2">
                         <input
                             id="email-use-instance-settings"
+                            name="email-use-instance-settings"
                             type="checkbox"
                             checked={main.data.use_instance_email_settings}
                             onChange={(e) => {
@@ -250,6 +252,7 @@ export default function Email({
                             <label className="flex items-center gap-2">
                                 <input
                                     id="email-smtp-enabled"
+                                    name="email-smtp-enabled"
                                     type="checkbox"
                                     checked={smtp.data.smtp_enabled}
                                     onChange={(e) => smtp.setData('smtp_enabled', e.target.checked)}
@@ -346,6 +349,7 @@ export default function Email({
                             <label className="flex items-center gap-2">
                                 <input
                                     id="email-resend-enabled"
+                                    name="email-resend-enabled"
                                     type="checkbox"
                                     checked={resend.data.resend_enabled}
                                     onChange={(e) => resend.setData('resend_enabled', e.target.checked)}
@@ -386,6 +390,7 @@ export default function Email({
                                 <label key={field} className="flex items-center gap-2">
                                     <input
                                         id={field}
+                                        name={field}
                                         type="checkbox"
                                         checked={main.data[field]}
                                         onChange={(e) => {

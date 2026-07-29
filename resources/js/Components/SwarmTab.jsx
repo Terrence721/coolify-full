@@ -63,6 +63,7 @@ export default function SwarmTab({ swarm, swarmUpdateUrl, canUpdate }) {
                     <label className="flex items-center gap-2" title="If turned off, this resource will start on manager nodes too.">
                         <input
                             id="swarm-only-worker-nodes"
+                            name="swarm-only-worker-nodes"
                             type="checkbox"
                             disabled={!canUpdate}
                             checked={form.isSwarmOnlyWorkerNodes}

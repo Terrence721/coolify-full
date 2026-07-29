@@ -318,6 +318,7 @@ export default function Show({ serverNavbar, sidebar, server, timezones, isCloud
                                 <label className="flex items-center gap-2 w-full sm:w-96">
                                     <input
                                         id="server-is-build-server"
+                                        name="server-is-build-server"
                                         type="checkbox"
                                         disabled={server.isBuildServerLocked || isValidating}
                                         checked={isBuildServer}

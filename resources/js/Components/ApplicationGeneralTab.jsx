@@ -35,7 +35,7 @@ function Field({ label, helper, className = '', ...props }) {
 function Checkbox({ id, label, helper, checked, onChange, disabled }) {
     return (
         <label className="flex items-center gap-2" title={helper}>
-            <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
+            <input id={id} name={id} type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
             {label}
         </label>
     );

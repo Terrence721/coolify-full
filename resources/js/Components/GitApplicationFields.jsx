@@ -146,6 +146,7 @@ export default function GitApplicationFields({ data, setData, errors, children }
                         <label className="flex gap-2 items-center">
                             <input
                                 id="git-fields-is-static"
+                                name="git-fields-is-static"
                                 type="checkbox"
                                 checked={data.is_static}
                                 onChange={(e) => toggleIsStatic(e.target.checked)}

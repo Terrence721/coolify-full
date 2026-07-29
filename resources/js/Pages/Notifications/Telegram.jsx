@@ -98,6 +98,7 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex items-center gap-2">
                         <input
                             id="telegram_enabled"
+                            name="telegram_enabled"
                             type="checkbox"
                             checked={data.telegram_enabled}
                             onChange={(e) => setData('telegram_enabled', e.target.checked)}
@@ -152,6 +153,7 @@ export default function Telegram({ settings, updateUrl, sendTestUrl }) {
                                         <label className="flex items-center gap-2">
                                             <input
                                                 id={toggleField}
+                                                name={toggleField}
                                                 type="checkbox"
                                                 checked={data[toggleField]}
                                                 onChange={(e) => setData(toggleField, e.target.checked)}

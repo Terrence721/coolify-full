@@ -42,6 +42,7 @@ export default function Swarm({ serverNavbar, sidebar, deprecationNotice, isSwar
                         <label className="flex items-center gap-2">
                             <input
                                 id="server-is-swarm-manager"
+                                name="server-is-swarm-manager"
                                 type="checkbox"
                                 disabled={data.is_swarm_worker}
                                 checked={data.is_swarm_manager}
@@ -52,6 +53,7 @@ export default function Swarm({ serverNavbar, sidebar, deprecationNotice, isSwar
                         <label className="flex items-center gap-2">
                             <input
                                 id="server-is-swarm-worker"
+                                name="server-is-swarm-worker"
                                 type="checkbox"
                                 disabled={data.is_swarm_manager}
                                 checked={data.is_swarm_worker}

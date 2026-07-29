@@ -132,6 +132,7 @@ export default function Sentinel({
                                     <label className="flex items-center gap-2">
                                         <input
                                             id="sentinel-debug-enabled"
+                                            name="sentinel-debug-enabled"
                                             type="checkbox"
                                             disabled={!canUpdate}
                                             checked={isSentinelDebugEnabled}

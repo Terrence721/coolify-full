@@ -96,7 +96,13 @@ export default function CloneMe({ destinations, resources, defaultName, cloneUrl
             </div>
 
             <label className="flex items-center gap-2 pt-4">
-                <input id="clone-volume-data" type="checkbox" checked={cloneVolumeData} onChange={(e) => setCloneVolumeData(e.target.checked)} />
+                <input
+                    id="clone-volume-data"
+                    name="clone-volume-data"
+                    type="checkbox"
+                    checked={cloneVolumeData}
+                    onChange={(e) => setCloneVolumeData(e.target.checked)}
+                />
                 Clone volume data too
             </label>
 

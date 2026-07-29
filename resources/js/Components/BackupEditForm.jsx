@@ -56,12 +56,19 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
 
             <div className="w-64 pb-2 flex flex-col gap-1">
                 <label className="flex items-center gap-2">
-                    <input id="backup-enabled" type="checkbox" checked={data.enabled} onChange={(e) => setData('enabled', e.target.checked)} />
+                    <input
+                        id="backup-enabled"
+                        name="backup-enabled"
+                        type="checkbox"
+                        checked={data.enabled}
+                        onChange={(e) => setData('enabled', e.target.checked)}
+                    />
                     Backup Enabled
                 </label>
                 <label className="flex items-center gap-2">
                     <input
                         id="backup-save-s3"
+                        name="backup-save-s3"
                         type="checkbox"
                         checked={data.save_s3}
                         disabled={s3Storages.length === 0}
@@ -73,6 +80,7 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                 <label className="flex items-center gap-2">
                     <input
                         id="backup-disable-local-backup"
+                        name="backup-disable-local-backup"
                         type="checkbox"
                         checked={data.disable_local_backup}
                         disabled={!data.save_s3}
@@ -109,6 +117,7 @@ export default function BackupEditForm({ backup, s3Storages, urls }) {
                         <label className="flex items-center gap-2 w-48">
                             <input
                                 id="backup-dump-all"
+                                name="backup-dump-all"
                                 type="checkbox"
                                 checked={data.dump_all}
                                 onChange={(e) => setData('dump_all', e.target.checked)}

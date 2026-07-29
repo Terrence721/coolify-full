@@ -13,7 +13,7 @@ import { useState } from 'react';
 function Checkbox({ id, label, helper, checked, onChange, disabled = false }) {
     return (
         <label className="flex items-start gap-2">
-            <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={onChange} className="mt-1" />
+            <input id={id} name={id} type="checkbox" checked={checked} disabled={disabled} onChange={onChange} className="mt-1" />
             <span className="flex flex-col">
                 <span>{label}</span>
                 {helper && <span className="text-xs text-neutral-500" dangerouslySetInnerHTML={{ __html: helper }} />}

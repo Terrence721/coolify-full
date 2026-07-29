@@ -274,6 +274,7 @@ export default function ContainerLogs({ displayName, logLines, numberOfLines, sh
                                             <label key={level} className="flex items-center gap-2 px-4 py-1.5 text-sm cursor-pointer select-none">
                                                 <input
                                                     id={`${queryPrefix}logs-filter-${level}`}
+                                                    name={`${queryPrefix}logs-filter-${level}`}
                                                     type="checkbox"
                                                     checked={logFilters[level]}
                                                     onChange={() => toggleLogFilter(level)}

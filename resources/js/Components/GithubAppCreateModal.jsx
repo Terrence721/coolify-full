@@ -69,6 +69,7 @@ export default function GithubAppCreateModal({ open, onClose, storeUrl, defaultN
                             <label className="flex gap-2 items-center w-48">
                                 <input
                                     id="github-app-create-is-system-wide"
+                                    name="github-app-create-is-system-wide"
                                     type="checkbox"
                                     checked={data.isSystemWide}
                                     onChange={(e) => setData('isSystemWide', e.target.checked)}

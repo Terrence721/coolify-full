@@ -132,6 +132,7 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
                                     Instance Timezone
                                     <input
                                         id="instance_timezone"
+                                        name="instance_timezone"
                                         autoComplete="off"
                                         value={tzSearch}
                                         onChange={(e) => {

@@ -179,6 +179,7 @@ export default function Proxy({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="proxy-generate-exact-labels"
+                                        name="proxy-generate-exact-labels"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={generateExactLabels}
@@ -189,6 +190,7 @@ export default function Proxy({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="proxy-redirect-enabled"
+                                        name="proxy-redirect-enabled"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={redirectEnabled}

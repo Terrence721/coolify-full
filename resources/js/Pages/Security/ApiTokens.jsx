@@ -140,6 +140,7 @@ export default function ApiTokens({
                         <label className="flex items-center gap-2">
                             <input
                                 id="api-token-permission-root"
+                                name="api-token-permission-root"
                                 type="checkbox"
                                 disabled={!canUseRootPermissions}
                                 checked={hasRoot}
@@ -152,6 +153,7 @@ export default function ApiTokens({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="api-token-permission-write"
+                                        name="api-token-permission-write"
                                         type="checkbox"
                                         disabled={!canUseWritePermissions}
                                         checked={data.permissions.includes('write')}
@@ -162,6 +164,7 @@ export default function ApiTokens({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="api-token-permission-deploy"
+                                        name="api-token-permission-deploy"
                                         type="checkbox"
                                         checked={data.permissions.includes('deploy')}
                                         onChange={() => togglePermission('deploy')}
@@ -171,6 +174,7 @@ export default function ApiTokens({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="api-token-permission-read"
+                                        name="api-token-permission-read"
                                         type="checkbox"
                                         checked={data.permissions.includes('read')}
                                         onChange={() => togglePermission('read')}
@@ -180,6 +184,7 @@ export default function ApiTokens({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="api-token-permission-read-sensitive"
+                                        name="api-token-permission-read-sensitive"
                                         type="checkbox"
                                         checked={data.permissions.includes('read:sensitive')}
                                         onChange={() => togglePermission('read:sensitive')}
