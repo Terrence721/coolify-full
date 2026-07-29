@@ -17,11 +17,12 @@ export default function ActivityLog({ activityId, header, fullHeight = false, sh
 
     useEffect(() => {
         if (!activityId) {
-            setOutput('');
-            setIsPolling(false);
             return;
         }
 
+        // Not state syncing: this marks the start of the async poll loop below, not a mirror of
+        // a prop - it's flipped back to false asynchronously once a real exitCode arrives.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsPolling(true);
         let cancelled = false;
 
