@@ -93,8 +93,16 @@ export default function ApplicationGeneralTab({ general, resourceDetails, genera
     const [showResetLabels, setShowResetLabels] = useState(false);
     const [showSetDirection, setShowSetDirection] = useState(false);
     const [conflictDismissed, setConflictDismissed] = useState(false);
+    const [lastDomainConflicts, setLastDomainConflicts] = useState(props.flash?.domainConflicts);
 
-    useEffect(() => setConflictDismissed(false), [props.flash?.domainConflicts]);
+    // Reset the dismissal whenever a new domain-conflicts flash arrives. Adjusted during render
+    // (React's documented pattern for this) rather than via an effect - catches the change in
+    // the same render instead of flashing the previous, already-dismissed conflicts for one
+    // extra render first.
+    if (props.flash?.domainConflicts !== lastDomainConflicts) {
+        setLastDomainConflicts(props.flash?.domainConflicts);
+        setConflictDismissed(false);
+    }
 
     // Loads the compose file automatically on first mount for a docker-compose app that
     // doesn't have one yet, matching the original's x-init="$wire.dispatch('loadCompose', true)".
