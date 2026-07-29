@@ -31,7 +31,11 @@ export default defineConfig(({ mode }) => {
                     /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
                     /^https?:\/\/\[::1\](:\d+)?$/,
                     ...(env.APP_URL ? [env.APP_URL] : []),
-                    ...(viteHost ? [`http://${viteHost}:${vitePort}`, `https://${viteHost}:${vitePort}`] : []),
+                    // Any port on the LAN host, not just Vite's own port - the app itself is
+                    // served from APP_PORT (8000 by default), a different port than Vite
+                    // (5173), and it's the app's origin the browser actually sends when
+                    // fetching Vite's assets from another device on the LAN.
+                    ...(viteHost ? [new RegExp(`^https?://${viteHost.replace(/\./g, "\\.")}(:\\d+)?$`)] : []),
                 ],
             },
             origin: viteHost ? `http://${viteHost}:${vitePort}` : undefined,
