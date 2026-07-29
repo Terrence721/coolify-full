@@ -248,6 +248,14 @@ describe('DatabaseImportTab', () => {
         expect(screen.getByText('Database Restore Output')).toBeInTheDocument();
     });
 
+    it('also shows the activity log when the flash is already present on the very first render', () => {
+        // The realistic case: a redirect straight back from the restore action, not a later
+        // prop change on an already-mounted page - a render-time state adjustment seeded from
+        // the prop's own initial value would silently miss this (it starts "already equal").
+        render(<DatabaseImportTab {...baseProps({ flash: { activityContext: 'database-import', activityId: 'act-123' } })} />);
+        expect(screen.getByText('Database Restore Output')).toBeInTheDocument();
+    });
+
     it('reloads just the importTab prop when a ServiceChecked/ServiceStatusChanged team event fires', () => {
         render(<DatabaseImportTab {...baseProps()} />);
 
