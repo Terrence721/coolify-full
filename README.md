@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 28, 2026**
+**Last Updated: July 29, 2026**
 
 This repository is a professionally enhanced fork of Coolify, created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -106,3 +106,4 @@ Work on this fork is tracked two ways:
 
 - **[`todo.md`](todo.md)** — the primary, detailed record: a phase-by-phase written log of everything done and everything still open, with dates, verified deltas, and the reasoning behind each decision. This is the source of truth.
 - **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Backlog/Planned/In Progress/Verification & QA/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with [`todo.md`](todo.md).
+- **[`ROADMAP.md`](ROADMAP.md)** — a different kind of list: product-direction ideas found by reading the code but not yet scoped into work items. Once picked up, an idea moves out of here and into `todo.md`/the board like everything else.
