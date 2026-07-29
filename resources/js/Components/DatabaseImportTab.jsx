@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ActivityLog from './ActivityLog';
 import PasswordConfirmModal from './PasswordConfirmModal';
 import { useTeamChannel } from '../hooks/useTeamChannel';
@@ -73,17 +73,23 @@ export default function DatabaseImportTab({ importTab, flash }) {
     const [s3Checked, setS3Checked] = useState(false);
     const [confirming, setConfirming] = useState(null);
     const [activityId, setActivityId] = useState(null);
+    // Deliberately not seeded from flash?.activityId - starting at null means a flash already
+    // present on the very first render (e.g. right after a redirect from a restore action) is
+    // still detected as new, matching what useEffect's mount-time run would have done.
+    const [lastFlashActivityId, setLastFlashActivityId] = useState(null);
     const fileInputRef = useRef(null);
 
     useTeamChannel(['ServiceChecked', 'ServiceStatusChanged'], () => {
         router.reload({ only: ['importTab'], preserveScroll: true });
     });
 
-    useEffect(() => {
-        if (flash?.activityContext === 'database-import' && flash?.activityId) {
-            setActivityId(flash.activityId);
-        }
-    }, [flash?.activityId, flash?.activityContext]);
+    // Show the restore output for a new flash-carried activity. Adjusted during render (React's
+    // documented pattern for this) rather than via an effect - the entire reaction is just
+    // setting local state to reflect a prop, with no other side effect involved.
+    if (flash?.activityContext === 'database-import' && flash?.activityId && flash.activityId !== lastFlashActivityId) {
+        setLastFlashActivityId(flash.activityId);
+        setActivityId(flash.activityId);
+    }
 
     if (unsupported) {
         return (
