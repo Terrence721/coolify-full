@@ -111,6 +111,7 @@ export default function DockerCleanup({
     executionsUrl,
 }) {
     const [executions, setExecutions] = useState(initialExecutions);
+    const [lastInitialExecutions, setLastInitialExecutions] = useState(initialExecutions);
     const [selectedId, setSelectedId] = useState(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const pollRef = useRef(null);
@@ -123,9 +124,10 @@ export default function DockerCleanup({
         disableApplicationImageRetention: settings.disableApplicationImageRetention,
     });
 
-    useEffect(() => {
+    if (initialExecutions !== lastInitialExecutions) {
+        setLastInitialExecutions(initialExecutions);
         setExecutions(initialExecutions);
-    }, [initialExecutions]);
+    }
 
     async function refreshExecutions() {
         const response = await fetch(executionsUrl, { headers: { Accept: 'application/json' } });

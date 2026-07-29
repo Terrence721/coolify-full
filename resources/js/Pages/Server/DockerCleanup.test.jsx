@@ -78,4 +78,17 @@ describe('Server/DockerCleanup', () => {
         render(<DockerCleanup {...baseProps({ isCleanupStale: false })} />);
         expect(screen.queryByText(/Docker cleanup ran/)).not.toBeInTheDocument();
     });
+
+    it('picks up a fresh executions prop (e.g. after a reload) without losing the resync on a later re-render', () => {
+        const { rerender } = render(<DockerCleanup {...baseProps({ executions: [] })} />);
+        expect(screen.getByText('No executions found.')).toBeInTheDocument();
+
+        rerender(<DockerCleanup {...baseProps({ executions: [{ id: 1, status: 'success', startedAt: '5 minutes ago', message: '' }] })} />);
+        expect(screen.queryByText('No executions found.')).not.toBeInTheDocument();
+        expect(screen.getByText(/5 minutes ago/)).toBeInTheDocument();
+
+        rerender(<DockerCleanup {...baseProps({ executions: [{ id: 2, status: 'success', startedAt: '1 minute ago', message: '' }] })} />);
+        expect(screen.getByText(/1 minute ago/)).toBeInTheDocument();
+        expect(screen.queryByText(/5 minutes ago/)).not.toBeInTheDocument();
+    });
 });
