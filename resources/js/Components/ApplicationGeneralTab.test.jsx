@@ -14,6 +14,7 @@ import ApplicationGeneralTab from './ApplicationGeneralTab';
 
 const patchSpy = vi.fn();
 const postSpy = vi.fn();
+let mockFlash = {};
 
 vi.mock('@inertiajs/react', () => ({
     router: {
@@ -21,7 +22,7 @@ vi.mock('@inertiajs/react', () => ({
         post: (url, data, options) => postSpy(url, data, options),
         reload: () => {},
     },
-    usePage: () => ({ props: {} }),
+    usePage: () => ({ props: { flash: mockFlash } }),
 }));
 
 function baseGeneral(overrides = {}) {
@@ -67,6 +68,7 @@ function baseProps({ general: generalOverrides, ...overrides } = {}) {
 beforeEach(() => {
     patchSpy.mockClear();
     postSpy.mockClear();
+    mockFlash = {};
 });
 
 afterEach(() => {
@@ -177,5 +179,60 @@ describe('ApplicationGeneralTab', () => {
         render(<ApplicationGeneralTab {...baseProps({ general: { buildPack: 'dockercompose', dockerComposeRaw: 'services: {}' } })} />);
 
         expect(postSpy).not.toHaveBeenCalled();
+    });
+
+    describe('domain conflict modal', () => {
+        it('shows the modal when the flash carries a domain conflict', () => {
+            mockFlash = {
+                showDomainConflictModal: true,
+                domainConflicts: [{ domain: 'taken.example.com', resource_name: 'other-app', resource_type: 'application' }],
+            };
+            render(<ApplicationGeneralTab {...baseProps()} />);
+
+            expect(screen.getByText('Domain Already In Use')).toBeInTheDocument();
+            expect(screen.getByText('taken.example.com')).toBeInTheDocument();
+        });
+
+        it('dismisses the modal via Cancel', () => {
+            mockFlash = {
+                showDomainConflictModal: true,
+                domainConflicts: [{ domain: 'taken.example.com', resource_name: 'other-app', resource_type: 'application' }],
+            };
+            render(<ApplicationGeneralTab {...baseProps()} />);
+
+            act(() => screen.getByRole('button', { name: 'Cancel' }).click());
+
+            expect(screen.queryByText('Domain Already In Use')).not.toBeInTheDocument();
+        });
+
+        it('confirming submits with force_save_domains: true', () => {
+            mockFlash = {
+                showDomainConflictModal: true,
+                domainConflicts: [{ domain: 'taken.example.com', resource_name: 'other-app', resource_type: 'application' }],
+            };
+            render(<ApplicationGeneralTab {...baseProps()} />);
+
+            act(() => screen.getByRole('button', { name: 'I understand, proceed anyway' }).click());
+
+            expect(patchSpy).toHaveBeenCalledWith('/app/1', expect.objectContaining({ force_save_domains: true }), expect.any(Object));
+        });
+
+        it('re-shows the modal for a genuinely new conflicts flash even after a prior dismissal', () => {
+            const firstConflicts = [{ domain: 'taken.example.com', resource_name: 'other-app', resource_type: 'application' }];
+            mockFlash = { showDomainConflictModal: true, domainConflicts: firstConflicts };
+            const { rerender } = render(<ApplicationGeneralTab {...baseProps()} />);
+
+            act(() => screen.getByRole('button', { name: 'Cancel' }).click());
+            expect(screen.queryByText('Domain Already In Use')).not.toBeInTheDocument();
+
+            // A fresh submit produces a new flash payload (new array reference) with a
+            // different conflict - the dismissal must not silently carry over to it.
+            const secondConflicts = [{ domain: 'also-taken.example.com', resource_name: 'another-app', resource_type: 'application' }];
+            mockFlash = { showDomainConflictModal: true, domainConflicts: secondConflicts };
+            rerender(<ApplicationGeneralTab {...baseProps()} />);
+
+            expect(screen.getByText('Domain Already In Use')).toBeInTheDocument();
+            expect(screen.getByText('also-taken.example.com')).toBeInTheDocument();
+        });
     });
 });
