@@ -82,6 +82,7 @@ export default function Updates({ autoUpdateFrequency, updateCheckFrequency, isA
                                 Enabled
                                 <input
                                     id="is_auto_update_enabled"
+                                    name="is_auto_update_enabled"
                                     type="checkbox"
                                     checked={data.is_auto_update_enabled}
                                     onChange={(e) => setData('is_auto_update_enabled', e.target.checked)}

@@ -95,7 +95,13 @@ export default function Show({ privateKey, canUpdate, canDelete, updateUrl, dele
                         {data.isGitRelated && (
                             <div className="w-48">
                                 <label className="flex items-center gap-2">
-                                    <input id="private-key-is-git-related" type="checkbox" checked={data.isGitRelated} disabled />
+                                    <input
+                                        id="private-key-is-git-related"
+                                        name="private-key-is-git-related"
+                                        type="checkbox"
+                                        checked={data.isGitRelated}
+                                        disabled
+                                    />
                                     Is used by a Git App?
                                 </label>
                             </div>

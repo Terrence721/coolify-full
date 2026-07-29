@@ -250,6 +250,7 @@ export default function DockerCleanup({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="docker-cleanup-force"
+                                        name="docker-cleanup-force"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.forceDockerCleanup}
@@ -270,6 +271,7 @@ export default function DockerCleanup({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="docker-cleanup-delete-unused-volumes"
+                                        name="docker-cleanup-delete-unused-volumes"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.deleteUnusedVolumes}
@@ -280,6 +282,7 @@ export default function DockerCleanup({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="docker-cleanup-delete-unused-networks"
+                                        name="docker-cleanup-delete-unused-networks"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.deleteUnusedNetworks}
@@ -290,6 +293,7 @@ export default function DockerCleanup({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="docker-cleanup-disable-application-image-retention"
+                                        name="docker-cleanup-disable-application-image-retention"
                                         type="checkbox"
                                         disabled={!canUpdate}
                                         checked={data.disableApplicationImageRetention}

@@ -98,6 +98,7 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex items-center gap-2">
                         <input
                             id="discord_enabled"
+                            name="discord_enabled"
                             type="checkbox"
                             checked={data.discord_enabled}
                             onChange={(e) => setData('discord_enabled', e.target.checked)}
@@ -107,6 +108,7 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex items-center gap-2">
                         <input
                             id="discord_ping_enabled"
+                            name="discord_ping_enabled"
                             type="checkbox"
                             checked={data.discord_ping_enabled}
                             onChange={(e) => setData('discord_ping_enabled', e.target.checked)}
@@ -150,7 +152,13 @@ export default function Discord({ settings, updateUrl, sendTestUrl }) {
                         <div className="flex flex-col gap-1.5 pl-1">
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
-                                    <input id={field} type="checkbox" checked={data[field]} onChange={(e) => setData(field, e.target.checked)} />
+                                    <input
+                                        id={field}
+                                        name={field}
+                                        type="checkbox"
+                                        checked={data[field]}
+                                        onChange={(e) => setData(field, e.target.checked)}
+                                    />
                                     {label}
                                 </label>
                             ))}

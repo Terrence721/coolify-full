@@ -53,6 +53,7 @@ export default function CreateBackupModal({ open, onClose, storeUrl, s3Storages 
                     <label className="flex items-center gap-2">
                         <input
                             id="create-backup-save-to-s3"
+                            name="create-backup-save-to-s3"
                             type="checkbox"
                             checked={data.save_to_s3}
                             onChange={(e) => setData('save_to_s3', e.target.checked)}

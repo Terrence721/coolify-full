@@ -125,6 +125,7 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                         <label className="flex items-center gap-2">
                             <input
                                 id="settings-email-smtp-enabled"
+                                name="settings-email-smtp-enabled"
                                 type="checkbox"
                                 checked={smtp.data.smtp_enabled}
                                 onChange={(e) => smtp.setData('smtp_enabled', e.target.checked)}
@@ -222,6 +223,7 @@ export default function SettingsEmail({ settings, canSendTest, testEmailAddress,
                         <label className="flex items-center gap-2">
                             <input
                                 id="settings-email-resend-enabled"
+                                name="settings-email-resend-enabled"
                                 type="checkbox"
                                 checked={resend.data.resend_enabled}
                                 onChange={(e) => resend.setData('resend_enabled', e.target.checked)}

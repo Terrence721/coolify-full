@@ -167,7 +167,13 @@ function VariableRow({ variable, canUpdate }) {
             </label>
             {canUpdate && (
                 <label className="flex items-center gap-2">
-                    <input id={`${idBase}-multiline`} type="checkbox" checked={isMultiline} onChange={(e) => toggleMultiline(e.target.checked)} />
+                    <input
+                        id={`${idBase}-multiline`}
+                        name={`${idBase}-multiline`}
+                        type="checkbox"
+                        checked={isMultiline}
+                        onChange={(e) => toggleMultiline(e.target.checked)}
+                    />
                     Is Multiline?
                 </label>
             )}
@@ -323,6 +329,7 @@ function AddVariableModal({ open, onClose, storeUrl }) {
                     <label className="flex items-center gap-2">
                         <input
                             id="shared-variable-add-multiline"
+                            name="shared-variable-add-multiline"
                             type="checkbox"
                             checked={data.is_multiline}
                             onChange={(e) => setData('is_multiline', e.target.checked)}

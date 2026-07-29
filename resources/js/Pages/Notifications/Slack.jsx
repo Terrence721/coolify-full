@@ -98,6 +98,7 @@ export default function Slack({ settings, updateUrl, sendTestUrl }) {
                     <label className="flex items-center gap-2">
                         <input
                             id="slack_enabled"
+                            name="slack_enabled"
                             type="checkbox"
                             checked={data.slack_enabled}
                             onChange={(e) => setData('slack_enabled', e.target.checked)}
@@ -133,7 +134,13 @@ export default function Slack({ settings, updateUrl, sendTestUrl }) {
                         <div className="flex flex-col gap-1.5 pl-1">
                             {group.fields.map(([field, label]) => (
                                 <label key={field} className="flex items-center gap-2">
-                                    <input id={field} type="checkbox" checked={data[field]} onChange={(e) => setData(field, e.target.checked)} />
+                                    <input
+                                        id={field}
+                                        name={field}
+                                        type="checkbox"
+                                        checked={data[field]}
+                                        onChange={(e) => setData(field, e.target.checked)}
+                                    />
                                     {label}
                                 </label>
                             ))}

@@ -53,6 +53,7 @@ export default function SettingsOauth({ providers, updateUrl }) {
                                 <label className="flex items-center gap-2">
                                     <input
                                         id={`oauth-${provider.provider}-enabled`}
+                                        name={`oauth-${provider.provider}-enabled`}
                                         type="checkbox"
                                         checked={provider.enabled}
                                         onChange={(e) => updateProvider(index, 'enabled', e.target.checked)}

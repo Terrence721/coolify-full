@@ -69,6 +69,7 @@ export default function Delete({ serverNavbar, sidebar, server, hasResources, ch
                                 <label key={cb.id} className="flex items-center gap-2">
                                     <input
                                         id={cb.id}
+                                        name={cb.id}
                                         type="checkbox"
                                         checked={selectedActions.includes(cb.id)}
                                         onChange={() => toggleAction(cb.id)}

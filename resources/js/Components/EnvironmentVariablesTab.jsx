@@ -39,7 +39,7 @@ function PasswordInput({ id, name, value, onChange, disabled, required, placehol
 function Checkbox({ id, label, checked, onChange, disabled, title }) {
     return (
         <label className="flex items-center gap-2" title={title}>
-            <input id={id} type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange?.(e.target.checked)} />
+            <input id={id} name={id} type="checkbox" checked={checked} disabled={disabled} onChange={(e) => onChange?.(e.target.checked)} />
             {label}
         </label>
     );

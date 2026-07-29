@@ -249,6 +249,7 @@ export default function Change({
                                                 <label className="flex items-center gap-2">
                                                     <input
                                                         id="github-app-use-custom-webhook-endpoint"
+                                                        name="github-app-use-custom-webhook-endpoint"
                                                         type="checkbox"
                                                         checked={useCustomWebhookEndpoint}
                                                         onChange={(e) => setUseCustomWebhookEndpoint(e.target.checked)}
@@ -281,12 +282,19 @@ export default function Change({
                                         )}
                                         <div className="flex w-full flex-col gap-2">
                                             <label className="flex items-center gap-2">
-                                                <input id="github-app-mandatory-permissions" type="checkbox" checked disabled />
+                                                <input
+                                                    id="github-app-mandatory-permissions"
+                                                    name="github-app-mandatory-permissions"
+                                                    type="checkbox"
+                                                    checked
+                                                    disabled
+                                                />
                                                 Mandatory (Contents: read, Metadata: read, Email: read)
                                             </label>
                                             <label className="flex items-center gap-2">
                                                 <input
                                                     id="github-app-preview-deployment-permissions"
+                                                    name="github-app-preview-deployment-permissions"
                                                     type="checkbox"
                                                     checked={previewDeploymentPermissions}
                                                     onChange={(e) => setPreviewDeploymentPermissions(e.target.checked)}
@@ -434,6 +442,7 @@ export default function Change({
                                             <label className="flex items-center gap-2 w-48">
                                                 <input
                                                     id="github-app-is-system-wide"
+                                                    name="github-app-is-system-wide"
                                                     type="checkbox"
                                                     disabled={!canUpdate}
                                                     checked={data.isSystemWide}

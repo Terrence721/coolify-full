@@ -54,6 +54,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="settings-advanced-is-registration-enabled"
+                                        name="settings-advanced-is-registration-enabled"
                                         type="checkbox"
                                         checked={data.is_registration_enabled}
                                         onChange={(e) => setData('is_registration_enabled', e.target.checked)}
@@ -73,6 +74,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <label className="flex items-center gap-2">
                                 <input
                                     id="settings-advanced-do-not-track"
+                                    name="settings-advanced-do-not-track"
                                     type="checkbox"
                                     checked={data.do_not_track}
                                     onChange={(e) => setData('do_not_track', e.target.checked)}
@@ -86,6 +88,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <label className="flex items-center gap-2">
                                 <input
                                     id="settings-advanced-is-dns-validation-enabled"
+                                    name="settings-advanced-is-dns-validation-enabled"
                                     type="checkbox"
                                     checked={data.is_dns_validation_enabled}
                                     onChange={(e) => setData('is_dns_validation_enabled', e.target.checked)}
@@ -110,6 +113,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <label className="flex items-center gap-2">
                                 <input
                                     id="settings-advanced-is-api-enabled"
+                                    name="settings-advanced-is-api-enabled"
                                     type="checkbox"
                                     checked={data.is_api_enabled}
                                     onChange={(e) => setData('is_api_enabled', e.target.checked)}
@@ -143,6 +147,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <label className="flex items-center gap-2">
                                 <input
                                     id="settings-advanced-is-mcp-server-enabled"
+                                    name="settings-advanced-is-mcp-server-enabled"
                                     type="checkbox"
                                     checked={data.is_mcp_server_enabled}
                                     onChange={(e) => setData('is_mcp_server_enabled', e.target.checked)}
@@ -164,6 +169,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                             <label className="flex items-center gap-2">
                                 <input
                                     id="settings-advanced-is-wire-navigate-enabled"
+                                    name="settings-advanced-is-wire-navigate-enabled"
                                     type="checkbox"
                                     checked={data.is_wire_navigate_enabled}
                                     onChange={(e) => setData('is_wire_navigate_enabled', e.target.checked)}
@@ -180,6 +186,7 @@ export default function Advanced({ settings, mcpUrl, updateUrl, enableRegistrati
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="settings-advanced-disable-two-step-confirmation"
+                                        name="settings-advanced-disable-two-step-confirmation"
                                         type="checkbox"
                                         checked={data.disable_two_step_confirmation}
                                         onChange={(e) => setData('disable_two_step_confirmation', e.target.checked)}

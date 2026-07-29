@@ -67,6 +67,7 @@ export default function LogDrains({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="log-drain-newrelic-enabled"
+                                        name="log-drain-newrelic-enabled"
                                         type="checkbox"
                                         disabled={isLogDrainAxiomEnabled || isLogDrainCustomEnabled}
                                         checked={isLogDrainNewRelicEnabled}
@@ -131,6 +132,7 @@ export default function LogDrains({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="log-drain-axiom-enabled"
+                                        name="log-drain-axiom-enabled"
                                         type="checkbox"
                                         disabled={isLogDrainNewRelicEnabled || isLogDrainCustomEnabled}
                                         checked={isLogDrainAxiomEnabled}
@@ -192,6 +194,7 @@ export default function LogDrains({
                                 <label className="flex items-center gap-2">
                                     <input
                                         id="log-drain-custom-enabled"
+                                        name="log-drain-custom-enabled"
                                         type="checkbox"
                                         disabled={isLogDrainNewRelicEnabled || isLogDrainAxiomEnabled}
                                         checked={isLogDrainCustomEnabled}
