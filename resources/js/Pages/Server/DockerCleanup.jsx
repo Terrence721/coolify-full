@@ -199,7 +199,7 @@ export default function DockerCleanup({
                         {!isCloud && isCleanupStale && (
                             <div className="mb-4 p-3 border border-warning/30 bg-warning/10 text-sm rounded">
                                 <p>
-                                    The last Docker cleanup ran {lastExecutionTime ?? 'unknown time'} ago, which is longer than expected for the
+                                    The last Docker cleanup ran {lastExecutionTime ?? 'unknown time ago'}, which is longer than expected for the
                                     configured frequency.
                                 </p>
                                 {!isSchedulerHealthy && (
