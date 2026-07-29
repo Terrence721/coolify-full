@@ -206,4 +206,19 @@ describe('DatabaseHeading', () => {
 
         expect(screen.queryByText('Database Startup')).not.toBeInTheDocument();
     });
+
+    it('re-opens for a genuinely new activity even after a prior close', () => {
+        mockFlash = { activityContext: 'database', activityId: 'abc-123' };
+        const { rerender } = render(<DatabaseHeading {...baseProps()} />);
+        act(() => screen.getByRole('button', { name: '✕' }).click());
+        expect(screen.queryByText('Database Startup')).not.toBeInTheDocument();
+
+        // A fresh action (e.g. clicking Restart again) produces a new flash payload with a
+        // different activity id - the prior close must not silently carry over to it.
+        mockFlash = { activityContext: 'database', activityId: 'xyz-789' };
+        rerender(<DatabaseHeading {...baseProps()} />);
+
+        expect(screen.getByText('Database Startup')).toBeInTheDocument();
+        expect(screen.getByTestId('activity-log')).toHaveTextContent('xyz-789');
+    });
 });

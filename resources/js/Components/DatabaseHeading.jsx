@@ -15,14 +15,21 @@ export default function DatabaseHeading({ heading, urls }) {
     const canAccessTerminal = props.permissions?.canAccessTerminal ?? false;
     const [activityId, setActivityId] = useState(null);
     const [showLogs, setShowLogs] = useState(false);
+    // Deliberately not seeded from props.flash?.activityId - starting at null (rather than
+    // "already equal to the current flash") means a flash that's already present on the very
+    // first render (e.g. right after a redirect) is still detected as new and opens the modal,
+    // matching what useEffect's mount-time run would have done.
+    const [lastFlashActivityId, setLastFlashActivityId] = useState(null);
     const pollRef = useRef(null);
 
-    useEffect(() => {
-        if (props.flash?.activityContext === 'database' && props.flash?.activityId) {
-            setActivityId(props.flash.activityId);
-            setShowLogs(true);
-        }
-    }, [props.flash?.activityId, props.flash?.activityContext]);
+    // Open the log modal for a new flash-carried activity. Adjusted during render (React's
+    // documented pattern for this) rather than via an effect - the entire reaction is just
+    // setting local state to reflect a prop, with no other side effect involved.
+    if (props.flash?.activityContext === 'database' && props.flash?.activityId && props.flash.activityId !== lastFlashActivityId) {
+        setLastFlashActivityId(props.flash.activityId);
+        setActivityId(props.flash.activityId);
+        setShowLogs(true);
+    }
 
     useTeamChannel(['ServiceStatusChanged', 'ServiceChecked'], () => {
         router.reload({ only: ['database', 'heading'] });
