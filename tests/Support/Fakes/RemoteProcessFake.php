@@ -43,6 +43,19 @@ class RemoteProcessFake
     /** @var array<int, array<int, mixed>> Each entry is the argument list of one instant_remote_process() call. */
     public static array $instantRemoteProcessCalls = [];
 
+    /** @var array<int, array<int, mixed>> Each entry is the argument list of one remote_process() call. */
+    public static array $remoteProcessCalls = [];
+
+    /**
+     * Defaults false so requiring server_action_remote_process_overrides.php doesn't silently
+     * hijack remote_process() for every other App\Actions\Server class for the rest of the
+     * test process (that namespace is shared by ~12 actions, most with their own strict
+     * return types remote_process()'s real Activity return satisfies but this fake doesn't) -
+     * only a test that explicitly opts in via this flag gets the fake; everyone else still
+     * calls the real global remote_process().
+     */
+    public static bool $remoteProcessActive = false;
+
     public static function reset(): void
     {
         self::$output = '';
@@ -51,5 +64,7 @@ class RemoteProcessFake
         self::$containersException = null;
         self::$instantRemoteProcessException = null;
         self::$instantRemoteProcessCalls = [];
+        self::$remoteProcessCalls = [];
+        self::$remoteProcessActive = false;
     }
 }
