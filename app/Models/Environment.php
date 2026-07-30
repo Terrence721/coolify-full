@@ -92,7 +92,6 @@ class Environment extends BaseModel
         'uuid',
     ];
 
-
     /**
      * @return Builder<Environment>
      */
