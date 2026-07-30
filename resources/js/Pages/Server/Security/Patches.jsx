@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ActivityLog from '../../../Components/ActivityLog';
 import ServerNavbar from '../../../Components/ServerNavbar';
 import ServerSidebar from '../../../Components/ServerSidebar';
@@ -27,13 +27,15 @@ export default function Patches({
     const [packageManager, setPackageManager] = useState(null);
     const [showLogs, setShowLogs] = useState(false);
     const [activityId, setActivityId] = useState(null);
+    const [lastFlashActivityId, setLastFlashActivityId] = useState(null);
 
-    useEffect(() => {
+    if (props.flash?.activityId !== lastFlashActivityId) {
+        setLastFlashActivityId(props.flash?.activityId);
         if (props.flash?.activityContext === 'patches-update' && props.flash?.activityId) {
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-    }, [props.flash?.activityId, props.flash?.activityContext]);
+    }
 
     async function checkForUpdates() {
         setChecking(true);
