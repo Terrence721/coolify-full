@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 28, 2026**
+**Last Updated: July 30, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -53,6 +53,8 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify-v
 ```
 
 **After a Windows/WSL2 reboot**, run `./scripts/dev-up.sh` once you're back at the machine. It detects and fixes the Docker Desktop/WSL2 bind-mount race that can leave `coolify` (and occasionally `soketi`/`autoheal`/`testing-host`) unhealthy or `Exited (127)` right after boot. A container-native auto-fix (`mount-doctor`) was tried but had to be removed — it needed `docker.sock`, which is itself caught in the same race, so nothing in-container can reliably self-heal this; a host-side script is the one thing immune to it. See [`DEVELOPING_IN_CONTAINERS_WINDOWS.md`](../DEVELOPING_IN_CONTAINERS_WINDOWS.md)'s "After a Windows reboot, `coolify` comes up unhealthy with `artisan` missing" section for the full story.
+
+Once the dev stack itself is healthy, the script also brings back the seeded dev database fixtures (E-Commerce Platform / Internal Tools projects). Coolify-managed resource containers don't come back on their own after a reboot — they run with `restart: unless-stopped`, but Docker Desktop's own restart sequence stops them gracefully first, so `unless-stopped` correctly does *not* auto-restart them. `dev-up.sh` dispatches the same `StartDatabase` action the UI's Start button triggers, scoped only to those two known persistent projects (never throwaway smoke-test resources, which may be deliberately stopped). Live-verified 2026-07-30: stopped the real seeded Postgres container, ran the script's logic, confirmed it correctly detected the stopped state, dispatched Start, and the container came back `running` then `healthy` within 15 seconds.
 
 App: `http://localhost:8000` · Vite dev server: `http://localhost:5173` · Mailpit UI: `http://localhost:8025` · MinIO console: `http://localhost:9001`
 
