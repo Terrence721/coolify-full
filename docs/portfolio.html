@@ -1,0 +1,447 @@
+<title>Terrence Daniels — Senior Full-Stack Engineer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --paper: #ede9df;
+    --paper-2: #e2ddd0;
+    --ink: #1c2333;
+    --ink-soft: #4b5567;
+    --rule: #c7c0ac;
+    --accent: #a13d2b;
+    --accent-ink: #fff7ef;
+    --accent-2: #2e5266;
+    --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14181f;
+      --paper-2: #1b212b;
+      --ink: #e8e4d9;
+      --ink-soft: #a3aabb;
+      --rule: #303748;
+      --accent: #dd7a4a;
+      --accent-ink: #1c1006;
+      --accent-2: #7fb2cc;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181f;
+    --paper-2: #1b212b;
+    --ink: #e8e4d9;
+    --ink-soft: #a3aabb;
+    --rule: #303748;
+    --accent: #dd7a4a;
+    --accent-ink: #1c1006;
+    --accent-2: #7fb2cc;
+  }
+  :root[data-theme="light"] {
+    --paper: #ede9df;
+    --paper-2: #e2ddd0;
+    --ink: #1c2333;
+    --ink-soft: #4b5567;
+    --rule: #c7c0ac;
+    --accent: #a13d2b;
+    --accent-ink: #fff7ef;
+    --accent-2: #2e5266;
+  }
+
+  * { box-sizing: border-box; }
+  html { color-scheme: light dark; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-2); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    padding: 72px 0 44px;
+    background-image: repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ink) 4%, transparent) 0 2px,
+      transparent 2px 26px
+    );
+    border-bottom: 1px solid var(--rule);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+  }
+  .eyebrow::before { content: "◆ "; color: var(--accent); }
+  h1.name {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 6vw, 4.2rem);
+    letter-spacing: -0.01em;
+    line-height: 1.02;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .role {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+    color: var(--accent-2);
+    margin: 0 0 22px;
+  }
+  .thesis {
+    max-width: 62ch;
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    margin: 0 0 34px;
+  }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    padding: 10px 16px;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    text-decoration: none;
+    background: transparent;
+  }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { background: var(--accent-2); border-color: var(--accent-2); color: var(--accent-ink); }
+
+  /* stamp badge */
+  .stamp {
+    position: absolute;
+    top: 58px;
+    right: 28px;
+    width: 128px;
+    height: 128px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-9deg);
+    opacity: 0.92;
+  }
+  .stamp::before {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px dashed var(--accent);
+    border-radius: 50%;
+  }
+  .stamp-inner {
+    text-align: center;
+    font-family: var(--font-mono);
+    color: var(--accent);
+  }
+  .stamp-inner .n { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+  .stamp-inner .l { display: block; font-size: 0.55rem; letter-spacing: 0.12em; margin-top: 4px; }
+  @media (max-width: 620px) { .stamp { display: none; } }
+
+  /* ---------- manifest stat strip ---------- */
+  .manifest {
+    background: var(--paper-2);
+    border-bottom: 1px solid var(--rule);
+    overflow-x: auto;
+  }
+  .manifest-row {
+    display: flex;
+    min-width: max-content;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .manifest-cell {
+    padding: 16px 24px;
+    border-right: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  .manifest-cell:last-child { border-right: none; }
+  .manifest-cell .v { font-size: 1.15rem; color: var(--accent); font-weight: 700; }
+  .manifest-cell .k { display: block; font-size: 0.68rem; letter-spacing: 0.08em; color: var(--ink-soft); text-transform: uppercase; margin-top: 2px; }
+
+  /* ---------- sections ---------- */
+  section { padding: 52px 0; border-bottom: 1px solid var(--rule); }
+  section:last-of-type { border-bottom: none; }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .h2-sub { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 22px; }
+  p { max-width: 68ch; }
+  .lede { font-size: 1.02rem; color: var(--ink-soft); max-width: 66ch; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+  .chip {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+
+  /* ledger line items (code review) */
+  .ledger { border-top: 1px solid var(--rule); margin-top: 24px; }
+  .item {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 4px 18px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .item .no { font-family: var(--font-mono); color: var(--accent); font-size: 0.9rem; padding-top: 2px; }
+  .item .file { font-family: var(--font-mono); font-size: 0.88rem; color: var(--ink); }
+  .item .desc { color: var(--ink-soft); font-size: 0.95rem; margin: 4px 0 8px; }
+  .item .meta { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-soft); }
+  .item .meta .tag { color: var(--accent-2); }
+  .item .meta a { margin-left: 8px; }
+
+  .note {
+    border-left: 2px solid var(--accent-2);
+    padding: 4px 0 4px 16px;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    margin: 22px 0 0;
+    max-width: 62ch;
+  }
+  .note strong { color: var(--ink); }
+
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 20px; }
+  @media (max-width: 640px) { .twocol { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--rule); padding: 18px 20px; }
+  .card h3 { font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; margin: 0 0 8px; }
+  .card p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+
+  footer {
+    padding: 44px 0 72px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+  footer .links { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 22px; }
+  footer .fine { color: var(--ink-soft); font-size: 0.78rem; max-width: 62ch; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Portfolio Manifest — Prepared 2026-07-30</p>
+    <h1 class="name">Terrence&nbsp;Daniels</h1>
+    <p class="role">Senior Full-Stack Engineer</p>
+    <p class="thesis">
+      A working fork of <strong>Coolify</strong>, a self-hosted PaaS, used as a real engineering sample:
+      a live Laravel + React application modernized page by page, reviewed with real Pull Requests,
+      and tested against real servers — not a toy demo.
+    </p>
+    <div class="hero-actions">
+      <a class="btn primary" href="https://github.com/Terrence721/coolify-full">View the repository →</a>
+      <a class="btn" href="https://github.com/Terrence721/coolify-full/blob/main/docs/code-review.md">Code review index</a>
+      <a class="btn" href="https://github.com/Terrence721/coolify-full/blob/main/docs/livewire-to-react-migration.md">Migration log</a>
+    </div>
+  </div>
+  <div class="stamp" aria-hidden="true">
+    <div class="stamp-inner">
+      <span class="n">0</span>
+      <span class="l">PHPSTAN<br />ERRORS</span>
+    </div>
+  </div>
+</div>
+
+<div class="manifest">
+  <div class="wrap">
+    <div class="manifest-row">
+      <div class="manifest-cell"><span class="v">554</span><span class="k">commits</span></div>
+      <div class="manifest-cell"><span class="v">1,241</span><span class="k">Pest tests</span></div>
+      <div class="manifest-cell"><span class="v">798</span><span class="k">Vitest tests</span></div>
+      <div class="manifest-cell"><span class="v">1,306→55</span><span class="k">PHPStan baseline</span></div>
+      <div class="manifest-cell"><span class="v">84/84</span><span class="k">pages migrated</span></div>
+      <div class="manifest-cell"><span class="v">6</span><span class="k">merged PRs</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <h2>Why this project</h2>
+    <p class="h2-sub">The harder problem, on purpose</p>
+    <p class="lede">
+      Rewriting a UI from scratch is easy when nothing has to keep working. This fork tackles the more
+      common real job: modernizing a <strong>live, actively-used</strong> Laravel application's frontend
+      without a big-bang rewrite — one page converted and verified at a time, with an audit trail a
+      reviewer can actually check against the commit history, not just a claim to take on faith.
+    </p>
+    <div class="chips">
+      <span class="chip">Laravel 12</span>
+      <span class="chip">Inertia.js</span>
+      <span class="chip">React 19</span>
+      <span class="chip">Tailwind v4</span>
+      <span class="chip">Pest 4</span>
+      <span class="chip">Vitest</span>
+      <span class="chip">PHPStan / Larastan</span>
+      <span class="chip">Docker + SSH orchestration</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Migration, not rewrite</h2>
+    <p class="h2-sub">Livewire 3 + Alpine → Inertia + React, complete 2026‑07‑14</p>
+    <p class="lede">
+      84 of 84 Livewire pages moved to React through Inertia — each page stayed a normal Laravel
+      route/controller returning props, so migrated and not-yet-migrated pages coexisted under the same
+      app the whole way through. No parallel API had to be designed up front, and Laravel's routing,
+      auth, CSRF, and sessions kept working unchanged. <code>livewire/livewire</code> and Alpine.js were
+      only removed from the dependency tree once the very last page was converted.
+    </p>
+    <div class="twocol">
+      <div class="card">
+        <h3>Why Inertia over a decoupled SPA</h3>
+        <p>A plain React SPA needs its API surface designed and versioned before page one ships. Inertia
+        sidesteps that — the migration could run one route at a time, in production, without a
+        big-bang cutover.</p>
+      </div>
+      <div class="card">
+        <h3>What "verified" means here</h3>
+        <p>Every converted page picked up a Vitest suite exercising its real conditional logic, gates,
+        and event wiring — not snapshot tests. 76 suites, 798 tests, zero skipped.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Code review, for real</h2>
+    <p class="h2-sub">Findings are logged, fixed on a branch, and merged through an actual GitHub PR</p>
+    <p class="lede">
+      Every finding below is a real, line-anchored review comment on a real commit, fixed on its own
+      branch, and landed through a real Pull Request — reviewable end to end in
+      <a href="https://github.com/Terrence721/coolify-full/blob/main/docs/code-review.md">docs/code-review.md</a>
+      and <a href="https://github.com/Terrence721/coolify-full/issues/70">issue #70</a>.
+    </p>
+    <div class="ledger">
+      <div class="item">
+        <div class="no">01</div>
+        <div>
+          <div class="file">ApplicationDeploymentJob.php:2011</div>
+          <div class="desc">
+            <code>health_check()</code> was a complete no-op for Docker Swarm deployments — inherited
+            dead code, traced through every read site of the resulting flag before ruling out an active
+            failure. Fixed by polling <code>docker stack services</code> / <code>docker service ps</code>
+            for real replica convergence.
+          </div>
+          <div class="meta"><span class="tag">high · reliability</span>
+            <a href="https://github.com/Terrence721/coolify-full/pull/75">PR #75</a></div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="no">02</div>
+        <div>
+          <div class="file">ServiceExtraFieldsResolver.php:389–413</div>
+          <div class="desc">
+            A Kong dashboard-fields case was mislabeled "Supabase" and missing its <code>break;</code>,
+            silently falling through into MinIO's field block on every affected service.
+          </div>
+          <div class="meta"><span class="tag">high · reliability</span>
+            <a href="https://github.com/Terrence721/coolify-full/pull/73">PR #73</a></div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="no">03</div>
+        <div>
+          <div class="file">Environment.php:97–102</div>
+          <div class="desc">
+            A cascade-delete hook looped over a relation called with parens — a query builder, not a
+            collection — so it silently ran zero iterations. Writing the regression test for the fix
+            surfaced a bigger, separate finding: the test schema dump had zero foreign keys anywhere,
+            filed on its own as its own issue rather than folded in.
+          </div>
+          <div class="meta"><span class="tag">medium · maintainability</span>
+            <a href="https://github.com/Terrence721/coolify-full/pull/76">PR #76</a>
+            <a href="https://github.com/Terrence721/coolify-full/issues/77">→ issue #77</a></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      <strong>Disclosed, not hidden:</strong> the Swarm health-check fix above ships with no automated
+      test coverage and no live Swarm cluster to verify against — said plainly in the PR itself, rather
+      than presented with confidence it hasn't earned.
+    </p>
+  </section>
+
+  <section>
+    <h2>Verifying it actually works</h2>
+    <p class="h2-sub">Tests, live smoke checks, and a sandbox built to make destructive testing safe</p>
+    <p class="lede">
+      Bug fixes follow TDD — a failing test first, then the fix. But some of this app's real behavior
+      (server provisioning, Docker cleanup, package upgrades) can only be honestly checked against a
+      real daemon, not a mock. Rather than skip that class of test, a genuinely isolated
+      Docker-in-Docker host was built and registered as a real Coolify-managed server, so destructive
+      operations — container pruning, OS package upgrades that can bounce the Docker daemon — could run
+      for real without touching this session's own dev containers.
+    </p>
+    <div class="twocol">
+      <div class="card">
+        <h3>1,241 Pest + 798 Vitest</h3>
+        <p>Feature and unit coverage on the backend, component-behavior coverage on every migrated
+        React page — gates, event wiring, conditional rendering, not markup snapshots.</p>
+      </div>
+      <div class="card">
+        <h3>Live-verified, not assumed</h3>
+        <p>Server management, Cloudflare Tunnel, and database backup flows were exercised end-to-end
+        against real running infrastructure before being marked done — logged with what was and
+        wasn't independently confirmed.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Judgment calls</h2>
+    <p class="h2-sub">Where the interesting decisions actually happened</p>
+    <p class="lede">
+      A regression test for the <code>Environment.php</code> fix above initially failed for reasons that
+      turned out to have nothing to do with the fix itself — the test database's schema dump was stale
+      and enforced no foreign keys at all. Rather than patch around the failing assertion, the two
+      findings were separated: the dead code fix shipped as its own reviewed PR, and the schema gap was
+      filed as its own tracked issue with the evidence attached. Confident-sounding code and an actually
+      correct fix aren't always the same thing — worth telling apart, and worth writing down when they
+      diverge.
+    </p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="https://github.com/Terrence721/coolify-full">Repository</a>
+      <a href="https://github.com/Terrence721/coolify-full/blob/main/docs/code-review.md">Code review index</a>
+      <a href="https://github.com/Terrence721/coolify-full/blob/main/docs/livewire-to-react-migration.md">Migration log</a>
+      <a href="https://terrence721.github.io/coolify-full/diagrams/testing-strategy-layers.html">Testing strategy</a>
+      <a href="https://github.com/Terrence721/coolify-full/blob/main/ROADMAP.md">Roadmap</a>
+      <a href="https://github.com/Terrence721/coolify-full/blob/main/todo.md">Working log</a>
+    </div>
+    <p class="fine">
+      Fork of coollabsio/Coolify, an open-source PaaS. Every number on this page is reproducible from
+      the repository's own commit history and issue tracker — nothing here is asserted without a link
+      to check it against.
+    </p>
+  </div>
+</footer>
