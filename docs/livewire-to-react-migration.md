@@ -1,7 +1,7 @@
 # Livewire → React Migration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 28, 2026**
+**Last Updated: July 30, 2026**
 
 ## 1. Why
 
@@ -13,6 +13,8 @@ The app has 84 full-page Livewire components (confirmed by inventory in Phase 2 
 
 - **Plain React SPA + REST API**: would require designing, building, and versioning a whole new API surface (auth, CSRF, serialization, pagination, etc.) before we could move a single page, on top of the React migration itself.
 - **Inertia.js** (chosen): each page stays a normal Laravel route + controller that returns data as props. Routing, auth, CSRF, and session handling keep working as they do today. Migrated and not-yet-migrated pages coexist under the same Laravel app with no parallel API to maintain.
+
+**Inertia still makes AJAX requests — the thing that changed is what comes back, not whether a request happens.** The first load of any page is a normal full HTML response. Every navigation after that (clicking a link, `router.get()`/`.post()` etc.) is a real XHR request, marked with an `X-Inertia` header so the same Laravel controller returns JSON (the page component's name + its props) instead of a rendered Blade view. Inertia's client-side runtime swaps in the matching React component with those props — no full page reload, and no separate REST/JSON API to design, version, or keep in sync with the backend. This is the actual mechanism behind "no parallel API to maintain" above: one route, one controller, two response shapes depending on that header.
 
 See the **[rendered diagram](https://terrence721.github.io/coolify-full/diagrams/livewire-to-inertia-request-flow.html)** for a visual side-by-side of the request flow before and after — same route, same controller, different rendering layer underneath.
 
