@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import DomainConflictModal from './DomainConflictModal';
 import ResourceDetailsModal from './ResourceDetailsModal';
 import { useTeamChannel } from '../hooks/useTeamChannel';
@@ -108,12 +108,18 @@ function EditDomainModal({ resource, onClose }) {
     const { props } = usePage();
     const [fqdn, setFqdn] = useState(resource.fqdn ?? '');
     const [showPortWarning, setShowPortWarning] = useState(false);
+    const [lastFlash, setLastFlash] = useState(null);
 
-    useEffect(() => {
+    // showPortWarningModal is a plain boolean, not a unique id like activityId - comparing it
+    // by value can't tell two separate occurrences apart (true !== true is always false), so
+    // this tracks the whole flash object's identity instead, which Inertia refreshes on every
+    // page visit response regardless of whether the boolean's own value happens to repeat.
+    if (props.flash !== lastFlash) {
+        setLastFlash(props.flash);
         if (props.flash?.showPortWarningModal) {
             setShowPortWarning(true);
         }
-    }, [props.flash?.showPortWarningModal]);
+    }
 
     function save(extra = {}) {
         router.patch(resource.urls.domain, { fqdn, ...extra }, { preserveScroll: true });
