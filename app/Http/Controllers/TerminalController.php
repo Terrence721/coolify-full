@@ -19,7 +19,7 @@ class TerminalController extends Controller
 
     public function index(): Response
     {
-        $servers = Server::isReachable()->get()->filter(fn (Server $server) => $server->isTerminalEnabled())->values();
+        $servers = $this->eligibleServers();
 
         return Inertia::render('Terminal/Index', [
             'servers' => $servers->map(fn (Server $server) => [
@@ -43,7 +43,7 @@ class TerminalController extends Controller
             return response()->json(['error' => 'Please select a server or a container.'], 422);
         }
 
-        $servers = Server::isReachable()->get()->filter(fn (Server $server) => $server->isTerminalEnabled())->values();
+        $servers = $this->eligibleServers();
         $containers = $this->getAllActiveContainers($servers);
         $container = $containers->firstWhere('uuid', $selectedUuid);
         $isContainer = ! is_null($container);
@@ -62,6 +62,14 @@ class TerminalController extends Controller
         }
 
         return response()->json(['command' => $result['command']]);
+    }
+
+    /**
+     * @return Collection<int, Server>
+     */
+    private function eligibleServers(): Collection
+    {
+        return Server::isReachable()->get()->filter(fn (Server $server) => $server->isTerminalEnabled())->values();
     }
 
     /**
