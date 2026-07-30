@@ -26,7 +26,9 @@ services:
       - ./docker/https-proxy/certs:/etc/nginx/certs:ro
     ports:
       - "8443:443"
+      - "6443:6443"
     networks:
       - coolify
     depends_on:
       - coolify
+      - soketi

@@ -82,6 +82,7 @@ class HandleInertiaRequests extends Middleware
                 'key' => config('constants.pusher.app_key') ?: 'coolify',
                 'host' => config('constants.pusher.host') ?: $request->getHost(),
                 'port' => getRealtime(),
+                'forceTLS' => $request->secure(),
             ] : null,
         ];
     }

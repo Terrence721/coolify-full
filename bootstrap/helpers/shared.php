@@ -1547,7 +1547,11 @@ function getRealtime()
         $url = Url::fromString(Request::getSchemeAndHttpHost());
         $port = $url->getPort();
         if ($port) {
-            return '6001';
+            // A browser refuses a plain ws:// connection from an HTTPS page (mixed content,
+            // same rule as an HTTP <script>), so Soketi's real port (6001, plain ws) can't be
+            // used directly over HTTPS - route to the TLS-terminated proxy port instead. See
+            // docker/https-proxy/nginx.conf's dedicated 6443 listener.
+            return Request::secure() ? '6443' : '6001';
         } else {
             return null;
         }
