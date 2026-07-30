@@ -150,7 +150,7 @@ class ValidateAndInstallServerJob implements ShouldBeEncrypted, ShouldQueue
             $dockerVersion = $this->server->validateDockerEngineVersion();
             if (! $dockerVersion) {
                 $requiredDockerVersion = str(config('constants.docker.minimum_required_version'))->before('.');
-                $errorMessage = 'Minimum Docker Engine version '.$requiredDockerVersion.' is not installed. Please install Docker manually before continuing: <a target="_blank" class="underline" href="https://docs.docker.com/engine/install/#server">documentation</a>.';
+                $errorMessage = 'Docker Engine version is too old. Coolify requires Docker Engine '.$requiredDockerVersion.' or newer. Please upgrade Docker before continuing: <a target="_blank" class="underline" href="https://docs.docker.com/engine/install/#server">documentation</a>.';
                 $this->server->update([
                     'validation_logs' => $errorMessage,
                     'is_validating' => false,
