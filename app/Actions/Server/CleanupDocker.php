@@ -161,8 +161,13 @@ class CleanupDocker
             $imagesToKeep = $disableRetention ? 0 : ($application->settings->docker_images_to_keep ?? 2);
             $imageRepository = $application->docker_registry_image_name ?? $application->uuid;
 
-            // Get the currently running image tag
-            $currentTagCommand = "docker inspect --format='{{.Config.Image}}' {$application->uuid} 2>/dev/null | grep -oP '(?<=:)[^:]+$' || true";
+            // Get the currently running image tag - look up the real container via Coolify's
+            // own applicationId/pullRequestId labels (see defaultLabels()) rather than
+            // assuming the container name equals the application's bare UUID. It usually
+            // doesn't: generateApplicationContainerName() appends a deploy-time timestamp
+            // unless is_consistent_container_name_enabled is on (off by default), and that
+            // timestamp is never persisted anywhere retrievable after the fact.
+            $currentTagCommand = "docker ps --filter 'label=coolify.applicationId={$application->id}' --filter 'label=coolify.pullRequestId=0' --format '{{.Image}}' | head -n1 | grep -oP '(?<=:)[^:]+$' || true";
             $currentTag = instant_remote_process([$currentTagCommand], $server, false);
             $currentTag = trim($currentTag ?? '');
 
