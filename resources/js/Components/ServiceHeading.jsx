@@ -16,14 +16,16 @@ export default function ServiceHeading({ service, parameters, urls }) {
     const canAccessTerminal = props.permissions?.canAccessTerminal ?? false;
     const [activityId, setActivityId] = useState(null);
     const [showLogs, setShowLogs] = useState(false);
+    const [lastFlashActivityId, setLastFlashActivityId] = useState(null);
     const pollRef = useRef(null);
 
-    useEffect(() => {
+    if (props.flash?.activityId !== lastFlashActivityId) {
+        setLastFlashActivityId(props.flash?.activityId);
         if (props.flash?.activityContext === 'service' && props.flash?.activityId) {
             setActivityId(props.flash.activityId);
             setShowLogs(true);
         }
-    }, [props.flash?.activityId, props.flash?.activityContext]);
+    }
 
     useTeamChannel(['ServiceStatusChanged', 'ServiceChecked'], () => {
         router.reload({ only: ['service', 'configurationChecker'] });
