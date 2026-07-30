@@ -129,3 +129,41 @@ fi
 
 echo ""
 echo "==> All containers healthy. (coolify-minio-init exiting with code 0 is expected - it's a one-shot bucket-setup job.)"
+
+echo ""
+echo "==> Checking seeded dev database fixtures (E-Commerce Platform / Internal Tools) are running..."
+# Coolify-managed resource containers (as opposed to the dev stack above) don't come back on
+# their own after a reboot: they run with restart:unless-stopped, but Docker Desktop's own
+# restart sequence stops them gracefully first, so "unless-stopped" correctly does NOT restart
+# them (confirmed 2026-07-25). Bringing one back for real requires the same action the UI's
+# Start button triggers, not a plain `docker start` - StartPostgresql (and friends) rebuild the
+# container from the database's own config, which a bare `docker start` on a stopped-but-still-
+# defined container would skip. Scoped to just the known, persistent dev-fixture projects (not
+# throwaway smoke-test resources, which may be deliberately stopped) via queryDatabaseByUuidWithinTeam(),
+# the same helper the real API route (api/v1/databases/{uuid}/start) uses.
+SEEDED_DB_UUIDS=$(docker exec coolify php artisan tinker --execute '
+foreach (\App\Models\Project::whereIn("name", ["E-Commerce Platform", "Internal Tools"])->get() as $p) {
+    foreach ($p->environments as $env) {
+        foreach ($env->databases() as $d) {
+            echo $d->uuid . PHP_EOL;
+        }
+    }
+}
+' 2>/dev/null | grep -E "^[a-z0-9]{20,}$" || true)
+
+for uuid in $SEEDED_DB_UUIDS; do
+    if [ "$(docker inspect -f '{{.State.Running}}' "$uuid" 2>/dev/null)" = "true" ]; then
+        echo "    - $uuid already running."
+    else
+        echo "    - $uuid is not running - dispatching Start (same action the UI's Start button triggers)..."
+        docker exec coolify php artisan tinker --execute "
+            \$db = queryDatabaseByUuidWithinTeam('$uuid', '0');
+            if (\$db) {
+                \App\Actions\Database\StartDatabase::dispatch(\$db);
+                echo 'Dispatched Start for ' . \$db->name . PHP_EOL;
+            } else {
+                echo 'WARNING: could not resolve $uuid to a database.' . PHP_EOL;
+            }
+        " 2>/dev/null
+    fi
+done
