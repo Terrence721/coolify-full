@@ -47,6 +47,49 @@ class StartLogDrainTest extends TestCase
         return $server->refresh();
     }
 
+    private function readmeContentFor(Server $server): string
+    {
+        RemoteProcessFake::reset();
+        StartLogDrain::run($server);
+
+        $commands = RemoteProcessFake::$instantRemoteProcessCalls[1][0];
+        $readmeLine = collect($commands)->first(fn ($line) => str_contains($line, '/log-drains/README.md'));
+        preg_match("/^echo '([^']*)' \| base64 -d/", $readmeLine, $matches);
+
+        return base64_decode($matches[1]);
+    }
+
+    #[Test]
+    public function the_readme_names_the_actual_configured_provider_for_each_log_drain_type(): void
+    {
+        // Real bug found 2026-07-30 (code review, issue #70): the README was hardcoded to
+        // describe New Relic regardless of which drain type was actually enabled, so a server
+        // configured for Highlight/Axiom/Custom got a real README.md on disk describing the
+        // wrong provider entirely.
+        $team = Team::factory()->create();
+
+        $newrelic = Server::factory()->create(['team_id' => $team->id]);
+        $newrelic->settings->update(['is_logdrain_newrelic_enabled' => true]);
+        $this->assertStringContainsString('# New Relic Log Drain', $this->readmeContentFor($newrelic->refresh()));
+
+        $highlight = Server::factory()->create(['team_id' => $team->id]);
+        $highlight->settings->update(['is_logdrain_highlight_enabled' => true]);
+        $readme = $this->readmeContentFor($highlight->refresh());
+        $this->assertStringContainsString('# Highlight Log Drain', $readme);
+        $this->assertStringNotContainsString('New Relic', $readme);
+
+        $axiom = Server::factory()->create(['team_id' => $team->id]);
+        $axiom->settings->update(['is_logdrain_axiom_enabled' => true]);
+        $readme = $this->readmeContentFor($axiom->refresh());
+        $this->assertStringContainsString('# Axiom Log Drain', $readme);
+        $this->assertStringNotContainsString('New Relic', $readme);
+
+        $custom = $this->serverWithCustomLogDrain('[PARSER]\n    Name   my_parser\n');
+        $readme = $this->readmeContentFor($custom);
+        $this->assertStringContainsString('# Custom Log Drain', $readme);
+        $this->assertStringNotContainsString('New Relic', $readme);
+    }
+
     #[Test]
     public function does_not_crash_when_the_custom_parser_config_is_null(): void
     {

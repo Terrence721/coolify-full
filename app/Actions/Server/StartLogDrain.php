@@ -152,14 +152,27 @@ services:
       - coolify.managed=true
     restart: unless-stopped
 ');
-            $readme = base64_encode('# New Relic Log Drain
-This log drain is based on [Fluent Bit](https://fluentbit.io/) and New Relic Log Forwarder.
+            if ($type === 'newrelic') {
+                $readmeTitle = 'New Relic Log Drain';
+                $readmeForwarder = 'New Relic Log Forwarder';
+            } elseif ($type === 'highlight') {
+                $readmeTitle = 'Highlight Log Drain';
+                $readmeForwarder = 'Highlight (OpenTelemetry)';
+            } elseif ($type === 'axiom') {
+                $readmeTitle = 'Axiom Log Drain';
+                $readmeForwarder = 'Axiom';
+            } else {
+                $readmeTitle = 'Custom Log Drain';
+                $readmeForwarder = 'a custom Fluent Bit output configuration';
+            }
+            $readme = base64_encode("# {$readmeTitle}
+This log drain is based on [Fluent Bit](https://fluentbit.io/) and {$readmeForwarder}.
 
 Files:
 - `fluent-bit.conf` - configuration file for Fluent Bit
 - `docker-compose.yml` - docker-compose file to run Fluent Bit
 - `.env` - environment variables for Fluent Bit
-');
+");
             $license_key = $server->settings->logdrain_newrelic_license_key;
             $base_uri = $server->settings->logdrain_newrelic_base_uri;
             $base_path = config('constants.coolify.base_config_path');
