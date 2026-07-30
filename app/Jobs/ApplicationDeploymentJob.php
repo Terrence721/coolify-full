@@ -2009,7 +2009,72 @@ class ApplicationDeploymentJob implements ShouldBeEncrypted, ShouldQueue
     {
         try {
             if ($this->server->isSwarm()) {
-                // Implement healthcheck for swarm
+                if ($this->application->isHealthcheckDisabled()) {
+                    $this->newVersionIsHealthy = true;
+
+                    return;
+                }
+                $this->application_deployment_queue->addLogEntry("Waiting for the start period ({$this->application->health_check_start_period} seconds) before starting healthcheck.");
+                $sleeptime = 0;
+                while ($sleeptime < $this->application->health_check_start_period) {
+                    Sleep::for(1)->seconds();
+                    $sleeptime++;
+                }
+
+                $stackName = $this->application->uuid;
+                $counter = 1;
+                while ($counter <= $this->application->health_check_retries) {
+                    $this->execute_remote_command(
+                        [
+                            "docker stack services {$stackName} --format '{{.Name}}'",
+                            'hidden' => true,
+                            'save' => 'swarm_service_names',
+                            'append' => false,
+                        ],
+                    );
+                    $serviceNames = collect(explode("\n", (string) $this->saved_outputs->get('swarm_service_names')))
+                        ->map(fn ($name) => trim($name))
+                        ->filter();
+
+                    $converged = $serviceNames->isNotEmpty();
+                    foreach ($serviceNames as $serviceName) {
+                        $this->execute_remote_command(
+                            [
+                                "docker service ps {$serviceName} --filter 'desired-state=running' --format '{{.CurrentState}}'",
+                                'hidden' => true,
+                                'save' => 'swarm_service_state',
+                                'append' => false,
+                            ],
+                        );
+                        $states = collect(explode("\n", (string) $this->saved_outputs->get('swarm_service_state')))
+                            ->map(fn ($state) => trim($state))
+                            ->filter();
+
+                        if ($states->isEmpty() || $states->contains(fn ($state) => ! str($state)->startsWith('Running'))) {
+                            $converged = false;
+                        }
+                    }
+
+                    $this->application_deployment_queue->addLogEntry("Attempt {$counter} of {$this->application->health_check_retries} | Swarm service(s) converged: ".($converged ? 'yes' : 'no'));
+
+                    if ($converged) {
+                        $this->newVersionIsHealthy = true;
+                        $this->application->update(['status' => 'running']);
+                        $this->application_deployment_queue->addLogEntry('New Swarm service(s) are healthy.');
+                        break;
+                    }
+
+                    $counter++;
+                    $sleeptime = 0;
+                    while ($sleeptime < $this->application->health_check_interval) {
+                        Sleep::for(1)->seconds();
+                        $sleeptime++;
+                    }
+                }
+
+                if (! $this->newVersionIsHealthy) {
+                    $this->application_deployment_queue->addLogEntry('New Swarm service(s) did not converge to Running within the healthcheck retry window.', type: 'error');
+                }
             } else {
                 if ($this->application->isHealthcheckDisabled() && $this->application->custom_healthcheck_found === false) {
                     $this->newVersionIsHealthy = true;
