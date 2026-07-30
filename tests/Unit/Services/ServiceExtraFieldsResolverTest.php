@@ -90,6 +90,28 @@ it('resolves a field value referencing another $SERVICE_ variable without crashi
     expect($fields->get('Drizzle')['Master Password']['value'])->toBe('$SERVICE_PASSWORD_DRIZZLE');
 });
 
+it('resolves a Kong image to a "Kong" field group, not "Supabase", and does not also fall through into MinIO', function () {
+    // Regression test: the kong case labeled its output 'Supabase' (a copy-paste mislabel)
+    // and had no break; after the put() call, so PHP fell through unconditionally into the
+    // next case (minio), adding a spurious extra field group for any Kong-image service.
+    $service = extraFieldsMakeService();
+    ServiceApplication::create(['name' => 'kong', 'service_id' => $service->id, 'image' => 'kong:latest']);
+    $service->environment_variables()->create([
+        'key' => 'SERVICE_USER_ADMIN',
+        'value' => 'admin',
+        'resourceable_id' => $service->id,
+        'resourceable_type' => $service->getMorphClass(),
+        'is_preview' => false,
+    ]);
+
+    $fields = (new ServiceExtraFieldsResolver)->resolve($service);
+
+    expect($fields->has('Kong'))->toBeTrue();
+    expect($fields->get('Kong')['Dashboard User']['value'])->toBe('admin');
+    expect($fields->has('Supabase'))->toBeFalse();
+    expect($fields->has('MinIO'))->toBeFalse();
+});
+
 it('saves submitted field values as environment variables, updating an existing one', function () {
     $service = extraFieldsMakeService();
     $existing = $service->environment_variables()->create([
