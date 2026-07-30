@@ -4,7 +4,7 @@
 [![CodeQL](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 29, 2026**
+**Last Updated: July 30, 2026**
 
 This repository is a professionally enhanced fork of Coolify, created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
@@ -96,6 +96,7 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 
   Dev-only:  Vite (HMR, never browsed directly) · Mailpit (mail capture)
              MinIO (S3 for backup tests) · testing-host (fake managed server)
+             autoheal (WSL2 bind-mount race recovery) · stray-pruner (orphan cleanup)
 ```
 
 ---
