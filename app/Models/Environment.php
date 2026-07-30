@@ -92,15 +92,6 @@ class Environment extends BaseModel
         'uuid',
     ];
 
-    protected static function booted()
-    {
-        static::deleting(function ($environment) {
-            $shared_variables = $environment->environment_variables();
-            foreach ($shared_variables as $shared_variable) {
-                $shared_variable->delete();
-            }
-        });
-    }
 
     /**
      * @return Builder<Environment>
