@@ -1,5 +1,5 @@
 import { router, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ActivityLog from '../../Components/ActivityLog';
 import DomainConflictModal from '../../Components/DomainConflictModal';
 
@@ -11,18 +11,22 @@ export default function Index({ settings, timezones, isDev, hasServer, defaultHe
     const [showConflictModal, setShowConflictModal] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [activityId, setActivityId] = useState(null);
+    const [lastDomainConflicts, setLastDomainConflicts] = useState(null);
+    const [lastFlashActivityId, setLastFlashActivityId] = useState(null);
 
-    useEffect(() => {
+    if (props.flash?.domainConflicts !== lastDomainConflicts) {
+        setLastDomainConflicts(props.flash?.domainConflicts);
         if (props.flash?.domainConflicts?.length) {
             setShowConflictModal(true);
         }
-    }, [props.flash?.domainConflicts]);
+    }
 
-    useEffect(() => {
+    if (props.flash?.activityId !== lastFlashActivityId) {
+        setLastFlashActivityId(props.flash?.activityId);
         if (props.flash?.activityContext === 'settings-helper-image' && props.flash?.activityId) {
             setActivityId(props.flash.activityId);
         }
-    }, [props.flash?.activityId, props.flash?.activityContext]);
+    }
 
     function submit(e) {
         e.preventDefault();
