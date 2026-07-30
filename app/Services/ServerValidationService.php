@@ -77,7 +77,7 @@ class ServerValidationService
         } elseif (! $server->validateDockerEngineVersion()) {
             $requiredVersion = str(config('constants.docker.minimum_required_version'))->before('.');
 
-            return ['status' => 'failed', 'error' => "Minimum Docker Engine version {$requiredVersion} is not installed. Please install Docker manually before continuing."];
+            return ['status' => 'failed', 'error' => "Docker Engine version is too old. Coolify requires Docker Engine {$requiredVersion} or newer. Please upgrade Docker before continuing."];
         }
 
         $server->update(['is_validating' => false]);
