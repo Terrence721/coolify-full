@@ -50,10 +50,12 @@ export default function LayoutPopups() {
 
     const [showNotificationPopup, setShowNotificationPopup] = useState(false);
     const [showRealtimePopup, setShowRealtimePopup] = useState(false);
+    const [lastNotificationEnabled, setLastNotificationEnabled] = useState(null);
 
-    useEffect(() => {
+    if (notificationEnabled !== lastNotificationEnabled) {
+        setLastNotificationEnabled(notificationEnabled);
         setShowNotificationPopup(!notificationEnabled && shouldShowMonthlyPopup(NOTIFICATION_KEY));
-    }, [notificationEnabled]);
+    }
 
     useEffect(() => {
         if (isCloud) return undefined;
