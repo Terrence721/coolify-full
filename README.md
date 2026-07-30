@@ -1,3 +1,5 @@
+**[→ Read the one-page portfolio](https://terrence721.github.io/coolify-full/portfolio.html)** — the 60-second version, with links back into this repo for anyone who wants to go deeper.
+
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
 [![Quality](https://github.com/Terrence721/coolify-full/actions/workflows/quality.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/quality.yml)
@@ -8,7 +10,7 @@
 
 This repository is a professionally enhanced fork of Coolify, created to demonstrate senior full-stack engineering capabilities across frontend modernization, backend engineering, and containerized infrastructure.
 
-**Evaluating this for a specific role?** See [`POSITION_ALIGNMENT.md`](POSITION_ALIGNMENT.md) for a direct, requirement-by-requirement mapping between this repo and a real job description — not a generic "skills" list, an actual line-by-line comparison. Or see the **[one-page portfolio](https://terrence721.github.io/coolify-full/portfolio.html)** for the 60-second version, with links back into this repo for anyone who wants to go deeper.
+**Evaluating this for a specific role?** See [`POSITION_ALIGNMENT.md`](POSITION_ALIGNMENT.md) for a direct, requirement-by-requirement mapping between this repo and a real job description — not a generic "skills" list, an actual line-by-line comparison.
 
 ![Dashboard showing two projects (E-Commerce Platform, Internal Tools) and a managed Docker server](docs/screenshots/dashboard.png)
 
