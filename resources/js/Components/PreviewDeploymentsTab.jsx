@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import DomainConflictModal from './DomainConflictModal';
 import PasswordConfirmModal from './PasswordConfirmModal';
 
@@ -29,8 +29,12 @@ export default function PreviewDeploymentsTab({ previews, previewUrls, canUpdate
     const [conflictDismissed, setConflictDismissed] = useState(false);
     const [stoppingPreview, setStoppingPreview] = useState(null);
     const [deletingPreview, setDeletingPreview] = useState(null);
+    const [lastDomainConflicts, setLastDomainConflicts] = useState(props.flash?.domainConflicts);
 
-    useEffect(() => setConflictDismissed(false), [props.flash?.domainConflicts]);
+    if (props.flash?.domainConflicts !== lastDomainConflicts) {
+        setLastDomainConflicts(props.flash?.domainConflicts);
+        setConflictDismissed(false);
+    }
 
     function loadPullRequests() {
         setLoadingPRs(true);
