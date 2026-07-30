@@ -63,6 +63,10 @@ class UpdatePackage
                     $commandAll = 'pacman -Syu --noconfirm';
                     $commandInstall = 'pacman -S --noconfirm '.$sanitizedPackage;
                     break;
+                case 'apk':
+                    $commandAll = 'apk upgrade';
+                    $commandInstall = 'apk add -u '.$sanitizedPackage;
+                    break;
                 default:
                     return [
                         'error' => 'OS not supported',
