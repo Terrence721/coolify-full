@@ -409,7 +409,8 @@ class ServiceExtraFieldsResolver
                             ],
                         ]);
                     }
-                    $fields->put('Supabase', $data->toArray());
+                    $fields->put('Kong', $data->toArray());
+                    break;
                 case $image->contains('minio'):
                     $data = collect([]);
                     $console_url = $service->environment_variables()->where('key', 'MINIO_BROWSER_REDIRECT_URL')->first();
