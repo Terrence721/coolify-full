@@ -1,13 +1,13 @@
 # Contributing
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 22, 2026**
+**Last Updated: July 30, 2026**
 
 This repository is a personal portfolio fork (see [README.md](README.md)) and is not affiliated with the Coolify team. It's not seeking outside contributions, but the process below reflects how this fork is actually developed — no Discord, no upstream PR process, no `next`/`v4.x` branching.
 
 ## Workflow
 
-This fork works directly on a single `main` branch. Changes are committed (and, once verified, pushed) straight to `main` — there's no fork-and-PR cycle for a single-maintainer project.
+Most changes are committed (and, once verified, pushed) straight to `main` — there's no fork-and-PR cycle for a single-maintainer project. The one exception: code review findings (tracked in [issue #70](https://github.com/Terrence721/coolify-full/issues/70)) go through a real feature branch and Pull Request, reviewed on the diff and merged — see [`docs/code-review.md`](docs/code-review.md) for the index.
 
 ## Development Environment
 
@@ -25,7 +25,8 @@ Every change is expected to pass, before being committed:
 
 ```bash
 php artisan test --compact           # Pest test suite
-vendor/bin/pint --dirty --format agent   # code style
+vendor/bin/pint --dirty --format agent   # code style, fast pass
+vendor/bin/pint --test                   # code style, full check — --dirty alone can miss real issues; run this before pushing
 composer phpstan                     # static analysis (Larastan, level 6)
 yarn test                            # React component tests (Vitest)
 yarn lint                            # ESLint
