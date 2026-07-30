@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Server;
 
+use Spatie\Activitylog\Models\Activity;
 use Tests\Support\Fakes\RemoteProcessFake;
 
 if (! function_exists(__NAMESPACE__.'\instant_remote_process')) {
@@ -38,8 +39,9 @@ if (! function_exists(__NAMESPACE__.'\remote_process')) {
 
         RemoteProcessFake::$remoteProcessCalls[] = $args;
 
-        // UpdatePackage::handle() declares Activity|array - an array satisfies that without
-        // needing a real Activity model instance, which this suite has no use for.
-        return ['output' => RemoteProcessFake::$output];
+        // Callers in this namespace declare a mix of Activity|array (UpdatePackage) and a bare
+        // Activity (InstallPrerequisites, ConfigureCloudflared) - a real, unsaved Activity model
+        // instance satisfies both without needing a real DB write.
+        return new Activity;
     }
 }
