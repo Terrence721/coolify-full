@@ -1,0 +1,32 @@
+# Opt-in addition to the dev stack - NOT included in `spin up`/docker-compose.dev.yml's default
+# services. Terminates TLS for a friendly local dev URL (https://coolify-full.localhost:8443)
+# with a self-signed cert, reverse-proxying to the coolify app container. Kept separate rather
+# than folded into the default stack for the same reason as docker-compose.smoketest.yml: it's
+# a personal convenience, not something every dev session needs running.
+#
+# One-time setup:
+#   ./docker/https-proxy/generate-cert.sh
+#   (Windows) add "127.0.0.1 coolify-full.localhost" is NOT needed - *.localhost resolves to
+#   loopback natively in modern browsers and Windows (RFC 6761), no hosts-file edit required.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.https.yml up -d https-proxy
+#
+# Then visit https://coolify-full.localhost:8443 - the browser will show one "connection not
+# private" warning on first visit (self-signed cert, not from a trusted CA); click through it
+# once. See docs/command.md for the mixed-content caveat with Vite's dev-server assets.
+
+services:
+  https-proxy:
+    image: nginx:1.27-alpine
+    container_name: coolify-https-proxy
+    restart: unless-stopped
+    volumes:
+      - ./docker/https-proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/https-proxy/certs:/etc/nginx/certs:ro
+    ports:
+      - "8443:443"
+    networks:
+      - coolify
+    depends_on:
+      - coolify
