@@ -343,31 +343,6 @@ class GetContainersStatus
                 continue;
             }
 
-            $name = data_get($exitedService, 'name');
-            $fqdn = data_get($exitedService, 'fqdn');
-            if ($name) {
-                if ($fqdn) {
-                    $containerName = "$name, available at $fqdn";
-                } else {
-                    $containerName = $name;
-                }
-            } else {
-                if ($fqdn) {
-                    $containerName = $fqdn;
-                } else {
-                    $containerName = null;
-                }
-            }
-            $projectUuid = data_get($exitedService, 'environment.project.uuid');
-            $serviceUuid = data_get($exitedService, 'uuid');
-            $environmentName = data_get($exitedService, 'environment.name');
-
-            if ($projectUuid && $serviceUuid && $environmentName) {
-                $url = base_url().'/project/'.$projectUuid.'/'.$environmentName.'/service/'.$serviceUuid;
-            } else {
-                $url = null;
-            }
-            // $this->server->team?->notify(new ContainerStopped($containerName, $this->server, $url));
             $exitedService->update(['status' => 'exited']);
         }
 
@@ -440,22 +415,6 @@ class GetContainersStatus
             if ((bool) data_get($database, 'is_public', false)) {
                 StopDatabaseProxy::run($database);
             }
-
-            $name = data_get($database, 'name');
-            $fqdn = data_get($database, 'fqdn');
-
-            $containerName = $name;
-
-            $projectUuid = data_get($database, 'environment.project.uuid');
-            $environmentName = data_get($database, 'environment.name');
-            $databaseUuid = data_get($database, 'uuid');
-
-            if ($projectUuid && $databaseUuid && $environmentName) {
-                $url = base_url().'/project/'.$projectUuid.'/'.$environmentName.'/database/'.$databaseUuid;
-            } else {
-                $url = null;
-            }
-            // $this->server->team?->notify(new ContainerStopped($containerName, $this->server, $url));
         }
 
         // Aggregate multi-container application statuses
