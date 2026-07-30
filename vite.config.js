@@ -38,6 +38,11 @@ export default defineConfig(({ mode }) => {
                     /^https?:\/\/localhost(:\d+)?$/,
                     /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
                     /^https?:\/\/\[::1\](:\d+)?$/,
+                    // Any *.localhost subdomain is guaranteed to resolve to loopback (RFC
+                    // 6761) - browsers and the OS handle this natively, no DNS/hosts-file
+                    // entry needed - so it's as safe to trust unconditionally as bare
+                    // localhost above.
+                    /^https?:\/\/[a-zA-Z0-9-]+\.localhost(:\d+)?$/,
                     ...(env.APP_URL ? [env.APP_URL] : []),
                     // Any port on the LAN host, not just Vite's own port - the app itself is
                     // served from APP_PORT (8000 by default), a different port than Vite

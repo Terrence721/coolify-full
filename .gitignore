@@ -44,3 +44,5 @@ tests/v4/Browser/Screenshots
 /storage/test-report.html
 /openapi.json
 /other
+docker/https-proxy/certs/*
+!docker/https-proxy/certs/.gitkeep
