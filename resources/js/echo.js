@@ -22,7 +22,7 @@ export function getEcho(config) {
         wsHost: config.host,
         wsPort: config.port,
         wssPort: config.port,
-        forceTLS: false,
+        forceTLS: config.forceTLS ?? false,
         encrypted: true,
         enableStats: false,
         enabledTransports: ['ws', 'wss'],
