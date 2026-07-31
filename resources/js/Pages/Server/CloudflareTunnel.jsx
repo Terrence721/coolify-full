@@ -1,5 +1,5 @@
 import { router, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ActivityLog from '../../Components/ActivityLog';
 import ServerNavbar from '../../Components/ServerNavbar';
 import ServerSidebar from '../../Components/ServerSidebar';
@@ -17,14 +17,14 @@ export default function CloudflareTunnel({
     const { props } = usePage();
     const [showLogs, setShowLogs] = useState(false);
     const [activityId, setActivityId] = useState(null);
+    const [lastFlashActivityId, setLastFlashActivityId] = useState(null);
     const { data, setData, post, processing, errors } = useForm({ cloudflare_token: '', ssh_domain: '' });
 
-    useEffect(() => {
-        if (props.flash?.activityContext === 'cloudflare-tunnel' && props.flash?.activityId) {
-            setActivityId(props.flash.activityId);
-            setShowLogs(true);
-        }
-    }, [props.flash?.activityId, props.flash?.activityContext]);
+    if (props.flash?.activityContext === 'cloudflare-tunnel' && props.flash?.activityId && props.flash.activityId !== lastFlashActivityId) {
+        setLastFlashActivityId(props.flash.activityId);
+        setActivityId(props.flash.activityId);
+        setShowLogs(true);
+    }
 
     function disableTunnel() {
         const confirmation = window.prompt('Cloudflare Tunnel will be disabled for this server. Type "DISABLE CLOUDFLARE TUNNEL" to confirm:');
