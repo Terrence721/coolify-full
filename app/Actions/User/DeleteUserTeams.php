@@ -30,7 +30,11 @@ class DeleteUserTeams
         $teamsToLeave = collect();
         $edgeCases = collect();
 
-        $teams = $this->user->teams;
+        // Query fresh rather than $this->user->teams (Eloquent caches relation property access on
+        // the model instance) - execute() calls this again as a safety re-check right before its
+        // destructive operations, after the caller's interactive confirmation prompt has had time
+        // to run. A cached read here would silently defeat that re-check.
+        $teams = $this->user->teams()->get();
 
         foreach ($teams as $team) {
             // Skip root team (ID 0)
