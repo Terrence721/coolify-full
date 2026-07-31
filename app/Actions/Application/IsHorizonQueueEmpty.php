@@ -13,17 +13,10 @@ class IsHorizonQueueEmpty
 
     public function handle(): bool
     {
-        $hostname = gethostname();
         $recent = app(JobRepository::class)->getRecent();
-        $running = $recent->filter(function ($job) use ($hostname) {
-            $payload = json_decode($job->payload);
-            $tags = data_get($payload, 'tags');
-
+        $running = $recent->filter(function ($job) {
             return $job->status != 'completed' &&
-                   $job->status != 'failed' &&
-                   isset($tags) &&
-                   is_array($tags) &&
-                   in_array('server:'.$hostname, $tags);
+                   $job->status != 'failed';
         });
         if ($running->count() > 0) {
             return false;
