@@ -22,7 +22,7 @@ class StartService
     public function handle(Service $service, bool $pullLatestImages = false, bool $stopBeforeStart = false): Activity
     {
         $service->parse();
-        if ($this->shouldStopBeforeStarting($pullLatestImages, $stopBeforeStart)) {
+        if ($stopBeforeStart) {
             StopService::run(service: $service, dockerCleanup: false);
         }
         $service->saveComposeConfigs();
@@ -80,10 +80,5 @@ class StartService
         return [
             'docker network connect '.escapeshellarg($network).' coolify-log-drain >/dev/null 2>&1 || true',
         ];
-    }
-
-    private function shouldStopBeforeStarting(bool $pullLatestImages, bool $stopBeforeStart): bool
-    {
-        return $stopBeforeStart && ! $pullLatestImages;
     }
 }
