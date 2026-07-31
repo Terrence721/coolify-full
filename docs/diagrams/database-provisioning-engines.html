@@ -1,0 +1,310 @@
+<title>Database Provisioning — One Pipeline, Eight Engines</title>
+<style>
+  :root {
+    --ink: #1b1f1e;
+    --ink-soft: #4b544f;
+    --paper: #e9ece9;
+    --surface: #ffffff;
+    --line: #b7bfba;
+    --accent: #2b5f6e;
+    --accent-bg: #dfe9ea;
+    --warn: #8b5e3c;
+    --warn-bg: #f1e6da;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", "Liberation Mono", monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eceeec;
+    --ink-soft: #a9b2ac;
+    --paper: #141716;
+    --surface: #1c2120;
+    --line: #3a423e;
+    --accent: #7fb8c9;
+    --accent-bg: #1b2c30;
+    --warn: #d99a63;
+    --warn-bg: #2c2119;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eceeec;
+      --ink-soft: #a9b2ac;
+      --paper: #141716;
+      --surface: #1c2120;
+      --line: #3a423e;
+      --accent: #7fb8c9;
+      --accent-bg: #1b2c30;
+      --warn: #d99a63;
+      --warn-bg: #2c2119;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    padding: 2.5rem 1.5rem 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.6rem;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .dek {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 70ch;
+    margin: 0 0 2.2rem;
+  }
+
+  .dek code { font-family: var(--mono); font-size: 0.9em; color: var(--ink); }
+
+  /* Shared pipeline */
+  .pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .step {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.42rem 0.85rem;
+    white-space: nowrap;
+  }
+
+  .step--optional { border-style: dashed; color: var(--ink-soft); }
+
+  .arrow { color: var(--ink-soft); font-size: 0.9rem; }
+
+  .pipeline-note {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 2.2rem;
+    max-width: 70ch;
+  }
+
+  .pipeline-note code { font-family: var(--mono); font-size: 0.92em; color: var(--ink); }
+
+  /* Comparison table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    margin-bottom: 1.6rem;
+  }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.84rem; }
+
+  th, td {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  thead th {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    background: var(--paper);
+    white-space: nowrap;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  .engine-name { font-weight: 600; white-space: nowrap; }
+
+  .yes { color: var(--accent); font-weight: 600; }
+  .no { color: var(--warn); font-weight: 600; }
+
+  td code, .worth code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    background: var(--paper);
+    border-radius: 3px;
+    padding: 0.05rem 0.3rem;
+  }
+
+  .callout {
+    border: 1px solid var(--warn);
+    background: var(--warn-bg);
+    border-radius: 10px;
+    padding: 1rem 1.3rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  .callout-mark {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: var(--warn);
+    font-weight: 600;
+    flex: 0 0 auto;
+  }
+
+  .callout p { margin: 0; font-size: 0.88rem; line-height: 1.55; color: var(--ink); }
+  .callout strong { font-weight: 600; }
+  .callout code { font-family: var(--mono); font-size: 0.92em; }
+
+  footer {
+    margin-top: 2.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 640px) {
+    .pipeline { display: none; }
+    .pipeline-note::before {
+      content: "Validate → SSL (skipped for ClickHouse) → Volumes → Env Vars → Compose → Start → Healthcheck. ";
+    }
+  }
+</style>
+
+<div class="page">
+  <p class="eyebrow">coolify-full — database provisioning</p>
+  <h1>One pipeline, eight <code style="font-family: var(--mono); font-size: 0.7em; background: var(--accent-bg); padding: 0.1em 0.4em; border-radius: 4px;">StartAction</code> classes, real per-engine differences.</h1>
+  <p class="dek">
+    Every database engine goes through the same seven-step pipeline — but "same shape" doesn't mean
+    "same behavior." The table below is what actually differs once you read each engine's own
+    <code>Start&lt;Engine&gt;.php</code>, not what you'd assume from the shared structure alone.
+  </p>
+
+  <div class="pipeline">
+    <span class="step">Validate</span><span class="arrow">→</span>
+    <span class="step step--optional">SSL (7 of 8)</span><span class="arrow">→</span>
+    <span class="step">Persistent Volumes</span><span class="arrow">→</span>
+    <span class="step">Env Vars</span><span class="arrow">→</span>
+    <span class="step">Docker Compose</span><span class="arrow">→</span>
+    <span class="step">Start Container</span><span class="arrow">→</span>
+    <span class="step">Healthcheck</span>
+  </div>
+  <p class="pipeline-note">
+    The SSL step reuses one CA certificate per server (generated once, shared by every database on
+    that server) plus one leaf certificate per database, signed by it — see the
+    <a href="https://github.com/Terrence721/coolify-full/wiki/⭐-SSL-Subsystem">SSL Subsystem</a> wiki
+    page. ClickHouse is the only engine that skips this step entirely.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Engine</th>
+          <th>SSL/TLS</th>
+          <th>Certs mounted at</th>
+          <th>Healthcheck probe</th>
+          <th>Worth knowing</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="engine-name">MySQL</td>
+          <td class="yes">Yes</td>
+          <td><code>/etc/mysql/certs</code></td>
+          <td><code>mysqladmin ping -u root -p...</code></td>
+          <td>Real authenticated connectivity check.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">MariaDB</td>
+          <td class="yes">Yes</td>
+          <td><code>/etc/mysql/certs</code></td>
+          <td><code>healthcheck.sh --connect --innodb_initialized</code></td>
+          <td>Its own image's script, not <code>mysqladmin</code> — despite sharing MySQL's wire protocol.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">PostgreSQL</td>
+          <td class="yes">Yes</td>
+          <td><code>/var/lib/postgresql/certs</code></td>
+          <td><code>psql -U ... -d ... -c 'SELECT 1'</code></td>
+          <td>A real query, not just <code>pg_isready</code>'s bare connectivity check.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">Redis</td>
+          <td class="yes">Yes</td>
+          <td><code>/etc/redis/certs</code></td>
+          <td><code>redis-cli ping</code></td>
+          <td>The probe doesn't pass the configured password, even though the server always starts with <code>--requirepass</code> set.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">KeyDB</td>
+          <td class="yes">Yes</td>
+          <td><code>/etc/keydb/certs</code></td>
+          <td><code>keydb-cli --pass ... ping</code></td>
+          <td>Unlike Redis's probe, this one does pass the password.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">Dragonfly</td>
+          <td class="yes">Yes</td>
+          <td><code>/etc/dragonfly/certs</code></td>
+          <td><code>redis-cli -a ... ping</code></td>
+          <td>Reuses <code>redis-cli</code> itself (Redis-protocol-compatible) — there's no dedicated Dragonfly CLI.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">MongoDB</td>
+          <td class="yes">Yes</td>
+          <td><code>/etc/mongo/certs</code></td>
+          <td><code>echo ok</code></td>
+          <td>Not a real connectivity check at all — always reports healthy regardless of Mongo's actual state.</td>
+        </tr>
+        <tr>
+          <td class="engine-name">ClickHouse</td>
+          <td class="no">No</td>
+          <td>—</td>
+          <td><code>clickhouse-client ... --query 'SELECT 1'</code></td>
+          <td>The only engine with no SSL/TLS support anywhere in its <code>StartAction</code>. Also the only one that raises container <code>ulimits</code> (nofile → 262144).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <span class="callout-mark">!</span>
+    <p>
+      Two healthchecks are weaker than they look: <strong>MongoDB's</strong> is a hardcoded
+      <code>echo ok</code> — it can never actually detect a down or unreachable Mongo instance — and
+      <strong>Redis's</strong> doesn't authenticate even though the server requires a password.
+      Neither is a bug this page is claiming to have found and fixed; they're just real, current
+      behavior worth knowing before you rely on either healthcheck to mean what it sounds like it means.
+    </p>
+  </div>
+
+  <footer>coolify-full · 8 database engines · 8 StartAction classes · shared SSL/Volume/Env-Var/Compose subsystems</footer>
+</div>
