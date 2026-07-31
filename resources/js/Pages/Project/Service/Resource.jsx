@@ -52,12 +52,12 @@ function ApplicationGeneral({ application, urls }) {
     const [confirmingConvert, setConfirmingConvert] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const [confirmingPort, setConfirmingPort] = useState(false);
+    const [lastPortWarningFlash, setLastPortWarningFlash] = useState(null);
 
-    useEffect(() => {
-        if (props.flash?.showPortWarningModal) {
-            setConfirmingPort(true);
-        }
-    }, [props.flash?.showPortWarningModal]);
+    if (props.flash?.showPortWarningModal && props.flash !== lastPortWarningFlash) {
+        setLastPortWarningFlash(props.flash);
+        setConfirmingPort(true);
+    }
 
     function submit(e) {
         e.preventDefault();
