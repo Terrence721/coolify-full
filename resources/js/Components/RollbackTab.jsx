@@ -18,8 +18,7 @@ export default function RollbackTab({ rollback, rollbackUrls }) {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    function loadImages(showToast = false) {
-        setLoading(true);
+    function fetchImages(showToast) {
         router.post(
             rollbackUrls.loadImages,
             { showToast },
@@ -34,8 +33,17 @@ export default function RollbackTab({ rollback, rollbackUrls }) {
         );
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => loadImages(false), []);
+    function loadImages(showToast = false) {
+        setLoading(true);
+        fetchImages(showToast);
+    }
+
+    useEffect(() => {
+        // loading already starts true (useState(true) above), so the mount fetch skips the
+        // synchronous setLoading(true) that loadImages() does for the manual-reload button.
+        fetchImages(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     function saveSettings(e) {
         e.preventDefault();
