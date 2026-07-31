@@ -241,4 +241,18 @@ describe('Server/CloudflareTunnel', () => {
         act(() => backdrop.click());
         expect(screen.queryByText('Cloudflare Tunnel Configuration')).not.toBeInTheDocument();
     });
+
+    it('reopens the log modal for a genuinely new activity id even after a prior close', () => {
+        mockFlash = { activityContext: 'cloudflare-tunnel', activityId: 'act-77' };
+        const { rerender } = render(<CloudflareTunnel {...baseProps()} />);
+
+        act(() => screen.getByRole('button', { name: '✕' }).click());
+        expect(screen.queryByText('Cloudflare Tunnel Configuration')).not.toBeInTheDocument();
+
+        mockFlash = { activityContext: 'cloudflare-tunnel', activityId: 'act-88' };
+        rerender(<CloudflareTunnel {...baseProps()} />);
+
+        expect(screen.getByText('Cloudflare Tunnel Configuration')).toBeInTheDocument();
+        expect(screen.getByTestId('activity-log')).toHaveTextContent('Logs - act-88');
+    });
 });
