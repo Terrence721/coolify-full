@@ -1,7 +1,7 @@
 # Contributing
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 30, 2026**
+**Last Updated: July 31, 2026**
 
 This repository is a personal portfolio fork (see [README.md](README.md)) and is not affiliated with the Coolify team. It's not seeking outside contributions, but the process below reflects how this fork is actually developed — no Discord, no upstream PR process, no `next`/`v4.x` branching.
 
@@ -18,6 +18,8 @@ spin up      # or: docker compose -f docker-compose.yml -f docker-compose.dev.ym
 ```
 
 The app runs at `localhost:8000`. On Windows, see [`DEVELOPING_IN_CONTAINERS_WINDOWS.md`](DEVELOPING_IN_CONTAINERS_WINDOWS.md) — the repo needs to live inside a WSL2 distro's native filesystem, not a Windows path, for reasonable performance.
+
+A friendlier `https://coolify-full.localhost:8443` URL is also available, opt-in — see `docs/command.md`'s `coolify-https-proxy` entry for setup.
 
 ## Code Quality
 
