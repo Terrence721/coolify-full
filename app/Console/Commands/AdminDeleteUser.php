@@ -118,6 +118,7 @@ class AdminDeleteUser extends Command
                 return 0;
             }
             $this->deletionState['phase_1_overview'] = true;
+            $this->refreshLock();
 
             // If not dry run, wrap DB operations in a transaction
             if (! $this->isDryRun) {
@@ -138,6 +139,7 @@ class AdminDeleteUser extends Command
                         }
                     }
                     $this->deletionState['phase_2_resources'] = true;
+                    $this->refreshLock();
 
                     // Confirmation to continue after Phase 2
                     if (! $this->skipResources && ! $this->option('auto-confirm')) {
@@ -163,6 +165,7 @@ class AdminDeleteUser extends Command
                         return 1;
                     }
                     $this->deletionState['phase_3_servers'] = true;
+                    $this->refreshLock();
 
                     // Confirmation to continue after Phase 3
                     if (! $this->option('auto-confirm')) {
@@ -186,6 +189,7 @@ class AdminDeleteUser extends Command
                         return 1;
                     }
                     $this->deletionState['phase_4_teams'] = true;
+                    $this->refreshLock();
 
                     // Confirmation to continue after Phase 4
                     if (! $this->option('auto-confirm')) {
@@ -209,6 +213,7 @@ class AdminDeleteUser extends Command
                         return 1;
                     }
                     $this->deletionState['phase_5_user_profile'] = true;
+                    $this->refreshLock();
 
                     // CRITICAL CONFIRMATION: Database commit is next (PERMANENT)
                     if (! $this->option('auto-confirm')) {
@@ -930,6 +935,23 @@ class AdminDeleteUser extends Command
             } catch (\Exception $e) {
                 // Silently ignore lock release errors
                 // Lock will expire after 10 minutes anyway
+            }
+        }
+    }
+
+    /**
+     * Extend the lock's TTL after a phase completes, so the interactive confirmation prompts
+     * between phases (unbounded human duration) can't outlast the lock's fixed TTL and silently
+     * reopen the concurrent-execution window it exists to prevent.
+     */
+    private function refreshLock(): void
+    {
+        if ($this->lock instanceof \Illuminate\Cache\Lock) {
+            try {
+                $this->lock->refresh(600);
+            } catch (\Exception $e) {
+                // Silently ignore refresh errors, matching releaseLock()'s handling - the lock
+                // may still expire early if this fails, but that's the pre-existing behavior.
             }
         }
     }
