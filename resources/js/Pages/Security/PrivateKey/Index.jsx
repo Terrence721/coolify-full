@@ -61,7 +61,7 @@ export default function Index({ privateKeys, canCreate, createKeyUrl, generateKe
                     ) : (
                         <div
                             key={key.uuid}
-                            className="coolbox opacity-60 !cursor-not-allowed hover:bg-transparent dark:hover:bg-transparent"
+                            className="coolbox opacity-60 cursor-not-allowed! hover:bg-transparent dark:hover:bg-transparent"
                             title="You don't have permission to view this private key"
                         >
                             <div className="flex flex-col justify-center mx-6">
