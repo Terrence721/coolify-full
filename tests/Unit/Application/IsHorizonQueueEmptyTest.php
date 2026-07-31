@@ -9,9 +9,17 @@ use Laravel\Horizon\Contracts\JobRepository;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
+/**
+ * Regression coverage for a real bug found 2026-07-31 (code review, issue #70): handle() filtered
+ * jobs by in_array('server:'.gethostname(), $tags) - a tag format no job in this codebase actually
+ * uses (ApplicationDeploymentJob::tags() returns 'App\Models\ApplicationDeploymentQueue:<id>',
+ * completely different). The filter could never match anything, so this always returned true
+ * ("queue is empty") regardless of how many jobs were actually running. Fixed by dropping the
+ * hostname/tag scoping entirely - Coolify is a single-instance app, so it never made sense here.
+ */
 class IsHorizonQueueEmptyTest extends TestCase
 {
-    private function mockJob(string $status, array $tags): object
+    private function mockJob(string $status, array $tags = []): object
     {
         return (object) [
             'status' => $status,
@@ -20,124 +28,93 @@ class IsHorizonQueueEmptyTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_true_when_no_jobs_are_running()
+    public function it_returns_true_when_no_jobs_are_running(): void
     {
         $repo = $this->createStub(JobRepository::class);
         $repo->method('getRecent')->willReturn(collect([]));
 
         $this->app->instance(JobRepository::class, $repo);
 
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
+        $result = IsHorizonQueueEmpty::run();
 
         $this->assertTrue($result);
     }
 
     #[Test]
-    public function it_returns_false_when_running_jobs_match_hostname()
+    public function it_returns_false_for_a_running_job_regardless_of_its_tags(): void
     {
-        $hostname = gethostname();
-
         $repo = $this->createStub(JobRepository::class);
         $repo->method('getRecent')->willReturn(collect([
-            $this->mockJob('running', ['server:'.$hostname]),
+            // A real job's actual tag shape (App\Models\ApplicationDeploymentQueue:<id>) - not
+            // the 'server:<hostname>' format the old, broken filter required.
+            $this->mockJob('running', ['App\Models\ApplicationDeploymentQueue:5']),
         ]));
 
         $this->app->instance(JobRepository::class, $repo);
 
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
+        $result = IsHorizonQueueEmpty::run();
 
         $this->assertFalse($result);
     }
 
     #[Test]
-    public function it_ignores_completed_jobs()
+    public function it_returns_false_for_a_running_job_with_no_tags_at_all(): void
     {
-        $hostname = gethostname();
-
         $repo = $this->createStub(JobRepository::class);
         $repo->method('getRecent')->willReturn(collect([
-            $this->mockJob('completed', ['server:'.$hostname]),
+            $this->mockJob('running'),
         ]));
 
         $this->app->instance(JobRepository::class, $repo);
 
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
+        $result = IsHorizonQueueEmpty::run();
+
+        $this->assertFalse($result);
+    }
+
+    #[Test]
+    public function it_ignores_completed_jobs(): void
+    {
+        $repo = $this->createStub(JobRepository::class);
+        $repo->method('getRecent')->willReturn(collect([
+            $this->mockJob('completed'),
+        ]));
+
+        $this->app->instance(JobRepository::class, $repo);
+
+        $result = IsHorizonQueueEmpty::run();
 
         $this->assertTrue($result);
     }
 
     #[Test]
-    public function it_ignores_failed_jobs()
+    public function it_ignores_failed_jobs(): void
     {
-        $hostname = gethostname();
-
         $repo = $this->createStub(JobRepository::class);
         $repo->method('getRecent')->willReturn(collect([
-            $this->mockJob('failed', ['server:'.$hostname]),
+            $this->mockJob('failed'),
         ]));
 
         $this->app->instance(JobRepository::class, $repo);
 
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
+        $result = IsHorizonQueueEmpty::run();
 
         $this->assertTrue($result);
     }
 
     #[Test]
-    public function it_ignores_jobs_without_tags()
+    public function it_returns_false_when_one_of_several_jobs_is_still_running(): void
     {
         $repo = $this->createStub(JobRepository::class);
         $repo->method('getRecent')->willReturn(collect([
-            (object) [
-                'status' => 'running',
-                'payload' => json_encode(['foo' => 'bar']), // no tags
-            ],
+            $this->mockJob('completed'),
+            $this->mockJob('failed'),
+            $this->mockJob('running'),
         ]));
 
         $this->app->instance(JobRepository::class, $repo);
 
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
-
-        $this->assertTrue($result);
-    }
-
-    #[Test]
-    public function it_ignores_jobs_with_tags_not_matching_hostname()
-    {
-        $repo = $this->createStub(JobRepository::class);
-        $repo->method('getRecent')->willReturn(collect([
-            $this->mockJob('running', ['server:other-host']),
-        ]));
-
-        $this->app->instance(JobRepository::class, $repo);
-
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
-
-        $this->assertTrue($result);
-    }
-
-    #[Test]
-    public function it_returns_false_when_multiple_jobs_and_one_matches_hostname()
-    {
-        $hostname = gethostname();
-
-        $repo = $this->createStub(JobRepository::class);
-        $repo->method('getRecent')->willReturn(collect([
-            $this->mockJob('running', ['server:other-host']),
-            $this->mockJob('running', ['server:'.$hostname]),
-            $this->mockJob('completed', ['server:'.$hostname]),
-        ]));
-
-        $this->app->instance(JobRepository::class, $repo);
-
-        $action = new IsHorizonQueueEmpty;
-        $result = $action->handle();
+        $result = IsHorizonQueueEmpty::run();
 
         $this->assertFalse($result);
     }
