@@ -101,6 +101,9 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
              autoheal (WSL2 bind-mount race recovery) · stray-pruner (orphan cleanup)
 ```
 
+**Why a monolith, not microservices**  
+This is a deliberate choice, evaluated directly rather than assumed. The one piece that genuinely needed to be a separate process — `coolify-realtime`, for WebSocket broadcasting and SSH terminal streaming — already is, running as its own Node service; everything else stays in the single Laravel app. The reasoning: the domain (servers, applications, deployments, proxy config) is tightly coupled through the same database, so splitting it apart would trade fast, transactional Eloquent relations for network calls and eventual consistency with no corresponding capability gained. More fundamentally, the two strongest real-world reasons to run microservices — independent scaling and independent team ownership — don't apply here: this is a self-hosted, single-instance app (one install managing N remote servers, not a horizontally-scaled multi-tenant SaaS) maintained by one person. Real upstream Coolify (coollabsio) is also a monolith, for the same reasons. The trade-off is stated plainly, not glossed over: a monolith couples deployment (every change ships the whole app together) in exchange for avoiding the operational cost of running and coordinating multiple deployables — a trade that favors the monolith here, though it's one worth revisiting if this project's shape ever changed. Full reasoning in [`docs/architecture.md`](docs/architecture.md#2-monolith-not-microservices).
+
 ---
 
 ## 📋 Project Tracking
