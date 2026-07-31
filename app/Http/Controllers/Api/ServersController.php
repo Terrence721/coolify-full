@@ -31,6 +31,8 @@ class ServersController extends Controller
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $settings = $settings->makeHidden([
                 'sentinel_token',
+                'logdrain_axiom_api_key',
+                'logdrain_newrelic_license_key',
             ]);
         }
 
