@@ -43,16 +43,24 @@ class CleanupDatabase extends Command
             $sessions->delete();
         }
 
-        // Cleanup activity_log table
-        $activity_log = DB::table('activity_log')->where('created_at', '<', now()->subDays($keep_days))->orderBy('created_at', 'desc')->skip(10);
+        // Cleanup activity_log table, keeping the 10 most-recent-of-the-old rows as a buffer.
+        // ->skip(10)->delete() doesn't work here: Postgres's query grammar only special-cases
+        // ->limit() on DELETE, silently dropping ->offset(), so ->delete() would remove every
+        // matching row instead of leaving the 10 most recent - excluding their ids explicitly
+        // is what actually enforces the buffer.
+        $activity_log_old = DB::table('activity_log')->where('created_at', '<', now()->subDays($keep_days));
+        $activity_log_keep_ids = (clone $activity_log_old)->orderBy('created_at', 'desc')->take(10)->pluck('id');
+        $activity_log = (clone $activity_log_old)->whereNotIn('id', $activity_log_keep_ids);
         $count = $activity_log->count();
         echo "Delete $count entries from activity_log.\n";
         if ($this->option('yes')) {
             $activity_log->delete();
         }
 
-        // Cleanup application_deployment_queues table
-        $application_deployment_queues = DB::table('application_deployment_queues')->where('created_at', '<', now()->subDays($keep_days))->orderBy('created_at', 'desc')->skip(10);
+        // Cleanup application_deployment_queues table, same buffer reasoning as activity_log above.
+        $application_deployment_queues_old = DB::table('application_deployment_queues')->where('created_at', '<', now()->subDays($keep_days));
+        $application_deployment_queues_keep_ids = (clone $application_deployment_queues_old)->orderBy('created_at', 'desc')->take(10)->pluck('id');
+        $application_deployment_queues = (clone $application_deployment_queues_old)->whereNotIn('id', $application_deployment_queues_keep_ids);
         $count = $application_deployment_queues->count();
         echo "Delete $count entries from application_deployment_queues.\n";
         if ($this->option('yes')) {
