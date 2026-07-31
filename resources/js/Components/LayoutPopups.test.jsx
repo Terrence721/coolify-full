@@ -68,7 +68,11 @@ describe('LayoutPopups', () => {
     });
 
     it('shows the notification popup again once a new month has started', () => {
+        // setDate(1) first: setMonth() on a day that doesn't exist in the target month (e.g.
+        // running this on the 31st, going back to a 30-day month) silently rolls forward into
+        // the following month instead, landing back on today's own month.
         const lastMonth = new Date();
+        lastMonth.setDate(1);
         lastMonth.setMonth(lastMonth.getMonth() - 1);
         localStorage.setItem('popupNotification', lastMonth.getTime().toString());
         pageProps = baseProps({ currentTeam: { isAnyNotificationEnabled: false } });
