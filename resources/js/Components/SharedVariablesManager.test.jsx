@@ -47,6 +47,12 @@ function typeInto(element, value) {
     element.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
+function typeIntoTextarea(element, value) {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+    setter.call(element, value);
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 function variable(overrides = {}) {
     return {
         id: 1,
@@ -200,5 +206,36 @@ describe('SharedVariablesManager', () => {
         act(() => screen.getByRole('button', { name: 'Save' }).click());
 
         expect(formPostSpy).toHaveBeenCalledWith('/variables', expect.objectContaining({ key: 'NEW_VAR', value: 'value' }), expect.anything());
+    });
+
+    it("resyncs a row's edited-but-unsaved fields when a fresh copy of the variable arrives via props", () => {
+        const original = variable({ key: 'API_KEY', value: 'old-value', comment: 'old comment' });
+        const { rerender } = render(<SharedVariablesManager {...baseProps({ variables: [original] })} />);
+
+        // Edit locally without saving.
+        act(() => typeInto(screen.getByDisplayValue('API_KEY'), 'EDITED_LOCALLY'));
+        expect(screen.getByDisplayValue('EDITED_LOCALLY')).toBeInTheDocument();
+
+        // A page reload (e.g. after Lock/another field's own save) hands back a genuinely new
+        // variable object - the row must drop the unsaved local edit and reflect the fresh data,
+        // not keep showing stale local state forever.
+        const refreshed = variable({ key: 'API_KEY', value: 'new-value-from-server', comment: 'old comment' });
+        rerender(<SharedVariablesManager {...baseProps({ variables: [refreshed] })} />);
+
+        expect(screen.getByDisplayValue('API_KEY')).toBeInTheDocument();
+        expect(screen.queryByDisplayValue('EDITED_LOCALLY')).not.toBeInTheDocument();
+    });
+
+    it('resyncs the developer view textarea when devViewText changes via props, even after a local edit', () => {
+        const { rerender } = render(<SharedVariablesManager {...baseProps({ variables: [variable()], devViewText: 'API_KEY=secret-value' })} />);
+        act(() => screen.getByRole('button', { name: 'Developer view' }).click());
+
+        act(() => typeIntoTextarea(screen.getByDisplayValue('API_KEY=secret-value'), 'EDITED_LOCALLY=unsaved'));
+        expect(screen.getByDisplayValue('EDITED_LOCALLY=unsaved')).toBeInTheDocument();
+
+        rerender(<SharedVariablesManager {...baseProps({ variables: [variable()], devViewText: 'REFRESHED_FROM_SERVER=new-value' })} />);
+
+        expect(screen.getByDisplayValue('REFRESHED_FROM_SERVER=new-value')).toBeInTheDocument();
+        expect(screen.queryByDisplayValue('EDITED_LOCALLY=unsaved')).not.toBeInTheDocument();
     });
 });

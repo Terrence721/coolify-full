@@ -1,5 +1,5 @@
 import { router, useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 function DeleteVariableConfirmModal({ idBase, variableKey, onClose, onConfirm }) {
     const [confirmation, setConfirmation] = useState('');
@@ -42,13 +42,15 @@ function VariableRow({ variable, canUpdate }) {
     const [isMultiline, setIsMultiline] = useState(variable.isMultiline);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [processing, setProcessing] = useState(false);
+    const [lastVariable, setLastVariable] = useState(variable);
 
-    useEffect(() => {
+    if (variable !== lastVariable) {
+        setLastVariable(variable);
         setKey(variable.key);
         setValue(variable.value);
         setComment(variable.comment ?? '');
         setIsMultiline(variable.isMultiline);
-    }, [variable.key, variable.value, variable.comment, variable.isMultiline]);
+    }
 
     function submitUpdate(e) {
         e.preventDefault();
@@ -200,10 +202,12 @@ function VariableRow({ variable, canUpdate }) {
 function DevView({ devViewText, bulkUpdateUrl, canUpdate, scope }) {
     const [value, setValue] = useState(devViewText);
     const [processing, setProcessing] = useState(false);
+    const [lastDevViewText, setLastDevViewText] = useState(devViewText);
 
-    useEffect(() => {
+    if (devViewText !== lastDevViewText) {
+        setLastDevViewText(devViewText);
         setValue(devViewText);
-    }, [devViewText]);
+    }
 
     function submit(e) {
         e.preventDefault();
