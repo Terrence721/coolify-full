@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 30, 2026**
+**Last Updated: July 31, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -165,7 +165,7 @@ yarn test                                 # separate CI job: "vitest" — React 
 yarn format:check                         # separate CI job: "prettier" — no PHP/build needed
 ```
 
-`yarn lint` (ESLint) is deliberately **not** in CI yet — the codebase currently has 20 known `react-hooks/set-state-in-effect` findings (see [`todo.md`](../todo.md)'s still-open items and [issue #33](https://github.com/Terrence721/coolify-full/issues/33)) that need individual per-effect review, not a mechanical fix. Adding the CI gate before that's done would mean every push fails from day one; it'll be added once that cleanup lands.
+`yarn lint` (ESLint) is **not** in CI yet — it was deliberately held back until the 20 `react-hooks/set-state-in-effect` findings that used to fail it were resolved individually (per-effect review, not a mechanical fix; see [issue #33](https://github.com/Terrence721/coolify-full/issues/33), closed 2026-07-31 with the baseline at 0). That's now done, so adding the CI gate is unblocked — see [`todo.md`](../todo.md)'s still-open items for the tracking status.
 
 `.github/workflows/codeql.yml` runs separately (its own workflow, not part of `quality.yml`) and scans `resources/js/` only — CodeQL has no PHP support, so there's nothing to reproduce locally for the PHP side beyond the `psalm` job above. See [`todo.md`](../todo.md)'s "GitHub repo-level security features" entry for why both tools exist.
 
