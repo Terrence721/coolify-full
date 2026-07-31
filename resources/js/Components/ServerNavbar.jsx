@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTeamChannel } from '../hooks/useTeamChannel';
 import ActivityLog from './ActivityLog';
 
@@ -20,17 +20,23 @@ export default function ServerNavbar({ serverNavbar }) {
     const [showLogs, setShowLogs] = useState(false);
     const [activityId, setActivityId] = useState(null);
     const [lastNotifiedStatus, setLastNotifiedStatus] = useState(null);
+    const [lastServerNavbarProxyStatus, setLastServerNavbarProxyStatus] = useState(serverNavbar.proxyStatus);
+    const [lastProxyActivityId, setLastProxyActivityId] = useState(null);
 
-    useEffect(() => {
+    // proxyStatus also gets updated independently by the useTeamChannel-driven reload below, so
+    // (unlike the flash-triggered case right after) it's correct to seed the tracking state from
+    // the prop's own initial value here - both start equal at mount, no "already present on first
+    // render" case to detect.
+    if (serverNavbar.proxyStatus !== lastServerNavbarProxyStatus) {
+        setLastServerNavbarProxyStatus(serverNavbar.proxyStatus);
         setProxyStatus(serverNavbar.proxyStatus);
-    }, [serverNavbar.proxyStatus]);
+    }
 
-    useEffect(() => {
-        if (props.flash?.activityContext === 'proxy' && props.flash?.activityId) {
-            setActivityId(props.flash.activityId);
-            setShowLogs(true);
-        }
-    }, [props.flash?.activityId, props.flash?.activityContext]);
+    if (props.flash?.activityContext === 'proxy' && props.flash?.activityId && props.flash.activityId !== lastProxyActivityId) {
+        setLastProxyActivityId(props.flash.activityId);
+        setActivityId(props.flash.activityId);
+        setShowLogs(true);
+    }
 
     useTeamChannel(['ProxyStatusChangedUI'], () => {
         router.reload({

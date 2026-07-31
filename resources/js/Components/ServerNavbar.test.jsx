@@ -10,12 +10,13 @@ import ServerNavbar from './ServerNavbar';
 // natural next test in todo.md's "Frontend component testing" section.
 
 let teamChannelCallback = null;
+let mockFlash = {};
 const reloadSpy = vi.fn();
 const postSpy = vi.fn();
 const toastSpy = vi.fn();
 
 vi.mock('@inertiajs/react', () => ({
-    usePage: () => ({ props: { flash: {} } }),
+    usePage: () => ({ props: { flash: mockFlash } }),
     router: {
         reload: (opts) => reloadSpy(opts),
         post: (url) => postSpy(url),
@@ -31,6 +32,14 @@ vi.mock('../hooks/useTeamChannel', () => ({
     useTeamChannel: (events, onEvent) => {
         teamChannelCallback = onEvent;
     },
+}));
+
+vi.mock('./ActivityLog', () => ({
+    default: ({ activityId, header }) => (
+        <div data-testid="activity-log">
+            {header} - {activityId}
+        </div>
+    ),
 }));
 
 function makeServerNavbar(overrides = {}) {
@@ -80,6 +89,7 @@ function triggerProxyStatusChange(nextStatus) {
 describe('ServerNavbar', () => {
     beforeEach(() => {
         teamChannelCallback = null;
+        mockFlash = {};
         reloadSpy.mockClear();
         postSpy.mockClear();
         toastSpy.mockClear();
@@ -150,5 +160,46 @@ describe('ServerNavbar', () => {
         act(() => screen.getByText('Restart Proxy').click());
 
         expect(postSpy).not.toHaveBeenCalled();
+    });
+
+    it('resyncs the displayed proxy status when the serverNavbar prop itself changes', () => {
+        const { rerender } = render(<ServerNavbar serverNavbar={makeServerNavbar({ proxyStatus: 'running' })} />);
+        expect(screen.getByText('Proxy Running')).toBeInTheDocument();
+
+        rerender(<ServerNavbar serverNavbar={makeServerNavbar({ proxyStatus: 'exited' })} />);
+        expect(screen.getByText('Proxy Exited')).toBeInTheDocument();
+        expect(screen.queryByText('Proxy Running')).not.toBeInTheDocument();
+    });
+
+    it('opens the log modal when flash carries a proxy activity context', () => {
+        mockFlash = { activityContext: 'proxy', activityId: 'act-1' };
+        render(<ServerNavbar serverNavbar={makeServerNavbar()} />);
+
+        expect(screen.getByTestId('activity-log')).toHaveTextContent('Logs - act-1');
+    });
+
+    it('does not open the log modal for an unrelated flash activity context', () => {
+        mockFlash = { activityContext: 'patches-update', activityId: 'act-1' };
+        render(<ServerNavbar serverNavbar={makeServerNavbar()} />);
+
+        expect(screen.queryByTestId('activity-log')).not.toBeInTheDocument();
+    });
+
+    it('reopens the log modal for a genuinely new activity id even after a prior close', () => {
+        mockFlash = { activityContext: 'proxy', activityId: 'act-1' };
+        const { rerender } = render(<ServerNavbar serverNavbar={makeServerNavbar()} />);
+        expect(screen.getByTestId('activity-log')).toHaveTextContent('Logs - act-1');
+
+        act(() => screen.getByRole('button', { name: '✕' }).click());
+        expect(screen.queryByTestId('activity-log')).not.toBeInTheDocument();
+
+        // Same flash reference re-renders (e.g. an unrelated state change) - stays dismissed.
+        rerender(<ServerNavbar serverNavbar={makeServerNavbar()} />);
+        expect(screen.queryByTestId('activity-log')).not.toBeInTheDocument();
+
+        // A genuinely new activity id must still reopen it.
+        mockFlash = { activityContext: 'proxy', activityId: 'act-2' };
+        rerender(<ServerNavbar serverNavbar={makeServerNavbar()} />);
+        expect(screen.getByTestId('activity-log')).toHaveTextContent('Logs - act-2');
     });
 });
