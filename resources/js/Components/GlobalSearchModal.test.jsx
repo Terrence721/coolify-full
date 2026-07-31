@@ -24,7 +24,10 @@ const SEARCH_DATA = {
         { type: 'application', id: 1, name: 'my-app', search_text: 'my-app production application', link: '/app/1' },
         { type: 'server', id: 2, name: 'prod-server', search_text: 'prod-server server hetzner', link: '/server/2' },
     ],
-    creatableItems: [{ type: 'team', name: 'Team', description: 'Create a new team', component: 'team.create' }],
+    creatableItems: [
+        { type: 'team', name: 'Team', description: 'Create a new team', component: 'team.create' },
+        { type: 'postgresql', name: 'PostgreSQL', description: 'Create a new database', resourceType: 'database' },
+    ],
     createUrls: { team: '/team' },
 };
 
@@ -135,6 +138,26 @@ describe('GlobalSearchModal', () => {
             document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
         });
         expect(document.activeElement).toBe(input);
+    });
+
+    it('cancels an in-progress creation wizard when the query is cleared back to empty', async () => {
+        render(<GlobalSearchModal />);
+        await openViaSlash();
+
+        const input = screen.getByPlaceholderText(/Search resources/);
+        act(() => typeInto(input, 'new postgresql'));
+        await waitFor(() => expect(screen.getByText('Select Server')).toBeInTheDocument());
+
+        act(() => typeInto(input, ''));
+        expect(screen.queryByText('Select Server')).not.toBeInTheDocument();
+
+        // The wizard panel is hidden either way once the query is empty (nothing renders below
+        // the input) - typing a plain, non-matching query afterward is what actually proves the
+        // wizard state itself was reset, not just visually hidden: if it weren't, this would
+        // still show "Select Server" instead of the normal search results.
+        act(() => typeInto(input, 'hetzner'));
+        await waitFor(() => expect(screen.getByText('prod-server')).toBeInTheDocument());
+        expect(screen.queryByText('Select Server')).not.toBeInTheDocument();
     });
 
     it('remembers position across consecutive ArrowDown presses (not just the first)', async () => {

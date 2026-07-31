@@ -254,9 +254,14 @@ export default function GlobalSearchModal() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
+    // Reacts to the user typing, so it belongs in the input's own change handler rather than a
+    // useEffect keyed on `query` - every other place `query` gets reset (closeModal, openModal,
+    // Escape, openCreateComponent) either already handles wizard-cancellation itself or never
+    // needs the exact-match/cancel checks to re-run.
+    function handleQueryChange(value) {
+        setQuery(value);
         selectedIndexRef.current = -1;
-        const trimmed = query.trim().toLowerCase();
+        const trimmed = value.trim().toLowerCase();
 
         if (trimmed === '') {
             if (isSelecting) {
@@ -284,8 +289,7 @@ export default function GlobalSearchModal() {
         if (matchingItem) {
             navigateToResource(matchingItem);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [query]);
+    }
 
     const isCreateMode = query.trim().toLowerCase() === 'new' || query.trim().toLowerCase().startsWith('new ');
 
@@ -524,7 +528,7 @@ export default function GlobalSearchModal() {
                                 type="text"
                                 autoComplete="off"
                                 value={query}
-                                onChange={(e) => setQuery(e.target.value)}
+                                onChange={(e) => handleQueryChange(e.target.value)}
                                 placeholder="Search resources, paths, everything (type new for create)..."
                                 ref={inputRef}
                                 className="w-full pl-12 pr-32 py-4 text-base bg-white dark:bg-coolgray-100 border-none rounded-lg shadow-xl ring-1 ring-neutral-200 dark:ring-coolgray-300 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus-visible:outline-none focus-visible:border-l-4 focus-visible:border-l-coollabs dark:focus-visible:border-l-warning"
