@@ -12,6 +12,15 @@ This repository is a professionally enhanced fork of Coolify, created to demonst
 
 **Evaluating this for a specific role?** See [`POSITION_ALIGNMENT.md`](POSITION_ALIGNMENT.md) for a direct, requirement-by-requirement mapping between this repo and a real job description — not a generic "skills" list, an actual line-by-line comparison.
 
+### 🧭 Start Here
+
+- **[Architecture Overview](https://terrence721.github.io/coolify-full/diagrams/system-architecture.html)** — subsystems, core principles, system diagram
+- **[Modernization Roadmap](https://terrence721.github.io/coolify-full/diagrams/livewire-to-inertia-request-flow.html)** — the Livewire → React 19 migration story and request-flow diagram
+- **[Deployment Pipeline](https://terrence721.github.io/coolify-full/diagrams/deployment-pipeline.html)** — the full 7-step provisioning flow, key design decisions (e.g. the shared-CA-per-server / leaf-cert-per-database TLS model), Docker Compose generation, and the per-engine `StartAction` pattern
+- **[Testing Strategy](https://terrence721.github.io/coolify-full/diagrams/testing-strategy-layers.html)** — the 3-layer Pest/Vitest/browser-smoke-test split, with real examples of bugs only one layer caught
+
+The rest of the [wiki](https://github.com/Terrence721/coolify-full/wiki) goes deeper per-subsystem (Environment Variables, Persistent Volumes, and one page per database engine's provisioning action).
+
 ![Dashboard showing two projects (E-Commerce Platform, Internal Tools) and a managed Docker server](docs/screenshots/dashboard.png)
 
 It showcases real-world engineering work including:

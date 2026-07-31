@@ -1,0 +1,273 @@
+<title>Deployment Pipeline — Provisioning a Database, End to End</title>
+<style>
+  :root {
+    --ink: #1b1f1e;
+    --ink-soft: #4b544f;
+    --paper: #e9ece9;
+    --surface: #ffffff;
+    --line: #b7bfba;
+    --ssl: #8b5e3c;
+    --ssl-bg: #f1e6da;
+    --docker: #2b6e63;
+    --docker-bg: #e1ede9;
+    --start: #2b5f6e;
+    --start-bg: #dfe9ea;
+    --shared: #3c4440;
+    --shared-bg: #eef1ef;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", "Liberation Mono", monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  :root[data-theme="dark"] {
+    --ink: #eceeec;
+    --ink-soft: #a9b2ac;
+    --paper: #141716;
+    --surface: #1c2120;
+    --line: #3a423e;
+    --ssl: #d99a63;
+    --ssl-bg: #2c2119;
+    --docker: #5cb3a4;
+    --docker-bg: #172925;
+    --start: #7fb8c9;
+    --start-bg: #1b2c30;
+    --shared: #cdd3d0;
+    --shared-bg: #222725;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eceeec;
+      --ink-soft: #a9b2ac;
+      --paper: #141716;
+      --surface: #1c2120;
+      --line: #3a423e;
+      --ssl: #d99a63;
+      --ssl-bg: #2c2119;
+      --docker: #5cb3a4;
+      --docker-bg: #172925;
+      --start: #7fb8c9;
+      --start-bg: #1b2c30;
+      --shared: #cdd3d0;
+      --shared-bg: #222725;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    padding: 2.5rem 1.5rem 4rem;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.6rem;
+  }
+
+  h1 {
+    font-size: clamp(1.6rem, 2.6vw, 2.15rem);
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .dek {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 70ch;
+    margin: 0 0 2.2rem;
+  }
+
+  .dek code { font-family: var(--mono); font-size: 0.9em; color: var(--ink); }
+
+  h2 {
+    font-size: 0.72rem;
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 1rem;
+  }
+
+  /* Master pipeline */
+  .pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2.2rem;
+  }
+
+  .step {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.5rem 0.95rem;
+    white-space: nowrap;
+  }
+
+  .step--zoomed { border-width: 2px; font-weight: 600; }
+  .step--zoomed.z-ssl { border-color: var(--ssl); color: var(--ssl); }
+  .step--zoomed.z-docker { border-color: var(--docker); color: var(--docker); }
+  .step--zoomed.z-start { border-color: var(--start); color: var(--start); }
+
+  .arrow { color: var(--ink-soft); font-size: 0.9rem; }
+
+  /* Zoom-in sections */
+  .zoom {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    padding: 1.3rem 1.4rem 1.4rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .zoom-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.9rem; }
+
+  .zoom-tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .zoom--ssl .zoom-tag { color: var(--ssl); background: var(--ssl-bg); }
+  .zoom--docker .zoom-tag { color: var(--docker); background: var(--docker-bg); }
+  .zoom--start .zoom-tag { color: var(--start); background: var(--start-bg); }
+
+  .zoom-title { font-size: 0.98rem; font-weight: 600; margin: 0; }
+
+  .zoom p, .zoom ul {
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 0 0 0.7rem;
+  }
+
+  .zoom ul { padding-left: 1.15rem; }
+  .zoom ul:last-child, .zoom p:last-child { margin-bottom: 0; }
+  .zoom code { font-family: var(--mono); font-size: 0.88em; background: var(--paper); border-radius: 3px; padding: 0.05rem 0.3rem; }
+
+  .zoom-link { font-size: 0.8rem; margin-top: 0.6rem; }
+  .zoom-link a { color: var(--ink); }
+
+  .callout {
+    border: 1px solid var(--shared);
+    background: var(--shared-bg);
+    border-radius: 10px;
+    padding: 1rem 1.3rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin: 1.4rem 0 2rem;
+  }
+
+  .callout-mark { font-family: var(--mono); font-size: 0.95rem; color: var(--shared); font-weight: 600; flex: 0 0 auto; }
+  .callout p { margin: 0; font-size: 0.88rem; line-height: 1.55; color: var(--ink); }
+  .callout code { font-family: var(--mono); font-size: 0.92em; }
+
+  footer {
+    margin-top: 2.6rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+</style>
+
+<div class="page">
+  <p class="eyebrow">coolify-full — deployment pipeline</p>
+  <h1>Every database goes through the same seven steps.</h1>
+  <p class="dek">
+    The full sequence, from a user's configuration to a running, healthy container. Three of the
+    seven steps — SSL, Compose generation, and the <code>StartAction</code> pattern itself — are
+    zoomed into below, since each involves a real design decision worth understanding on its own.
+  </p>
+
+  <div class="pipeline">
+    <span class="step">Validate Configuration</span><span class="arrow">→</span>
+    <span class="step step--zoomed z-ssl">Generate SSL Certificates</span><span class="arrow">→</span>
+    <span class="step">Generate Persistent Volumes</span><span class="arrow">→</span>
+    <span class="step">Build Environment Variables</span><span class="arrow">→</span>
+    <span class="step step--zoomed z-docker">Generate Docker Compose</span><span class="arrow">→</span>
+    <span class="step">Start Container</span><span class="arrow">→</span>
+    <span class="step">Run Healthcheck</span>
+  </div>
+
+  <h2>Zoomed In</h2>
+
+  <div class="zoom zoom--ssl">
+    <div class="zoom-head">
+      <span class="zoom-tag">SSL Subsystem</span>
+      <p class="zoom-title">One CA per server, one leaf certificate per database</p>
+    </div>
+    <p>
+      Not a fresh CA per deployment. Each server has at most one CA certificate — generated
+      automatically on first use (<code>/data/coolify/ssl/coolify-ca.crt</code>), then reused for
+      every SSL-enabled database on that server. Each database gets its own leaf certificate,
+      signed by that shared CA, written under its own configuration directory. Every engine except
+      ClickHouse integrates with this — see the
+      <a href="https://terrence721.github.io/coolify-full/diagrams/database-provisioning-engines.html">engine comparison diagram</a>
+      for each one's exact certificate mount path.
+    </p>
+  </div>
+
+  <div class="zoom zoom--docker">
+    <div class="zoom-head">
+      <span class="zoom-tag">Docker Orchestration</span>
+      <p class="zoom-title">One Compose service definition per database</p>
+    </div>
+    <ul>
+      <li>Image, ports, volumes, environment variables</li>
+      <li>Healthcheck (engine-specific probe command)</li>
+      <li>Resource limits — CPU, memory, swap</li>
+      <li>Network configuration, log drain integration, custom <code>docker run</code> options</li>
+    </ul>
+    <p>This is the layer directly beneath every <code>StartAction</code> — it turns engine-specific provisioning logic into a runnable container definition.</p>
+  </div>
+
+  <div class="zoom zoom--start">
+    <div class="zoom-head">
+      <span class="zoom-tag">StartAction Pattern</span>
+      <p class="zoom-title">One dedicated class per database engine</p>
+    </div>
+    <p>
+      8 engines, 8 <code>StartAction</code> classes (<code>StartMysql</code>, <code>StartMariadb</code>,
+      <code>StartPostgresql</code>, <code>StartRedis</code>, <code>StartKeydb</code>,
+      <code>StartDragonfly</code>, <code>StartMongodb</code>, <code>StartClickhouse</code>) — same
+      shape, real per-engine differences in SSL support, healthcheck probes, and runtime flags.
+    </p>
+    <div class="zoom-link"><a href="https://terrence721.github.io/coolify-full/diagrams/database-provisioning-engines.html">→ Full engine-by-engine comparison</a></div>
+  </div>
+
+  <div class="callout">
+    <span class="callout-mark">i</span>
+    <p>
+      This whole pipeline runs once, top to bottom, for one database. The
+      <a href="https://terrence721.github.io/coolify-full/diagrams/system-architecture.html">System Architecture diagram</a>
+      shows where it sits relative to the rest of the app — the Laravel backend that triggers it and
+      the React frontend an operator actually clicks through.
+    </p>
+  </div>
+
+  <footer>coolify-full · 7-step pipeline · 8 database engines · shared SSL + Volume + Compose subsystems</footer>
+</div>
