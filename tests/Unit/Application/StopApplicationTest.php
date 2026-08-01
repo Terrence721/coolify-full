@@ -172,7 +172,7 @@ class StopApplicationTest extends TestCase
     }
 
     #[Test]
-    public function it_updates_restart_count_when_reset_restart_count_true()
+    public function it_updates_restart_count_and_sets_status_exited_when_reset_restart_count_true()
     {
         $server = $this->mockServer(true, false);
 
@@ -197,6 +197,10 @@ class StopApplicationTest extends TestCase
         $this->assertSame(0, $application->restart_count);
         $this->assertNull($application->last_restart_at);
         $this->assertNull($application->last_restart_type);
+        // This is the default, most-common path (web "Stop" button, API stop endpoint) - it
+        // must mark the application exited immediately rather than leaving a stale "running"
+        // badge until the next container-status poll corrects it.
+        $this->assertSame('exited:unhealthy', $application->status);
     }
 
     #[Test]
