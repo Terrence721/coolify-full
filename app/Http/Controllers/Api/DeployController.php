@@ -709,6 +709,9 @@ class DeployController extends Controller
         $this->authorize('view', $application);
 
         $deployments = $application->deployments($skip, $take);
+        $deployments['deployments'] = collect($deployments['deployments'])->map(function ($deployment) {
+            return $this->removeSensitiveData($deployment);
+        });
 
         return response()->json($deployments);
     }
