@@ -1,7 +1,7 @@
 # 📝 TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 31, 2026**
+**Last Updated: August 1, 2026**
 
 > The WSL2 dev-environment showcase that briefly replaced this file lives at [docs/wsl2-environment.md](docs/wsl2-environment.md).
 
@@ -498,6 +498,7 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 | Coverage | 926 tests across 92 suites — see issue #32 for the full per-suite list and rationale (too long to duplicate here without drifting stale again) |
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
 | Full detail | Scrum issue #32 — the single source of truth for this initiative: tracks not just the 92 suites done so far (setup, per-suite rationale, verification) but also the full remaining backlog (53 of 140 Components/Pages still untested, listed and checked off individually as each gets a suite). This table only shows current totals; #32 is where "what's actually left" lives. |
+| Priority | The remaining backlog isn't worked in list order — components/pages with real conditional logic and meaningful regression risk (derived state, business logic, high-traffic surfaces) are prioritized over thin presentational wrappers or rarely-touched admin-only screens. |
 | CI | Vitest + Prettier format-check wired into `.github/workflows/quality.yml` as their own jobs (2026-07-21) — both fully clean, no baseline debt. ESLint was deliberately held out of CI until the `set-state-in-effect` findings (issue #33) were resolved (see issue #34) — that closed 2026-07-31 with the baseline at 0, so adding an `eslint` CI job the same way is now unblocked. Not yet done — see item 6 in "Still to do" below. |
 
 ### Cleanup opportunities (historical log)

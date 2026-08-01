@@ -1,12 +1,14 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 31, 2026**
+**Last Updated: August 1, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
 
 Every finding below went through a real GitHub Pull Request: a branch, a review comment on the diff, and a real merge — see [issue #70](https://github.com/Terrence721/coolify-full/issues/70) for the live tracking card. This table is a readable historical index, not the live mechanism.
+
+**How areas get picked**: reviewed areas aren't chosen in file-tree or alphabetical order. Security/data-exposure risk (redaction gaps, auth checks) is triaged first, then reliability bugs in core resource lifecycle paths (deploy/start/stop, backups, cleanup jobs), then correctness bugs in lower-traffic paths, with maintainability-only findings last. The Priority column below reflects each finding's actual severity once found, not just review order.
 
 | File / Lines | Priority | Category | Finding | Status |
 |---|---|---|---|---|
