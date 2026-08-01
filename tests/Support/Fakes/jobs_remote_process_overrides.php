@@ -18,6 +18,12 @@ use Tests\Support\Fakes\JobsRemoteProcessFake;
 if (! function_exists(__NAMESPACE__.'\instant_remote_process_with_timeout')) {
     function instant_remote_process_with_timeout(...$args): ?string
     {
+        JobsRemoteProcessFake::$calls[] = $args;
+
+        if (! empty(JobsRemoteProcessFake::$outputQueue)) {
+            return array_shift(JobsRemoteProcessFake::$outputQueue);
+        }
+
         return JobsRemoteProcessFake::$output;
     }
 }
