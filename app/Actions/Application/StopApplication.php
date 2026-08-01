@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Application;
 
 use App\Actions\Server\CleanupDocker;
+use App\Actions\Shared\ComplexStatusCheck;
 use App\Events\ServiceStatusChanged;
 use App\Models\Application;
 use App\Models\StandaloneDocker;
@@ -71,6 +72,10 @@ class StopApplication
                 'last_restart_at' => null,
                 'last_restart_type' => null,
             ]);
+        }
+
+        if ($application->additional_servers->count() > 0) {
+            ComplexStatusCheck::run($application);
         }
 
         ServiceStatusChanged::dispatch($application->environment->project->team->id);
