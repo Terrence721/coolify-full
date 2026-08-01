@@ -65,6 +65,23 @@ class CleanupHelperContainersJob implements ShouldBeEncrypted, ShouldBeUnique, S
                         continue;
                     }
 
+                    // backup-of-* (DatabaseBackupJob's S3 upload) and s3-restore-* (the S3 restore
+                    // flow in ManagesDatabaseImport) are also coolify-helper containers, but this
+                    // job's only "still needed?" source is ApplicationDeploymentQueue - it has no
+                    // way to know whether one of these is mid-transfer. Since this job runs for
+                    // every functional server after *any* resource delete anywhere in the instance
+                    // (CleanupStuckedResources, queued from DeleteResourceJob's finally block), an
+                    // unrelated delete could otherwise kill a backup upload or restore in progress
+                    // on a completely different server.
+                    if (str_contains($containerName, 'backup-of-') || str_contains($containerName, 's3-restore-')) {
+                        Log::info('CleanupHelperContainersJob - Skipping backup/restore helper container', [
+                            'container' => $containerName,
+                            'id' => $containerId,
+                        ]);
+
+                        continue;
+                    }
+
                     Log::info('CleanupHelperContainersJob - Removing orphaned helper container', [
                         'container' => $containerName,
                         'id' => $containerId,
