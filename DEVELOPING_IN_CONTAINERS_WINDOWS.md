@@ -1,7 +1,7 @@
 # Developing Coolify In Containers (Windows)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 22, 2026**
+**Last Updated: July 24, 2026**
 
 **The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in [`docs/command.md`](docs/command.md) runs identically.
 

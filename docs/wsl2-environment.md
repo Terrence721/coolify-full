@@ -1,6 +1,6 @@
 # 🖥 WSL2 Dev Environment (archived showcase)
 
-**Last Updated: July 16, 2026**
+**Last Updated: July 24, 2026**
 
 > **Archival note:** this file is a historical snapshot, not a maintained doc. A GitHub web edit briefly replaced the entire `todo.md` ledger with this WSL2 dev-environment showcase content; the ledger was restored to `todo.md` and this showcase was moved here verbatim (2026-07-13) rather than discarded. Its title used to read "TODO — Coolify-Full Migration Ledger," left over from that accident — fixed here. For the actual up-to-date, authoritative WSL2 migration write-up (including the full root-cause section and setup steps), see [`docs/command.md`](command.md)'s "WSL2 migration" section and [`DEVELOPING_IN_CONTAINERS_WINDOWS.md`](../DEVELOPING_IN_CONTAINERS_WINDOWS.md) — this file predates and duplicates parts of both, kept only for its performance-comparison tables below.
 
