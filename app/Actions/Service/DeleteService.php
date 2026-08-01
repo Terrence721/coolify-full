@@ -17,11 +17,17 @@ class DeleteService
     {
         $server = data_get($service, 'server');
 
+        // Always cleaned up regardless of $deleteVolumes/server reachability - these are
+        // config, not container volumes, and the Service row itself is force-deleted
+        // unconditionally below (in finally), so leaving this gated left them permanently
+        // orphaned (no FK/cascade on this polymorphic relation) whenever the box was
+        // unchecked or the server happened to be unreachable at delete time.
+        $service->environment_variables()->delete();
+
         try {
             if ($deleteVolumes && $server && $server->isFunctional()) {
                 $storagesToDelete = collect([]);
 
-                $service->environment_variables()->delete();
                 $commands = [];
                 foreach ($service->applications()->get() as $application) {
                     $storages = $application->persistentStorages()->get();
