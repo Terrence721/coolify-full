@@ -129,6 +129,7 @@ class ServiceApplication extends BaseModel
             $service->update(['fqdn' => null]);
             $service->persistentStorages()->delete();
             $service->fileStorages()->delete();
+            $service->environment_variables()->delete();
         });
         static::saving(function ($service) {
             if ($service->isDirty('status')) {
