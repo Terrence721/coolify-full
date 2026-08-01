@@ -16,12 +16,14 @@ use App\Models\SwarmDocker;
 use App\Models\Team;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\Fakes\RemoteProcessFake;
 use Tests\TestCase;
 
 require_once __DIR__.'/../../Support/Fakes/action_remote_process_overrides.php';
+require_once __DIR__.'/../../Support/Fakes/shared_action_remote_process_overrides.php';
 
 class StopApplicationTest extends TestCase
 {
@@ -227,6 +229,52 @@ class StopApplicationTest extends TestCase
 
         // Application::status()'s mutator normalizes plain values into "status:health".
         $this->assertSame('exited:unhealthy', $application->status);
+    }
+
+    #[Test]
+    public function it_syncs_an_additional_servers_pivot_status_via_complex_status_check()
+    {
+        $server = $this->mockServer(true, false);
+
+        $destination = StandaloneDocker::factory()->make();
+        $destination->setRelation('server', $server);
+
+        $application = $this->createApplicationWithTeamChain([
+            'status' => 'running',
+        ]);
+        $application->setRelation('destination', $destination);
+        $application->setRelation('settings', $this->mockSettings(1));
+
+        $additionalServer = Server::factory()->create([
+            'team_id' => $application->environment->project->team_id,
+        ]);
+        $additionalServer->settings->update(['is_reachable' => true, 'is_usable' => true]);
+
+        $application->additional_servers()->attach($additionalServer->id, [
+            'status' => 'running:healthy',
+            'standalone_docker_id' => $additionalServer->standaloneDockers()->first()->id,
+        ]);
+
+        Bus::fake();
+        Event::fake();
+
+        $action = new StopApplication;
+        $action->handle($application, dockerCleanup: false);
+
+        // ComplexStatusCheck re-inspects each server's containers; RemoteProcessFake::$output
+        // defaults to '', which decodes to zero containers - matching reality, since the loop
+        // above already stopped and removed everything.
+        $pivotStatus = DB::table('additional_destinations')
+            ->where('application_id', $application->id)
+            ->where('server_id', $additionalServer->id)
+            ->value('status');
+
+        $this->assertSame('exited', $pivotStatus);
+        // Application::status()'s getter compares the main status against each additional
+        // server's pivot status and reports "degraded" on any mismatch - this is the
+        // regression this test locks in: without syncing the pivot too, this would read
+        // "degraded:unhealthy" instead, despite every server actually being stopped.
+        $this->assertSame('exited:unhealthy', $application->fresh()->status);
     }
 
     #[Test]
