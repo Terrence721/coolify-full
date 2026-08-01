@@ -66,7 +66,7 @@ class SendMessageToSlackJob implements ShouldBeEncrypted, ShouldQueue
 
     private function sendToSlack(): void
     {
-        Http::post($this->webhookUrl, [
+        Http::withoutRedirecting()->post($this->webhookUrl, [
             'text' => $this->message->title,
             'blocks' => [
                 [
@@ -108,7 +108,7 @@ class SendMessageToSlackJob implements ShouldBeEncrypted, ShouldQueue
     {
         $username = config('app.name');
 
-        Http::post($this->webhookUrl, [
+        Http::withoutRedirecting()->post($this->webhookUrl, [
             'username' => $username,
             'attachments' => [
                 [
