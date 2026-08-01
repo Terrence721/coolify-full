@@ -187,6 +187,135 @@ it('rejects cancelling a deployment that does not exist, without touching SSH', 
     $response->assertSessionHas('error', 'Deployment not found.');
 });
 
+it('does not show another team\'s deployment even with a valid deployment_uuid', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $application = createDeploymentShowApplication($team);
+
+    $otherTeam = Team::factory()->create();
+    $otherApplication = createDeploymentShowApplication($otherTeam);
+    $otherDeployment = ApplicationDeploymentQueue::create([
+        'application_id' => $otherApplication->id,
+        'deployment_uuid' => (string) Str::uuid(),
+        'status' => 'in_progress',
+        'pull_request_id' => 0,
+        'logs' => json_encode([
+            ['command' => null, 'output' => 'Secret other-team output', 'type' => 'stdout', 'order' => 1, 'timestamp' => now()->toIso8601String(), 'hidden' => false],
+        ]),
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('project.application.deployment.show', [
+            'project_uuid' => $application->environment->project->uuid,
+            'environment_uuid' => $application->environment->uuid,
+            'application_uuid' => $application->uuid,
+            'deployment_uuid' => $otherDeployment->deployment_uuid,
+        ]));
+
+    $response->assertRedirect(route('project.application.deployment.index', [
+        'project_uuid' => $application->environment->project->uuid,
+        'environment_uuid' => $application->environment->uuid,
+        'application_uuid' => $application->uuid,
+    ]));
+});
+
+it('does not force start another team\'s deployment', function () {
+    Queue::fake();
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $application = createDeploymentShowApplication($team);
+
+    $otherTeam = Team::factory()->create();
+    $otherApplication = createDeploymentShowApplication($otherTeam);
+    $otherDeployment = ApplicationDeploymentQueue::create([
+        'application_id' => $otherApplication->id,
+        'deployment_uuid' => (string) Str::uuid(),
+        'status' => 'queued',
+        'pull_request_id' => 0,
+        'server_id' => $otherApplication->destination->server_id,
+        'destination_id' => $otherApplication->destination_id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.application.deployment.force-start', [
+            'project_uuid' => $application->environment->project->uuid,
+            'environment_uuid' => $application->environment->uuid,
+            'application_uuid' => $application->uuid,
+            'deployment_uuid' => $otherDeployment->deployment_uuid,
+        ]));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error', 'Deployment not found.');
+    expect($otherDeployment->fresh()->status)->toBe('queued');
+    Queue::assertNotPushed(ApplicationDeploymentJob::class);
+});
+
+it('does not cancel another team\'s deployment', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $application = createDeploymentShowApplication($team);
+
+    $otherTeam = Team::factory()->create();
+    $otherApplication = createDeploymentShowApplication($otherTeam);
+    $otherDeployment = ApplicationDeploymentQueue::create([
+        'application_id' => $otherApplication->id,
+        'deployment_uuid' => (string) Str::uuid(),
+        'status' => 'in_progress',
+        'pull_request_id' => 0,
+        'server_id' => $otherApplication->destination->server_id,
+        'destination_id' => $otherApplication->destination_id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.application.deployment.cancel', [
+            'project_uuid' => $application->environment->project->uuid,
+            'environment_uuid' => $application->environment->uuid,
+            'application_uuid' => $application->uuid,
+            'deployment_uuid' => $otherDeployment->deployment_uuid,
+        ]));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error', 'Deployment not found.');
+    expect($otherDeployment->fresh()->status)->toBe('in_progress');
+});
+
+it('does not download another team\'s deployment logs', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $application = createDeploymentShowApplication($team);
+
+    $otherTeam = Team::factory()->create();
+    $otherApplication = createDeploymentShowApplication($otherTeam);
+    $otherDeployment = ApplicationDeploymentQueue::create([
+        'application_id' => $otherApplication->id,
+        'deployment_uuid' => (string) Str::uuid(),
+        'status' => 'finished',
+        'pull_request_id' => 0,
+        'logs' => json_encode([
+            ['command' => null, 'output' => 'Secret other-team output', 'type' => 'stdout', 'order' => 1, 'timestamp' => now()->toIso8601String(), 'hidden' => false],
+        ]),
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('project.application.deployment.download-all-logs', [
+            'project_uuid' => $application->environment->project->uuid,
+            'environment_uuid' => $application->environment->uuid,
+            'application_uuid' => $application->uuid,
+            'deployment_uuid' => $otherDeployment->deployment_uuid,
+        ]));
+
+    $response->assertNotFound();
+});
+
 it('downloads all logs as a plain text file', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

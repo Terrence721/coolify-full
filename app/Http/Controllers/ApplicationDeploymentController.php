@@ -72,7 +72,9 @@ class ApplicationDeploymentController extends Controller
             return $application;
         }
 
-        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)
+            ->where('application_id', $application->id)
+            ->first();
         if (! $deployment) {
             return redirect()->route('project.application.deployment.index', compact('project_uuid', 'environment_uuid', 'application_uuid'));
         }
@@ -139,7 +141,9 @@ class ApplicationDeploymentController extends Controller
 
         $this->authorize('deploy', $application);
 
-        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)
+            ->where('application_id', $application->id)
+            ->first();
         if (! $deployment) {
             return back()->with('error', 'Deployment not found.');
         }
@@ -164,7 +168,9 @@ class ApplicationDeploymentController extends Controller
 
         $this->authorize('deploy', $application);
 
-        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)
+            ->where('application_id', $application->id)
+            ->first();
         if (! $deployment) {
             return back()->with('error', 'Deployment not found.');
         }
@@ -234,7 +240,9 @@ class ApplicationDeploymentController extends Controller
             return $application;
         }
 
-        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)->first();
+        $deployment = ApplicationDeploymentQueue::where('deployment_uuid', $deployment_uuid)
+            ->where('application_id', $application->id)
+            ->first();
         if (! $deployment) {
             abort(404);
         }
