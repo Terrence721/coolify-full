@@ -59,7 +59,7 @@ class ResourcesController extends Controller
         }
         $resources = $resources->flatten();
         $resources = $resources->map(function ($resource) {
-            $payload = $resource->toArray();
+            $payload = $this->removeSensitiveData($resource);
             $payload['status'] = $resource->status;
             $payload['type'] = $resource->type();
 
@@ -67,5 +67,73 @@ class ResourcesController extends Controller
         });
 
         return response()->json(serializeApiResponse($resources));
+    }
+
+    /**
+     * Same redaction the dedicated Applications/Databases/Services controllers already apply to
+     * their own single-type responses - this endpoint returns all 3 kinds mixed together, so it
+     * dispatches on $resource->type() to reuse the exact same per-type field lists rather than
+     * emitting raw toArray() (which had no redaction at all - see the fix landing this method).
+     * Only applies makeHidden(), not the trait's full redactApiFields()/serializeApiResponse()
+     * pass - status/type still need to be merged in afterward, and the caller runs the one real
+     * serializeApiResponse() pass over the whole collection at the end, matching this endpoint's
+     * existing array-building shape.
+     *
+     * @return array<string, mixed>
+     */
+    private function removeSensitiveData(mixed $resource): array
+    {
+        $type = $resource->type();
+
+        if ($type === 'application') {
+            $resource->makeHidden(['id', 'resourceable', 'resourceable_id', 'resourceable_type']);
+            if (request()->attributes->get('can_read_sensitive', false) === false) {
+                $resource->makeHidden([
+                    'custom_labels',
+                    'dockerfile',
+                    'docker_compose',
+                    'docker_compose_raw',
+                    'manual_webhook_secret_bitbucket',
+                    'manual_webhook_secret_gitea',
+                    'manual_webhook_secret_github',
+                    'manual_webhook_secret_gitlab',
+                    'private_key_id',
+                    'value',
+                    'real_value',
+                    'http_basic_auth_password',
+                ]);
+            }
+
+            return $resource->toArray();
+        }
+
+        if ($type === 'service') {
+            $resource->makeHidden(['id', 'resourceable', 'resourceable_id', 'resourceable_type']);
+            if (request()->attributes->get('can_read_sensitive', false) === false) {
+                $resource->makeHidden(['docker_compose_raw', 'docker_compose', 'value', 'real_value']);
+            }
+
+            return $resource->toArray();
+        }
+
+        $resource->makeHidden(['id', 'laravel_through_key']);
+        if (request()->attributes->get('can_read_sensitive', false) === false) {
+            $resource->makeHidden([
+                'internal_db_url',
+                'external_db_url',
+                'postgres_password',
+                'dragonfly_password',
+                'redis_password',
+                'mongo_initdb_root_password',
+                'keydb_password',
+                'clickhouse_admin_password',
+                'mysql_password',
+                'mysql_root_password',
+                'mariadb_password',
+                'mariadb_root_password',
+            ]);
+        }
+
+        return $resource->toArray();
     }
 }
