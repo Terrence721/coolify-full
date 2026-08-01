@@ -1,7 +1,7 @@
 # Livewire → React Migration
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 30, 2026**
+**Last Updated: July 31, 2026**
 
 ## 1. Why
 
@@ -978,7 +978,7 @@ Manages Docker cleanup settings for a server (cleanup frequency/threshold, force
 ## 46. Non-goals of Phase 20
 
 - 9 of the 21 `Server\Navbar`-dependent pages remain on Livewire (down from 10).
-- The unconditional 5-second list poll from the original was deliberately dropped in favor of Echo-driven refresh only — if Echo/Soketi is down, the list won't self-heal until the next `DockerCleanupDone` broadcast succeeds or the page is reloaded. This is a real, intentional behavior change (not just a implementation detail), and should be called out in manual QA.
+- The unconditional 5-second list poll from the original was deliberately dropped in favor of Echo-driven refresh only — if Echo/Soketi is down, the list won't self-heal until the next `DockerCleanupDone` broadcast succeeds or the page is reloaded. This is a real, intentional behavior change (not just an implementation detail), and should be called out in manual QA.
 - Everything else from Phase 11's non-goals (Section 28) still applies unchanged.
 - No manual browser QA this phase — same lighter, user-directed bar as every phase since Phase 2 (Section 9).
 
