@@ -521,11 +521,21 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             return;
         }
 
+        [$standaloneDockerIds, $swarmDockerIds] = $this->serverDestinationIds();
+
         foreach ($this->applicationContainerStatuses as $applicationId => $containerStatuses) {
             $application = $this->applicationsById->get((string) $applicationId);
             if (! $application) {
                 continue;
             }
+
+            // This job's $this->server is only the container's *main* destination when its
+            // own destination_id/type matches one of this server's destinations - it may
+            // instead be reporting on one of the application's additional_servers, in which
+            // case the aggregated status belongs on that server's pivot row, not the main
+            // `status` column (see writeAggregatedApplicationStatus()).
+            $isMainServer = ($application->destination_type === StandaloneDocker::class && $standaloneDockerIds->contains($application->destination_id))
+                || ($application->destination_type === SwarmDocker::class && $swarmDockerIds->contains($application->destination_id));
 
             // Parse docker compose to check for excluded containers
             $dockerComposeRaw = data_get($application, 'docker_compose_raw');
@@ -540,9 +550,8 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             if ($relevantStatuses->isEmpty()) {
                 $aggregatedStatus = $this->calculateExcludedStatusFromStrings($containerStatuses);
 
-                if ($aggregatedStatus && data_get($application, 'status') !== $aggregatedStatus) {
-                    $application->setAttribute('status', $aggregatedStatus);
-                    $application->save();
+                if ($aggregatedStatus) {
+                    $this->writeAggregatedApplicationStatus($application, $isMainServer, $aggregatedStatus);
                 }
 
                 continue;
@@ -553,11 +562,37 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             $aggregator = new ContainerStatusAggregator;
             $aggregatedStatus = $aggregator->aggregateFromStrings($relevantStatuses, 0, preserveRestarting: true);
 
-            // Update application status with aggregated result
-            if ($aggregatedStatus && data_get($application, 'status') !== $aggregatedStatus) {
+            if ($aggregatedStatus) {
+                $this->writeAggregatedApplicationStatus($application, $isMainServer, $aggregatedStatus);
+            }
+        }
+    }
+
+    /**
+     * Writes an aggregated container status to the correct column for the server $this job is
+     * reporting on: the main `status` column when it's the application's main destination
+     * server, or the matching `additional_destinations` pivot row otherwise - mirroring the
+     * main-vs-additional split ComplexStatusCheck already applies.
+     */
+    private function writeAggregatedApplicationStatus(Application $application, bool $isMainServer, string $aggregatedStatus): void
+    {
+        if ($isMainServer) {
+            if (data_get($application, 'status') !== $aggregatedStatus) {
                 $application->setAttribute('status', $aggregatedStatus);
                 $application->save();
             }
+
+            return;
+        }
+
+        if ((int) data_get($application, 'additional_servers_count', 0) === 0) {
+            return;
+        }
+
+        $pivot = $application->additional_servers()->wherePivot('server_id', $this->server->id);
+        $pivotStatus = $pivot->first()?->pivot->status;
+        if ($pivotStatus !== null && $pivotStatus !== $aggregatedStatus) {
+            $pivot->updateExistingPivot($this->server->id, ['status' => $aggregatedStatus]);
         }
     }
 
