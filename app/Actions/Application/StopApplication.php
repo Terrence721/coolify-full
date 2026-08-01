@@ -63,15 +63,13 @@ class StopApplication
             }
         }
 
+        $application->update(['status' => 'exited']);
+
         if ($resetRestartCount) {
             $application->update([
                 'restart_count' => 0,
                 'last_restart_at' => null,
                 'last_restart_type' => null,
-            ]);
-        } else {
-            $application->update([
-                'status' => 'exited',
             ]);
         }
 
