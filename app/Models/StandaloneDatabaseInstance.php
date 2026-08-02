@@ -101,6 +101,7 @@ use Illuminate\Support\Carbon;
  * @method MorphMany<ScheduledDatabaseBackup, $this> scheduledBackups()
  * @method MorphMany<SslCertificate, $this> sslCertificates()
  * @method MorphToMany<Tag, $this> tags()
+ * @method mixed team()
  * @method bool isConfigurationChanged(bool $save = false)
  * @method bool isRunning()
  * @method bool isExited()

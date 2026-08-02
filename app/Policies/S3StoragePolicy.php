@@ -38,8 +38,7 @@ class S3StoragePolicy
      */
     public function update(User $user, S3Storage $storage): bool
     {
-        // return $user->teams->contains('id', $storage->team_id) && $user->isAdmin();
-        return $user->teams->contains('id', $storage->team_id);
+        return $user->teams->contains('id', $storage->team_id) && $user->isAdmin();
     }
 
     /**
@@ -47,8 +46,7 @@ class S3StoragePolicy
      */
     public function delete(User $user, S3Storage $storage): bool
     {
-        // return $user->teams->contains('id', $storage->team_id) && $user->isAdmin();
-        return $user->teams->contains('id', $storage->team_id);
+        return $user->teams->contains('id', $storage->team_id) && $user->isAdmin();
     }
 
     /**
