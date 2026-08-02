@@ -208,11 +208,37 @@ it('rejects a wrong password on s3 restore', function () {
     $response->assertSessionHas('error', 'The provided password is incorrect.');
 });
 
-it('redirects cross-team visitors to the dashboard', function () {
+it('rejects cross-team visitors', function () {
+    // Previously asserted a redirect to the dashboard, which was really the controller's own
+    // resolveDatabase() team-scoping catching this - the only thing that ran, since
+    // can.update.resource was dead at the time. Now the middleware's own Gate::allows('update',
+    // ...) check (real team + role scoping) rejects the request before the controller runs at
+    // all, so this correctly gets a 403 instead.
     $teamA = Team::factory()->create();
     $database = importTabMakePostgres($teamA);
     importTabActingAs(Team::factory()->create());
 
     $this->get(route('project.database.import-backup', importTabParams($database)))
-        ->assertRedirect(route('dashboard'));
+        ->assertForbidden();
+});
+
+it('forbids a plain team member from running a database import/restore', function () {
+    // Regression test for a real bug: the can.update.resource middleware (App\Http\Middleware\
+    // CanUpdateResource) had `return $next($request);` as its literal first statement, making
+    // ~40 lines of real dispatch-based authorization dead code. Unlike updateHealthcheck()/
+    // toggleHealthcheck() on the same controller (which each call $this->authorize('update', ...)
+    // independently), importRunEndpoint()/importRestoreS3Endpoint() etc. have NO authorization
+    // check of their own at all - this middleware was the only thing standing between a plain
+    // team member and triggering a real, destructive database restore.
+    $team = Team::factory()->create();
+    $database = importTabMakePostgres($team);
+    $user = User::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    test()->actingAs($user)->withSession(['currentTeam' => $team]);
+
+    $response = $this->post(route('project.database.import.run', importTabParams($database)), [
+        'filename' => 'backup.sql',
+    ]);
+
+    $response->assertForbidden();
 });
