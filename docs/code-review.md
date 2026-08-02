@@ -283,3 +283,11 @@ Two real, distinct bugs surfaced while restoring the original commented-out code
 A fourth, separate instance of the same bug class was found but not fixed in this pass: `App\Http\Middleware\CanUpdateResource` has `return $next($request);` as its literal first statement, making ~40 lines of real dispatch-based authorization dead code. Flagged as a separate follow-up, not folded into this already-large fix.
 
 Fix: restored each policy method's original commented-out check.
+
+---
+
+### [`CanCreateResources.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194705160)
+
+**critical · Security (broken access control / privilege escalation)** — Fixed via [PR #112](https://github.com/Terrence721/coolify-full/pull/112) ([`5a708a66a`](https://github.com/Terrence721/coolify-full/commit/5a708a66a))
+
+`CanCreateResources::handle()` had `return $next($request);` as its literal first statement, making the real `Gate::allows('createAnyResource')` check permanently dead — the same shape as the already-flagged, not-yet-fixed `CanUpdateResource.php` bug, but in a sibling middleware class. Found by specifically re-checking every other middleware for the same pattern once it proved real once. This middleware is the sole enforcement point for 13 routes (resource creation, environment clone) — none of the target controllers has an independent `authorize()` call. Any authenticated team member, not just admin/owner, could create Applications/Services/Databases/GithubApps or clone environments. Confirmed inherited from the original upstream import. Fix: restored the commented-out check.
