@@ -219,6 +219,40 @@ it('deletes a variable', function () {
     expect(EnvironmentVariable::find($env->id))->toBeNull();
 });
 
+it('forbids a plain team member from updating, locking, or deleting an environment variable', function () {
+    // Regression test for a real bug: EnvironmentVariablePolicy's update()/delete() (and every
+    // other method) unconditionally returned true, inherited unfilled from the original upstream
+    // import - so envUpdate()/envLock()/envDestroy() authorize('update'/'delete', $env) calls
+    // were a complete no-op. Unlike envStore()/envBulkUpdate(), which correctly gate on the
+    // resource's own admin-only manageEnvironment ability, a plain member could edit/lock/delete
+    // any existing variable (including credentials) despite being blocked from creating one.
+    $team = Team::factory()->create();
+    envTabActingAs($team);
+    $database = envTabMakePostgres($team);
+    $env = envTabAddVariable($database, 'PROD_SECRET', 'original');
+
+    $member = User::factory()->create();
+    $team->members()->attach($member, ['role' => 'member']);
+    test()->actingAs($member)->withSession(['currentTeam' => $team]);
+
+    $updateResponse = $this->patch(route('project.database.envs.update', [...envTabParams($database), 'env_id' => $env->id]), [
+        'key' => 'PROD_SECRET',
+        'value' => 'attacker-controlled',
+        'is_multiline' => false,
+        'is_literal' => false,
+        'is_runtime' => true,
+        'is_buildtime' => true,
+    ]);
+    $updateResponse->assertForbidden();
+    expect($env->fresh()->value)->toBe('original');
+
+    $this->post(route('project.database.envs.lock', [...envTabParams($database), 'env_id' => $env->id]))->assertForbidden();
+    expect((bool) $env->fresh()->is_shown_once)->toBeFalse();
+
+    $this->delete(route('project.database.envs.destroy', [...envTabParams($database), 'env_id' => $env->id]))->assertForbidden();
+    expect(EnvironmentVariable::find($env->id))->not->toBeNull();
+});
+
 it('bulk-updates variables from the developer view, preserving order', function () {
     $team = Team::factory()->create();
     envTabActingAs($team);
