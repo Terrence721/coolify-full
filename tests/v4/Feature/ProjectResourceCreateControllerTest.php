@@ -451,6 +451,27 @@ YAML;
     ]));
 });
 
+it('forbids a plain team member from accessing the resource-creation flow', function () {
+    // Regression test for a real bug: the can.create.resources middleware (App\Http\Middleware\
+    // CanCreateResources) had its real Gate::allows('createAnyResource') check commented out and
+    // an unconditional `return $next($request);` as its literal first line, making the check
+    // permanently dead. Neither this controller nor any of the other 12 routes behind this
+    // middleware has an independent authorize() call - the middleware was the sole enforcement
+    // point, so any authenticated team member (not just admin/owner) could create resources.
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    test()->actingAs($user)->withSession(['currentTeam' => $team]);
+    [$project, $environment] = createResourceTestChain($team);
+
+    $response = $this->get(route('project.resource.create', [
+        'project_uuid' => $project->uuid,
+        'environment_uuid' => $environment->uuid,
+    ]));
+
+    $response->assertForbidden();
+});
+
 it('404s the docker-based submit endpoints when the destination no longer exists', function () {
     $team = Team::factory()->create();
     actingAsTeamMember($team);
