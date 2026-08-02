@@ -517,9 +517,9 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 |---|---|
 | Added | 2026-07-20 |
 | Tooling | Vitest + React Testing Library |
-| Coverage | 1027 tests across 98 suites — see issue #32 for the full per-suite list and rationale (too long to duplicate here without drifting stale again) |
+| Coverage | 1048 tests across 100 suites — see issue #32 for the full per-suite list and rationale (too long to duplicate here without drifting stale again) |
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
-| Full detail | Scrum issue #32 — the single source of truth for this initiative: tracks not just the 98 suites done so far (setup, per-suite rationale, verification) but also the full remaining backlog (47 of 140 Components/Pages still untested, listed and checked off individually as each gets a suite). This table only shows current totals; #32 is where "what's actually left" lives. |
+| Full detail | Scrum issue #32 — the single source of truth for this initiative: tracks not just the 100 suites done so far (setup, per-suite rationale, verification) but also the full remaining backlog (45 of 140 Components/Pages still untested, listed and checked off individually as each gets a suite). This table only shows current totals; #32 is where "what's actually left" lives. |
 | Priority | The remaining backlog isn't worked in list order — components/pages with real conditional logic and meaningful regression risk (derived state, business logic, high-traffic surfaces) are prioritized over thin presentational wrappers or rarely-touched admin-only screens. Formalized 2026-08-01; `ThemeSwitcher.test.jsx` and earlier predate it, `ResourceTabs.test.jsx` is the first suite picked under it. |
 | CI | Vitest + Prettier format-check wired into `.github/workflows/quality.yml` as their own jobs (2026-07-21) — both fully clean, no baseline debt. ESLint was deliberately held out of CI until the `set-state-in-effect` findings (issue #33) were resolved (see issue #34) — that closed 2026-07-31 with the baseline at 0, so adding an `eslint` CI job the same way is now unblocked. Not yet done — see item 6 in "Still to do" below. |
 
