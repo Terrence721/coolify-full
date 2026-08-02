@@ -110,6 +110,30 @@ it('updates resend settings and disables smtp', function () {
         ->smtp_enabled->toBeFalse();
 });
 
+it('forbids a plain team member from updating notification settings', function () {
+    // Regression test for a real bug: NotificationPolicy's real checks were all commented out
+    // and unconditionally returned true, so any team member (not just admins/owners) could
+    // update these settings, including secrets like smtp_password/resend_api_key.
+    // Forbidden-response rendering reads the InstanceSettings singleton row (id 0), same gotcha
+    // documented elsewhere in this migration.
+    InstanceSettings::forceCreate(['id' => 0]);
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('notifications.email.update'), [
+            'use_instance_email_settings' => false,
+            'smtp_from_name' => 'Attacker',
+            'smtp_from_address' => 'attacker@example.com',
+        ]);
+
+    $response->assertForbidden();
+    expect($team->emailNotificationSettings->fresh()->smtp_from_name)->not->toBe('Attacker');
+});
+
 it('copies settings from the instance settings', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();
