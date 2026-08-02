@@ -18,11 +18,10 @@ class CanCreateResources
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request);
-        // if (! Gate::allows('createAnyResource')) {
-        //     abort(403, 'You do not have permission to create resources.');
-        // }
+        if (! Gate::allows('createAnyResource')) {
+            abort(403, 'You do not have permission to create resources.');
+        }
 
-        // return $next($request);
+        return $next($request);
     }
 }
