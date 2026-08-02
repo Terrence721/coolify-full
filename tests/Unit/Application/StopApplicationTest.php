@@ -295,4 +295,58 @@ class StopApplicationTest extends TestCase
 
         $this->assertSame('Boom', $result);
     }
+
+    /**
+     * Regression test for a real bug: when a server is deleted with "delete all resources"
+     * checked, the controller queues DeleteResourceJob for each resource *then* soft-deletes
+     * the Server row synchronously, before the queued job (which calls StopApplication) ever
+     * runs - typically in a separate queue-worker process whose Server identity map
+     * (StandaloneDocker::getServerAttribute() routes through Server::findCached()) never held
+     * this server to begin with. destination->server resolves to null in that fresh-process
+     * scenario - previously this crashed with an uncaught Error ("Call to a member function
+     * isFunctional() on null"), never actually reaching the server to stop its real containers,
+     * while DeleteResourceJob's finally block force-deleted the resource anyway. Uses a real,
+     * persisted destination/server (not setRelation) so the belongsTo query genuinely goes
+     * through the soft-delete scope.
+     *
+     * Deliberately deletes $server directly (never accessed via ->destination->server first) so
+     * this test reproduces that fresh-process scenario rather than the identity-map-staleness
+     * scenario covered separately by ServerIdentityMapTest.php - accessing the accessor before
+     * deleting would populate the cache and mask this exact regression.
+     */
+    #[Test]
+    public function it_still_reaches_a_soft_deleted_servers_containers()
+    {
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = Environment::factory()->create(['project_id' => $project->id]);
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $server->settings->update(['is_reachable' => true, 'is_usable' => true]);
+        $destination = $server->standaloneDockers()->first();
+
+        $application = Application::factory()->create([
+            'environment_id' => $environment->id,
+            'destination_id' => $destination->id,
+            'destination_type' => StandaloneDocker::class,
+        ]);
+
+        $server->delete();
+        $this->assertTrue($server->fresh()->trashed());
+
+        RemoteProcessFake::$containers = collect([
+            ['Names' => 'container1'],
+        ]);
+
+        Bus::fake();
+        Event::fake();
+
+        $action = new StopApplication;
+        // A fresh() re-fetch, not the in-memory $application above, so destination->server
+        // genuinely goes through a real belongsTo query against the now-soft-deleted server
+        // rather than a relation that was cached before the delete.
+        $result = $action->handle($application->fresh(), dockerCleanup: false);
+
+        $this->assertNull($result);
+        $this->assertNotEmpty(RemoteProcessFake::$instantRemoteProcessCalls);
+    }
 }
