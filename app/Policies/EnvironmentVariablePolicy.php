@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\EnvironmentVariable;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 
 class EnvironmentVariablePolicy
 {
@@ -38,7 +39,7 @@ class EnvironmentVariablePolicy
      */
     public function update(User $user, EnvironmentVariable $environmentVariable): bool
     {
-        return true;
+        return $this->canManage($user, $environmentVariable);
     }
 
     /**
@@ -46,7 +47,7 @@ class EnvironmentVariablePolicy
      */
     public function delete(User $user, EnvironmentVariable $environmentVariable): bool
     {
-        return true;
+        return $this->canManage($user, $environmentVariable);
     }
 
     /**
@@ -54,7 +55,7 @@ class EnvironmentVariablePolicy
      */
     public function restore(User $user, EnvironmentVariable $environmentVariable): bool
     {
-        return true;
+        return $this->canManage($user, $environmentVariable);
     }
 
     /**
@@ -62,7 +63,7 @@ class EnvironmentVariablePolicy
      */
     public function forceDelete(User $user, EnvironmentVariable $environmentVariable): bool
     {
-        return true;
+        return $this->canManage($user, $environmentVariable);
     }
 
     /**
@@ -70,6 +71,18 @@ class EnvironmentVariablePolicy
      */
     public function manageEnvironment(User $user, EnvironmentVariable $environmentVariable): bool
     {
-        return true;
+        return $this->canManage($user, $environmentVariable);
+    }
+
+    /**
+     * Individual variable mutations defer to the owning resource's own manageEnvironment ability
+     * (ApplicationPolicy/ServicePolicy/DatabasePolicy - admin/owner within the resource's team),
+     * matching the check envStore()/envBulkUpdate() already apply on the resource itself.
+     */
+    private function canManage(User $user, EnvironmentVariable $environmentVariable): bool
+    {
+        $resource = $environmentVariable->resourceable;
+
+        return $resource !== null && Gate::forUser($user)->allows('manageEnvironment', $resource);
     }
 }
