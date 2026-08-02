@@ -81,4 +81,51 @@ class StopServiceTest extends TestCase
 
         $this->assertNull($result);
     }
+
+    /**
+     * Regression test for a real bug: when a server is deleted with "delete all resources"
+     * checked, the controller queues DeleteResourceJob for each resource *then* soft-deletes
+     * the Server row synchronously, before the queued job (which calls StopService) ever runs -
+     * typically in a separate queue-worker process whose Server identity map
+     * (StandaloneDocker::getServerAttribute() routes through Server::findCached()) never held
+     * this server to begin with. destination->server resolves to null in that fresh-process
+     * scenario - previously this crashed with an uncaught Error ("Call to a member function
+     * isFunctional() on null"), never actually reaching the server to stop its real containers,
+     * while DeleteResourceJob's finally block force-deleted the resource anyway.
+     *
+     * Deliberately deletes $server directly (never accessed via ->destination->server first) so
+     * this test reproduces that fresh-process scenario rather than the identity-map-staleness
+     * scenario covered separately by ServerIdentityMapTest.php - accessing the accessor before
+     * deleting would populate the cache and mask this exact regression.
+     */
+    #[Test]
+    public function it_still_reaches_a_soft_deleted_servers_containers(): void
+    {
+        $team = Team::factory()->create();
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $server->settings->update(['is_reachable' => true, 'is_usable' => true]);
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = $project->environments()->first();
+        $destination = $server->destinations()->first();
+
+        $service = Service::factory()->create([
+            'environment_id' => $environment->id,
+            'server_id' => $server->id,
+            'destination_id' => $destination->id,
+        ]);
+        $application = ServiceApplication::factory()->create([
+            'service_id' => $service->id,
+            'status' => 'running:healthy',
+        ]);
+
+        $server->delete();
+        $this->assertTrue($server->fresh()->trashed());
+
+        Event::fake();
+
+        $result = StopService::run($service->fresh(), dockerCleanup: false);
+
+        $this->assertNull($result);
+        $this->assertSame('exited', $application->fresh()->status);
+    }
 }

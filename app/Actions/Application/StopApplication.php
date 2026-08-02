@@ -22,13 +22,19 @@ class StopApplication
     {
         /** @var StandaloneDocker|SwarmDocker $destination */
         $destination = $application->destination;
-        $servers = collect([$destination->server]);
+        // The destination's server may have been soft-deleted already (e.g. mid-flight during a
+        // "delete server + force-delete resources" request, where the server row is soft-deleted
+        // synchronously while this action runs later via a queued DeleteResourceJob) - the default
+        // belongsTo query excludes trashed rows, so fall back to a trashed-inclusive lookup rather
+        // than silently losing the ability to reach and stop the real remote containers.
+        $server = $destination->server ?? $destination->server()->withTrashed()->first();
+        $servers = collect([$server]);
         if ($application->additional_servers->count() > 0) {
             $servers = $servers->merge($application->additional_servers);
         }
         foreach ($servers as $server) {
             try {
-                if (! $server->isFunctional()) {
+                if (! $server || ! $server->isFunctional()) {
                     return 'Server is not functional';
                 }
 
