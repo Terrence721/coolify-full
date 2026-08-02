@@ -40,7 +40,13 @@ it('renders the environment edit Inertia page', function () {
     );
 });
 
-it('returns 404 for an environment in a project owned by another team', function () {
+it('rejects an environment in a project owned by another team', function () {
+    // Previously asserted a 404, which was really the controller's own firstOrFail() catching
+    // this - the only thing that ran, since can.update.resource was dead at the time. Now the
+    // middleware's own Gate::allows('update', ...) check (real team scoping via
+    // EnvironmentPolicy) rejects the request before the controller runs at all, so this
+    // correctly gets a 403 instead - matching how every other Policy-gated route in this app
+    // already responds to cross-team access.
     $user = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => 'admin']);
@@ -52,7 +58,7 @@ it('returns 404 for an environment in a project owned by another team', function
         ->withSession(['currentTeam' => $team])
         ->get(route('project.environment.edit', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid]));
 
-    $response->assertNotFound();
+    $response->assertForbidden();
 });
 
 it('updates the environment name and description', function () {
