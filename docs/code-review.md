@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 1, 2026**
+**Last Updated: August 2, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -233,3 +233,13 @@ Same bug class as `StopApplication.php`/`StopService.php` above — `StopDatabas
 **high · Reliability (Core-Lifecycle)** — Fixed via [PR #106](https://github.com/Terrence721/coolify-full/pull/106) ([`d44c80e91`](https://github.com/Terrence721/coolify-full/commit/d44c80e91))
 
 `DeleteService::handle()` only cleaned up the Service's own `environment_variables()` inside the `$deleteVolumes && $server->isFunctional()` guard, while the Service row itself is force-deleted unconditionally in the `finally` block. Consequence: deleting a service with "delete volumes" unchecked, or when its server happens to be unreachable at delete time (regardless of the checkbox), silently skips cleanup — since the relation is a polymorphic `MorphMany` with no DB foreign key, nothing else cascades it, and no other job anywhere purges orphaned rows. These commonly hold real secrets (DB passwords, API keys). Separately, `ServiceApplication`'s `deleting` hook already cleans up `persistentStorages()`/`fileStorages()` but had no equivalent for its own `environment_variables()` — always orphaned, every delete. Contrast with the sibling non-service path in `DeleteResourceJob.php:80`, which deletes `environment_variables()` unconditionally — confirming this is a real inconsistency, not intended behavior. `ServiceDatabase` has no `environment_variables()` relation at all, so nothing to fix there. Fix: the Service's own cleanup now runs unconditionally; `ServiceApplication`'s `deleting` hook cleans up its own env vars the same way it already does for storages.
+
+---
+
+### [`EnvironmentController.php:298-379`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194673104)
+
+**high · Reliability (Core-Lifecycle)** — Fixed via [PR #107](https://github.com/Terrence721/coolify-full/pull/107) ([`ae1c9c7d7`](https://github.com/Terrence721/coolify-full/commit/ae1c9c7d7))
+
+Cloning a Service via `EnvironmentController::clone()` replicated the Service row and its `docker_compose_raw`, but the loops meant to copy each application/database's volume data (`clone_volume_data=true`) and replicate each database's `scheduledBackups` ran **before** `$newService->parse()` was called. `parse()` is the sole creator of a Service's `ServiceApplication`/`ServiceDatabase` child rows (it dispatches to `serviceParser()`, which builds them from `docker_compose_raw`) — nothing else creates them. So at the point those loops ran, `$newService->applications` and `$newService->databases` were always empty, making the loops permanent no-ops: `VolumeCloneJob` never dispatched for a cloned service's app/db volumes regardless of the `clone_volume_data` checkbox, and scheduled backups were silently dropped on every service clone. The equivalent standalone-database clone path in the same file already does this correctly (replicate → the resource exists → then copy volumes/backups) — that's the pattern this fix now matches.
+
+Debugging this took a couple of wrong turns before landing on the real fix. A real end-to-end test (POST to `project.clone-me.store` against a service built from a real, parseable `docker_compose_raw`) surfaced an unrelated `NotFoundHttpException` (404); temporary checkpoints across the controller ruled out the reordered loops or a routing/auth problem, since none of them ever fired — the failure was happening before the controller even ran. Wrapping the test fixture's own `$service->parse()` call in try/catch (building the *source* service, not the clone) exposed the real cause: `serviceParser()` unconditionally dispatches `ServerFilesFromServerJob` per volume, which under the `sync` queue driver runs synchronously and makes a real SSH call against a server that doesn't exist in tests. An initial guess that this was bind-mount-specific was also wrong (the dispatch fires for every volume type); the actual fix was adding `Bus::fake()` to the one new test missing it — pre-existing, unrelated `serviceParser()` behavior, not something this change introduced. Fix: call `$newService->parse()` immediately after replicating `environment_variables`, then match each source app/database to its newly-parsed counterpart by `name` before copying volume data or replicating scheduled backups.
