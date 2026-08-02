@@ -299,6 +299,17 @@ class Server extends BaseModel
         static::updated(function () {
             static::flushIdentityMap();
         });
+
+        // SoftDeletes performs the deleted_at write via a direct query-builder update
+        // (runSoftDelete()), not through save()/performUpdate() - so it never fires the
+        // 'updated' event above, and the identity map cache above was never invalidated
+        // by a delete. Any code already holding a server_id from before the delete (e.g.
+        // StandaloneDocker/SwarmDocker's getServerAttribute() accessor, which reads through
+        // findCached()) kept being served the stale, pre-delete object even after the row
+        // was soft- or force-deleted, within the same PHP process/request.
+        static::deleted(function () {
+            static::flushIdentityMap();
+        });
     }
 
     /**

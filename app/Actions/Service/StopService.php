@@ -32,8 +32,13 @@ class StopService
                     $activity->save();
                 });
 
-            $server = $service->destination->server;
-            if (! $server->isFunctional()) {
+            $destination = $service->destination;
+            // The destination's server may have been soft-deleted already (e.g. mid-flight during
+            // a "delete server + force-delete resources" request) - the default belongsTo query
+            // excludes trashed rows, so fall back to a trashed-inclusive lookup rather than
+            // silently losing the ability to reach and stop the real remote containers.
+            $server = $destination->server ?? $destination->server()->withTrashed()->first();
+            if (! $server || ! $server->isFunctional()) {
                 return 'Server is not functional';
             }
 
