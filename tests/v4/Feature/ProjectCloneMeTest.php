@@ -2,15 +2,29 @@
 
 declare(strict_types=1);
 
+use App\Jobs\VolumeCloneJob;
 use App\Models\Application;
 use App\Models\InstanceSettings;
 use App\Models\Project;
 use App\Models\Server;
+use App\Models\Service;
 use App\Models\StandaloneDocker;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Inertia\Testing\AssertableInertia as Assert;
+
+// VolumeCloneJob's constructor properties are protected - read via reflection since there's no
+// public accessor and this is the only place in the suite that needs to inspect a dispatched
+// job's source/target volume names.
+function readVolumeCloneJobProperty(VolumeCloneJob $job, string $name): string
+{
+    $property = new ReflectionProperty($job, $name);
+    $property->setAccessible(true);
+
+    return $property->getValue($job);
+}
 
 uses(RefreshDatabase::class);
 
@@ -137,6 +151,164 @@ it('rejects cloning into a project name that already exists', function () {
 
     $response->assertRedirect();
     $response->assertSessionHas('error', 'Project with the same name already exists.');
+});
+
+// A real, parseable docker-compose service with an application and a database, each with a
+// named volume, so Service::parse() populates real ServiceApplication/ServiceDatabase rows
+// with real persistentStorages the same way the actual create-service flow does - exercising
+// the full real parser, not a hand-built fixture standing in for it. Deliberately no
+// bind-mounted file volume: serviceParser() synchronously dispatches ServerFilesFromServerJob
+// for those (real behaviour, not specific to this fix), which needs a real reachable server -
+// out of scope for what this fixture needs to prove.
+function makeCloneTestComposeService(int $environmentId, int $destinationId, int $serverId): Service
+{
+    $compose = <<<'YAML'
+services:
+  app:
+    image: nginx:alpine
+    volumes:
+      - app-data:/usr/share/nginx/html
+  db:
+    image: postgres:15
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  app-data:
+  db-data:
+YAML;
+
+    $service = Service::create([
+        'name' => 'clone-source-service',
+        'environment_id' => $environmentId,
+        'destination_id' => $destinationId,
+        'destination_type' => StandaloneDocker::class,
+        'server_id' => $serverId,
+        'docker_compose_raw' => $compose,
+    ]);
+    $service->parse();
+
+    return $service->fresh();
+}
+
+it('clones a service, its applications/databases, and their persistent storages with new names', function () {
+    // serviceParser() itself dispatches ServerFilesFromServerJob for every volume it processes
+    // (real behaviour, unrelated to this fix) - fake the bus so it doesn't run synchronously
+    // against a real, unreachable server.
+    Bus::fake();
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $environment = $project->environments()->first();
+    $server = makeCloneTestServer($team->id);
+    $destination = $server->destinations()->first();
+
+    $service = makeCloneTestComposeService($environment->id, $destination->id, $server->id);
+    $sourceApp = $service->applications()->where('name', 'app')->firstOrFail();
+    $sourceDb = $service->databases()->where('name', 'db')->firstOrFail();
+    $sourceAppVolume = $sourceApp->persistentStorages()->firstOrFail();
+    $sourceDbVolume = $sourceDb->persistentStorages()->firstOrFail();
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.clone-me.store', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid]), [
+            'type' => 'environment',
+            'name' => 'staging',
+            'destination_id' => $destination->id,
+            'clone_volume_data' => false,
+        ]);
+
+    $newEnvironment = $project->environments()->where('name', 'staging')->firstOrFail();
+    $newService = $newEnvironment->services()->where('name', 'clone-source-service')->firstOrFail();
+
+    // The bug this locks in: parse() used to run last, so applications()/databases() were
+    // always empty when these loops ran - nothing below was ever reachable at all.
+    expect($newService->applications()->count())->toBe(1);
+    expect($newService->databases()->count())->toBe(1);
+
+    $newApp = $newService->applications()->where('name', 'app')->firstOrFail();
+    $newDb = $newService->databases()->where('name', 'db')->firstOrFail();
+
+    // persistentStorages are created by parse() itself (keyed off $newService's own fresh
+    // uuid), so they must already be correctly, uniquely named - not the source's name, and
+    // not the source's name with a no-op self-replace.
+    $newAppVolume = $newApp->persistentStorages()->firstOrFail();
+    expect($newAppVolume->name)->not->toBe($sourceAppVolume->name);
+    expect($newAppVolume->name)->toContain($newService->uuid);
+    expect($newAppVolume->mount_path)->toBe($sourceAppVolume->mount_path);
+
+    $newDbVolume = $newDb->persistentStorages()->firstOrFail();
+    expect($newDbVolume->name)->not->toBe($sourceDbVolume->name);
+    expect($newDbVolume->name)->toContain($newService->uuid);
+
+    $response->assertRedirect(route('project.resource.index', [
+        'project_uuid' => $project->uuid,
+        'environment_uuid' => $newEnvironment->uuid,
+    ]));
+});
+
+it('dispatches a VolumeCloneJob from the source volume to the new volume for each app/database when clone_volume_data is true', function () {
+    Bus::fake();
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $environment = $project->environments()->first();
+    $server = makeCloneTestServer($team->id);
+    $destination = $server->destinations()->first();
+
+    $service = makeCloneTestComposeService($environment->id, $destination->id, $server->id);
+    $sourceAppVolumeName = $service->applications()->where('name', 'app')->firstOrFail()->persistentStorages()->firstOrFail()->name;
+    $sourceDbVolumeName = $service->databases()->where('name', 'db')->firstOrFail()->persistentStorages()->firstOrFail()->name;
+
+    $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.clone-me.store', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid]), [
+            'type' => 'environment',
+            'name' => 'staging-with-data',
+            'destination_id' => $destination->id,
+            'clone_volume_data' => true,
+        ]);
+
+    $newEnvironment = $project->environments()->where('name', 'staging-with-data')->firstOrFail();
+    $newService = $newEnvironment->services()->where('name', 'clone-source-service')->firstOrFail();
+    $newAppVolumeName = $newService->applications()->where('name', 'app')->firstOrFail()->persistentStorages()->firstOrFail()->name;
+    $newDbVolumeName = $newService->databases()->where('name', 'db')->firstOrFail()->persistentStorages()->firstOrFail()->name;
+
+    Bus::assertDispatched(VolumeCloneJob::class, function (VolumeCloneJob $job) use ($sourceAppVolumeName, $newAppVolumeName) {
+        return readVolumeCloneJobProperty($job, 'sourceVolume') === $sourceAppVolumeName
+            && readVolumeCloneJobProperty($job, 'targetVolume') === $newAppVolumeName;
+    });
+    Bus::assertDispatched(VolumeCloneJob::class, function (VolumeCloneJob $job) use ($sourceDbVolumeName, $newDbVolumeName) {
+        return readVolumeCloneJobProperty($job, 'sourceVolume') === $sourceDbVolumeName
+            && readVolumeCloneJobProperty($job, 'targetVolume') === $newDbVolumeName;
+    });
+});
+
+it('does not dispatch a VolumeCloneJob when clone_volume_data is false', function () {
+    Bus::fake();
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $environment = $project->environments()->first();
+    $server = makeCloneTestServer($team->id);
+    $destination = $server->destinations()->first();
+    makeCloneTestComposeService($environment->id, $destination->id, $server->id);
+
+    $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.clone-me.store', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid]), [
+            'type' => 'environment',
+            'name' => 'staging-no-data',
+            'destination_id' => $destination->id,
+            'clone_volume_data' => false,
+        ]);
+
+    Bus::assertNotDispatched(VolumeCloneJob::class);
 });
 
 it('rejects submission without a destination selected', function () {
