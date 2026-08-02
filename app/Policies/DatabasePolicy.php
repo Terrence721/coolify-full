@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\StandaloneDatabaseInstance;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class DatabasePolicy
 {
@@ -22,8 +23,7 @@ class DatabasePolicy
      */
     public function view(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->teams->contains('id', $database->team()?->id);
     }
 
     /**
@@ -31,21 +31,19 @@ class DatabasePolicy
      */
     public function create(User $user): bool
     {
-        // return $user->isAdmin();
-        return true;
+        return $user->isAdmin();
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, StandaloneDatabaseInstance $database): bool
+    public function update(User $user, StandaloneDatabaseInstance $database): Response
     {
-        // if ($user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id)) {
-        //    return Response::allow();
-        // }
+        if ($user->isAdmin() && $user->teams->contains('id', $database->team()?->id)) {
+            return Response::allow();
+        }
 
-        // return Response::deny('As a member, you cannot update this database.<br/><br/>You need at least admin or owner permissions.');
-        return true;
+        return Response::deny('As a member, you cannot update this database.<br/><br/>You need at least admin or owner permissions.');
     }
 
     /**
@@ -53,8 +51,7 @@ class DatabasePolicy
      */
     public function delete(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $database->team()?->id);
     }
 
     /**
@@ -62,8 +59,7 @@ class DatabasePolicy
      */
     public function restore(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $database->team()?->id);
     }
 
     /**
@@ -71,8 +67,7 @@ class DatabasePolicy
      */
     public function forceDelete(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $database->team()?->id);
     }
 
     /**
@@ -80,8 +75,7 @@ class DatabasePolicy
      */
     public function manage(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $database->team()?->id);
     }
 
     /**
@@ -89,8 +83,7 @@ class DatabasePolicy
      */
     public function manageBackups(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $database->team()?->id);
     }
 
     /**
@@ -98,7 +91,6 @@ class DatabasePolicy
      */
     public function manageEnvironment(User $user, StandaloneDatabaseInstance $database): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $database->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $database->team()?->id);
     }
 }
