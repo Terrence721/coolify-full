@@ -23,7 +23,7 @@ This file is long and detailed on purpose — every claim below is backed by evi
 | Manual QA smoke-test checklist | All 11 sub-issues closed 2026-07-29, every SSH-touching action browser-confirmed — see "Manual QA smoke-test checklist" below |
 | ESLint `react-hooks/set-state-in-effect` cleanup | All 20 findings resolved individually (per-effect review, not a bulk fix), baseline at 0 as of 2026-07-31 — issue #33 closed. See "Frontend component testing" below |
 
-**Actually still open, right now:** 10 items — see the overview table at the top of **Still to do** below.
+**Actually still open, right now:** 14 items — see the overview table at the top of **Still to do** below.
 
 If you only read one section of this file, read this one and that table — everything else is the evidence trail behind them.
 
@@ -585,7 +585,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 
 ## 🚧 Still to do
 
-**Overview — 10 items open right now:**
+**Overview — 14 items open right now:**
 
 | # | Item | Status |
 |---|---|---|
@@ -599,6 +599,10 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 | 8 | Deep-nesting audit: 44 spots at depth ≥6, worst at 12 levels | Found 2026-07-30 via direct request, not a bug — see issue #81 for the full table. Standouts: `bootstrap/helpers/shared.php` (12 levels), `GetContainersStatus.php` (10 levels, already 2 real bugs found there this session), the 3 webhook controllers (7-8 levels, same shape). Not yet started — Backlog (#81) |
 | 9 | SOLID audit: 7 violations across SRP, OCP, DIP (2 passes) | Found 2026-08-01 via direct request, not a bug — see issue #103 for the full writeup (originally 2 cards, #103/#104, merged into one since they're the same audit run in two passes). SRP: 6 files mixing genuinely separable responsibilities — `Application.php` (called out directly) checked and cleared, disciplined not a violation. OCP: 1 finding — `DatabasesController::create_database()` is a 380-line per-engine `if/elseif` chain, when the sibling `StartDatabase.php` already solves the same problem correctly via `DatabaseEngineRegistry`. DIP: 0 findings (genuinely clean, not under-searched). Liskov/Interface Segregation deliberately not audited, each with a stated reason. Not yet started — Backlog (#103) |
 | 10 | Automate `dev-up.sh` at login (Task Scheduler) — `mount-doctor`'s replacement | Low priority, not blocking — manual workaround (`./scripts/dev-up.sh`) confirmed working. A container-native auto-fix was attempted and proven a dead end (needs `docker.sock`, itself a victim of the same WSL2 bind-mount race it exists to repair). Only remaining lever: run `dev-up.sh` at the Windows/WSL2 level on login. Not yet started — Backlog (#46) |
+| 11 | No real audit trail for team actions | `spatie/laravel-activitylog` is installed but every real usage logs task/deployment execution, not "who changed what" for team-visible settings/resources. Not yet started — Backlog (#66) |
+| 12 | No per-project/environment scoped RBAC | `Role` is a flat, team-wide hierarchy (Member/Admin/Owner) — a Member with team access can see and touch every project/environment, no way to scope to just their own. Not yet started — Backlog (#67) |
+| 13 | Outbound webhook notifications aren't signed (HMAC) | `WebhookChannel.php` posts straight to `webhook_url` with no signature/shared-secret header — a receiver can't verify the payload genuinely came from this instance. Not yet started — Backlog (#68) |
+| 14 | No real in-app team switcher | `AppLayout.jsx`'s own docblock documents this gap directly — a read-only team name is shown instead of a working switcher; a user in more than one team has no in-app way to move between them post-login. Already surfaced this as a real testing blocker once (issue #22, 2026-07-24 — couldn't exercise the non-admin/member masking path live because of it). Not yet started — Backlog (#69) |
 
 ### Laravel backend improvements — still open
 
