@@ -30,8 +30,7 @@ class ServerPolicy
      */
     public function create(User $user): bool
     {
-        // return $user->isAdmin();
-        return true;
+        return $user->isAdmin();
     }
 
     /**
@@ -39,8 +38,7 @@ class ServerPolicy
      */
     public function update(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
     }
 
     /**
@@ -48,8 +46,7 @@ class ServerPolicy
      */
     public function delete(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
     }
 
     /**
@@ -73,8 +70,7 @@ class ServerPolicy
      */
     public function manageProxy(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
     }
 
     /**
@@ -82,8 +78,7 @@ class ServerPolicy
      */
     public function manageSentinel(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
     }
 
     /**
@@ -91,8 +86,7 @@ class ServerPolicy
      */
     public function manageCaCertificate(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
     }
 
     /**
@@ -100,7 +94,6 @@ class ServerPolicy
      */
     public function viewSecurity(User $user, Server $server): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $server->team_id);
     }
 }

@@ -23,8 +23,7 @@ class ApplicationPreviewPolicy
      */
     public function view(User $user, ApplicationPreview $applicationPreview): bool
     {
-        // return $user->teams->contains('id', $applicationPreview->application->team()->first()->id);
-        return true;
+        return $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -32,21 +31,19 @@ class ApplicationPreviewPolicy
      */
     public function create(User $user): bool
     {
-        // return $user->isAdmin();
-        return true;
+        return $user->isAdmin();
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, ApplicationPreview $applicationPreview): bool
+    public function update(User $user, ApplicationPreview $applicationPreview): Response
     {
-        // if ($user->isAdmin()) {
-        //    return Response::allow();
-        // }
+        if ($user->isAdmin()) {
+            return Response::allow();
+        }
 
-        // return Response::deny('As a member, you cannot update this preview.<br/><br/>You need at least admin or owner permissions.');
-        return true;
+        return Response::deny('As a member, you cannot update this preview.<br/><br/>You need at least admin or owner permissions.');
     }
 
     /**
@@ -54,8 +51,7 @@ class ApplicationPreviewPolicy
      */
     public function delete(User $user, ApplicationPreview $applicationPreview): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -63,8 +59,7 @@ class ApplicationPreviewPolicy
      */
     public function restore(User $user, ApplicationPreview $applicationPreview): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -72,8 +67,7 @@ class ApplicationPreviewPolicy
      */
     public function forceDelete(User $user, ApplicationPreview $applicationPreview): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -81,8 +75,7 @@ class ApplicationPreviewPolicy
      */
     public function deploy(User $user, ApplicationPreview $applicationPreview): bool
     {
-        // return $user->teams->contains('id', $applicationPreview->application->team()->first()->id);
-        return true;
+        return $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -90,7 +83,6 @@ class ApplicationPreviewPolicy
      */
     public function manageDeployments(User $user, ApplicationPreview $applicationPreview): bool
     {
-        // return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()->first()->id);
-        return true;
+        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 }
