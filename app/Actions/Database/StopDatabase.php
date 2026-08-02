@@ -6,6 +6,7 @@ namespace App\Actions\Database;
 
 use App\Actions\Server\CleanupDocker;
 use App\Events\ServiceStatusChanged;
+use App\Models\Server;
 use App\Models\StandaloneDatabaseInstance;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -16,13 +17,18 @@ class StopDatabase
     public function handle(StandaloneDatabaseInstance $database, bool $dockerCleanup = true): string
     {
         try {
-            $server = data_get($database, 'destination.server');
-            if (! $server->isFunctional()) {
+            $destination = data_get($database, 'destination');
+            // The destination's server may have been soft-deleted already (e.g. mid-flight during
+            // a "delete server + force-delete resources" request) - the default belongsTo query
+            // excludes trashed rows, so fall back to a trashed-inclusive lookup rather than
+            // silently losing the ability to reach and stop the real remote container.
+            $server = data_get($destination, 'server') ?? $destination?->server()->withTrashed()->first();
+            if (! $server || ! $server->isFunctional()) {
                 return 'Server is not functional';
             }
 
             $uuid = (string) data_get($database, 'uuid');
-            $this->stopContainer($database, $uuid, 30);
+            $this->stopContainer($server, $uuid, 30);
 
             // Reset restart tracking when database is manually stopped
             $database->update([
@@ -50,9 +56,8 @@ class StopDatabase
 
     }
 
-    private function stopContainer(StandaloneDatabaseInstance $database, string $containerName, int $timeout = 30): void
+    private function stopContainer(Server $server, string $containerName, int $timeout = 30): void
     {
-        $server = data_get($database, 'destination.server');
         instant_remote_process(command: [
             "docker stop -t $timeout $containerName",
             "docker rm -f $containerName",
