@@ -34,25 +34,42 @@ class DatabasesController extends Controller
     use ManagesApiResourceStorages;
     use RedactsApiSensitiveFields;
 
+    /**
+     * The single source of truth for which database fields are always hidden vs. hidden
+     * without read:sensitive - ResourcesController's mixed-type /resources endpoint reuses
+     * this directly instead of keeping its own, unlinked copy.
+     *
+     * @return array{always: array<int, string>, sensitive: array<int, string>}
+     */
+    public static function sensitiveFieldLists(): array
+    {
+        return [
+            'always' => [
+                'id',
+                'laravel_through_key',
+            ],
+            'sensitive' => [
+                'internal_db_url',
+                'external_db_url',
+                'postgres_password',
+                'dragonfly_password',
+                'redis_password',
+                'mongo_initdb_root_password',
+                'keydb_password',
+                'clickhouse_admin_password',
+                'mysql_password',
+                'mysql_root_password',
+                'mariadb_password',
+                'mariadb_root_password',
+            ],
+        ];
+    }
+
     private function removeSensitiveData(mixed $database): mixed
     {
-        return $this->redactApiFields($database, [
-            'id',
-            'laravel_through_key',
-        ], [
-            'internal_db_url',
-            'external_db_url',
-            'postgres_password',
-            'dragonfly_password',
-            'redis_password',
-            'mongo_initdb_root_password',
-            'keydb_password',
-            'clickhouse_admin_password',
-            'mysql_password',
-            'mysql_root_password',
-            'mariadb_password',
-            'mariadb_root_password',
-        ]);
+        $fields = self::sensitiveFieldLists();
+
+        return $this->redactApiFields($database, $fields['always'], $fields['sensitive']);
     }
 
     /**

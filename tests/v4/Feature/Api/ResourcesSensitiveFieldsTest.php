@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\ApplicationsController;
+use App\Http\Controllers\Api\DatabasesController;
+use App\Http\Controllers\Api\ResourcesController;
+use App\Http\Controllers\Api\ServicesController;
 use App\Models\Application;
 use App\Models\Project;
 use App\Models\Server;
@@ -17,6 +21,7 @@ use App\Models\StandalonePostgresql;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\CallsProtectedMethods;
 use Tests\Support\InteractsWithApiV1;
 
 // Regression coverage for a real, critical credential leak: ResourcesController::resources()
@@ -34,7 +39,7 @@ use Tests\Support\InteractsWithApiV1;
 // different case this schema-driven test isn't set up to exercise - same exclusion reasoning as
 // DatabasesSensitiveFieldsTest.php.
 
-uses(RefreshDatabase::class, InteractsWithApiV1::class);
+uses(RefreshDatabase::class, InteractsWithApiV1::class, CallsProtectedMethods::class);
 
 beforeEach(function () {
     $this->apiEnable();
@@ -143,4 +148,59 @@ it('exposes real secret values only when the token carries read:sensitive', func
 
     $response->assertOk();
     $response->assertJsonFragment(['mysql_root_password' => 'SECRET-MYSQL-ROOT-PW']);
+});
+
+// Regression coverage for a real code-review finding (independent /code-review pass on this same
+// PR): ResourcesController::removeSensitiveData() used to hardcode its own copy of each type's
+// always-hidden/sensitive-hidden field lists instead of sourcing them from the same place the
+// dedicated Applications/Services/Databases controllers already use - "the same drift class...
+// already fixed twice" per this file's own header comment, just a fourth, unlinked instance of
+// it. Fixed by having ResourcesController pull directly from each sibling controller's own
+// sensitiveFieldLists(), so the two can no longer independently drift. These tests assert that
+// structurally, not just that today's specific field values happen to match.
+
+it('hides exactly the fields ApplicationsController::sensitiveFieldLists() defines, driven by the same source - not a hardcoded copy', function () {
+    [$team, $user, $environment, $destination] = makeApiResourcesTeamAndServer();
+    $application = Application::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+        'destination_type' => StandaloneDocker::class,
+    ]);
+
+    $result = $this->callProtected(new ResourcesController, 'removeSensitiveData', $application);
+
+    $fields = ApplicationsController::sensitiveFieldLists();
+    foreach ([...$fields['always'], ...$fields['sensitive']] as $hiddenField) {
+        expect($result)->not->toHaveKey($hiddenField);
+    }
+});
+
+it('hides exactly the fields ServicesController::sensitiveFieldLists() defines, driven by the same source - not a hardcoded copy', function () {
+    [$team, $user, $environment, $destination] = makeApiResourcesTeamAndServer();
+    $service = Service::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+    ]);
+
+    $result = $this->callProtected(new ResourcesController, 'removeSensitiveData', $service);
+
+    $fields = ServicesController::sensitiveFieldLists();
+    foreach ([...$fields['always'], ...$fields['sensitive']] as $hiddenField) {
+        expect($result)->not->toHaveKey($hiddenField);
+    }
+});
+
+it('hides exactly the fields DatabasesController::sensitiveFieldLists() defines, driven by the same source - not a hardcoded copy', function () {
+    [$team, $user, $environment, $destination] = makeApiResourcesTeamAndServer();
+    $database = StandaloneMysql::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+    ]);
+
+    $result = $this->callProtected(new ResourcesController, 'removeSensitiveData', $database);
+
+    $fields = DatabasesController::sensitiveFieldLists();
+    foreach ([...$fields['always'], ...$fields['sensitive']] as $hiddenField) {
+        expect($result)->not->toHaveKey($hiddenField);
+    }
 });

@@ -28,19 +28,36 @@ class ServicesController extends Controller
     use ManagesApiResourceStorages;
     use RedactsApiSensitiveFields;
 
+    /**
+     * The single source of truth for which Service fields are always hidden vs. hidden
+     * without read:sensitive - ResourcesController's mixed-type /resources endpoint reuses
+     * this directly instead of keeping its own, unlinked copy.
+     *
+     * @return array{always: array<int, string>, sensitive: array<int, string>}
+     */
+    public static function sensitiveFieldLists(): array
+    {
+        return [
+            'always' => [
+                'id',
+                'resourceable',
+                'resourceable_id',
+                'resourceable_type',
+            ],
+            'sensitive' => [
+                'docker_compose_raw',
+                'docker_compose',
+                'value',
+                'real_value',
+            ],
+        ];
+    }
+
     private function removeSensitiveData(mixed $service): mixed
     {
-        return $this->redactApiFields($service, [
-            'id',
-            'resourceable',
-            'resourceable_id',
-            'resourceable_type',
-        ], [
-            'docker_compose_raw',
-            'docker_compose',
-            'value',
-            'real_value',
-        ]);
+        $fields = self::sensitiveFieldLists();
+
+        return $this->redactApiFields($service, $fields['always'], $fields['sensitive']);
     }
 
     /**
