@@ -41,27 +41,44 @@ class ApplicationsController extends Controller
     use ManagesApiResourceStorages;
     use RedactsApiSensitiveFields;
 
+    /**
+     * The single source of truth for which Application fields are always hidden vs.
+     * hidden without read:sensitive - ResourcesController's mixed-type /resources endpoint
+     * reuses this directly instead of keeping its own, unlinked copy.
+     *
+     * @return array{always: array<int, string>, sensitive: array<int, string>}
+     */
+    public static function sensitiveFieldLists(): array
+    {
+        return [
+            'always' => [
+                'id',
+                'resourceable',
+                'resourceable_id',
+                'resourceable_type',
+            ],
+            'sensitive' => [
+                'custom_labels',
+                'dockerfile',
+                'docker_compose',
+                'docker_compose_raw',
+                'manual_webhook_secret_bitbucket',
+                'manual_webhook_secret_gitea',
+                'manual_webhook_secret_github',
+                'manual_webhook_secret_gitlab',
+                'private_key_id',
+                'value',
+                'real_value',
+                'http_basic_auth_password',
+            ],
+        ];
+    }
+
     private function removeSensitiveData(mixed $application): mixed
     {
-        return $this->redactApiFields($application, [
-            'id',
-            'resourceable',
-            'resourceable_id',
-            'resourceable_type',
-        ], [
-            'custom_labels',
-            'dockerfile',
-            'docker_compose',
-            'docker_compose_raw',
-            'manual_webhook_secret_bitbucket',
-            'manual_webhook_secret_gitea',
-            'manual_webhook_secret_github',
-            'manual_webhook_secret_gitlab',
-            'private_key_id',
-            'value',
-            'real_value',
-            'http_basic_auth_password',
-        ]);
+        $fields = self::sensitiveFieldLists();
+
+        return $this->redactApiFields($application, $fields['always'], $fields['sensitive']);
     }
 
     #[OA\Get(
