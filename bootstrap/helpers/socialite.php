@@ -14,6 +14,14 @@ function get_socialite_provider(string $provider)
 {
     $oauth_setting = OauthSetting::firstWhere('provider', $provider);
 
+    // OauthSetting::enabled only controls whether the login button is shown
+    // (FortifyServiceProvider::boot()) - without this check, a provider an admin has disabled
+    // still works end-to-end via a direct request to its redirect/callback URLs as long as
+    // credentials remain configured on the row.
+    if (! $oauth_setting?->enabled) {
+        abort(404);
+    }
+
     if (! filled($oauth_setting->redirect_uri)) {
         $oauth_setting->update(['redirect_uri' => route('auth.callback', $provider)]);
     }
