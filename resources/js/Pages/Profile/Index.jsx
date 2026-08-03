@@ -239,7 +239,7 @@ export default function Index({
                     </div>
                 </div>
             )}
-            {!twoFactor.status && (
+            {(!twoFactor.status || twoFactor.status === 'recovery-codes-generated') && (
                 <>
                     {twoFactor.confirmed ? (
                         <>
