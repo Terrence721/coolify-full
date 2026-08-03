@@ -79,6 +79,25 @@ it('still returns the deployment status/uuid once logs are redacted', function (
     $response->assertJsonPath('count', 1);
 });
 
+it('accepts explicit skip/take query params instead of crashing with a TypeError', function () {
+    // Regression test for a real bug found via an independent /code-review pass (pseudo peer
+    // review) on this same fix: Application::deployments(int $skip = 0, int $take = 10, ...) is
+    // strictly typed, but the controller read $request->get('skip', 0)/$request->get('take', 10)
+    // with no cast - query-string values are always strings when present, and under
+    // declare(strict_types=1) (both files) PHP does not coerce "5" to int. Only the no-params
+    // default case (literal ints baked into the signature) worked; any client that actually used
+    // pagination got an uncaught TypeError -> 500 instead of a paginated response. Confirmed
+    // empirically via a real request before filing.
+    [$team, $user, $application] = makeApiApplicationWithDeploymentLogs('SECRET-DEPLOY-LOG-CONTENTS');
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))
+        ->getJson("/api/v1/deployments/applications/{$application->uuid}?skip=1&take=5");
+
+    $response->assertOk();
+    $response->assertJsonPath('count', 1);
+});
+
 it('exposes deployment logs only when the token carries read:sensitive', function () {
     [$team, $user, $application] = makeApiApplicationWithDeploymentLogs('SECRET-DEPLOY-LOG-CONTENTS');
     $token = $this->apiToken($user, $team, ['read', 'read:sensitive']);
