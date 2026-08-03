@@ -312,7 +312,7 @@ Every method unconditionally `return true;` — unfilled boilerplate inherited f
 
 ### [`RestartDatabase.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194759912)
 
-**high · Reliability (Core-Lifecycle)** — Fixed via [PR #115](https://github.com/Terrence721/coolify-full/pull/115) ([`dd7219ba2`](https://github.com/Terrence721/coolify-full/commit/dd7219ba2))
+**high · Reliability (Core-Lifecycle)** — Fixed via [PR #115](https://github.com/Terrence721/coolify-full/pull/115) ([`22ebeb20d`](https://github.com/Terrence721/coolify-full/commit/22ebeb20d))
 
 `handle()` read `$database->destination->server` and called `->isFunctional()` on it with no null check — `destination.server` resolves to `null` once the backing `Server` row is soft-deleted (e.g. mid-flight during a "delete server + delete all resources" request, before the queued cleanup job runs), since the default `belongsTo` query excludes trashed rows. Crashed with an uncaught `Error` instead of the graceful `'Server is not functional'` message the not-functional branch already returns. Same root shape as the `StopApplication`/`StopDatabase`/`StopService` null-server crash fixed via PR #108, but this sibling file — which duplicates the same read one line before ever delegating to the now-fixed `StopDatabase` — was never touched by that fix. Confirmed inherited verbatim from the original upstream import. PHPStan (level 6) doesn't catch this — verified directly against the pre-fix code — since `data_get()` returns `mixed` and level 6 doesn't flag method calls on `mixed`; found instead by comparing this file against its already-fixed siblings for the same pattern. Fix: guarded with `instanceof Server`, matching the identical pattern already used by the sibling `StartDatabase.php` this action calls right after.
 
@@ -320,7 +320,7 @@ Every method unconditionally `return true;` — unfilled boilerplate inherited f
 
 ### [`RegenerateSslCertJob.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194765986)
 
-**high · Reliability (Core-Lifecycle — SSL renewal, instance-wide blast radius)** — Fixed via [PR #117](https://github.com/Terrence721/coolify-full/pull/117) ([`7568d56fa`](https://github.com/Terrence721/coolify-full/commit/7568d56fa))
+**high · Reliability (Core-Lifecycle — SSL renewal, instance-wide blast radius)** — Fixed via [PR #117](https://github.com/Terrence721/coolify-full/pull/117) ([`87a4df065`](https://github.com/Terrence721/coolify-full/commit/87a4df065))
 
 The per-certificate loop only caught `\Exception`, but `$certificate->server` resolves to `null` once the backing `Server` row is soft-deleted (default `belongsTo` excludes trashed rows) — calling `->sslCertificates()` on that `null` throws `\Error`, not `\Exception`, so the catch never fired. This job runs `twiceDaily()` **instance-wide with no `server_id` filter**, so one soft-deleted server anywhere in the instance with a certificate due for renewal crashed the entire job, silently halting SSL renewal checks for every team on every run, with no `failed()` handler to surface it anywhere beyond Horizon's failed-jobs list. Same root shape as the `StopApplication`/`StopDatabase`/`StopService`/`RestartDatabase` null-server crashes already fixed, just missing the right catch type instead of missing a guard entirely. Confirmed inherited verbatim from the original upstream import. Fix: widened `catch (\Exception $e)` to `catch (\Throwable $e)`, matching the pattern already used elsewhere in this codebase for exactly this class of crash.
 
@@ -328,7 +328,7 @@ The per-certificate loop only caught `\Exception`, but `$certificate->server` re
 
 ### [`StopApplicationOneServer.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194772108)
 
-**high · Reliability (Core-Lifecycle)** — Fixed via [PR #118](https://github.com/Terrence721/coolify-full/pull/118) ([`10501cdc1`](https://github.com/Terrence721/coolify-full/commit/10501cdc1))
+**high · Reliability (Core-Lifecycle)** — Fixed via [PR #118](https://github.com/Terrence721/coolify-full/pull/118) ([`66ff377aa`](https://github.com/Terrence721/coolify-full/commit/66ff377aa))
 
 `handle()` read `$application->destination->server` and called `->isSwarm()` on it with no null check, outside the method's own `try`/`catch` — `destination.server` resolves to `null` once the destination's server has been soft-deleted, crashing with an uncaught `Error` instead of the graceful `'Server is not functional'` message the very next check already produces for the passed-in `$server`. Same root shape as the `StopApplication`/`StopDatabase`/`StopService`/`RestartDatabase`/`RegenerateSslCertJob` null-server crashes already fixed — `StopApplication.php` itself already has the exact fallback for this same read, this sibling file didn't. Reachable via `ProjectApplicationConfigurationController::serversStop()`/`serversRemove()` when a multi-server application's main destination server gets soft-deleted while a request targeting one of its additional servers races in. Confirmed inherited verbatim from the original upstream import. Fix: mirrors `StopApplication.php`'s established trashed-inclusive-lookup pattern.
 
@@ -336,7 +336,7 @@ The per-certificate loop only caught `\Exception`, but `$certificate->server` re
 
 ### [`ServersController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194782953)
 
-**critical · Security (credential exposure)** — Fixed via [PR #119](https://github.com/Terrence721/coolify-full/pull/119) ([`a47990a0c`](https://github.com/Terrence721/coolify-full/commit/a47990a0c)) — found via an independent `/code-review` pass (pseudo peer review), not this session's own discovery process; see `todo.md`'s "Independent verification review (pseudo peer review)" section.
+**critical · Security (credential exposure)** — Fixed via [PR #119](https://github.com/Terrence721/coolify-full/pull/119) ([`d93617994`](https://github.com/Terrence721/coolify-full/commit/d93617994)) — found via an independent `/code-review` pass (pseudo peer review), not this session's own discovery process; see `todo.md`'s "Independent verification review (pseudo peer review)" section.
 
 `removeSensitiveDataFromSettings()`'s `makeHidden()` list redacted `sentinel_token`/`logdrain_axiom_api_key`/`logdrain_newrelic_license_key` (PR #94's original fix) but missed `logdrain_custom_config`/`logdrain_custom_config_parser` — two real `ServerSetting` columns with no encryption cast. `StartLogDrain.php` confirms `logdrain_custom_config` holds the raw Fluent Bit output config a user pastes in for a custom log drain, which routinely embeds a real `Authorization Bearer <token>` header — the MCP layer already independently treats these same two fields as sensitive. Reachable via `GET /api/v1/servers`/`GET /api/v1/servers/{uuid}`, both gated behind plain `read` ability — the same credential-exposure class PR #94 claimed to close, one field short. Fix: added both fields to the `makeHidden()` list.
 
@@ -344,7 +344,7 @@ The per-certificate loop only caught `\Exception`, but `$certificate->server` re
 
 ### [`DeployController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194789412)
 
-**high · Reliability (API)** — Fixed via [PR #121](https://github.com/Terrence721/coolify-full/pull/121) ([`00267e0ad`](https://github.com/Terrence721/coolify-full/commit/00267e0ad)) — found via an independent `/code-review` pass (pseudo peer review) on PR #99, while reviewing the whole function rather than just its diff.
+**high · Reliability (API)** — Fixed via [PR #121](https://github.com/Terrence721/coolify-full/pull/121) ([`d41904f18`](https://github.com/Terrence721/coolify-full/commit/d41904f18)) — found via an independent `/code-review` pass (pseudo peer review) on PR #99, while reviewing the whole function rather than just its diff.
 
 `Application::deployments(int $skip = 0, int $take = 10, ...)` is strictly typed, but the controller read `$request->get('skip', 0)`/`$request->get('take', 10)` with no cast — query-string values are always strings when present, and PHP doesn't coerce a numeric string to `int` under `strict_types`. Only the no-params default case worked; any client that actually used pagination got an uncaught `TypeError` → 500. Reachable via `GET /api/v1/deployments/applications/{uuid}?skip=X&take=Y`. Confirmed empirically via a real HTTP request (a `tinker` call alone doesn't reproduce this, since `strict_types` is determined by the calling file, not the callee). Pre-existing bug in the unchanged parts of the function PR #99 touched. Fix: cast both values to `int` at the call site.
 
@@ -352,6 +352,14 @@ The per-certificate loop only caught `\Exception`, but `$certificate->server` re
 
 ### [`StopDatabaseProxy.php`, `StartDatabaseProxy.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194796468)
 
-**medium · Reliability (null-server crash)** — Fixed via [PR #122](https://github.com/Terrence721/coolify-full/pull/122) ([`0aa666ba1`](https://github.com/Terrence721/coolify-full/commit/0aa666ba1))
+**medium · Reliability (null-server crash)** — Fixed via [PR #122](https://github.com/Terrence721/coolify-full/pull/122) ([`4e32795ff`](https://github.com/Terrence721/coolify-full/commit/4e32795ff))
 
 Both actions read the target server via `data_get($database, 'destination.server')` (or the `ServiceDatabase` equivalent) with no null check, then passed it straight into `instant_remote_process()`, which requires a non-nullable `Server`. `destination.server` resolves to `null` once the backing server has been soft-deleted, since the default `belongsTo` excludes trashed rows, crashing with an uncaught `TypeError`. Reachable via `ManagesDatabaseGeneralForm::updateDatabaseProxy()` and `ProjectServiceResourceController::updateDatabasePublic()`, both gated only by team-scoped authorization with no server-functional check. Same root shape as the `StopApplication`/`StopDatabase`/`StopService`/`RestartDatabase`/`RegenerateSslCertJob`/`StopApplicationOneServer` null-server crashes already fixed this session, just in two sibling files that pattern never reached. Confirmed inherited verbatim from the original upstream import. Fix: guarded both with `instanceof Server`, matching the established pattern. `StopDatabaseProxy.php` had zero prior test coverage — added a new test file.
+
+---
+
+### [`TeamController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194803183)
+
+**medium · Reliability (unguarded enum coercion on a missing pivot row)** — Fixed via [PR #124](https://github.com/Terrence721/coolify-full/pull/124) ([`eaee17814`](https://github.com/Terrence721/coolify-full/commit/eaee17814))
+
+Both `updateMemberRole()` and `removeMember()` resolve the target with `User::findOrFail($member_id)` — unscoped to the current team — then compute the member's role via a pivot-table lookup and feed it directly into `Role::from()`, a backed string enum with no case for an empty string. When `$member_id` is a valid user who isn't a member of the *current* team, the pivot lookup returns `null`, `(string) null` becomes `''`, and `Role::from('')` throws an uncaught `ValueError` → 500, instead of any graceful "not a member" response. Reachable via `PUT /team/members/{member_id}/role` and `DELETE /team/members/{member_id}`, gated by `auth`/`verified` and `TeamPolicy::manageMembers` — any team admin/owner can hit these with an arbitrary `member_id`. Not inherited from upstream — original code written during this fork's own Livewire→React migration. No existing test exercised the not-a-member case. Fix: check for a missing pivot row before coercing to `Role`, return a normal flash-error response instead of crashing.
