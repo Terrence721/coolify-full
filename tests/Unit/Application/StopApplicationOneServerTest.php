@@ -40,6 +40,51 @@ class StopApplicationOneServerTest extends TestCase
         return $settings;
     }
 
+    /**
+     * Regression test for a real bug: $application->destination->server was read unguarded and
+     * ->isSwarm() called on it directly, outside the method's own try/catch - destination.server
+     * resolves to null once the destination's server has been soft-deleted (the default belongsTo
+     * excludes trashed rows), which crashed with an uncaught Error instead of the graceful
+     * "Server is not functional" message the very next check already produces for the passed-in
+     * $server. Same root shape as the StopApplication/StopDatabase/StopService/RestartDatabase/
+     * RegenerateSslCertJob null-server crashes already fixed this session, just in a sibling file
+     * that pattern never reached.
+     */
+    #[Test]
+    public function it_returns_error_instead_of_crashing_when_the_main_destination_server_is_gone()
+    {
+        $server = $this->mockServer(true, false);
+
+        $destination = new class
+        {
+            public ?Server $server = null;
+
+            public function server()
+            {
+                return new class
+                {
+                    public function withTrashed()
+                    {
+                        return $this;
+                    }
+
+                    public function first()
+                    {
+                        return null;
+                    }
+                };
+            }
+        };
+
+        $application = Application::factory()->make();
+        $application->setRelation('destination', $destination);
+
+        $action = new StopApplicationOneServer;
+        $result = $action->handle($application, $server);
+
+        $this->assertSame('Server is not functional', $result);
+    }
+
     #[Test]
     public function it_returns_null_immediately_if_destination_server_is_swarm()
     {
