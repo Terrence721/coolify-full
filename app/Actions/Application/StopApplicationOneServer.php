@@ -14,7 +14,16 @@ class StopApplicationOneServer
 
     public function handle(Application $application, Server $server): ?string
     {
-        if ($application->destination->server->isSwarm()) {
+        $destination = $application->destination;
+        // The main destination's server may have been soft-deleted already (e.g. mid-flight
+        // during a "delete server + force-delete resources" request on that server) - the
+        // default belongsTo query excludes trashed rows, so fall back to a trashed-inclusive
+        // lookup rather than crashing on a null server here.
+        $mainServer = $destination->server ?? $destination->server()->withTrashed()->first();
+        if (! $mainServer) {
+            return 'Server is not functional';
+        }
+        if ($mainServer->isSwarm()) {
             return null;
         }
         if (! $server->isFunctional()) {
