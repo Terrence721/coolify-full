@@ -34,8 +34,11 @@ it('defaults to dark/full/100% when localStorage has nothing saved', () => {
     render(<Appearance />);
 
     expect(screen.getByRole('button', { name: 'Use dark theme' })).toHaveClass('border-coollabs');
+    expect(screen.getByRole('button', { name: 'Use light theme' })).not.toHaveClass('border-coollabs');
     expect(screen.getByRole('button', { name: 'Use full width' })).toHaveClass('border-coollabs');
+    expect(screen.getByRole('button', { name: 'Use centered width' })).not.toHaveClass('border-coollabs');
     expect(screen.getByRole('button', { name: 'Use 100 percent zoom' })).toHaveClass('border-coollabs');
+    expect(screen.getByRole('button', { name: 'Use 90 percent zoom' })).not.toHaveClass('border-coollabs');
     expect(document.documentElement).toHaveClass('dark');
 });
 
@@ -47,8 +50,11 @@ it('reads persisted settings from localStorage and highlights the matching butto
     render(<Appearance />);
 
     expect(screen.getByRole('button', { name: 'Use light theme' })).toHaveClass('border-coollabs');
+    expect(screen.getByRole('button', { name: 'Use dark theme' })).not.toHaveClass('border-coollabs');
     expect(screen.getByRole('button', { name: 'Use centered width' })).toHaveClass('border-coollabs');
+    expect(screen.getByRole('button', { name: 'Use full width' })).not.toHaveClass('border-coollabs');
     expect(screen.getByRole('button', { name: 'Use 90 percent zoom' })).toHaveClass('border-coollabs');
+    expect(screen.getByRole('button', { name: 'Use 100 percent zoom' })).not.toHaveClass('border-coollabs');
     expect(document.documentElement).not.toHaveClass('dark');
 });
 
