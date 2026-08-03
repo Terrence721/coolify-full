@@ -23,7 +23,7 @@ This file is long and detailed on purpose — every claim below is backed by evi
 | Manual QA smoke-test checklist | All 11 sub-issues closed 2026-07-29, every SSH-touching action browser-confirmed — see "Manual QA smoke-test checklist" below |
 | ESLint `react-hooks/set-state-in-effect` cleanup | All 20 findings resolved individually (per-effect review, not a bulk fix), baseline at 0 as of 2026-07-31 — issue #33 closed. See "Frontend component testing" below |
 
-**Actually still open, right now:** 14 items — see the overview table at the top of **Still to do** below.
+**Actually still open, right now:** 16 items — see the overview table at the top of **Still to do** below.
 
 If you only read one section of this file, read this one and that table — everything else is the evidence trail behind them.
 
@@ -622,7 +622,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 
 ## 🚧 Still to do
 
-**Overview — 15 items open right now:**
+**Overview — 16 items open right now:**
 
 | # | Item | Status |
 |---|---|---|
@@ -641,6 +641,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 | 13 | Outbound webhook notifications aren't signed (HMAC) | `WebhookChannel.php` posts straight to `webhook_url` with no signature/shared-secret header — a receiver can't verify the payload genuinely came from this instance. Not yet started — Backlog (#68) |
 | 14 | No real in-app team switcher | `AppLayout.jsx`'s own docblock documents this gap directly — a read-only team name is shown instead of a working switcher; a user in more than one team has no in-app way to move between them post-login. Already surfaced this as a real testing blocker once (issue #22, 2026-07-24 — couldn't exercise the non-admin/member masking path live because of it). Not yet started — Backlog (#69) |
 | 15 | 3 Configuration pages statically import every tab component | Found 2026-08-03 via direct request (a repo-wide code-splitting scan) — not a bug, the app is already well-architected for this (per-page splitting via `import.meta.glob` without `eager: true`, Monaco/ApexCharts loaded outside the bundle graph entirely, xterm.js already isolated into its own chunk). The one real, minor candidate: `Project/{Application,Database,Service}/Configuration.jsx` each statically import every tab component (12/fewer/fewer) instead of `React.lazy()`-loading only the active one — biggest chunk affected is Application's at 69.20 kB. Not Tier 1 or Tier 2 by this session's own tiering (no security/reliability impact, modest absolute savings) — deliberately deprioritized below the security/reliability-first review order. Not yet started — Backlog (#116) |
+| 16 | No React Error Boundaries anywhere in the app | Found 2026-08-03 via direct user observation, not a bug — confirmed zero components implement `componentDidCatch`/`getDerivedStateFromError` anywhere in `resources/js/`. With Inertia, React stays mounted across page navigations, so any single component throwing during render currently blanks the *entire* page with no recovery until a manual reload — no natural full-reload safety net between pages the way a traditional multi-page app gets for free. Design note for whenever this is picked up: a single root-level boundary is better than nothing but still takes down the whole shell (including nav chrome) on any one widget's error — the more valuable version wraps several regions independently (page content separate from `AppLayout.jsx`'s persistent nav/sidebar chrome). Not yet started — Backlog (#126) |
 
 ### Laravel backend improvements — still open
 
