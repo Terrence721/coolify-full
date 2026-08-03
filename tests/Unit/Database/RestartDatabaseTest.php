@@ -56,6 +56,32 @@ class RestartDatabaseTest extends TestCase
         $this->assertSame('Server is not functional', $result);
     }
 
+    /**
+     * Regression test for a real bug: destination->server resolves to null when the destination's
+     * server has been soft-deleted (e.g. mid-flight during a "delete server + delete all
+     * resources" request, before the queued cleanup job runs) - the unguarded ->isFunctional()
+     * call on that null crashed with an uncaught Error instead of returning the same graceful
+     * message the not-functional branch already returns. Same root shape as the StopApplication/
+     * StopDatabase/StopService null-server crash fixed via PR #108, but this sibling file was
+     * never touched by that fix - it duplicates the same destination->server read one line before
+     * ever delegating to the now-fixed StopDatabase.
+     */
+    #[Test]
+    public function it_returns_error_instead_of_crashing_when_the_server_is_null()
+    {
+        $destination = new class
+        {
+            public $server = null;
+        };
+        $db = new StandaloneMysql;
+        $db->setRelation('destination', $destination);
+
+        $action = new RestartDatabase;
+        $result = $action->handle($db);
+
+        $this->assertSame('Server is not functional', $result);
+    }
+
     #[Test]
     public function it_calls_stop_and_start_database()
     {
