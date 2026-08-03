@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 2, 2026**
+**Last Updated: August 3, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -347,3 +347,11 @@ The per-certificate loop only caught `\Exception`, but `$certificate->server` re
 **high · Reliability (API)** — Fixed via [PR #121](https://github.com/Terrence721/coolify-full/pull/121) ([`00267e0ad`](https://github.com/Terrence721/coolify-full/commit/00267e0ad)) — found via an independent `/code-review` pass (pseudo peer review) on PR #99, while reviewing the whole function rather than just its diff.
 
 `Application::deployments(int $skip = 0, int $take = 10, ...)` is strictly typed, but the controller read `$request->get('skip', 0)`/`$request->get('take', 10)` with no cast — query-string values are always strings when present, and PHP doesn't coerce a numeric string to `int` under `strict_types`. Only the no-params default case worked; any client that actually used pagination got an uncaught `TypeError` → 500. Reachable via `GET /api/v1/deployments/applications/{uuid}?skip=X&take=Y`. Confirmed empirically via a real HTTP request (a `tinker` call alone doesn't reproduce this, since `strict_types` is determined by the calling file, not the callee). Pre-existing bug in the unchanged parts of the function PR #99 touched. Fix: cast both values to `int` at the call site.
+
+---
+
+### [`StopDatabaseProxy.php`, `StartDatabaseProxy.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-194796468)
+
+**medium · Reliability (null-server crash)** — Fixed via [PR #122](https://github.com/Terrence721/coolify-full/pull/122) ([`0aa666ba1`](https://github.com/Terrence721/coolify-full/commit/0aa666ba1))
+
+Both actions read the target server via `data_get($database, 'destination.server')` (or the `ServiceDatabase` equivalent) with no null check, then passed it straight into `instant_remote_process()`, which requires a non-nullable `Server`. `destination.server` resolves to `null` once the backing server has been soft-deleted, since the default `belongsTo` excludes trashed rows, crashing with an uncaught `TypeError`. Reachable via `ManagesDatabaseGeneralForm::updateDatabaseProxy()` and `ProjectServiceResourceController::updateDatabasePublic()`, both gated only by team-scoped authorization with no server-functional check. Same root shape as the `StopApplication`/`StopDatabase`/`StopService`/`RestartDatabase`/`RegenerateSslCertJob`/`StopApplicationOneServer` null-server crashes already fixed this session, just in two sibling files that pattern never reached. Confirmed inherited verbatim from the original upstream import. Fix: guarded both with `instanceof Server`, matching the established pattern. `StopDatabaseProxy.php` had zero prior test coverage — added a new test file.
