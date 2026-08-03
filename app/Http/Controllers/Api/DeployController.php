@@ -686,8 +686,8 @@ class DeployController extends Controller
         ]);
 
         $app_uuid = $request->route('uuid', null);
-        $skip = $request->get('skip', 0);
-        $take = $request->get('take', 10);
+        $skip = (int) $request->get('skip', 0);
+        $take = (int) $request->get('take', 10);
 
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
