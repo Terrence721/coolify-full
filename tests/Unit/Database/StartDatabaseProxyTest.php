@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions\Database;
 
+use App\Models\Server;
 use App\Models\ServiceDatabase;
 use App\Models\StandaloneRedis;
 use App\Models\Team;
@@ -98,7 +99,7 @@ final class StartDatabaseProxyTest extends TestCase
 
             public object $destination;
         };
-        $service->destination = (object) ['server' => 'srv-02'];
+        $service->destination = (object) ['server' => $this->createStub(Server::class)];
 
         $serviceDb->setRelation('service', $service);
 
@@ -111,6 +112,28 @@ final class StartDatabaseProxyTest extends TestCase
         $decoded = base64_decode($matches[1]);
 
         $this->assertStringContainsString('proxy_pass mydb-svc-uuid:5432;', $decoded);
+    }
+
+    /**
+     * Regression test for a real bug: $server was read from destination.server (or
+     * service.destination.server) with no null check, then passed straight into
+     * instant_remote_process(), whose real signature requires a non-nullable Server -
+     * destination.server resolves to null once the destination's server has been
+     * soft-deleted (the default belongsTo excludes trashed rows), which crashed with an
+     * uncaught TypeError. Same root shape as the StopApplication/StopDatabase/RestartDatabase
+     * null-server crashes already fixed this session, just in two sibling files (this one and
+     * StopDatabaseProxy.php) that pattern never reached - inherited verbatim from the original
+     * upstream import.
+     */
+    #[Test]
+    public function it_returns_early_instead_of_crashing_when_the_server_is_null()
+    {
+        $db = $this->fakeDatabase();
+        $db->setRelation('destination', (object) ['network' => 'net-abc', 'server' => null]);
+
+        $this->action->handle($db);
+
+        $this->assertEmpty(RemoteProcessFake::$instantRemoteProcessCalls);
     }
 
     #[Test]
