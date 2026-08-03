@@ -592,7 +592,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 
 ## 🚧 Still to do
 
-**Overview — 14 items open right now:**
+**Overview — 15 items open right now:**
 
 | # | Item | Status |
 |---|---|---|
@@ -610,6 +610,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 | 12 | No per-project/environment scoped RBAC | `Role` is a flat, team-wide hierarchy (Member/Admin/Owner) — a Member with team access can see and touch every project/environment, no way to scope to just their own. Not yet started — Backlog (#67) |
 | 13 | Outbound webhook notifications aren't signed (HMAC) | `WebhookChannel.php` posts straight to `webhook_url` with no signature/shared-secret header — a receiver can't verify the payload genuinely came from this instance. Not yet started — Backlog (#68) |
 | 14 | No real in-app team switcher | `AppLayout.jsx`'s own docblock documents this gap directly — a read-only team name is shown instead of a working switcher; a user in more than one team has no in-app way to move between them post-login. Already surfaced this as a real testing blocker once (issue #22, 2026-07-24 — couldn't exercise the non-admin/member masking path live because of it). Not yet started — Backlog (#69) |
+| 15 | 3 Configuration pages statically import every tab component | Found 2026-08-03 via direct request (a repo-wide code-splitting scan) — not a bug, the app is already well-architected for this (per-page splitting via `import.meta.glob` without `eager: true`, Monaco/ApexCharts loaded outside the bundle graph entirely, xterm.js already isolated into its own chunk). The one real, minor candidate: `Project/{Application,Database,Service}/Configuration.jsx` each statically import every tab component (12/fewer/fewer) instead of `React.lazy()`-loading only the active one — biggest chunk affected is Application's at 69.20 kB. Not Tier 1 or Tier 2 by this session's own tiering (no security/reliability impact, modest absolute savings) — deliberately deprioritized below the security/reliability-first review order. Not yet started — Backlog (#116) |
 
 ### Laravel backend improvements — still open
 
