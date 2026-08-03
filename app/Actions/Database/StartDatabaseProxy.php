@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Database;
 
+use App\Models\Server;
 use App\Models\ServiceDatabase;
 use App\Models\StandaloneDatabaseInstance;
 use App\Notifications\Container\ContainerRestarted;
@@ -36,6 +37,13 @@ class StartDatabaseProxy
             $network = $database->service->uuid;
             $server = data_get($database, 'service.destination.server');
             $containerName = "{$name}-{$database->service->uuid}";
+        }
+        // The destination's (or service's) server may have been soft-deleted already (e.g.
+        // mid-flight during a "delete server + delete all resources" request) - the default
+        // belongsTo query excludes trashed rows, so $server resolves to null rather than a
+        // Server instance. There's no real server left to start the proxy on in that case.
+        if (! $server instanceof Server) {
+            return;
         }
         $internalPort = match ($databaseType) {
             'standalone-mariadb', 'standalone-mysql' => 3306,
