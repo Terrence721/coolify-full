@@ -210,6 +210,8 @@ class ProjectDatabaseBackupController extends Controller
             return $backup;
         }
 
+        $this->authorize('manageBackups', $database);
+
         $this->cleanupFailedBackupExecutions($backup);
 
         return back()->with('success', 'Failed backups cleaned up.');
@@ -226,6 +228,8 @@ class ProjectDatabaseBackupController extends Controller
         if (! $backup instanceof ScheduledDatabaseBackup) {
             return $backup;
         }
+
+        $this->authorize('manageBackups', $database);
 
         $deletedCount = $this->cleanupDeletedBackupExecutions($backup);
         if ($deletedCount === 0) {
