@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Rules\SafeWebhookUrl;
+use App\Jobs\Concerns\SendsSafeWebhookRequests;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeEncrypted;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SendsSafeWebhookRequests, SerializesModels;
 
     /**
      * The number of times the job may be attempted.
@@ -48,17 +45,7 @@ class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
      */
     public function handle(): void
     {
-        $validator = Validator::make(
-            ['webhook_url' => $this->webhookUrl],
-            ['webhook_url' => ['required', 'url', new SafeWebhookUrl]]
-        );
-
-        if ($validator->fails()) {
-            Log::warning('SendWebhookJob: blocked unsafe webhook URL', [
-                'url' => $this->webhookUrl,
-                'errors' => $validator->errors()->all(),
-            ]);
-
+        if (! $this->isSafeWebhookUrl($this->webhookUrl)) {
             return;
         }
 
@@ -69,7 +56,7 @@ class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
             ]);
         }
 
-        $response = Http::withoutRedirecting()->post($this->webhookUrl, $this->payload);
+        $response = $this->sendWebhookRequest($this->webhookUrl, $this->payload);
 
         if (isDev()) {
             ray('Webhook response', [
