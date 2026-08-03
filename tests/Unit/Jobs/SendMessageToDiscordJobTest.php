@@ -33,3 +33,12 @@ it('sends the message payload to the configured webhook URL', function () {
         return $request->url() === 'https://example.com/discord-webhook';
     });
 });
+
+it('never sends when the URL fails SafeWebhookUrl validation', function () {
+    Http::fake();
+
+    $message = new DiscordMessage('Deployment succeeded', 'All good', DiscordMessage::successColor());
+    (new SendMessageToDiscordJob($message, 'http://127.0.0.1/discord-webhook'))->handle();
+
+    Http::assertNothingSent();
+});
