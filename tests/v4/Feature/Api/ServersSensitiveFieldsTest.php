@@ -78,6 +78,29 @@ it('still hides sentinel_token, the field that was already correctly redacted', 
     expect($response->getContent())->not->toContain('SECRET-SENTINEL-TOKEN');
 });
 
+it('never leaks the custom log-drain config into the API response', function () {
+    // Regression test for a real credential leak found via an independent /code-review pass
+    // (pseudo peer review) on this same fix: logdrain_custom_config/logdrain_custom_config_parser
+    // are real ServerSetting columns, but PR #94's original fix missed them. StartLogDrain.php
+    // confirms logdrain_custom_config holds the raw Fluent Bit output config a user pastes in for
+    // a custom log drain - which routinely embeds a real "Authorization Bearer <token>" header.
+    // The MCP layer (app/Mcp/Concerns/BuildsResponse.php) already independently treats these same
+    // two fields as sensitive, confirming this was a known-sensitive field class that got missed
+    // in the API controller specifically.
+    $secretFields = [
+        'logdrain_custom_config' => "[OUTPUT]\n    Header Authorization Bearer SECRET-CUSTOM-LOGDRAIN-TOKEN",
+        'logdrain_custom_config_parser' => 'SECRET-CUSTOM-PARSER-CONFIG',
+    ];
+    [$team, $user, $server] = makeApiServerWithSecretSettings($secretFields);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson("/api/v1/servers/{$server->uuid}");
+
+    $response->assertOk();
+    expect($response->getContent())->not->toContain('SECRET-CUSTOM-LOGDRAIN-TOKEN');
+    expect($response->getContent())->not->toContain('SECRET-CUSTOM-PARSER-CONFIG');
+});
+
 it('exposes logdrain credentials only when the token carries read:sensitive', function () {
     $secretFields = [
         'logdrain_axiom_api_key' => 'SECRET-AXIOM-API-KEY',
