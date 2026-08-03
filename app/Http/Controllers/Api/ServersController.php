@@ -33,6 +33,8 @@ class ServersController extends Controller
                 'sentinel_token',
                 'logdrain_axiom_api_key',
                 'logdrain_newrelic_license_key',
+                'logdrain_custom_config',
+                'logdrain_custom_config_parser',
             ]);
         }
 
