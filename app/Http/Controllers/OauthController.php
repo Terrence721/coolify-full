@@ -37,11 +37,21 @@ class OauthController extends Controller
                 $user = User::create([
                     'name' => $oauthUser->name,
                     'email' => $email,
+                    'oauth_provider' => $provider,
                 ]);
                 // The OAuth provider already confirmed this email address as part of its own
                 // login flow, regardless of cloud/non-cloud - unlike the other user-creation
                 // paths, there's no "send our own verification email" case here at all.
                 $user->markEmailAsVerified();
+            } elseif ($user->oauth_provider !== $provider) {
+                // An existing account was found by email alone. Without this check, anyone who
+                // can get an OAuth provider to assert a given email address - trivial on a
+                // self-hosted/admin-configured provider with no email verification of its own -
+                // would be logged in AS that account, no password needed. Only allow the login
+                // if this account was originally created via this exact provider; a password-only
+                // account (oauth_provider is null) or one created via a different provider both
+                // fail this check and are rejected rather than silently logged in.
+                abort(403, 'An account with this email already exists. Please log in with your password.');
             }
             Auth::login($user);
 

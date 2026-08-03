@@ -42,6 +42,7 @@ use OpenApi\Attributes as OA;
  * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
+ * @property string|null $oauth_provider
  * @property string|null $password
  * @property string|null $remember_token
  * @property Carbon|null $created_at
@@ -109,6 +110,7 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
     protected $fillable = [
         'name',
         'email',
+        'oauth_provider',
         'password',
         'force_password_reset',
         'marketing_emails',
