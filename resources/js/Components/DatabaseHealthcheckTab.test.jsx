@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import DatabaseHealthcheckTab from './DatabaseHealthcheckTab';
 
@@ -59,6 +59,7 @@ describe('DatabaseHealthcheckTab - canUpdate gating', () => {
         render(<DatabaseHealthcheckTab {...baseProps()} />);
 
         expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Disable Healthcheck' })).toBeInTheDocument();
         expect(screen.getByLabelText('Interval (s)')).not.toBeDisabled();
     });
 });
@@ -130,7 +131,9 @@ describe('DatabaseHealthcheckTab - disable is immediate, enable requires confirm
         render(<DatabaseHealthcheckTab {...baseProps({ healthcheck: { enabled: false } })} />);
 
         fireEvent.click(screen.getByRole('button', { name: 'Enable Healthcheck' }));
-        fireEvent.click(screen.getAllByRole('button', { name: 'Enable Healthcheck' })[1]);
+
+        const modal = screen.getByText('Confirm Healthcheck Enable?').closest('div').parentElement;
+        fireEvent.click(within(modal).getByRole('button', { name: 'Enable Healthcheck' }));
 
         expect(postSpy).toHaveBeenCalledWith('/db/healthcheck/toggle', {}, { preserveScroll: true });
         expect(screen.queryByText('Confirm Healthcheck Enable?')).not.toBeInTheDocument();
