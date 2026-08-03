@@ -238,11 +238,17 @@ class TeamController extends Controller
         $member = User::findOrFail($member_id);
         $targetRole = Role::from($validated['role']);
         $currentUserRole = Role::from(auth()->user()->role());
-        $memberRole = Role::from((string) $member->teams()
+        $memberPivotRole = $member->teams()
             ->newPivotStatement()
             ->where('team_id', $team->id)
             ->where('user_id', $member->id)
-            ->value('role'));
+            ->value('role');
+
+        if ($memberPivotRole === null) {
+            return back()->with('error', 'This user is not a member of your team.');
+        }
+
+        $memberRole = Role::from((string) $memberPivotRole);
 
         if ($currentUserRole->lt($targetRole) || $memberRole->gt($currentUserRole)) {
             return back()->with('error', 'You are not authorized to perform this action.');
@@ -261,11 +267,17 @@ class TeamController extends Controller
 
         $member = User::findOrFail($member_id);
         $currentUserRole = Role::from(auth()->user()->role());
-        $memberRole = Role::from((string) $member->teams()
+        $memberPivotRole = $member->teams()
             ->newPivotStatement()
             ->where('team_id', $team->id)
             ->where('user_id', $member->id)
-            ->value('role'));
+            ->value('role');
+
+        if ($memberPivotRole === null) {
+            return back()->with('error', 'This user is not a member of your team.');
+        }
+
+        $memberRole = Role::from((string) $memberPivotRole);
 
         if ($currentUserRole->lt(Role::ADMIN) || $memberRole->gt($currentUserRole)) {
             return back()->with('error', 'You are not authorized to perform this action.');
