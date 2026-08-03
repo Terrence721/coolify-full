@@ -72,6 +72,39 @@ it('refuses to let an admin promote another admin to owner', function () {
     expect($otherAdmin->teams()->where('team_id', $team->id)->first()->pivot->role)->toBe('admin');
 });
 
+it('returns a graceful error instead of crashing when updating the role of a non-member', function () {
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => 'owner']);
+    $outsider = User::factory()->create();
+    // $outsider is a real, valid user but was never attached to $team - the pivot lookup
+    // for team_id/user_id returns no row, so member_id is a valid user that just isn't a
+    // member of the current team.
+
+    $response = $this->actingAs($owner)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('team.member.update-role', ['member_id' => $outsider->id]), [
+            'role' => 'admin',
+        ]);
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error', 'This user is not a member of your team.');
+});
+
+it('returns a graceful error instead of crashing when removing a non-member', function () {
+    $owner = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($owner, ['role' => 'owner']);
+    $outsider = User::factory()->create();
+
+    $response = $this->actingAs($owner)
+        ->withSession(['currentTeam' => $team])
+        ->delete(route('team.member.remove', ['member_id' => $outsider->id]));
+
+    $response->assertRedirect();
+    $response->assertSessionHas('error', 'This user is not a member of your team.');
+});
+
 it('removes a member from the team', function () {
     $owner = User::factory()->create();
     $team = Team::factory()->create();
