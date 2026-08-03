@@ -280,6 +280,38 @@ it('cleans up deleted executions', function () {
     expect($backup->executions()->count())->toBe(1);
 });
 
+it('refuses to let a plain team member clean up failed executions', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    [$database, $backup] = makeTestPostgresWithBackup($team, $server);
+    $backup->executions()->create(['status' => 'failed']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.database.backup.cleanup-failed', executionRouteParams($database, $backup)));
+
+    $response->assertForbidden();
+    expect($backup->executions()->where('status', 'failed')->exists())->toBeTrue();
+});
+
+it('refuses to let a plain team member clean up deleted executions', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    [$database, $backup] = makeTestPostgresWithBackup($team, $server);
+    $backup->executions()->create(['status' => 'success', 'finished_at' => now(), 'local_storage_deleted' => true]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.database.backup.cleanup-deleted', executionRouteParams($database, $backup)));
+
+    $response->assertForbidden();
+    expect($backup->executions()->where('local_storage_deleted', true)->exists())->toBeTrue();
+});
+
 it('deletes an execution with the correct password', function () {
     $user = User::factory()->create(['password' => Hash::make('correct-password')]);
     $team = Team::factory()->create();
