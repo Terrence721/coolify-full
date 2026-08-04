@@ -116,6 +116,11 @@ class ServicePolicy
 
     public function accessTerminal(User $user, Service $service): bool
     {
-        return $user->isAdmin() || $user->teams->contains('id', $service->team()->id);
+        $team = $service->team();
+        if (! $team) {
+            return false;
+        }
+
+        return $user->isAdmin() || $user->teams->contains('id', $team->id);
     }
 }

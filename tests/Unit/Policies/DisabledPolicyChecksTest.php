@@ -172,6 +172,34 @@ class DisabledPolicyChecksTest extends TestCase
     }
 
     #[Test]
+    public function service_policy_access_terminal_denies_everyone_including_an_admin_when_team_cannot_be_resolved(): void
+    {
+        // Service::team() is data_get($this, 'environment.project.team') - null whenever that
+        // chain is broken. Every other method in ServicePolicy (update, stop, manageEnvironment,
+        // deploy) guards this with `if (! $team) return false;` before touching $team->id;
+        // accessTerminal() was the one sibling left without that guard, so a null team here
+        // silently falls through to isAdmin() alone instead of denying - forced here via
+        // setRelation() (no DB side effects) rather than an environment/project delete, since
+        // neither model uses SoftDeletes.
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = Environment::factory()->create(['project_id' => $project->id]);
+        $environment->setRelation('project', null);
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->destinations()->first();
+        $service = Service::factory()->create([
+            'environment_id' => $environment->id,
+            'server_id' => $server->id,
+            'destination_id' => $destination->id,
+        ]);
+        $service->setRelation('environment', $environment);
+        $policy = new ServicePolicy;
+
+        $this->assertFalse($policy->accessTerminal($this->adminOf($team), $service));
+        $this->assertFalse($policy->accessTerminal($this->memberOf($team), $service));
+    }
+
+    #[Test]
     public function application_setting_policy_denies_a_member_and_allows_an_admin(): void
     {
         $team = Team::factory()->create();
