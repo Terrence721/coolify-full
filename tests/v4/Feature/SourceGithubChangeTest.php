@@ -77,6 +77,82 @@ it('returns 404 for a github app owned by another team', function () {
     $response->assertNotFound();
 });
 
+it('forbids a plain team member from viewing another team\'s system-wide github app secrets', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $otherTeam = Team::factory()->create();
+    $githubApp = makeGithubApp($otherTeam->id, [
+        'is_system_wide' => true,
+        'client_secret' => 'super-secret-client-secret',
+        'webhook_secret' => 'super-secret-webhook-secret',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('source.github.show', ['github_app_uuid' => $githubApp->uuid]));
+
+    $response->assertForbidden();
+});
+
+it('forbids an unrelated team\'s admin from updating another team\'s system-wide github app', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $otherTeam = Team::factory()->create();
+    $githubApp = makeGithubApp($otherTeam->id, ['is_system_wide' => true, 'name' => 'original-name']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('source.github.update', ['github_app_uuid' => $githubApp->uuid]), [
+            'name' => 'hijacked-name',
+            'apiUrl' => 'https://api.github.com',
+            'htmlUrl' => 'https://github.com',
+            'customUser' => 'git',
+            'customPort' => 22,
+            'isSystemWide' => true,
+        ]);
+
+    $response->assertForbidden();
+    expect($githubApp->fresh()->name)->toBe('original-name');
+});
+
+it('forbids an unrelated team\'s admin from deleting another team\'s system-wide github app', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $otherTeam = Team::factory()->create();
+    $githubApp = makeGithubApp($otherTeam->id, ['is_system_wide' => true]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->delete(route('source.github.destroy', ['github_app_uuid' => $githubApp->uuid]));
+
+    $response->assertForbidden();
+    expect(GithubApp::find($githubApp->id))->not->toBeNull();
+});
+
+it('still allows the owning team\'s own admin to view and manage their system-wide github app', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $githubApp = makeGithubApp($team->id, [
+        'is_system_wide' => true,
+        'client_secret' => 'own-client-secret',
+        'webhook_secret' => 'own-webhook-secret',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('source.github.show', ['github_app_uuid' => $githubApp->uuid]));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('githubApp.clientSecret', 'own-client-secret')
+        ->where('githubApp.webhookSecret', 'own-webhook-secret')
+    );
+});
+
 it('updates the github app configuration', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();
