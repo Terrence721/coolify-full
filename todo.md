@@ -23,7 +23,7 @@ This file is long and detailed on purpose — every claim below is backed by evi
 | Manual QA smoke-test checklist | All 11 sub-issues closed 2026-07-29, every SSH-touching action browser-confirmed — see "Manual QA smoke-test checklist" below |
 | ESLint `react-hooks/set-state-in-effect` cleanup | All 20 findings resolved individually (per-effect review, not a bulk fix), baseline at 0 as of 2026-07-31 — issue #33 closed. See "Frontend component testing" below |
 
-**Actually still open, right now:** 16 items — see the overview table at the top of **Still to do** below.
+**Actually still open, right now:** 17 items — see the overview table at the top of **Still to do** below.
 
 If you only read one section of this file, read this one and that table — everything else is the evidence trail behind them.
 
@@ -560,9 +560,9 @@ Not related to the Livewire→React migration — a separate, dedicated backend-
 |---|---|
 | Added | 2026-07-20 |
 | Tooling | Vitest + React Testing Library |
-| Coverage | 1209 tests across 115 suites — see issue #32 for the full per-suite list and rationale (too long to duplicate here without drifting stale again) |
+| Coverage | 1229 tests across 117 suites — see issue #32 for the full per-suite list and rationale (too long to duplicate here without drifting stale again) |
 | Scope | jsdom-based, complements Pest's backend suite; runs independently of issue #11's still-open browser-testing gap, without resolving it |
-| Full detail | Scrum issue #32 — the single source of truth for this initiative: tracks not just the 115 suites done so far (setup, per-suite rationale, verification) but also the full remaining backlog (30 of 140 Components/Pages still untested, listed and checked off individually as each gets a suite). This table only shows current totals; #32 is where "what's actually left" lives. |
+| Full detail | Scrum issue #32 — the single source of truth for this initiative: tracks not just the 117 suites done so far (setup, per-suite rationale, verification) but also the full remaining backlog (28 of 140 Components/Pages still untested, listed and checked off individually as each gets a suite). This table only shows current totals; #32 is where "what's actually left" lives. |
 | Priority | The remaining backlog isn't worked in list order — components/pages with real conditional logic and meaningful regression risk (derived state, business logic, high-traffic surfaces) are prioritized over thin presentational wrappers or rarely-touched admin-only screens. Formalized 2026-08-01; `ThemeSwitcher.test.jsx` and earlier predate it, `ResourceTabs.test.jsx` is the first suite picked under it. |
 | CI | Vitest + Prettier format-check wired into `.github/workflows/quality.yml` as their own jobs (2026-07-21) — both fully clean, no baseline debt. ESLint was deliberately held out of CI until the `set-state-in-effect` findings (issue #33) were resolved (see issue #34) — that closed 2026-07-31 with the baseline at 0, so adding an `eslint` CI job the same way is now unblocked. Not yet done — see item 6 in "Still to do" below. |
 
@@ -633,7 +633,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 
 ## 🚧 Still to do
 
-**Overview — 16 items open right now:**
+**Overview — 17 items open right now:**
 
 | # | Item | Status |
 |---|---|---|
@@ -653,6 +653,7 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 | 14 | No real in-app team switcher | `AppLayout.jsx`'s own docblock documents this gap directly — a read-only team name is shown instead of a working switcher; a user in more than one team has no in-app way to move between them post-login. Already surfaced this as a real testing blocker once (issue #22, 2026-07-24 — couldn't exercise the non-admin/member masking path live because of it). Not yet started — Backlog (#69) |
 | 15 | 3 Configuration pages statically import every tab component | Found 2026-08-03 via direct request (a repo-wide code-splitting scan) — not a bug, the app is already well-architected for this (per-page splitting via `import.meta.glob` without `eager: true`, Monaco/ApexCharts loaded outside the bundle graph entirely, xterm.js already isolated into its own chunk). The one real, minor candidate: `Project/{Application,Database,Service}/Configuration.jsx` each statically import every tab component (12/fewer/fewer) instead of `React.lazy()`-loading only the active one — biggest chunk affected is Application's at 69.20 kB. Not Tier 1 or Tier 2 by this session's own tiering (no security/reliability impact, modest absolute savings) — deliberately deprioritized below the security/reliability-first review order. Not yet started — Backlog (#116) |
 | 16 | No React Error Boundaries anywhere in the app | Found 2026-08-03 via direct user observation, not a bug — confirmed zero components implement `componentDidCatch`/`getDerivedStateFromError` anywhere in `resources/js/`. With Inertia, React stays mounted across page navigations, so any single component throwing during render currently blanks the *entire* page with no recovery until a manual reload — no natural full-reload safety net between pages the way a traditional multi-page app gets for free. Design note for whenever this is picked up: a single root-level boundary is better than nothing but still takes down the whole shell (including nav chrome) on any one widget's error — the more valuable version wraps several regions independently (page content separate from `AppLayout.jsx`'s persistent nav/sidebar chrome). Not yet started — Backlog (#126) |
+| 17 | DNS-rebinding TOCTOU gap in `SafeWebhookUrl` (disclosed, not fixed) | Found 2026-08-03 during finding #49's fix (PR #133) — resolving a webhook URL's hostname at validation time closes the common SSRF case, but the actual outbound request moments later does its own independent DNS lookup, so an attacker controlling authoritative DNS with a near-zero TTL could theoretically rebind between the two. Disclosed directly in `SafeWebhookUrl`'s own docblock. Closing it for real needs connection-level IP pinning (`CURLOPT_RESOLVE`/Guzzle's `curl` `resolve` option, with TLS SNI/cert-validation implications to work through) — a materially bigger change than the DNS-resolution fix itself. Low priority: requires active timing precision around the validate/send window, not just DNS control. Not yet started — Backlog (#134) |
 
 ### Laravel backend improvements — still open
 
