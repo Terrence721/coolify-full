@@ -42,4 +42,21 @@ trait InteractsWithTeamRoles
 
         return $user;
     }
+
+    /**
+     * A user who is admin of their own current session team, but only a plain member of a
+     * different team - the real shape needed to exercise the isAdmin()-checks-the-session-team,
+     * not-the-target-team bug class. A user constructed via adminOf($otherTeam) alone, with no
+     * membership in $memberOfTeam at all, only ever fails the separate teams->contains() check -
+     * it never actually reaches the isAdmin() logic being tested.
+     */
+    private function adminOfButMemberOf(Team $sessionTeam, Team $memberOfTeam): User
+    {
+        $user = User::factory()->create();
+        $sessionTeam->members()->attach($user, ['role' => 'admin']);
+        $memberOfTeam->members()->attach($user, ['role' => 'member']);
+        session(['currentTeam' => $sessionTeam]);
+
+        return $user;
+    }
 }

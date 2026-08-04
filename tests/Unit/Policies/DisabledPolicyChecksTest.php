@@ -75,20 +75,28 @@ class DisabledPolicyChecksTest extends TestCase
     #[Test]
     public function application_policy_denies_an_admin_of_a_different_team(): void
     {
-        // update()/delete() checked only isAdmin(), with no team-membership check - unlike
-        // forceDelete()/deploy()/manageDeployments()/manageEnvironment() in this same class,
-        // which all also check $user->teams->contains('id', ...). Not exploitable today (every
-        // real call site pre-scopes the resolved Application to currentTeam() before
-        // authorizing), but a real gap in the policy itself as the intended last line of defense.
+        // update()/delete()/forceDelete()/manageDeployments()/manageEnvironment() checked
+        // $user->isAdmin() - the role in the user's *current session team* - ANDed with mere
+        // team->contains() membership in the resource's team, instead of admin status *in that
+        // specific team* (isAdminOfTeam($teamId)). A user admin of their own current team but
+        // only a plain member of the resource's team could pass this combined check. Fixed for
+        // finding #56/#57's bug class (see GithubAppPolicy). This test uses
+        // adminOfButMemberOf() - a user genuinely attached to BOTH teams - rather than a user
+        // never attached to $team at all, since the latter only ever fails the separate
+        // teams->contains() check and never actually exercises the isAdmin() logic being tested.
         $team = Team::factory()->create();
         $project = Project::factory()->create(['team_id' => $team->id]);
         $environment = Environment::factory()->create(['project_id' => $project->id]);
         $application = Application::factory()->create(['environment_id' => $environment->id]);
         $otherTeam = Team::factory()->create();
         $policy = new ApplicationPolicy;
+        $user = $this->adminOfButMemberOf($otherTeam, $team);
 
-        $this->assertFalse($policy->delete($this->adminOf($otherTeam), $application));
-        $this->assertFalse($policy->update($this->adminOf($otherTeam), $application)->allowed());
+        $this->assertFalse($policy->delete($user, $application));
+        $this->assertFalse($policy->update($user, $application)->allowed());
+        $this->assertFalse($policy->forceDelete($user, $application));
+        $this->assertFalse($policy->manageDeployments($user, $application));
+        $this->assertFalse($policy->manageEnvironment($user, $application));
     }
 
     #[Test]
@@ -176,12 +184,48 @@ class DisabledPolicyChecksTest extends TestCase
     #[Test]
     public function service_policy_denies_an_admin_of_a_different_team_from_deleting(): void
     {
-        // delete()/forceDelete() checked only isAdmin(), with no team-membership check - unlike
-        // update()/stop()/manageEnvironment()/deploy()/accessTerminal() in this same class, which
-        // all check $user->teams->contains('id', ...). ServiceApplicationPolicy/
-        // ServiceDatabasePolicy delegate their own delete()/forceDelete() to this exact check via
-        // Gate::allows('delete', $service), so the gap also covers individual
-        // applications/databases inside a service stack.
+        // update()/delete()/forceDelete()/manageEnvironment() checked $user->isAdmin() - the
+        // role in the user's *current session team* - ANDed with mere teams->contains()
+        // membership in the resource's team, instead of admin status *in that specific team*.
+        // ServiceApplicationPolicy/ServiceDatabasePolicy delegate their own delete()/
+        // forceDelete() to this exact check via Gate::allows('delete', $service), so the gap
+        // also covered individual applications/databases inside a service stack. Fixed for
+        // finding #56/#57's bug class. Uses adminOfButMemberOf() (a user genuinely attached to
+        // BOTH teams) rather than a user never attached to $team at all, which would only ever
+        // fail the separate teams->contains() check without exercising isAdmin() itself.
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = Environment::factory()->create(['project_id' => $project->id]);
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->destinations()->first();
+        $service = Service::factory()->create([
+            'environment_id' => $environment->id,
+            'server_id' => $server->id,
+            'destination_id' => $destination->id,
+        ]);
+        $otherTeam = Team::factory()->create();
+        $policy = new ServicePolicy;
+        $user = $this->adminOfButMemberOf($otherTeam, $team);
+
+        $this->assertFalse($policy->update($user, $service));
+        $this->assertFalse($policy->delete($user, $service));
+        $this->assertFalse($policy->forceDelete($user, $service));
+        $this->assertFalse($policy->manageEnvironment($user, $service));
+    }
+
+    #[Test]
+    public function service_policy_access_terminal_denies_an_admin_of_a_different_team(): void
+    {
+        // accessTerminal() used || instead of && - $user->isAdmin() || $user->teams->contains(
+        // 'id', $team->id) - meaning ANY instance admin (of any team, via their current session)
+        // could pass regardless of any relationship to this specific service's team at all, an
+        // even broader hole than the isAdmin()-checks-wrong-team bug elsewhere in this same
+        // file. Confirmed currently unreachable (no authorize()/can()/Gate::allows() call site
+        // anywhere invokes 'accessTerminal' against this policy - the similarly-named
+        // canAccessTerminal Gate used in the real app is a separate, unrelated check), but fixed
+        // anyway as the intended last line of defense, matching every sibling method in this
+        // file. A prior test comment claimed this was "already-fixed" - it was not; only
+        // update()/delete()/forceDelete()/manageEnvironment() were.
         $team = Team::factory()->create();
         $project = Project::factory()->create(['team_id' => $team->id]);
         $environment = Environment::factory()->create(['project_id' => $project->id]);
@@ -195,8 +239,8 @@ class DisabledPolicyChecksTest extends TestCase
         $otherTeam = Team::factory()->create();
         $policy = new ServicePolicy;
 
-        $this->assertFalse($policy->delete($this->adminOf($otherTeam), $service));
-        $this->assertFalse($policy->forceDelete($this->adminOf($otherTeam), $service));
+        $this->assertFalse($policy->accessTerminal($this->adminOfButMemberOf($otherTeam, $team), $service));
+        $this->assertTrue($policy->accessTerminal($this->adminOf($team), $service));
     }
 
     #[Test]
@@ -261,12 +305,15 @@ class DisabledPolicyChecksTest extends TestCase
     #[Test]
     public function application_preview_policy_denies_an_admin_of_a_different_team_from_updating(): void
     {
-        // update() checked only isAdmin(), with no team-membership check - unlike view()/
-        // delete()/restore()/forceDelete()/deploy()/manageDeployments() in this same class, which
-        // all check team membership via the parent application. No call site currently invokes
-        // authorize('update', $applicationPreview) directly (preview-editing routes authorize
-        // against the parent Application instead), so this is currently dead code - same shape
-        // as the already-fixed ServicePolicy::accessTerminal gap.
+        // update()/delete()/restore()/forceDelete()/manageDeployments() checked $user->isAdmin()
+        // - the role in the user's *current session team* - ANDed with mere teams->contains()
+        // membership in the parent application's team, instead of admin status *in that specific
+        // team*. No call site currently invokes authorize('update', $applicationPreview) directly
+        // (preview-editing routes authorize against the parent Application instead), so this is
+        // currently dead code, fixed anyway as the intended last line of defense. Fixed for
+        // finding #56/#57's bug class. Uses adminOfButMemberOf() (a user genuinely attached to
+        // BOTH teams) rather than a user never attached to $team at all, which would only ever
+        // fail the separate teams->contains() check without exercising isAdmin() itself.
         $team = Team::factory()->create();
         $project = Project::factory()->create(['team_id' => $team->id]);
         $environment = Environment::factory()->create(['project_id' => $project->id]);
@@ -275,8 +322,13 @@ class DisabledPolicyChecksTest extends TestCase
         $preview->setRelation('application', $application);
         $otherTeam = Team::factory()->create();
         $policy = new ApplicationPreviewPolicy;
+        $user = $this->adminOfButMemberOf($otherTeam, $team);
 
-        $this->assertFalse($policy->update($this->adminOf($otherTeam), $preview)->allowed());
+        $this->assertFalse($policy->update($user, $preview)->allowed());
+        $this->assertFalse($policy->delete($user, $preview));
+        $this->assertFalse($policy->restore($user, $preview));
+        $this->assertFalse($policy->forceDelete($user, $preview));
+        $this->assertFalse($policy->manageDeployments($user, $preview));
     }
 
     #[Test]
