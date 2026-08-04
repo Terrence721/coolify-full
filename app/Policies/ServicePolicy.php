@@ -51,11 +51,12 @@ class ServicePolicy
      */
     public function delete(User $user, Service $service): bool
     {
-        if ($user->isAdmin()) {
-            return true;
+        $team = $service->team();
+        if (! $team) {
+            return false;
         }
 
-        return false;
+        return $user->isAdmin() && $user->teams->contains('id', $team->id);
     }
 
     /**
@@ -71,11 +72,12 @@ class ServicePolicy
      */
     public function forceDelete(User $user, Service $service): bool
     {
-        if ($user->isAdmin()) {
-            return true;
+        $team = $service->team();
+        if (! $team) {
+            return false;
         }
 
-        return false;
+        return $user->isAdmin() && $user->teams->contains('id', $team->id);
     }
 
     public function stop(User $user, Service $service): bool

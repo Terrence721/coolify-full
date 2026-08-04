@@ -39,7 +39,7 @@ class ApplicationPreviewPolicy
      */
     public function update(User $user, ApplicationPreview $applicationPreview): Response
     {
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id)) {
             return Response::allow();
         }
 
