@@ -73,6 +73,25 @@ class DisabledPolicyChecksTest extends TestCase
     }
 
     #[Test]
+    public function application_policy_denies_an_admin_of_a_different_team(): void
+    {
+        // update()/delete() checked only isAdmin(), with no team-membership check - unlike
+        // forceDelete()/deploy()/manageDeployments()/manageEnvironment() in this same class,
+        // which all also check $user->teams->contains('id', ...). Not exploitable today (every
+        // real call site pre-scopes the resolved Application to currentTeam() before
+        // authorizing), but a real gap in the policy itself as the intended last line of defense.
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = Environment::factory()->create(['project_id' => $project->id]);
+        $application = Application::factory()->create(['environment_id' => $environment->id]);
+        $otherTeam = Team::factory()->create();
+        $policy = new ApplicationPolicy;
+
+        $this->assertFalse($policy->delete($this->adminOf($otherTeam), $application));
+        $this->assertFalse($policy->update($this->adminOf($otherTeam), $application)->allowed());
+    }
+
+    #[Test]
     public function database_policy_denies_a_member_and_allows_an_admin(): void
     {
         $team = Team::factory()->create();
@@ -155,6 +174,32 @@ class DisabledPolicyChecksTest extends TestCase
     }
 
     #[Test]
+    public function service_policy_denies_an_admin_of_a_different_team_from_deleting(): void
+    {
+        // delete()/forceDelete() checked only isAdmin(), with no team-membership check - unlike
+        // update()/stop()/manageEnvironment()/deploy()/accessTerminal() in this same class, which
+        // all check $user->teams->contains('id', ...). ServiceApplicationPolicy/
+        // ServiceDatabasePolicy delegate their own delete()/forceDelete() to this exact check via
+        // Gate::allows('delete', $service), so the gap also covers individual
+        // applications/databases inside a service stack.
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = Environment::factory()->create(['project_id' => $project->id]);
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->destinations()->first();
+        $service = Service::factory()->create([
+            'environment_id' => $environment->id,
+            'server_id' => $server->id,
+            'destination_id' => $destination->id,
+        ]);
+        $otherTeam = Team::factory()->create();
+        $policy = new ServicePolicy;
+
+        $this->assertFalse($policy->delete($this->adminOf($otherTeam), $service));
+        $this->assertFalse($policy->forceDelete($this->adminOf($otherTeam), $service));
+    }
+
+    #[Test]
     public function service_policy_access_terminal_denies_everyone_including_an_admin_when_team_cannot_be_resolved(): void
     {
         // Service::team() is data_get($this, 'environment.project.team') - null whenever that
@@ -211,6 +256,27 @@ class DisabledPolicyChecksTest extends TestCase
         $this->assertTrue($policy->delete($this->adminOf($team), $preview));
         $this->assertFalse($policy->update($this->memberOf($team), $preview)->allowed());
         $this->assertTrue($policy->update($this->adminOf($team), $preview)->allowed());
+    }
+
+    #[Test]
+    public function application_preview_policy_denies_an_admin_of_a_different_team_from_updating(): void
+    {
+        // update() checked only isAdmin(), with no team-membership check - unlike view()/
+        // delete()/restore()/forceDelete()/deploy()/manageDeployments() in this same class, which
+        // all check team membership via the parent application. No call site currently invokes
+        // authorize('update', $applicationPreview) directly (preview-editing routes authorize
+        // against the parent Application instead), so this is currently dead code - same shape
+        // as the already-fixed ServicePolicy::accessTerminal gap.
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = Environment::factory()->create(['project_id' => $project->id]);
+        $application = Application::factory()->create(['environment_id' => $environment->id]);
+        $preview = new ApplicationPreview(['application_id' => $application->id, 'pull_request_id' => 2]);
+        $preview->setRelation('application', $application);
+        $otherTeam = Team::factory()->create();
+        $policy = new ApplicationPreviewPolicy;
+
+        $this->assertFalse($policy->update($this->adminOf($otherTeam), $preview)->allowed());
     }
 
     #[Test]

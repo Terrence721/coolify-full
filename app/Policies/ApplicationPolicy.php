@@ -43,7 +43,7 @@ class ApplicationPolicy
      */
     public function update(User $user, Application $application): Response
     {
-        if ($user->isAdmin()) {
+        if ($user->isAdmin() && $user->teams->contains('id', $application->team()?->id)) {
             return Response::allow();
         }
 
@@ -55,11 +55,7 @@ class ApplicationPolicy
      */
     public function delete(User $user, Application $application): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        return false;
+        return $user->isAdmin() && $user->teams->contains('id', $application->team()?->id);
     }
 
     /**
