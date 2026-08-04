@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 use App\Models\Team;
 use App\Models\User;
+use App\Rules\SafeWebhookUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
+
+// SafeWebhookUrl now resolves hostnames via DNS to catch a domain pointed directly at a blocked
+// IP - stub it here so the suite stays network-independent instead of resolving discord.com for
+// real on every run.
+beforeEach(function () {
+    SafeWebhookUrl::resolveHostUsing(fn (string $host) => ['203.0.113.10']);
+});
+
+afterEach(function () {
+    SafeWebhookUrl::resolveHostUsing(null);
+});
 
 it('renders the notifications discord Inertia page with current settings', function () {
     $user = User::factory()->create();
