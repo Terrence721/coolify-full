@@ -11,12 +11,36 @@ use Illuminate\Support\Facades\Log;
 class SafeWebhookUrl implements ValidationRule
 {
     /**
+     * Test-only DNS resolver override. Real resolution hits the network, which tests can't
+     * (and shouldn't) depend on - set via resolveHostUsing(), reset with resolveHostUsing(null).
+     *
+     * @var (Closure(string): array<int, string>)|null
+     */
+    private static ?Closure $resolveHostUsing = null;
+
+    /**
+     * @param  (Closure(string): array<int, string>)|null  $resolver
+     */
+    public static function resolveHostUsing(?Closure $resolver): void
+    {
+        static::$resolveHostUsing = $resolver;
+    }
+
+    /**
      * Run the validation rule.
      *
      * Validates that a webhook URL is safe for server-side requests.
      * Blocks loopback addresses, cloud metadata endpoints (link-local),
      * and dangerous hostnames while allowing private network IPs
      * for self-hosted deployments.
+     *
+     * Known residual gap: this resolves and checks the hostname at validation time, but the
+     * actual outbound request (Http::withoutRedirecting()->post(...) in the calling job) does
+     * its own separate DNS lookup moments later. An attacker controlling authoritative DNS for
+     * the domain with a near-zero TTL could theoretically rebind between the two lookups
+     * (classic DNS-rebinding TOCTOU). Closing that fully requires resolving once and pinning the
+     * actual connection to that IP - out of scope here; this closes the much more common case of
+     * a hostname that resolves directly to a blocked address.
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -62,18 +86,58 @@ class SafeWebhookUrl implements ValidationRule
             return;
         }
 
-        // Block loopback (127.0.0.0/8) and link-local/metadata (169.254.0.0/16) when IP is provided directly
-        if (filter_var($hostForIpCheck, FILTER_VALIDATE_IP) && ($this->isLoopback($hostForIpCheck) || $this->isLinkLocal($hostForIpCheck))) {
-            Log::warning('Webhook URL points to blocked IP range', [
-                'attribute' => $attribute,
-                'host' => $host,
-                'ip' => request()->ip(),
-                'user_id' => auth()->id(),
-            ]);
-            $fail('The :attribute must not point to loopback or link-local addresses.');
+        if (filter_var($hostForIpCheck, FILTER_VALIDATE_IP)) {
+            // Block loopback (127.0.0.0/8) and link-local/metadata (169.254.0.0/16) when the
+            // host is a literal IP.
+            if ($this->isLoopback($hostForIpCheck) || $this->isLinkLocal($hostForIpCheck)) {
+                Log::warning('Webhook URL points to blocked IP range', [
+                    'attribute' => $attribute,
+                    'host' => $host,
+                    'ip' => request()->ip(),
+                    'user_id' => auth()->id(),
+                ]);
+                $fail('The :attribute must not point to loopback or link-local addresses.');
+
+                return;
+            }
 
             return;
         }
+
+        // The host is a hostname, not a literal IP - resolve it and check every returned
+        // address, so a domain pointed directly at a blocked range can't sail through
+        // unchecked just because the check above only looks at literal IPs.
+        foreach ($this->resolveHost($host) as $resolvedIp) {
+            if ($this->isLoopback($resolvedIp) || $this->isLinkLocal($resolvedIp)) {
+                Log::warning('Webhook URL hostname resolves to a blocked IP range', [
+                    'attribute' => $attribute,
+                    'host' => $host,
+                    'resolved_ip' => $resolvedIp,
+                    'ip' => request()->ip(),
+                    'user_id' => auth()->id(),
+                ]);
+                $fail('The :attribute must not resolve to a loopback or link-local address.');
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function resolveHost(string $host): array
+    {
+        if (static::$resolveHostUsing) {
+            return (static::$resolveHostUsing)($host);
+        }
+
+        $records = @dns_get_record($host, DNS_A | DNS_AAAA) ?: [];
+
+        return array_values(array_unique(array_filter(array_map(
+            fn (array $record) => $record['ip'] ?? $record['ipv6'] ?? null,
+            $records
+        ))));
     }
 
     private function isLoopback(string $ip): bool
