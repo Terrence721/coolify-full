@@ -27,7 +27,7 @@ Route::group([
 });
 
 Route::post('/feedback', [OtherController::class, 'feedback'])
-    ->middleware('throttle:feedback');
+    ->middleware(['throttle:feedback', 'auth:sanctum', 'api.token.team', 'api.ability:write']);
 
 Route::group([
     'middleware' => ['auth:sanctum', 'api.token.team', 'api.ability:write'],
