@@ -39,7 +39,7 @@ class ApplicationPreviewPolicy
      */
     public function update(User $user, ApplicationPreview $applicationPreview): Response
     {
-        if ($user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id)) {
+        if ($user->isAdminOfTeam($applicationPreview->application->team()?->id) && $user->teams->contains('id', $applicationPreview->application->team()?->id)) {
             return Response::allow();
         }
 
@@ -51,7 +51,7 @@ class ApplicationPreviewPolicy
      */
     public function delete(User $user, ApplicationPreview $applicationPreview): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
+        return $user->isAdminOfTeam($applicationPreview->application->team()?->id) && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -59,7 +59,7 @@ class ApplicationPreviewPolicy
      */
     public function restore(User $user, ApplicationPreview $applicationPreview): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
+        return $user->isAdminOfTeam($applicationPreview->application->team()?->id) && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -67,7 +67,7 @@ class ApplicationPreviewPolicy
      */
     public function forceDelete(User $user, ApplicationPreview $applicationPreview): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
+        return $user->isAdminOfTeam($applicationPreview->application->team()?->id) && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 
     /**
@@ -83,6 +83,6 @@ class ApplicationPreviewPolicy
      */
     public function manageDeployments(User $user, ApplicationPreview $applicationPreview): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $applicationPreview->application->team()?->id);
+        return $user->isAdminOfTeam($applicationPreview->application->team()?->id) && $user->teams->contains('id', $applicationPreview->application->team()?->id);
     }
 }

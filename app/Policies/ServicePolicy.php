@@ -43,7 +43,7 @@ class ServicePolicy
             return false;
         }
 
-        return $user->isAdmin() && $user->teams->contains('id', $team->id);
+        return $user->isAdminOfTeam($team->id) && $user->teams->contains('id', $team->id);
     }
 
     /**
@@ -56,7 +56,7 @@ class ServicePolicy
             return false;
         }
 
-        return $user->isAdmin() && $user->teams->contains('id', $team->id);
+        return $user->isAdminOfTeam($team->id) && $user->teams->contains('id', $team->id);
     }
 
     /**
@@ -77,7 +77,7 @@ class ServicePolicy
             return false;
         }
 
-        return $user->isAdmin() && $user->teams->contains('id', $team->id);
+        return $user->isAdminOfTeam($team->id) && $user->teams->contains('id', $team->id);
     }
 
     public function stop(User $user, Service $service): bool
@@ -100,7 +100,7 @@ class ServicePolicy
             return false;
         }
 
-        return $user->isAdmin() && $user->teams->contains('id', $team->id);
+        return $user->isAdminOfTeam($team->id) && $user->teams->contains('id', $team->id);
     }
 
     /**
@@ -123,6 +123,6 @@ class ServicePolicy
             return false;
         }
 
-        return $user->isAdmin() || $user->teams->contains('id', $team->id);
+        return $user->isAdminOfTeam($team->id) && $user->teams->contains('id', $team->id);
     }
 }

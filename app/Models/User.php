@@ -470,8 +470,12 @@ class User extends Authenticatable implements MustVerifyEmail, SendsEmail
     /**
      * Check if the user is an admin or owner of a specific team
      */
-    public function isAdminOfTeam(int $teamId): bool
+    public function isAdminOfTeam(?int $teamId): bool
     {
+        if (is_null($teamId)) {
+            return false;
+        }
+
         $team = $this->teams->where('id', $teamId)->first();
 
         if (! $team) {

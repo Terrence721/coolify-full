@@ -43,7 +43,7 @@ class ApplicationPolicy
      */
     public function update(User $user, Application $application): Response
     {
-        if ($user->isAdmin() && $user->teams->contains('id', $application->team()?->id)) {
+        if ($user->isAdminOfTeam($application->team()?->id) && $user->teams->contains('id', $application->team()?->id)) {
             return Response::allow();
         }
 
@@ -55,7 +55,7 @@ class ApplicationPolicy
      */
     public function delete(User $user, Application $application): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $application->team()?->id);
+        return $user->isAdminOfTeam($application->team()?->id) && $user->teams->contains('id', $application->team()?->id);
     }
 
     /**
@@ -71,7 +71,7 @@ class ApplicationPolicy
      */
     public function forceDelete(User $user, Application $application): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $application->team()?->id);
+        return $user->isAdminOfTeam($application->team()?->id) && $user->teams->contains('id', $application->team()?->id);
     }
 
     /**
@@ -87,7 +87,7 @@ class ApplicationPolicy
      */
     public function manageDeployments(User $user, Application $application): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $application->team()?->id);
+        return $user->isAdminOfTeam($application->team()?->id) && $user->teams->contains('id', $application->team()?->id);
     }
 
     /**
@@ -95,7 +95,7 @@ class ApplicationPolicy
      */
     public function manageEnvironment(User $user, Application $application): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $application->team()?->id);
+        return $user->isAdminOfTeam($application->team()?->id) && $user->teams->contains('id', $application->team()?->id);
     }
 
     /**
