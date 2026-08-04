@@ -144,6 +144,45 @@ it('creates a scheduled backup', function () {
     expect($serviceDatabase->scheduledBackups()->count())->toBe(1);
 });
 
+it('forbids a plain team member from creating a scheduled backup', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $serviceDatabase = createServiceDatabaseFixture($team);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.service.database.backups.store', serviceBackupParams($serviceDatabase)), [
+            'frequency' => '@daily',
+            'save_to_s3' => false,
+            's3_storage_id' => null,
+        ]);
+
+    $response->assertForbidden();
+    expect($serviceDatabase->scheduledBackups()->count())->toBe(0);
+});
+
+it('forbids a plain team member from deleting a backup schedule, even with the correct password', function () {
+    $user = User::factory()->create(['password' => Hash::make('correct-password')]);
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $serviceDatabase = createServiceDatabaseFixture($team);
+    $backup = $serviceDatabase->scheduledBackups()->create([
+        'frequency' => '@daily',
+        'save_s3' => false,
+        'team_id' => $team->id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->delete(route('project.service.database.backups.destroy', [...serviceBackupParams($serviceDatabase), 'backup_id' => $backup->id]), [
+            'password' => 'correct-password',
+        ]);
+
+    $response->assertForbidden();
+    expect($serviceDatabase->scheduledBackups()->count())->toBe(1);
+});
+
 it('rejects an invalid cron expression when creating a scheduled backup', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();
