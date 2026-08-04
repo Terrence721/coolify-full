@@ -132,6 +132,45 @@ it('forbids an unrelated team\'s admin from deleting another team\'s system-wide
     expect(GithubApp::find($githubApp->id))->not->toBeNull();
 });
 
+it('forbids a plain member of the owning team from updating its system-wide github app, even if they are admin of their own current session team', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $otherTeam = Team::factory()->create();
+    $otherTeam->members()->attach($user, ['role' => 'member']);
+    $githubApp = makeGithubApp($otherTeam->id, ['is_system_wide' => true, 'name' => 'original-name']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('source.github.update', ['github_app_uuid' => $githubApp->uuid]), [
+            'name' => 'hijacked-name',
+            'apiUrl' => 'https://api.github.com',
+            'htmlUrl' => 'https://github.com',
+            'customUser' => 'git',
+            'customPort' => 22,
+            'isSystemWide' => true,
+        ]);
+
+    $response->assertForbidden();
+    expect($githubApp->fresh()->name)->toBe('original-name');
+});
+
+it('forbids a plain member of the owning team from deleting its system-wide github app, even if they are admin of their own current session team', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $otherTeam = Team::factory()->create();
+    $otherTeam->members()->attach($user, ['role' => 'member']);
+    $githubApp = makeGithubApp($otherTeam->id, ['is_system_wide' => true]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->delete(route('source.github.destroy', ['github_app_uuid' => $githubApp->uuid]));
+
+    $response->assertForbidden();
+    expect(GithubApp::find($githubApp->id))->not->toBeNull();
+});
+
 it('still allows the owning team\'s own admin to view and manage their system-wide github app', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();
