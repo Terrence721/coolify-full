@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\InstanceSettings;
 use App\Models\PrivateKey;
 use App\Models\Server;
 use App\Models\StandaloneDocker;
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    // Only the two new forbidden-request tests exercise the 403 error-page render path, which
+    // needs a real InstanceSettings row (id=0) - every other test in this file only exercises
+    // success paths that don't touch it.
+    InstanceSettings::forceCreate(['id' => 0]);
+});
 
 afterEach(function () {
     // config() mutations are process-global and outlive this test file - restore the
@@ -93,6 +101,52 @@ it('updates the destination name', function () {
 
     $response->assertRedirect();
     expect($destination->fresh()->name)->toBe('Renamed Network');
+});
+
+it('forbids a plain team member from updating the destination name', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $destination = $server->standaloneDockers()->first();
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('destination.update', ['destination_uuid' => $destination->uuid]), [
+            'name' => 'Renamed Network',
+        ]);
+
+    $response->assertForbidden();
+    expect($destination->fresh()->name)->toBe('coolify');
+});
+
+it('forbids a plain team member from deleting a destination', function () {
+    // Same fixture as "deletes an unattached destination" below - a plain-member request pre-fix
+    // reaches all the way to the real SSH-command-building code before this test's own assertion
+    // even runs, so it needs the same PrivateKey/Process::fake() setup or it fails on an unrelated
+    // ModelNotFoundException instead of proving the actual auth gap.
+    config(['constants.ssh.mux_enabled' => false]);
+    Storage::fake('ssh-keys');
+    Process::fake();
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $privateKey = PrivateKey::create([
+        'name' => 'test-key',
+        'private_key' => DESTINATION_TEST_PRIVATE_KEY,
+        'team_id' => $team->id,
+    ]);
+    Storage::disk('ssh-keys')->put("ssh_key@{$privateKey->uuid}", $privateKey->private_key);
+    $server = Server::factory()->create(['team_id' => $team->id, 'private_key_id' => $privateKey->id]);
+    $destination = StandaloneDocker::factory()->create(['server_id' => $server->id, 'network' => 'a-removable-network']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->delete(route('destination.destroy', ['destination_uuid' => $destination->uuid]));
+
+    $response->assertForbidden();
+    expect(StandaloneDocker::find($destination->id))->not->toBeNull();
 });
 
 it('deletes an unattached destination', function () {

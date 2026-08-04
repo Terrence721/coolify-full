@@ -42,7 +42,7 @@ class StandaloneDockerPolicy
     {
         $server = $standaloneDocker->server()->first();
 
-        return $server ? $user->teams->contains('id', $server->team_id) : false;
+        return $server ? $user->isAdmin() && $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**
@@ -52,7 +52,7 @@ class StandaloneDockerPolicy
     {
         $server = $standaloneDocker->server()->first();
 
-        return $server ? $user->teams->contains('id', $server->team_id) : false;
+        return $server ? $user->isAdmin() && $user->teams->contains('id', $server->team_id) : false;
     }
 
     /**
