@@ -33,6 +33,7 @@ use App\Policies\StandaloneDockerPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\PersonalAccessToken;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\Support\InteractsWithTeamRoles;
 use Tests\TestCase;
 
 /**
@@ -54,25 +55,7 @@ use Tests\TestCase;
  */
 class DisabledPolicyChecksTest extends TestCase
 {
-    use RefreshDatabase;
-
-    private function memberOf(Team $team): User
-    {
-        $user = User::factory()->create();
-        $team->members()->attach($user, ['role' => 'member']);
-        session(['currentTeam' => $team]);
-
-        return $user;
-    }
-
-    private function adminOf(Team $team): User
-    {
-        $user = User::factory()->create();
-        $team->members()->attach($user, ['role' => 'admin']);
-        session(['currentTeam' => $team]);
-
-        return $user;
-    }
+    use InteractsWithTeamRoles, RefreshDatabase;
 
     #[Test]
     public function application_policy_denies_a_member_and_allows_an_admin(): void
