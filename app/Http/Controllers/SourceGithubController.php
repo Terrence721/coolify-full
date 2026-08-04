@@ -86,6 +86,7 @@ class SourceGithubController extends Controller
     public function show(string $github_app_uuid): Response|RedirectResponse
     {
         $githubApp = GithubApp::ownedByCurrentTeam()->whereUuid($github_app_uuid)->firstOrFail();
+        $this->authorize('view', $githubApp);
         $githubApp->makeVisible(['client_secret', 'webhook_secret']);
 
         $settings = instanceSettings();
