@@ -156,4 +156,43 @@ class PushServerUpdateJobTest extends TestCase
             ->withArgs(fn (string $message, array $context = []) => str_contains($message, 'processApplicationContainerLabels')
                 && str_contains($context['error'] ?? '', 'simulated DB write failure'));
     }
+
+    #[Test]
+    public function it_does_not_crash_when_a_container_label_value_is_not_a_string()
+    {
+        // SentinelController::push() only validates 'containers' => ['present', 'array'] - nothing
+        // enforces that nested label values decode as strings. Docker labels are always strings in
+        // practice, but a malformed/misbehaving Sentinel payload could send a JSON number instead
+        // (e.g. {"coolify.applicationId": 42}), which json-decodes to a PHP int. Under this file's
+        // declare(strict_types=1), calling a string-typed parameter with a non-string throws an
+        // uncaught TypeError *at the call site* in handle()'s foreach - outside any try/catch,
+        // aborting the whole heartbeat's container loop instead of failing just that one container.
+        // Exercised via a real handle() call (not the extracted method via reflection - Reflection
+        // invocation bypasses strict_types entirely, so it wouldn't reproduce this bug) with a
+        // single malformed container: the crash, if any, happens before handle() reaches any of its
+        // later SSH-dependent code (updateProxyStatus() etc.), so no Process faking is needed.
+        $team = Team::factory()->create();
+        $server = $this->createTeamServer($team);
+
+        $job = new PushServerUpdateJob($server, [
+            'containers' => [
+                [
+                    'name' => 'app-container',
+                    'state' => 'running',
+                    'labels' => [
+                        'coolify.managed' => 'true',
+                        'coolify.applicationId' => 42,
+                        'coolify.pullRequestId' => 0,
+                        'com.docker.compose.service' => 'web',
+                    ],
+                ],
+            ],
+        ]);
+
+        $job->handle();
+
+        // The store keyed by applicationId only ever works correctly if the int 42 was coerced to
+        // the string "42" consistently - proves the cast actually happened, not just "didn't crash".
+        $this->assertSame('running:unknown', $job->applicationContainerStatuses->get('42')->get('web'));
+    }
 }
