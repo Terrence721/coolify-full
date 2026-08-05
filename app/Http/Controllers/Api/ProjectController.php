@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\RedactsApiSensitiveFields;
 use App\Http\Controllers\Controller;
 use App\Models\Environment;
 use App\Models\Project;
@@ -15,6 +16,8 @@ use OpenApi\Attributes as OA;
 
 class ProjectController extends Controller
 {
+    use RedactsApiSensitiveFields;
+
     #[OA\Get(
         summary: 'List',
         description: 'List projects.',
@@ -178,35 +181,31 @@ class ProjectController extends Controller
      * response, unlike the dedicated single-type controllers - so it dispatches per relation
      * and pulls the exact same field lists each dedicated controller already defines via its own
      * sensitiveFieldLists(), matching ResourcesController's established pattern for the same
-     * "multiple resource types in one response" shape, rather than keeping its own, unlinked copy.
+     * "multiple resource types in one response" shape. Uses the shared RedactsApiSensitiveFields
+     * trait's hideApiFields() for the actual redaction, rather than hand-rolling the
+     * makeHidden()-application procedure per relation, since the trait already exists for exactly
+     * this purpose.
      */
     private function redactEnvironmentResources(Environment $environment): Environment
     {
-        $canReadSensitive = request()->attributes->get('can_read_sensitive', false);
+        $relationControllers = [
+            'applications' => ApplicationsController::class,
+            'services' => ServicesController::class,
+            'postgresqls' => DatabasesController::class,
+            'redis' => DatabasesController::class,
+            'mongodbs' => DatabasesController::class,
+            'mysqls' => DatabasesController::class,
+            'mariadbs' => DatabasesController::class,
+        ];
 
-        $applicationFields = ApplicationsController::sensitiveFieldLists();
-        foreach ($environment->applications as $application) {
-            $application->makeHidden($applicationFields['always']);
-            if (! $canReadSensitive) {
-                $application->makeHidden($applicationFields['sensitive']);
-            }
-        }
+        $fieldListsByController = [];
 
-        $serviceFields = ServicesController::sensitiveFieldLists();
-        foreach ($environment->services as $service) {
-            $service->makeHidden($serviceFields['always']);
-            if (! $canReadSensitive) {
-                $service->makeHidden($serviceFields['sensitive']);
-            }
-        }
+        foreach ($relationControllers as $relation => $controllerClass) {
+            $fieldListsByController[$controllerClass] ??= $controllerClass::sensitiveFieldLists();
+            $fields = $fieldListsByController[$controllerClass];
 
-        $databaseFields = DatabasesController::sensitiveFieldLists();
-        foreach (['postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs'] as $relation) {
-            foreach ($environment->{$relation} as $database) {
-                $database->makeHidden($databaseFields['always']);
-                if (! $canReadSensitive) {
-                    $database->makeHidden($databaseFields['sensitive']);
-                }
+            foreach ($environment->{$relation} as $model) {
+                $this->hideApiFields($model, $fields['always'], $fields['sensitive']);
             }
         }
 
