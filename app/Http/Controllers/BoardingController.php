@@ -95,6 +95,11 @@ class BoardingController extends Controller
 
         $this->authorize('create', Server::class);
 
+        $privateKey = PrivateKey::ownedByCurrentTeam()->find($validated['private_key_id']);
+        if (! $privateKey) {
+            return response()->json(['message' => 'Private key not found or does not belong to your team.'], 404);
+        }
+
         $foundServer = Server::whereIp($validated['ip'])->first();
         if ($foundServer) {
             $message = $foundServer->team_id === currentTeam()->id
@@ -110,7 +115,7 @@ class BoardingController extends Controller
             'ip' => $validated['ip'],
             'port' => $validated['port'],
             'user' => $validated['user'],
-            'private_key_id' => $validated['private_key_id'],
+            'private_key_id' => $privateKey->id,
             'team_id' => currentTeam()->id,
         ]);
 

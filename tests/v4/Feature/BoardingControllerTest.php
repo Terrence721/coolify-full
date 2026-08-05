@@ -83,6 +83,30 @@ it('creates a server and returns its id, uuid, and name as json', function () {
     $response->assertJson(['id' => $server->id, 'uuid' => $server->uuid, 'name' => 'onboarding-server']);
 });
 
+it('rejects a private_key_id belonging to another team instead of creating a server with it', function () {
+    // Same cross-tenant credential-use bug as ServerIndexTest's equivalent case -
+    // createServer() validated private_key_id as just 'required|integer' with no ownership
+    // scope, matching ServerController::store()'s identical gap.
+    [, $team] = boardingActingAs();
+    $otherTeam = Team::factory()->create();
+    $otherTeamKey = PrivateKey::create([
+        'name' => 'Other Team Key',
+        'private_key' => generateSSHKey('ed25519')['private'],
+        'team_id' => $otherTeam->id,
+    ]);
+
+    $response = $this->postJson(route('onboarding.create-server'), [
+        'name' => 'malicious-onboarding-server',
+        'ip' => '192.0.2.98',
+        'port' => 22,
+        'user' => 'root',
+        'private_key_id' => $otherTeamKey->id,
+    ]);
+
+    $response->assertStatus(404);
+    expect(Server::where('ip', '192.0.2.98')->exists())->toBeFalse();
+});
+
 it('exposes the localhost server\'s id, not just its uuid and name', function () {
     [, $team] = boardingActingAs();
     // Mirrors the real id-0 localhost server every instance seeds; the "This Machine" tile's

@@ -73,6 +73,11 @@ class ServerController extends Controller
             return back()->with('error', 'You must select a private key');
         }
 
+        $privateKey = PrivateKey::ownedByCurrentTeam()->find($validated['private_key_id']);
+        if (! $privateKey) {
+            return back()->with('error', 'Private key not found or does not belong to your team.');
+        }
+
         $payload = [
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
@@ -80,7 +85,7 @@ class ServerController extends Controller
             'user' => $validated['user'],
             'port' => $validated['port'],
             'team_id' => currentTeam()->id,
-            'private_key_id' => $validated['private_key_id'],
+            'private_key_id' => $privateKey->id,
         ];
         if ($validated['is_build_server']) {
             data_forget($payload, 'proxy');
