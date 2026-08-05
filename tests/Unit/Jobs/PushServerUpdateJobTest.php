@@ -13,6 +13,7 @@ use App\Models\StandaloneDocker;
 use App\Models\Team;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\Support\CallsProtectedMethods;
 use Tests\TestCase;
@@ -118,5 +119,41 @@ class PushServerUpdateJobTest extends TestCase
         $this->callProtected($job, 'aggregateMultiContainerStatuses');
 
         $this->assertSame('running:healthy', $application->fresh()->status);
+    }
+
+    #[Test]
+    public function it_logs_instead_of_silently_swallowing_an_exception_while_processing_a_container()
+    {
+        $team = Team::factory()->create();
+        $server = $this->createTeamServer($team);
+
+        // A stand-in for an ApplicationPreview whose save() always throws - proves the real
+        // failure mode: updateApplicationPreviewStatus()'s $application->save() (line 672)
+        // hitting a genuine DB error (deadlock, lock-wait timeout) mid-heartbeat.
+        $throwingPreview = new class
+        {
+            public string $status = 'exited:unhealthy';
+
+            public function save(): void
+            {
+                throw new \RuntimeException('simulated DB write failure');
+            }
+        };
+
+        $job = new PushServerUpdateJob($server, ['containers' => []]);
+        $job->allApplicationIds = collect();
+        $job->allApplicationPreviewsIds = collect(['app-1:5']);
+        $job->foundApplicationPreviewsIds = collect();
+        $job->applicationContainerStatuses = collect();
+        $job->previewsByKey = collect(['app-1:5' => $throwingPreview]);
+
+        Log::spy();
+
+        $this->callProtected($job, 'processApplicationContainerLabels', collect(), 'app-1', '5', 'running:healthy');
+
+        Log::shouldHaveReceived('error')
+            ->once()
+            ->withArgs(fn (string $message, array $context = []) => str_contains($message, 'processApplicationContainerLabels')
+                && str_contains($context['error'] ?? '', 'simulated DB write failure'));
     }
 }

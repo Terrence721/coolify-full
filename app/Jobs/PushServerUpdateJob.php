@@ -266,28 +266,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
             if ($labels->has('coolify.applicationId')) {
                 $applicationId = $labels->get('coolify.applicationId');
                 $pullRequestId = $labels->get('coolify.pullRequestId', '0');
-                try {
-                    if ($pullRequestId === '0') {
-                        if ($this->allApplicationIds->contains($applicationId)) {
-                            $this->foundApplicationIds->push($applicationId);
-                        }
-                        // Store container status for aggregation
-                        if (! $this->applicationContainerStatuses->has($applicationId)) {
-                            $this->applicationContainerStatuses->put($applicationId, collect());
-                        }
-                        $containerName = $labels->get('com.docker.compose.service');
-                        if ($containerName) {
-                            $this->applicationContainerStatuses->get($applicationId)->put($containerName, $containerStatus);
-                        }
-                    } else {
-                        $previewKey = $applicationId.':'.$pullRequestId;
-                        if ($this->allApplicationPreviewsIds->contains($previewKey)) {
-                            $this->foundApplicationPreviewsIds->push($previewKey);
-                        }
-                        $this->updateApplicationPreviewStatus($applicationId, $pullRequestId, $containerStatus);
-                    }
-                } catch (\Exception $e) {
-                }
+                $this->processApplicationContainerLabels($labels, $applicationId, $pullRequestId, $containerStatus);
             } elseif ($labels->has('coolify.serviceId')) {
                 $serviceId = $labels->get('coolify.serviceId');
                 $subType = $labels->get('coolify.service.subType');
@@ -658,6 +637,36 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
                 $subResource->setAttribute('status', $aggregatedStatus);
                 $subResource->save();
             }
+        }
+    }
+
+    /**
+     * @param  Collection<string, mixed>  $labels
+     */
+    private function processApplicationContainerLabels(Collection $labels, string $applicationId, string $pullRequestId, string $containerStatus): void
+    {
+        try {
+            if ($pullRequestId === '0') {
+                if ($this->allApplicationIds->contains($applicationId)) {
+                    $this->foundApplicationIds->push($applicationId);
+                }
+                // Store container status for aggregation
+                if (! $this->applicationContainerStatuses->has($applicationId)) {
+                    $this->applicationContainerStatuses->put($applicationId, collect());
+                }
+                $containerName = $labels->get('com.docker.compose.service');
+                if ($containerName) {
+                    $this->applicationContainerStatuses->get($applicationId)->put($containerName, $containerStatus);
+                }
+            } else {
+                $previewKey = $applicationId.':'.$pullRequestId;
+                if ($this->allApplicationPreviewsIds->contains($previewKey)) {
+                    $this->foundApplicationPreviewsIds->push($previewKey);
+                }
+                $this->updateApplicationPreviewStatus($applicationId, $pullRequestId, $containerStatus);
+            }
+        } catch (\Exception $e) {
+            Log::error('Unhandled exception in processApplicationContainerLabels().', ['error' => $e->getMessage()]);
         }
     }
 
