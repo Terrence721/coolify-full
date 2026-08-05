@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\RedactsApiSensitiveFields;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +13,8 @@ use OpenApi\Attributes as OA;
 
 class ResourcesController extends Controller
 {
+    use RedactsApiSensitiveFields;
+
     #[OA\Get(
         summary: 'List',
         description: 'Get all resources.',
@@ -76,10 +79,10 @@ class ResourcesController extends Controller
      * controller's own sensitiveFieldLists() rather than keeping a fourth, unlinked copy of them
      * (a real drift risk: a future field added to one controller's list could easily be forgotten
      * here, since nothing previously tied the two together).
-     * Only applies makeHidden(), not the trait's full redactApiFields()/serializeApiResponse()
-     * pass - status/type still need to be merged in afterward, and the caller runs the one real
-     * serializeApiResponse() pass over the whole collection at the end, matching this endpoint's
-     * existing array-building shape.
+     * Uses the trait's hideApiFields() (makeHidden-only, no serialize) rather than the full
+     * redactApiFields() - status/type still need to be merged in afterward, and the caller runs
+     * the one real serializeApiResponse() pass over the whole collection at the end, matching
+     * this endpoint's existing array-building shape.
      *
      * @return array<string, mixed>
      */
@@ -93,10 +96,7 @@ class ResourcesController extends Controller
             default => DatabasesController::sensitiveFieldLists(),
         };
 
-        $resource->makeHidden($fields['always']);
-        if (request()->attributes->get('can_read_sensitive', false) === false) {
-            $resource->makeHidden($fields['sensitive']);
-        }
+        $this->hideApiFields($resource, $fields['always'], $fields['sensitive']);
 
         return $resource->toArray();
     }
