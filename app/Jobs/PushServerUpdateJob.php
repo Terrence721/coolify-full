@@ -643,9 +643,17 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
     /**
      * @param  Collection<string, mixed>  $labels
      */
-    private function processApplicationContainerLabels(Collection $labels, string $applicationId, string $pullRequestId, string $containerStatus): void
+    private function processApplicationContainerLabels(Collection $labels, mixed $applicationId, mixed $pullRequestId, string $containerStatus): void
     {
         try {
+            // Docker labels are always strings in practice, but nothing validates that a Sentinel
+            // payload's nested label values actually decode as strings (SentinelController::push()
+            // only checks 'containers' => ['present', 'array']) - cast defensively here, inside the
+            // try/catch, rather than type-hinting the parameters as string and letting a malformed
+            // value throw an uncaught TypeError at the call site in handle()'s foreach.
+            $applicationId = (string) $applicationId;
+            $pullRequestId = (string) $pullRequestId;
+
             if ($pullRequestId === '0') {
                 if ($this->allApplicationIds->contains($applicationId)) {
                     $this->foundApplicationIds->push($applicationId);
@@ -665,7 +673,7 @@ class PushServerUpdateJob implements ShouldBeEncrypted, ShouldQueue, Silenced
                 }
                 $this->updateApplicationPreviewStatus($applicationId, $pullRequestId, $containerStatus);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('Unhandled exception in processApplicationContainerLabels().', ['error' => $e->getMessage()]);
         }
     }
