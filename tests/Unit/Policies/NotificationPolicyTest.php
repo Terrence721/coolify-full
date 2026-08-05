@@ -87,6 +87,20 @@ class NotificationPolicyTest extends TestCase
     }
 
     #[Test]
+    public function update_allows_an_admin_of_the_root_team_whose_id_is_zero(): void
+    {
+        // Regression test for a real bug caught by an independent /code-review 164 pass: team
+        // id 0 is the real root/instance team every Coolify install seeds (RootUserSeeder et
+        // al.), and `if (! $teamId) { return false; }` treats that legitimate-but-falsy id the
+        // same as a genuinely missing one - `!0` is true in PHP, same class of bug as
+        // is_null()-vs-falsy checks elsewhere in this codebase.
+        $rootTeam = Team::factory()->create(['id' => 0]);
+        $settings = $rootTeam->emailNotificationSettings;
+
+        $this->assertTrue((new NotificationPolicy)->update($this->adminOf($rootTeam), $settings));
+    }
+
+    #[Test]
     public function manage_and_send_test_follow_the_same_rule_as_update(): void
     {
         $team = Team::factory()->create();
