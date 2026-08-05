@@ -22,7 +22,7 @@ class CloudProviderTokenPolicy
      */
     public function view(User $user, CloudProviderToken $cloudProviderToken): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOfTeam($cloudProviderToken->team_id);
     }
 
     /**
@@ -38,7 +38,7 @@ class CloudProviderTokenPolicy
      */
     public function update(User $user, CloudProviderToken $cloudProviderToken): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOfTeam($cloudProviderToken->team_id);
     }
 
     /**
@@ -46,7 +46,7 @@ class CloudProviderTokenPolicy
      */
     public function delete(User $user, CloudProviderToken $cloudProviderToken): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOfTeam($cloudProviderToken->team_id);
     }
 
     /**
@@ -54,7 +54,7 @@ class CloudProviderTokenPolicy
      */
     public function restore(User $user, CloudProviderToken $cloudProviderToken): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOfTeam($cloudProviderToken->team_id);
     }
 
     /**
@@ -62,6 +62,6 @@ class CloudProviderTokenPolicy
      */
     public function forceDelete(User $user, CloudProviderToken $cloudProviderToken): bool
     {
-        return $user->isAdmin();
+        return $user->isAdminOfTeam($cloudProviderToken->team_id);
     }
 }

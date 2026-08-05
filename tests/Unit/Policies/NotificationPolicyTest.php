@@ -71,6 +71,22 @@ class NotificationPolicyTest extends TestCase
     }
 
     #[Test]
+    public function denies_an_admin_of_a_different_team_from_updating(): void
+    {
+        // Defense-in-depth, not a live-exploitable fix: $settings is always derived from
+        // currentTeam() at every real call site, never from a route-controllable ID, so this
+        // gap can't actually be reached today. But update() checked only $user->isAdmin() - the
+        // session-current-team's role - never comparing against $notificationSettings's own
+        // team at all, unlike view() a few lines above, which already gets this right.
+        $sessionTeam = Team::factory()->create();
+        $settingsTeam = Team::factory()->create();
+        $settings = $settingsTeam->emailNotificationSettings;
+        $user = $this->adminOfButMemberOf($sessionTeam, $settingsTeam);
+
+        $this->assertFalse((new NotificationPolicy)->update($user, $settings));
+    }
+
+    #[Test]
     public function manage_and_send_test_follow_the_same_rule_as_update(): void
     {
         $team = Team::factory()->create();
