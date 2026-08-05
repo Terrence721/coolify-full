@@ -191,6 +191,15 @@ class SourceGithubController extends Controller
             'privateKeyId' => 'nullable|int',
         ]);
 
+        $privateKeyId = null;
+        if (! is_null($validated['privateKeyId'])) {
+            $privateKey = PrivateKey::ownedByCurrentTeam()->find($validated['privateKeyId']);
+            if (! $privateKey) {
+                return back()->with('error', 'Private key not found or does not belong to your team.');
+            }
+            $privateKeyId = $privateKey->id;
+        }
+
         $githubApp->update([
             'name' => $validated['name'],
             'organization' => $validated['organization'] ?? null,
@@ -204,7 +213,7 @@ class SourceGithubController extends Controller
             'client_secret' => $validated['clientSecret'] ?? null,
             'webhook_secret' => $validated['webhookSecret'] ?? null,
             'is_system_wide' => $validated['isSystemWide'],
-            'private_key_id' => $validated['privateKeyId'] ?? null,
+            'private_key_id' => $privateKeyId,
         ]);
 
         return back()->with('success', 'Github App updated.');

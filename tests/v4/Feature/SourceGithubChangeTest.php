@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Application;
 use App\Models\GithubApp;
 use App\Models\InstanceSettings;
+use App\Models\PrivateKey;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -219,6 +220,84 @@ it('updates the github app configuration', function () {
     $response->assertRedirect();
     $response->assertSessionHas('success', 'Github App updated.');
     expect($githubApp->fresh()->name)->toBe('renamed-app');
+});
+
+it('rejects a privateKeyId belonging to another team instead of attaching it', function () {
+    // Regression test: update() validated privateKeyId as just 'nullable|int' with no ownership
+    // scope, writing it straight into GithubApp::update(). GithubApp::privateKey() is a plain
+    // unscoped belongsTo, and generateGithubToken() (bootstrap/helpers/github.php) signs a real
+    // JWT with $source->privateKey->private_key - the actual decrypted key material - then
+    // GithubAppPermissionJob sends that JWT via a real outbound HTTP request to $github_app->api_url
+    // (attacker-settable, blocked only from internal/private hosts by SafeExternalUrl, any public
+    // host is allowed). A team admin could attach another team's private key, point api_url at
+    // their own server, and have Coolify sign + deliver a live, valid bearer credential for the
+    // victim team's GitHub App identity to an attacker-controlled destination.
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $githubApp = makeGithubApp($team->id, ['app_id' => 123, 'installation_id' => 456]);
+
+    $otherTeam = Team::factory()->create();
+    $otherTeamKey = PrivateKey::create([
+        'name' => 'Other Team Key',
+        'private_key' => generateSSHKey('ed25519')['private'],
+        'team_id' => $otherTeam->id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('source.github.update', ['github_app_uuid' => $githubApp->uuid]), [
+            'name' => $githubApp->name,
+            'organization' => null,
+            'apiUrl' => 'https://api.github.com',
+            'htmlUrl' => 'https://github.com',
+            'customUser' => 'git',
+            'customPort' => 22,
+            'appId' => 123,
+            'installationId' => 456,
+            'clientId' => null,
+            'clientSecret' => null,
+            'webhookSecret' => null,
+            'isSystemWide' => false,
+            'privateKeyId' => $otherTeamKey->id,
+        ]);
+
+    expect($githubApp->fresh()->private_key_id)->not->toBe($otherTeamKey->id);
+    $response->assertSessionHas('error');
+});
+
+it('attaches a privateKeyId owned by the current team', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $githubApp = makeGithubApp($team->id, ['app_id' => 123, 'installation_id' => 456]);
+
+    $ownKey = PrivateKey::create([
+        'name' => 'Deploy Key',
+        'private_key' => generateSSHKey('ed25519')['private'],
+        'team_id' => $team->id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->put(route('source.github.update', ['github_app_uuid' => $githubApp->uuid]), [
+            'name' => $githubApp->name,
+            'organization' => null,
+            'apiUrl' => 'https://api.github.com',
+            'htmlUrl' => 'https://github.com',
+            'customUser' => 'git',
+            'customPort' => 22,
+            'appId' => 123,
+            'installationId' => 456,
+            'clientId' => null,
+            'clientSecret' => null,
+            'webhookSecret' => null,
+            'isSystemWide' => false,
+            'privateKeyId' => $ownKey->id,
+        ]);
+
+    $response->assertSessionHas('success', 'Github App updated.');
+    expect($githubApp->fresh()->private_key_id)->toBe($ownKey->id);
 });
 
 it('rejects an unsafe apiUrl on update', function () {
