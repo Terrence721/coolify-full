@@ -30,7 +30,7 @@ export function useTeamChannel(events, onEvent) {
     const teamId = currentTeam?.id;
 
     useEffect(() => {
-        if (!teamId || !echoConfig || events.length === 0) {
+        if (teamId == null || !echoConfig || events.length === 0) {
             return;
         }
 
