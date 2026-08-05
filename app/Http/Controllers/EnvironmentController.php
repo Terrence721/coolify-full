@@ -148,6 +148,19 @@ class EnvironmentController extends Controller
         $cloneVolumeData = (bool) ($validated['clone_volume_data'] ?? false);
 
         try {
+            $servers = currentTeam()->servers()->get()->reject(fn ($server) => $server->isBuildServer());
+            $selectedDestination = null;
+            foreach ($servers as $server) {
+                $selectedDestination = $server->destinations()->firstWhere('id', $validated['destination_id']);
+                if ($selectedDestination) {
+                    break;
+                }
+            }
+
+            if (! $selectedDestination) {
+                throw new \Exception('Destination not found or does not belong to your team.');
+            }
+
             if ($validated['type'] === 'project') {
                 $foundProject = Project::where('name', $validated['name'])->first();
                 if ($foundProject) {
@@ -178,15 +191,6 @@ class EnvironmentController extends Controller
                 ]);
             }
 
-            $servers = currentTeam()->servers()->get()->reject(fn ($server) => $server->isBuildServer());
-            $selectedDestination = null;
-            foreach ($servers as $server) {
-                $selectedDestination = $server->destinations()->firstWhere('id', $validated['destination_id']);
-                if ($selectedDestination) {
-                    break;
-                }
-            }
-
             foreach ($sourceEnvironment->applications as $application) {
                 clone_application($application, $selectedDestination, [
                     'environment_id' => $targetEnvironment->id,
@@ -204,7 +208,7 @@ class EnvironmentController extends Controller
                     'status' => 'exited',
                     'started_at' => null,
                     'environment_id' => $targetEnvironment->id,
-                    'destination_id' => $validated['destination_id'],
+                    'destination_id' => $selectedDestination->id,
                 ]);
                 $newDatabase->save();
 
@@ -279,7 +283,7 @@ class EnvironmentController extends Controller
                 ])->fill([
                     'uuid' => (string) new Cuid2,
                     'environment_id' => $targetEnvironment->id,
-                    'destination_id' => $validated['destination_id'],
+                    'destination_id' => $selectedDestination->id,
                 ]);
                 $newService->save();
 
