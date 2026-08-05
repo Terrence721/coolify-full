@@ -85,36 +85,44 @@ class ApplicationPreview extends BaseModel
     protected static function booted()
     {
         static::forceDeleting(function (ApplicationPreview $preview) {
-            $server = $preview->application->destination->server;
+            // application_previews.application_id has no DB foreign-key constraint (see its
+            // create migration), so a preview can outlive its parent Application - forceDeleting
+            // an Application only soft-deletes its previews first, it doesn't cascade a real
+            // delete. An orphaned preview has nothing reachable server-side to clean up; skip
+            // straight to the local persistentStorages row cleanup below instead of crashing on
+            // a null application/destination/server chain.
             $application = $preview->application;
+            $server = $application?->destination?->server;
 
-            if (data_get($preview, 'application.build_pack') === 'dockercompose') {
-                // Docker Compose volume and network cleanup
-                $composeFile = $application->parse(pull_request_id: $preview->pull_request_id);
-                $volumes = data_get($composeFile, 'volumes');
-                $networks = data_get($composeFile, 'networks');
-                $networkKeys = collect(is_array($networks) ? $networks : [])->keys();
-                $volumeKeys = collect(is_array($volumes) ? $volumes : [])->keys();
-                $volumeKeys->each(function ($key) use ($server) {
-                    if (! preg_match(ValidationPatterns::VOLUME_NAME_PATTERN, $key)) {
-                        return;
-                    }
-                    instant_remote_process(['docker volume rm -f '.escapeshellarg($key)], $server, false);
-                });
-                $networkKeys->each(function ($key) use ($server) {
-                    if (! preg_match(ValidationPatterns::DOCKER_NETWORK_PATTERN, $key)) {
-                        return;
-                    }
-                    $k = escapeshellarg($key);
-                    instant_remote_process(["docker network disconnect {$k} coolify-proxy"], $server, false);
-                    instant_remote_process(["docker network rm {$k}"], $server, false);
-                });
-            } else {
-                // Regular application volume cleanup
-                $persistentStorages = $preview->persistentStorages()->get();
-                if ($persistentStorages->count() > 0) {
-                    foreach ($persistentStorages as $storage) {
-                        instant_remote_process(['docker volume rm -f '.escapeshellarg($storage->name)], $server, false);
+            if ($application && $server) {
+                if (data_get($preview, 'application.build_pack') === 'dockercompose') {
+                    // Docker Compose volume and network cleanup
+                    $composeFile = $application->parse(pull_request_id: $preview->pull_request_id);
+                    $volumes = data_get($composeFile, 'volumes');
+                    $networks = data_get($composeFile, 'networks');
+                    $networkKeys = collect(is_array($networks) ? $networks : [])->keys();
+                    $volumeKeys = collect(is_array($volumes) ? $volumes : [])->keys();
+                    $volumeKeys->each(function ($key) use ($server) {
+                        if (! preg_match(ValidationPatterns::VOLUME_NAME_PATTERN, $key)) {
+                            return;
+                        }
+                        instant_remote_process(['docker volume rm -f '.escapeshellarg($key)], $server, false);
+                    });
+                    $networkKeys->each(function ($key) use ($server) {
+                        if (! preg_match(ValidationPatterns::DOCKER_NETWORK_PATTERN, $key)) {
+                            return;
+                        }
+                        $k = escapeshellarg($key);
+                        instant_remote_process(["docker network disconnect {$k} coolify-proxy"], $server, false);
+                        instant_remote_process(["docker network rm {$k}"], $server, false);
+                    });
+                } else {
+                    // Regular application volume cleanup
+                    $persistentStorages = $preview->persistentStorages()->get();
+                    if ($persistentStorages->count() > 0) {
+                        foreach ($persistentStorages as $storage) {
+                            instant_remote_process(['docker volume rm -f '.escapeshellarg($storage->name)], $server, false);
+                        }
                     }
                 }
             }
