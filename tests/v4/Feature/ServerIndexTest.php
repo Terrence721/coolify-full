@@ -113,6 +113,39 @@ it('creates a new server by IP address', function () {
     $response->assertRedirect(route('server.show', ['server_uuid' => $server->uuid]));
 });
 
+it('rejects a private_key_id belonging to another team instead of creating a server with it', function () {
+    // Regression test: store() validated private_key_id as just 'nullable|integer' with no
+    // ownership scope, then wrote it straight into Server::create(). Any later action that
+    // connects to this server (SshMultiplexingHelper::generateSshCommand() does
+    // PrivateKey::findOrFail($server->private_key_id), completely unscoped) would load the
+    // *other* team's real private key material from disk and attempt SSH auth with it against
+    // whatever ip/user/port the creator supplied - a cross-tenant credential-use bug, not just
+    // an IDOR on readable data.
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $otherTeam = Team::factory()->create();
+    $otherTeamKey = PrivateKey::create([
+        'name' => 'Other Team Key',
+        'private_key' => SERVER_INDEX_TEST_KEY,
+        'team_id' => $otherTeam->id,
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('server.store'), [
+            'name' => 'malicious-server',
+            'ip' => '192.0.2.99',
+            'user' => 'root',
+            'port' => 22,
+            'private_key_id' => $otherTeamKey->id,
+            'is_build_server' => false,
+        ]);
+
+    expect(Server::where('ip', '192.0.2.99')->exists())->toBeFalse();
+    $response->assertSessionHas('error');
+});
+
 it('hands off to Server\\Show as a plain redirect for Inertia requests, now that Server\\Show is an Inertia page', function () {
     // server.show became a real Inertia::render() response in Phase 78 (App\Http\Controllers\
     // ServerShowController), so a plain redirect()->route() here now resolves cleanly through
