@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'coolify' => [
-        'version' => '0.4.0',
+        'version' => '0.5.0',
         'helper_version' => '1.0.14',
         'realtime_version' => '1.0.16',
         'railpack_version' => '0.23.0',
