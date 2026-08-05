@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\Server;
 use App\Models\Service;
 use App\Models\StandaloneDocker;
+use App\Models\StandalonePostgresql;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -309,6 +310,53 @@ it('does not dispatch a VolumeCloneJob when clone_volume_data is false', functio
         ]);
 
     Bus::assertNotDispatched(VolumeCloneJob::class);
+});
+
+it('rejects a destination_id belonging to another team instead of cloning databases and services to it', function () {
+    // Regression test: the controller already computed $selectedDestination by searching only
+    // currentTeam()'s own servers' destinations (so a cross-team id would never be found there),
+    // but the database and service clone blocks bypassed it entirely and wrote the raw, unchecked
+    // $validated['destination_id'] straight into the replicated row instead. StandaloneDocker/
+    // SwarmDocker's server() relation and Service::destination() are both unscoped - once
+    // deployed (StartDatabase::handle() resolves destination.server and deploys there if
+    // functional), the clone would genuinely run real containers on another team's server over
+    // that server's own SSH credentials. The application clone path was already correct
+    // (clone_application() uses $selectedDestination and additionally re-checks team_id itself)
+    // - only the database/service paths had the gap.
+    Bus::fake();
+
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $environment = $project->environments()->first();
+    $server = makeCloneTestServer($team->id);
+    $destination = $server->destinations()->first();
+
+    $otherTeam = Team::factory()->create();
+    $otherServer = makeCloneTestServer($otherTeam->id);
+    $otherDestination = $otherServer->destinations()->first();
+
+    StandalonePostgresql::create([
+        'name' => 'clone-source-db',
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+        'destination_type' => StandaloneDocker::class,
+        'postgres_password' => 'secret',
+    ]);
+    makeCloneTestComposeService($environment->id, $destination->id, $server->id);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.clone-me.store', ['project_uuid' => $project->uuid, 'environment_uuid' => $environment->uuid]), [
+            'type' => 'environment',
+            'name' => 'malicious-clone',
+            'destination_id' => $otherDestination->id,
+            'clone_volume_data' => false,
+        ]);
+
+    expect($project->environments()->where('name', 'malicious-clone')->exists())->toBeFalse();
+    $response->assertSessionHas('error');
 });
 
 it('rejects submission without a destination selected', function () {
