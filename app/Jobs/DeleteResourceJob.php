@@ -101,13 +101,24 @@ class DeleteResourceJob implements ShouldBeEncrypted, ShouldQueue
     private function deleteApplicationPreview(): void
     {
         $application = $this->resource->application;
-        $server = $application->destination->server;
-        $pull_request_id = $this->resource->pull_request_id;
 
         // Ensure the preview is soft deleted (may already be done in Livewire component)
         if (! $this->resource->trashed()) {
             $this->resource->delete();
         }
+
+        if (! $application) {
+            // Orphaned preview: application_previews.application_id has no DB foreign-key
+            // constraint, so a preview can outlive its parent Application (Application's own
+            // forceDeleting hook only soft-deletes its previews, it doesn't cascade a real
+            // delete). Nothing left to clean up server-side; just remove the leftover row.
+            $this->resource->forceDelete();
+
+            return;
+        }
+
+        $server = $application->destination->server;
+        $pull_request_id = $this->resource->pull_request_id;
 
         // Cancel any active deployments for this PR (same logic as API cancel_deployment)
         $activeDeployments = ApplicationDeploymentQueue::where('application_id', $application->id)
