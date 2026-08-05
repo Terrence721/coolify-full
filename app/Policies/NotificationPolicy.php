@@ -27,13 +27,14 @@ class NotificationPolicy
      */
     public function update(User $user, Model $notificationSettings): bool
     {
-        // Check if the notification settings belong to the user's current team
-        if (! data_get($notificationSettings, 'team')) {
+        $teamId = data_get($notificationSettings, 'team.id');
+
+        if (! $teamId) {
             return false;
         }
 
-        // Only owners and admins can update notification settings
-        return $user->isAdmin() || $user->isOwner();
+        // Only owners and admins of the settings' own team can update it
+        return $user->isAdminOfTeam($teamId);
     }
 
     /**
