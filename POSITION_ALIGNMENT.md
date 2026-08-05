@@ -31,7 +31,7 @@ A second, independent verification pass ("pseudo peer review") re-reviews alread
 
 Every regression test is TDD-proved, not just written: the test is confirmed to fail against the pre-fix code for the actual real reason before the fix lands, then confirmed passing after — the same discipline applied to the frontend side, where a suite's own sanity is checked by temporarily breaking the logic under test and confirming the suite catches it
 
-1,444 Pest tests (5,639 assertions) on the backend, 1,313 Vitest/Testing Library component tests across 127 suites on the frontend (122 of 140 components/pages covered — [issue #32](https://github.com/Terrence721/coolify-full/issues/32) tracks the rest, each addition picked for genuine regression risk rather than swept mechanically; components with no real branching logic are deliberately left untested, with the reason recorded)
+1,444 Pest tests (5,639 assertions) on the backend, 1,314 Vitest/Testing Library component tests across 127 suites on the frontend (122 of 140 components/pages covered — [issue #32](https://github.com/Terrence721/coolify-full/issues/32) tracks the rest, each addition picked for genuine regression risk rather than swept mechanically; components with no real branching logic are deliberately left untested, with the reason recorded)
 
 ## Participates in design meetings, discusses tasks with colleagues, reviews, and contributes to company documentation
 
