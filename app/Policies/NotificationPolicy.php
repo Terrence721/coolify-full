@@ -29,7 +29,7 @@ class NotificationPolicy
     {
         $teamId = data_get($notificationSettings, 'team.id');
 
-        if (! $teamId) {
+        if (is_null($teamId)) {
             return false;
         }
 
