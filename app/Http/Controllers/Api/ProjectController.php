@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Environment;
 use App\Models\Project;
 use App\Support\ValidationPatterns;
 use Illuminate\Http\JsonResponse;
@@ -167,8 +168,49 @@ class ProjectController extends Controller
             return response()->json(['message' => 'Environment not found.'], 404);
         }
         $environment = $environment->load(['applications', 'postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs', 'services']);
+        $environment = $this->redactEnvironmentResources($environment);
 
         return response()->json(serializeApiResponse($environment));
+    }
+
+    /**
+     * This endpoint returns applications/services/databases nested inside one Environment
+     * response, unlike the dedicated single-type controllers - so it dispatches per relation
+     * and pulls the exact same field lists each dedicated controller already defines via its own
+     * sensitiveFieldLists(), matching ResourcesController's established pattern for the same
+     * "multiple resource types in one response" shape, rather than keeping its own, unlinked copy.
+     */
+    private function redactEnvironmentResources(Environment $environment): Environment
+    {
+        $canReadSensitive = request()->attributes->get('can_read_sensitive', false);
+
+        $applicationFields = ApplicationsController::sensitiveFieldLists();
+        foreach ($environment->applications as $application) {
+            $application->makeHidden($applicationFields['always']);
+            if (! $canReadSensitive) {
+                $application->makeHidden($applicationFields['sensitive']);
+            }
+        }
+
+        $serviceFields = ServicesController::sensitiveFieldLists();
+        foreach ($environment->services as $service) {
+            $service->makeHidden($serviceFields['always']);
+            if (! $canReadSensitive) {
+                $service->makeHidden($serviceFields['sensitive']);
+            }
+        }
+
+        $databaseFields = DatabasesController::sensitiveFieldLists();
+        foreach (['postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs'] as $relation) {
+            foreach ($environment->{$relation} as $database) {
+                $database->makeHidden($databaseFields['always']);
+                if (! $canReadSensitive) {
+                    $database->makeHidden($databaseFields['sensitive']);
+                }
+            }
+        }
+
+        return $environment;
     }
 
     #[OA\Post(
