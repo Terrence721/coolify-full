@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\ValidationPatterns;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -144,6 +145,25 @@ class ApplicationPreview extends BaseModel
     public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
+    }
+
+    /**
+     * A preview has no destination of its own - it shares its parent Application's. An
+     * Attribute accessor (not a real relation - no foreign key on this table, and a plain method
+     * named server() would collide with Eloquent's property-access relation resolution, which
+     * requires methods it invokes that way to return a Relation instance) so DeleteResourceJob's
+     * generic data_get($resource, 'server') ?? data_get($resource, 'destination.server') lookup -
+     * which every other deletable resource type satisfies via a real destination()/server()
+     * relation - resolves for previews too, instead of silently returning null and skipping
+     * docker cleanup.
+     *
+     * @return Attribute<Server|null, never>
+     */
+    protected function server(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->application?->destination?->server,
+        );
     }
 
     /**
