@@ -1,7 +1,7 @@
 # Developing Coolify In Containers (Windows)
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 24, 2026**
+**Last Updated: August 5, 2026**
 
 **The development environment for this project is Ubuntu Linux.** This guide covers the one host-specific concern: bootstrapping that Linux environment on a Windows machine via WSL2. If you're on native Linux (or macOS), you don't need this document — clone the repo, `cp .env.development.example .env`, and `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`; every command in [`docs/command.md`](docs/command.md) runs identically.
 
@@ -66,7 +66,7 @@ Check status:
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ```
 
-Expected services: `coolify` (app), `coolify-db` (Postgres), `coolify-redis` (Redis), `coolify-realtime`, `coolify-vite`, plus `coolify-mail`, `coolify-minio`, `coolify-testing-host`.
+Expected services: `coolify` (app), `coolify-db` (Postgres), `coolify-redis` (Redis), `coolify-realtime`, `coolify-vite`, plus `coolify-mail`, `coolify-minio`, `coolify-minio-init`, `coolify-testing-host`, `coolify-autoheal`, `coolify-stray-pruner`. (`coolify-smoketest-host` and `coolify-https-proxy` are separate, opt-in compose files — see `docs/command.md` — not part of this default stack.)
 
 If you also have an old stack running from a Windows-path checkout, bring that one down first (`docker compose -f docker-compose.yml -f docker-compose.dev.yml down` from the old location) — both would otherwise fight over the same container/network names.
 
