@@ -59,6 +59,18 @@ describe('useTeamChannel', () => {
         expect(echoMock.private).not.toHaveBeenCalled();
     });
 
+    it('subscribes for team id 0 (the real root/instance team every install seeds), not just truthy ids', () => {
+        // !0 is true in JS - a falsy check here would silently skip the subscription for the
+        // root team specifically, the same class of bug fixed in NotificationPolicy::update()
+        // (finding #69): RootUserSeeder explicitly seeds Team::find(0), and HandleInertiaRequests
+        // shares its real numeric id (0) as the currentTeam prop for the root user.
+        pageProps = { currentTeam: { id: 0 }, echo: { host: 'localhost', key: 'coolify', port: 6001 } };
+
+        renderHook(() => useTeamChannel(['ProxyStatusChangedUI'], vi.fn()));
+
+        expect(echoMock.private).toHaveBeenCalledWith('team.0');
+    });
+
     it('invokes the onEvent callback with the event name and payload when the listener fires', () => {
         const onEvent = vi.fn();
         renderHook(() => useTeamChannel(['ProxyStatusChangedUI'], onEvent));
