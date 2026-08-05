@@ -1,12 +1,12 @@
 # Coolify Technology Stack
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 16, 2026**
+**Last Updated: August 5, 2026**
 
 ## Development Environment
 
 -   Ubuntu Linux (via WSL2 on a Windows 11 host) — every process runs in Linux; nothing in the toolchain is Windows-specific
--   Docker Compose dev stack (app, Postgres, Redis, Soketi/terminal-server, Vite, Mailpit, MinIO, testing-host), all Linux containers on a Linux filesystem
+-   Docker Compose dev stack (app, Postgres, Redis, Soketi/terminal-server, Vite, Mailpit, MinIO, testing-host, autoheal, stray-pruner), all Linux containers on a Linux filesystem
 -   Identical workflow on native Linux/macOS — the WSL2 layer is host-machine detail, not a project requirement
 
 ## Frontend

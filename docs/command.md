@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 31, 2026**
+**Last Updated: August 5, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -128,7 +128,7 @@ docker exec coolify composer phpstan                             # static analys
 docker exec coolify composer psalm                                # taint analysis (SQL injection, XSS, command injection dataflow — not general type-checking, that's PHPStan's job)
 ```
 
-Never run `pint --test` — just run `pint --format agent`, it fixes issues directly.
+While actively editing, run `pint --format agent` (or `--dirty --format agent` for just the changed files) — it fixes issues directly rather than just reporting them. But `--dirty`'s diff-based file selection has been observed to miss real style issues the full check catches (a `fully_qualified_strict_types` violation once passed `--dirty` locally and only surfaced when the full `pint --test` ran in CI) — before pushing, run the full `vendor/bin/pint --test` (no `--dirty`, matching the "CI parity" section below) as a final check, not just the scoped one.
 
 ## Composer
 
