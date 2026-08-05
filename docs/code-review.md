@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 3, 2026**
+**Last Updated: August 5, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -499,3 +499,11 @@ PR #139 added team-membership checks to 14 methods across these 3 files, but use
 **critical · Security (secret disclosure via missing API redaction)** — Fixed via [PR #152](https://github.com/Terrence721/coolify-full/pull/152) ([`9f0eb07ae`](https://github.com/Terrence721/coolify-full/commit/9f0eb07ae))
 
 `environment_details()` (`GET /api/v1/projects/{uuid}/{environment_name_or_uuid}`, gated only by `api.ability:read`) loaded applications, services, and every database engine onto the Environment response and serialized the whole thing via `serializeApiResponse()` with zero redaction — never wired into `RedactsApiSensitiveFields` at all, unlike every dedicated single-type controller, and unlike `ResourcesController`'s own mixed-type `/resources` endpoint (finding #22), which already solved this exact "multiple resource types in one response" shape. No model in this codebase defines `$hidden` — all redaction is opt-in, per-controller, and this controller simply never opted in. Found via an autonomous code-review sweep, prioritized under the established Tier 1 (security) first, Tier 2 (reliability) fallback order. Confirmed reachable: team-scoped correctly (not a cross-tenant IDOR), zero existing test coverage for this endpoint. Concrete leak: any token with plain `read` ability got every application's `docker_compose_raw`/webhook secrets/basic-auth password, every database's root/user passwords in plaintext, and every service's raw compose file, for a whole environment in one request — same bug class already fixed 4 times this session on other controllers, a fresh instance on a controller none of those touched. Fix: dispatches per relation, pulling the exact same field lists each dedicated controller already exposes via its own `sensitiveFieldLists()`, matching `ResourcesController`'s established pattern. Disclosed, not fixed: `environment_details()`'s own `load()` call never includes `keydbs`/`dragonflies`/`clickhouses` at all, so those 3 engines never appear in this endpoint's response regardless of redaction — a separate completeness gap, out of scope for this security fix.
+
+---
+
+### [`ProjectController.php`, `ResourcesController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-195052005)
+
+**medium · Maintainability (redaction procedure duplication)** — Fixed via [PR #154](https://github.com/Terrence721/coolify-full/pull/154) ([`a30bb3a54`](https://github.com/Terrence721/coolify-full/commit/a30bb3a54))
+
+`ProjectController::redactEnvironmentResources()` and `ResourcesController::removeSensitiveData()` each hand-rolled the same makeHidden()-application loop instead of using `RedactsApiSensitiveFields::hideApiFields()`, which already existed for exactly this purpose. Found via an independent `/code-review 152` pass (pseudo peer review) on already-merged PR #152 — 3 of 8 parallel review angles (diff scan, reuse/duplication check, altitude/architecture check) converged on the same finding. PR #152's own docblock inaccurately claimed the redaction procedure was already shared "matching ResourcesController's established pattern" — only the field-list *sources* were shared, not the procedure itself, which was implemented three separate times. Fix: split `RedactsApiSensitiveFields::redactApiFields()` into a new `hideApiFields()` (makeHidden-only, no serialize) for callers redacting several models across several relations before one final `serializeApiResponse()` pass; both controllers now delegate to it. Pure refactor, no behavior change — confirmed by an identical Pest pass count before and after (1429 tests, 5611 assertions).
