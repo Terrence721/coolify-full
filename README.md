@@ -1,6 +1,6 @@
 **[→ Read the one-page portfolio](https://terrence721.github.io/coolify-full/portfolio.html)** — the 60-second version, with links back into this repo for anyone who wants to go deeper. · [More of my work ↗](https://terrence721.github.io/)
 
-# 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
+# 🚀 Coolify-Full (Enhanced Fork) — Principal Full-Stack Engineering Demonstration
 
 [![Quality](https://github.com/Terrence721/coolify-full/actions/workflows/quality.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/quality.yml)
 [![CodeQL](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml/badge.svg)](https://github.com/Terrence721/coolify-full/actions/workflows/codeql.yml)
