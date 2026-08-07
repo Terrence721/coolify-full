@@ -1,4 +1,4 @@
-**[→ Read the one-page portfolio](https://terrence721.github.io/coolify-full/portfolio.html)** — the 60-second version, with links back into this repo for anyone who wants to go deeper.
+**[→ Read the one-page portfolio](https://terrence721.github.io/coolify-full/portfolio.html)** — the 60-second version, with links back into this repo for anyone who wants to go deeper. · [More of my work ↗](https://github.com/Terrence721)
 
 # 🚀 Coolify-Full (Enhanced Fork) — Senior Full-Stack Engineering Demonstration
 
