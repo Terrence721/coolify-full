@@ -656,7 +656,8 @@ Smaller fixes found during various cleanup passes, not significant enough for th
 | Built | 2026-07-28 — `coolify-smoketest-host`, an opt-in (`docker-compose.smoketest.yml`) genuinely isolated remote server with its own real `dockerd`, unblocking the 4 remaining `docker.sock`-sharing-limited items in the Server-management smoke-test checklist (issue #26). |
 | Why | `coolify-testing-host` bind-mounts the real host's `/var/run/docker.sock` (issue #56) — destructive actions (cleanup/restart/patch) against it would hit this session's own dev containers, not a sandbox. |
 | Verification | Real, non-null `dockerd` confirmed inside the container; `docker ps -a` empty (isolated from the real dev stack); SSH reachable from `coolify`; real Coolify "Validate Server" pass through the actual UI (`is_reachable`/`is_usable`/`isFunctional()` all `true`). |
-| Full detail | See issue #65. Actual exercising of the 4 blocked items against this host remains open, tracked under issue #26. |
+| Removed | 2026-08-10 — its whole purpose (unblocking issue #26's 4 destructive-action items) was fulfilled and issue #26 closed 2026-07-29; kept running afterward with no further use, and its `restart: unless-stopped` container was left behind exited (a stale Docker Desktop/WSL2 bind-mount cache, unrelated to this container, was found the same session while diagnosing it). Removed `docker-compose.smoketest.yml`, `docker/smoketest-host/`, `database/seeders/SmoketestHostSeeder.php`; deregistered the `Server` row via the real `DeleteServer` action (not a raw `tinker` delete) and its `PrivateKey`; removed the container, image, and named volume. |
+| Full detail | See issue #65. The 4 previously-blocked items were all exercised and closed under issue #26 before this removal. |
 
 ### Manual QA smoke-test checklist
 

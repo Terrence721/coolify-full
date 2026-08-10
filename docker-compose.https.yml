@@ -1,8 +1,8 @@
 # Opt-in addition to the dev stack - NOT included in `spin up`/docker-compose.dev.yml's default
 # services. Terminates TLS for a friendly local dev URL (https://coolify-full.localhost:8443)
 # with a self-signed cert, reverse-proxying to the coolify app container. Kept separate rather
-# than folded into the default stack for the same reason as docker-compose.smoketest.yml: it's
-# a personal convenience, not something every dev session needs running.
+# than folded into the default stack because it's a personal convenience, not something every
+# dev session needs running.
 #
 # One-time setup:
 #   ./docker/https-proxy/generate-cert.sh

@@ -66,7 +66,7 @@ Check status:
 docker compose -f docker-compose.yml -f docker-compose.dev.yml ps
 ```
 
-Expected services: `coolify` (app), `coolify-db` (Postgres), `coolify-redis` (Redis), `coolify-realtime`, `coolify-vite`, plus `coolify-mail`, `coolify-minio`, `coolify-minio-init`, `coolify-testing-host`, `coolify-autoheal`, `coolify-stray-pruner`. (`coolify-smoketest-host` and `coolify-https-proxy` are separate, opt-in compose files — see `docs/command.md` — not part of this default stack.)
+Expected services: `coolify` (app), `coolify-db` (Postgres), `coolify-redis` (Redis), `coolify-realtime`, `coolify-vite`, plus `coolify-mail`, `coolify-minio`, `coolify-minio-init`, `coolify-testing-host`, `coolify-autoheal`, `coolify-stray-pruner`. (`coolify-https-proxy` is a separate, opt-in compose file — see `docs/command.md` — not part of this default stack.)
 
 If you also have an old stack running from a Windows-path checkout, bring that one down first (`docker compose -f docker-compose.yml -f docker-compose.dev.yml down` from the old location) — both would otherwise fight over the same container/network names.
 
