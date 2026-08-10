@@ -1,7 +1,7 @@
 # Architecture Overview
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 5, 2026**
+**Last Updated: August 10, 2026**
 
 This document explains how this repository is actually put together — verified against the real folder structure, config files, and code, not a generic description of what a Coolify-like app "usually" looks like.
 
