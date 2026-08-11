@@ -98,7 +98,11 @@ it('dispatches the package-updated broadcast event when notified', function () {
     Event::assertDispatched(ServerPackageUpdated::class, fn ($event) => $event->teamId === $team->id);
 });
 
-it('returns 404 for a server owned by another team', function () {
+it('returns 403 for a server owned by another team', function () {
+    // Was 404 (from this controller's own ownedByCurrentTeam()->firstOrFail() fallback) before
+    // CanUpdateResource's server_uuid branch was fixed to actually authorize against the target
+    // server's real team instead of just the caller's session-admin status - the middleware now
+    // correctly rejects with 403 before the request ever reaches this controller.
     $user = User::factory()->create();
     $team = Team::factory()->create();
     $team->members()->attach($user, ['role' => 'admin']);
@@ -109,5 +113,5 @@ it('returns 404 for a server owned by another team', function () {
         ->withSession(['currentTeam' => $team])
         ->get(route('server.security.patches', ['server_uuid' => $server->uuid]));
 
-    $response->assertNotFound();
+    $response->assertForbidden();
 });
