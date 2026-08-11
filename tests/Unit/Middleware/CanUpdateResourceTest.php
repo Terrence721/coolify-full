@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Middleware;
 
 use App\Http\Middleware\CanUpdateResource;
+use App\Models\Application;
 use App\Models\Environment;
 use App\Models\Project;
 use App\Models\Server;
@@ -18,6 +19,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 /**
@@ -119,6 +121,98 @@ class CanUpdateResourceTest extends TestCase
             $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
 
             $this->assertSame('ok', $response->getContent(), "database_uuid branch failed to authorize a real admin for engine [{$engine->type}]");
+        }
+    }
+
+    /**
+     * Regression coverage for a real gap found in the same /code-review 113 pass: PR #113 only
+     * added tests for the database_uuid and environment_uuid branches, leaving application_uuid,
+     * service_uuid (bare, without stack_service_uuid), stack_service_uuid, server_uuid, and
+     * project_uuid completely untested despite all being flipped from dead to live code by that
+     * same PR. stack_service_uuid, server_uuid, and project_uuid are now covered by the
+     * regression tests fixing findings #1, #2, and #4 from this same review pass; this test and
+     * the one below close the remaining two. Neither application_uuid nor bare service_uuid is
+     * currently wired up by any route in routes/web.php - this verifies the branch logic itself
+     * is correct now, so it's already proven safe if/when a route starts using it.
+     */
+    #[Test]
+    public function authorizes_the_application_uuid_branch_against_the_target_applications_own_team(): void
+    {
+        $team = Team::factory()->create();
+        $user = User::factory()->create();
+        $team->members()->attach($user, ['role' => 'admin']);
+        $this->actingAs($user)->withSession(['currentTeam' => $team]);
+
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->standaloneDockers()->first() ?? StandaloneDocker::factory()->create(['server_id' => $server->id]);
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = $project->environments()->first() ?? Environment::factory()->create(['project_id' => $project->id]);
+
+        $application = Application::factory()->create([
+            'environment_id' => $environment->id,
+            'destination_id' => $destination->id,
+            'destination_type' => $destination->getMorphClass(),
+        ]);
+
+        $route = \Mockery::mock();
+        $route->shouldReceive('parameter')->andReturnUsing(fn (string $key) => $key === 'application_uuid' ? $application->uuid : null);
+        $request = Request::create('/');
+        $request->setRouteResolver(fn () => $route);
+
+        $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
+        $this->assertSame('ok', $response->getContent());
+
+        $otherTeam = Team::factory()->create();
+        $otherTeamUser = User::factory()->create();
+        $otherTeam->members()->attach($otherTeamUser, ['role' => 'admin']);
+        $this->actingAs($otherTeamUser)->withSession(['currentTeam' => $otherTeam]);
+
+        try {
+            (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
+            $this->fail('Expected a 403 HttpException for a cross-team application_uuid.');
+        } catch (HttpException $e) {
+            $this->assertSame(403, $e->getStatusCode());
+        }
+    }
+
+    #[Test]
+    public function authorizes_the_bare_service_uuid_branch_against_the_target_services_own_team(): void
+    {
+        $team = Team::factory()->create();
+        $user = User::factory()->create();
+        $team->members()->attach($user, ['role' => 'admin']);
+        $this->actingAs($user)->withSession(['currentTeam' => $team]);
+
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->standaloneDockers()->first() ?? StandaloneDocker::factory()->create(['server_id' => $server->id]);
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = $project->environments()->first() ?? Environment::factory()->create(['project_id' => $project->id]);
+
+        $service = Service::factory()->create([
+            'environment_id' => $environment->id,
+            'server_id' => $server->id,
+            'destination_id' => $destination->id,
+            'destination_type' => $destination->getMorphClass(),
+        ]);
+
+        $route = \Mockery::mock();
+        $route->shouldReceive('parameter')->andReturnUsing(fn (string $key) => $key === 'service_uuid' ? $service->uuid : null);
+        $request = Request::create('/');
+        $request->setRouteResolver(fn () => $route);
+
+        $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
+        $this->assertSame('ok', $response->getContent());
+
+        $otherTeam = Team::factory()->create();
+        $otherTeamUser = User::factory()->create();
+        $otherTeam->members()->attach($otherTeamUser, ['role' => 'admin']);
+        $this->actingAs($otherTeamUser)->withSession(['currentTeam' => $otherTeam]);
+
+        try {
+            (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
+            $this->fail('Expected a 403 HttpException for a cross-team service_uuid.');
+        } catch (HttpException $e) {
+            $this->assertSame(403, $e->getStatusCode());
         }
     }
 }
