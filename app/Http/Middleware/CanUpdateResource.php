@@ -32,13 +32,15 @@ class CanUpdateResource
         $resource = null;
         if ($request->route('application_uuid')) {
             $resource = Application::where('uuid', $request->route('application_uuid'))->first();
-        } elseif ($request->route('service_uuid')) {
-            $resource = Service::where('uuid', $request->route('service_uuid'))->first();
         } elseif ($request->route('stack_service_uuid')) {
-            // Handle ServiceApplication or ServiceDatabase
+            // Checked before service_uuid: routes carrying stack_service_uuid are nested under
+            // service/{service_uuid}, so both params are present and the more specific resource
+            // (the ServiceApplication/ServiceDatabase itself, not its parent Service) must win.
             $stack_service_uuid = $request->route('stack_service_uuid');
             $resource = ServiceApplication::where('uuid', $stack_service_uuid)->first() ??
                        ServiceDatabase::where('uuid', $stack_service_uuid)->first();
+        } elseif ($request->route('service_uuid')) {
+            $resource = Service::where('uuid', $request->route('service_uuid'))->first();
         } elseif ($request->route('database_uuid')) {
             // Try different database types
             $database_uuid = $request->route('database_uuid');
