@@ -57,4 +57,12 @@ class ServiceApplicationPolicy
     {
         return Gate::allows('delete', $serviceApplication->service);
     }
+
+    /**
+     * Determine whether the user can manage this resource's environment variables.
+     */
+    public function manageEnvironment(User $user, ServiceApplication $serviceApplication): bool
+    {
+        return Gate::allows('manageEnvironment', $serviceApplication->service);
+    }
 }

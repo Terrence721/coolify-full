@@ -62,4 +62,16 @@ class ServiceDatabasePolicy
     {
         return Gate::allows('update', $serviceDatabase->service);
     }
+
+    /**
+     * Determine whether the user can manage this resource's environment variables. Currently
+     * unreachable - ServiceDatabase has no environment_variables() relation, so no
+     * EnvironmentVariable row can have this as its resourceable today - but keeps this policy
+     * consistent with its ServiceApplicationPolicy sibling and closes the same silent-Gate-denial
+     * trap in advance if that relation is ever added.
+     */
+    public function manageEnvironment(User $user, ServiceDatabase $serviceDatabase): bool
+    {
+        return Gate::allows('manageEnvironment', $serviceDatabase->service);
+    }
 }
