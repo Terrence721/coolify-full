@@ -11,14 +11,7 @@ use App\Models\Server;
 use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
-use App\Models\StandaloneClickhouse;
-use App\Models\StandaloneDragonfly;
-use App\Models\StandaloneKeydb;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
+use App\Support\DatabaseEngineRegistry;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -42,16 +35,13 @@ class CanUpdateResource
         } elseif ($request->route('service_uuid')) {
             $resource = Service::where('uuid', $request->route('service_uuid'))->first();
         } elseif ($request->route('database_uuid')) {
-            // Try different database types
             $database_uuid = $request->route('database_uuid');
-            $resource = StandalonePostgresql::where('uuid', $database_uuid)->first() ??
-                       StandaloneMysql::where('uuid', $database_uuid)->first() ??
-                       StandaloneMariadb::where('uuid', $database_uuid)->first() ??
-                       StandaloneRedis::where('uuid', $database_uuid)->first() ??
-                       StandaloneKeydb::where('uuid', $database_uuid)->first() ??
-                       StandaloneDragonfly::where('uuid', $database_uuid)->first() ??
-                       StandaloneClickhouse::where('uuid', $database_uuid)->first() ??
-                       StandaloneMongodb::where('uuid', $database_uuid)->first();
+            foreach (DatabaseEngineRegistry::modelClasses() as $modelClass) {
+                $resource = $modelClass::where('uuid', $database_uuid)->first();
+                if ($resource) {
+                    break;
+                }
+            }
         } elseif ($request->route('server_uuid')) {
             $resource = Server::where('uuid', $request->route('server_uuid'))->first();
         } elseif ($request->route('environment_uuid')) {

@@ -13,6 +13,7 @@ use App\Models\ServiceDatabase;
 use App\Models\StandaloneDocker;
 use App\Models\Team;
 use App\Models\User;
+use App\Support\DatabaseEngineRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -78,5 +79,46 @@ class CanUpdateResourceTest extends TestCase
         $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
 
         $this->assertSame('ok', $response->getContent());
+    }
+
+    /**
+     * Regression coverage for a real bug found in the same /code-review 113 pass: the
+     * database_uuid branch hand-listed all 8 standalone database model classes instead of
+     * iterating App\Support\DatabaseEngineRegistry::modelClasses(), the single source of truth
+     * written specifically to prevent this pattern - a 9th engine added later would silently be
+     * missing from this authorization check. Sourcing the dataset itself from the registry (not
+     * a hardcoded list) means this test automatically covers a future engine the moment it's
+     * registered there, with no edit needed here.
+     */
+    #[Test]
+    public function authorizes_against_every_registered_database_engine(): void
+    {
+        $team = Team::factory()->create();
+        $user = User::factory()->create();
+        $team->members()->attach($user, ['role' => 'admin']);
+        $this->actingAs($user)->withSession(['currentTeam' => $team]);
+
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->standaloneDockers()->first() ?? StandaloneDocker::factory()->create(['server_id' => $server->id]);
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = $project->environments()->first() ?? Environment::factory()->create(['project_id' => $project->id]);
+
+        foreach (DatabaseEngineRegistry::all() as $engine) {
+            $database = $engine->modelClass::factory()->create([
+                'environment_id' => $environment->id,
+                'destination_id' => $destination->id,
+                'destination_type' => $destination->getMorphClass(),
+            ]);
+
+            $route = \Mockery::mock();
+            $route->shouldReceive('parameter')->andReturnUsing(fn (string $key) => $key === 'database_uuid' ? $database->uuid : null);
+
+            $request = Request::create('/');
+            $request->setRouteResolver(fn () => $route);
+
+            $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
+
+            $this->assertSame('ok', $response->getContent(), "database_uuid branch failed to authorize a real admin for engine [{$engine->type}]");
+        }
     }
 }
