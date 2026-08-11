@@ -47,7 +47,11 @@ class CanUpdateResource
         } elseif ($request->route('environment_uuid')) {
             $resource = Environment::where('uuid', $request->route('environment_uuid'))->first();
         } elseif ($request->route('project_uuid')) {
-            $resource = Project::ownedByCurrentTeam()->where('uuid', $request->route('project_uuid'))->first();
+            // Not team-scoped here (unlike every other branch's own model lookup): a cross-team
+            // project_uuid must still resolve to a real Project so Gate::allows() below can
+            // reject it with the same 403 every other branch produces for cross-team access,
+            // instead of a 404 that leaks whether the UUID exists at all.
+            $resource = Project::where('uuid', $request->route('project_uuid'))->first();
         }
 
         if (! $resource) {
