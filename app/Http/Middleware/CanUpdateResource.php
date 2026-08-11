@@ -7,6 +7,7 @@ namespace App\Http\Middleware;
 use App\Models\Application;
 use App\Models\Environment;
 use App\Models\Project;
+use App\Models\Server;
 use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
@@ -42,12 +43,7 @@ class CanUpdateResource
                 }
             }
         } elseif ($request->route('server_uuid')) {
-            // For server routes, check if user can manage servers
-            if (! auth()->user()->isAdmin()) {
-                abort(403, 'You do not have permission to access this resource.');
-            }
-
-            return $next($request);
+            $resource = Server::where('uuid', $request->route('server_uuid'))->first();
         } elseif ($request->route('environment_uuid')) {
             $resource = Environment::where('uuid', $request->route('environment_uuid'))->first();
         } elseif ($request->route('project_uuid')) {
