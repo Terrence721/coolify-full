@@ -75,6 +75,26 @@ it('creates a new environment from the show page', function () {
     ]));
 });
 
+it('returns 403, not 404, for the edit route on a project owned by another team', function () {
+    // Regression test for a real bug found via an independent /code-review 113 pass (pseudo
+    // peer review) on already-merged PR #113: CanUpdateResource's project_uuid branch pre-scoped
+    // its lookup via Project::ownedByCurrentTeam(), so a cross-team project_uuid resolved to no
+    // model at all and hit the middleware's generic 404 - unlike every other branch, which
+    // resolves the target model unscoped and lets Gate::allows() reject it with a 403, matching
+    // the consistent Gate-based 403 contract this same PR established everywhere else.
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $otherTeam = Team::factory()->create();
+    $project = Project::factory()->create(['team_id' => $otherTeam->id]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('project.edit', ['project_uuid' => $project->uuid]));
+
+    $response->assertForbidden();
+});
+
 it('renders the project edit Inertia page', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();
