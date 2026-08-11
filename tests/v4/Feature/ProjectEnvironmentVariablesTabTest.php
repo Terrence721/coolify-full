@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Application;
 use App\Models\EnvironmentVariable;
 use App\Models\InstanceSettings;
 use App\Models\Project;
@@ -44,15 +45,44 @@ function envTabMakePostgres(Team $team): StandalonePostgresql
     ]);
 }
 
-function envTabParams(StandalonePostgresql|Service $resource): array
+function envTabParams(StandalonePostgresql|Service|Application $resource): array
 {
-    $key = $resource instanceof Service ? 'service_uuid' : 'database_uuid';
+    $key = match (true) {
+        $resource instanceof Service => 'service_uuid',
+        $resource instanceof Application => 'application_uuid',
+        default => 'database_uuid',
+    };
 
     return [
         'project_uuid' => $resource->environment->project->uuid,
         'environment_uuid' => $resource->environment->uuid,
         $key => $resource->uuid,
     ];
+}
+
+function envTabMakeApplication(Team $team): Application
+{
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+
+    return Application::factory()->create([
+        'environment_id' => $project->environments()->first()->id,
+        'destination_id' => $server->destinations()->first()->id,
+        'destination_type' => StandaloneDocker::class,
+    ]);
+}
+
+function envTabMakeService(Team $team): Service
+{
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+
+    return Service::factory()->create([
+        'environment_id' => $project->environments()->first()->id,
+        'server_id' => $server->id,
+        'destination_id' => $server->destinations()->first()->id,
+        'destination_type' => StandaloneDocker::class,
+    ]);
 }
 
 function envTabAddVariable($resource, string $key, string $value, array $extra = []): EnvironmentVariable
@@ -219,23 +249,31 @@ it('deletes a variable', function () {
     expect(EnvironmentVariable::find($env->id))->toBeNull();
 });
 
-it('forbids a plain team member from updating, locking, or deleting an environment variable', function () {
+it('forbids a plain team member from updating, locking, or deleting an environment variable', function (string $resourceType) {
     // Regression test for a real bug: EnvironmentVariablePolicy's update()/delete() (and every
     // other method) unconditionally returned true, inherited unfilled from the original upstream
     // import - so envUpdate()/envLock()/envDestroy() authorize('update'/'delete', $env) calls
     // were a complete no-op. Unlike envStore()/envBulkUpdate(), which correctly gate on the
     // resource's own admin-only manageEnvironment ability, a plain member could edit/lock/delete
     // any existing variable (including credentials) despite being blocked from creating one.
+    // Covers all 3 resourceable types reachable from envUpdate/envLock/envDestroy - the original
+    // version of this test only covered the database path, per an independent /code-review 114
+    // pass (pseudo peer review) on already-merged PR #114.
     $team = Team::factory()->create();
     envTabActingAs($team);
-    $database = envTabMakePostgres($team);
-    $env = envTabAddVariable($database, 'PROD_SECRET', 'original');
+    $resource = match ($resourceType) {
+        'application' => envTabMakeApplication($team),
+        'service' => envTabMakeService($team),
+        'database' => envTabMakePostgres($team),
+    };
+    $routePrefix = "project.$resourceType.envs";
+    $env = envTabAddVariable($resource, 'PROD_SECRET', 'original');
 
     $member = User::factory()->create();
     $team->members()->attach($member, ['role' => 'member']);
     test()->actingAs($member)->withSession(['currentTeam' => $team]);
 
-    $updateResponse = $this->patch(route('project.database.envs.update', [...envTabParams($database), 'env_id' => $env->id]), [
+    $updateResponse = $this->patch(route("$routePrefix.update", [...envTabParams($resource), 'env_id' => $env->id]), [
         'key' => 'PROD_SECRET',
         'value' => 'attacker-controlled',
         'is_multiline' => false,
@@ -246,12 +284,12 @@ it('forbids a plain team member from updating, locking, or deleting an environme
     $updateResponse->assertForbidden();
     expect($env->fresh()->value)->toBe('original');
 
-    $this->post(route('project.database.envs.lock', [...envTabParams($database), 'env_id' => $env->id]))->assertForbidden();
+    $this->post(route("$routePrefix.lock", [...envTabParams($resource), 'env_id' => $env->id]))->assertForbidden();
     expect((bool) $env->fresh()->is_shown_once)->toBeFalse();
 
-    $this->delete(route('project.database.envs.destroy', [...envTabParams($database), 'env_id' => $env->id]))->assertForbidden();
+    $this->delete(route("$routePrefix.destroy", [...envTabParams($resource), 'env_id' => $env->id]))->assertForbidden();
     expect(EnvironmentVariable::find($env->id))->not->toBeNull();
-});
+})->with(['application', 'service', 'database']);
 
 it('bulk-updates variables from the developer view, preserving order', function () {
     $team = Team::factory()->create();
