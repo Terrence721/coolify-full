@@ -451,26 +451,42 @@ YAML;
     ]));
 });
 
-it('forbids a plain team member from accessing the resource-creation flow', function () {
+it('forbids a plain team member from accessing the resource-creation flow', function (string $method, string $routeName) {
     // Regression test for a real bug: the can.create.resources middleware (App\Http\Middleware\
     // CanCreateResources) had its real Gate::allows('createAnyResource') check commented out and
     // an unconditional `return $next($request);` as its literal first line, making the check
-    // permanently dead. Neither this controller nor any of the other 12 routes behind this
-    // middleware has an independent authorize() call - the middleware was the sole enforcement
-    // point, so any authenticated team member (not just admin/owner) could create resources.
+    // permanently dead. None of the 13 routes behind this middleware has an independent
+    // authorize() call - it's the sole enforcement point, so any authenticated team member (not
+    // just admin/owner) could create resources. Covers all 13 routes, not just one, since a
+    // single-route test only proves the middleware works somewhere, not that every route is
+    // actually wired to it.
     $team = Team::factory()->create();
     $user = User::factory()->create();
     $team->members()->attach($user, ['role' => 'member']);
     test()->actingAs($user)->withSession(['currentTeam' => $team]);
     [$project, $environment] = createResourceTestChain($team);
 
-    $response = $this->get(route('project.resource.create', [
+    $response = $this->{$method}(route($routeName, [
         'project_uuid' => $project->uuid,
         'environment_uuid' => $environment->uuid,
     ]));
 
     $response->assertForbidden();
-});
+})->with([
+    ['get', 'project.clone-me'],
+    ['post', 'project.clone-me.store'],
+    ['get', 'project.resource.create'],
+    ['post', 'project.resource.create.dockerfile'],
+    ['post', 'project.resource.create.docker-image'],
+    ['post', 'project.resource.create.docker-compose'],
+    ['get', 'project.resource.create.git'],
+    ['post', 'project.resource.create.git.check'],
+    ['get', 'project.resource.create.git.repositories'],
+    ['get', 'project.resource.create.git.branches'],
+    ['post', 'project.resource.create.git.public'],
+    ['post', 'project.resource.create.git.private-gh-app'],
+    ['post', 'project.resource.create.git.private-deploy-key'],
+]);
 
 it('404s the docker-based submit endpoints when the destination no longer exists', function () {
     $team = Team::factory()->create();
