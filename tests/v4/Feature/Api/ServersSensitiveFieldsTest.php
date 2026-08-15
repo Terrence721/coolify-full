@@ -78,7 +78,7 @@ it('still hides sentinel_token, the field that was already correctly redacted', 
     expect($response->getContent())->not->toContain('SECRET-SENTINEL-TOKEN');
 });
 
-it('never leaks the custom log-drain config into the API response', function () {
+it('never leaks the custom log-drain config into the single-resource API response', function () {
     // Regression test for a real credential leak found via an independent /code-review pass
     // (pseudo peer review) on this same fix: logdrain_custom_config/logdrain_custom_config_parser
     // are real ServerSetting columns, but PR #94's original fix missed them. StartLogDrain.php
@@ -95,6 +95,21 @@ it('never leaks the custom log-drain config into the API response', function () 
     $token = $this->apiToken($user, $team, ['read']);
 
     $response = $this->withHeaders($this->apiHeaders($token))->getJson("/api/v1/servers/{$server->uuid}");
+
+    $response->assertOk();
+    expect($response->getContent())->not->toContain('SECRET-CUSTOM-LOGDRAIN-TOKEN');
+    expect($response->getContent())->not->toContain('SECRET-CUSTOM-PARSER-CONFIG');
+});
+
+it('never leaks the custom log-drain config into the servers-list API response', function () {
+    $secretFields = [
+        'logdrain_custom_config' => "[OUTPUT]\n    Header Authorization Bearer SECRET-CUSTOM-LOGDRAIN-TOKEN",
+        'logdrain_custom_config_parser' => 'SECRET-CUSTOM-PARSER-CONFIG',
+    ];
+    [$team, $user] = makeApiServerWithSecretSettings($secretFields);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson('/api/v1/servers');
 
     $response->assertOk();
     expect($response->getContent())->not->toContain('SECRET-CUSTOM-LOGDRAIN-TOKEN');
