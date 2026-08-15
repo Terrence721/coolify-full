@@ -36,6 +36,13 @@ services:
     ports:
       - "8443:443"
       - "6443:6443"
+    healthcheck:
+      test: curl -skf https://127.0.0.1/login -o /dev/null || exit 1
+      interval: 5s
+      retries: 10
+      timeout: 15s
+    labels:
+      - autoheal=true
     networks:
       - coolify
     depends_on:
