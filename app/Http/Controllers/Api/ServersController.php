@@ -28,6 +28,16 @@ class ServersController extends Controller
      */
     private function removeSensitiveDataFromSettings(mixed $settings): Collection
     {
+        // The settings row's own `id` and its `server_id` are raw integer surrogate keys, and
+        // `server_id` is the very value removeSensitiveData() strips from the parent server
+        // below - hidden unconditionally, not behind can_read_sensitive, since `read:sensitive`
+        // governs credentials rather than internal keys, and uuid is this API's public
+        // identifier either way (same rule as app/Mcp/Concerns/BuildsResponse.php).
+        $settings = $settings->makeHidden([
+            'id',
+            'server_id',
+        ]);
+
         if (request()->attributes->get('can_read_sensitive', false) === false) {
             $settings = $settings->makeHidden([
                 'sentinel_token',
@@ -49,9 +59,6 @@ class ServersController extends Controller
         $server->makeHidden([
             'id',
         ]);
-        if (request()->attributes->get('can_read_sensitive', false) === false) {
-            // Do nothing
-        }
 
         return serializeApiResponse($server);
     }
