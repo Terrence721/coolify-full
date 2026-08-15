@@ -141,3 +141,49 @@ it('returns 404 for a server owned by another team', function () {
 
     $response->assertNotFound();
 });
+
+// A plain team member can load this page (ServerPolicy::view is membership-only, and index()
+// has no authorize() call), but the log-drain credentials it renders are the exact same five
+// fields the API deliberately gates behind the `read:sensitive` token ability in
+// ServersController::removeSensitiveDataFromSettings(). Handing them to any member through the
+// web UI contradicted the API's own answer for an identical field set. Members still see the
+// page and the enabled/disabled state - only the secret values are withheld.
+it('withholds log drain credentials from a plain member', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update([
+        'logdrain_newrelic_license_key' => 'SECRET-NEWRELIC-LICENSE-KEY',
+        'logdrain_axiom_api_key' => 'SECRET-AXIOM-API-KEY',
+        'logdrain_custom_config' => 'SECRET-CUSTOM-CONFIG',
+        'logdrain_custom_config_parser' => 'SECRET-CUSTOM-PARSER',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('server.log-drains', ['server_uuid' => $server->uuid]));
+
+    $response->assertOk();
+    expect($response->getContent())->not->toContain('SECRET-NEWRELIC-LICENSE-KEY')
+        ->and($response->getContent())->not->toContain('SECRET-AXIOM-API-KEY')
+        ->and($response->getContent())->not->toContain('SECRET-CUSTOM-CONFIG')
+        ->and($response->getContent())->not->toContain('SECRET-CUSTOM-PARSER');
+});
+
+it('still shows log drain credentials to an admin', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update(['logdrain_axiom_api_key' => 'SECRET-AXIOM-API-KEY']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('server.log-drains', ['server_uuid' => $server->uuid]));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('logDrainAxiomApiKey', 'SECRET-AXIOM-API-KEY')
+    );
+});

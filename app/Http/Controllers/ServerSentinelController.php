@@ -29,16 +29,22 @@ class ServerSentinelController extends Controller
     {
         $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
 
+        // See ServerLogDrainsController::index() - sentinel_token is in the same redaction list
+        // ServersController applies behind the API's `read:sensitive` ability, so it follows the
+        // same rule here: only sent to a user who can actually change it. canUpdate was already
+        // computed for UI affordances; it now also gates the secret itself.
+        $canUpdate = auth()->user()?->can('update', $server) ?? false;
+
         return Inertia::render('Server/Sentinel', [
             'serverNavbar' => ServerChromeData::navbar($server),
             'sidebar' => ServerChromeData::sidebar($server, 'sentinel', 'configuration'),
-            'canUpdate' => auth()->user()?->can('update', $server) ?? false,
+            'canUpdate' => $canUpdate,
             'isDev' => isDev(),
             'isFunctional' => $server->isFunctional(),
             'isSentinelEnabled' => (bool) $server->settings->is_sentinel_enabled,
             'isSentinelLive' => $server->isSentinelLive(),
             'isSentinelDebugEnabled' => (bool) $server->settings->is_sentinel_debug_enabled,
-            'sentinelToken' => $server->settings->sentinel_token,
+            'sentinelToken' => $canUpdate ? $server->settings->sentinel_token : null,
             'sentinelCustomUrl' => $server->settings->sentinel_custom_url,
             'sentinelMetricsRefreshRateSeconds' => $server->settings->sentinel_metrics_refresh_rate_seconds,
             'sentinelMetricsHistoryDays' => $server->settings->sentinel_metrics_history_days,
