@@ -6,9 +6,9 @@ use App\Models\Server;
 use App\Models\Team;
 use App\Services\ServerValidationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 // Regression coverage for a real bug found 2026-07-30 (code review, issue #70): the same
 // "Minimum Docker Engine version X is not installed" wording bug as ValidateServer.php (PR
