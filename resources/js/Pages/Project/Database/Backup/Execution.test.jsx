@@ -3,11 +3,11 @@ import { render, screen } from '@testing-library/react';
 import Execution from './Execution';
 
 vi.mock('../../../../Components/BackupEditForm', () => ({
-    default: ({ backup, s3Storages, urls }) => <div data-testid="backup-edit-form">Backup Edit Form - {backup?.schedule_name}</div>,
+    default: ({ backup }) => <div data-testid="backup-edit-form">Backup Edit Form - {backup?.schedule_name}</div>,
 }));
 
 vi.mock('../../../../Components/BackupExecutionsList', () => ({
-    default: ({ executions, executionsCount, currentPage }) => (
+    default: ({ executionsCount, currentPage }) => (
         <div data-testid="backup-executions-list">
             Backup Executions List - {executionsCount} total - Page {currentPage}
         </div>
@@ -19,7 +19,7 @@ vi.mock('../../../../Components/ConfigurationChecker', () => ({
 }));
 
 vi.mock('../../../../Components/DatabaseHeading', () => ({
-    default: ({ heading, urls }) => <div data-testid="database-heading">Database Heading - {heading?.database_name}</div>,
+    default: ({ heading }) => <div data-testid="database-heading">Database Heading - {heading?.database_name}</div>,
 }));
 
 describe('Project/Database/Backup/Execution', () => {
