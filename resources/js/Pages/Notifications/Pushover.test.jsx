@@ -46,9 +46,7 @@ describe('Notifications/Pushover', () => {
     });
 
     it('renders heading and navigation tabs', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         expect(screen.getByRole('heading', { level: 1, name: /Notifications/i })).toBeInTheDocument();
         expect(screen.getByText(/Get notified about your infrastructure\./)).toBeInTheDocument();
@@ -56,9 +54,7 @@ describe('Notifications/Pushover', () => {
     });
 
     it('renders main Pushover settings form', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         expect(screen.getByRole('heading', { level: 2, name: /Pushover/i })).toBeInTheDocument();
         const pushoverEnabledInput = document.getElementById('pushover_enabled');
@@ -68,18 +64,14 @@ describe('Notifications/Pushover', () => {
     });
 
     it('renders Save and Send Test Notification buttons', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         expect(screen.getByRole('button', { name: /Save/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Send Test Notification/i })).toBeInTheDocument();
     });
 
     it('renders all event notification groups', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         expect(screen.getByText('Deployments')).toBeInTheDocument();
         expect(screen.getByText('Backups')).toBeInTheDocument();
@@ -89,9 +81,7 @@ describe('Notifications/Pushover', () => {
     });
 
     it('renders all event notification checkboxes', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         expect(screen.getByLabelText(/Deployment Success/)).toBeInTheDocument();
         expect(screen.getByLabelText(/Deployment Failure/)).toBeInTheDocument();
@@ -102,9 +92,7 @@ describe('Notifications/Pushover', () => {
     });
 
     it('User Key and API Token fields are password type', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         const userKeyInput = screen.getByLabelText(/User Key/);
         expect(userKeyInput).toHaveAttribute('type', 'password');
@@ -116,9 +104,7 @@ describe('Notifications/Pushover', () => {
     it('Send Test Notification button is disabled when pushover is not enabled', () => {
         const disabledSettings = { ...mockSettings, pushover_enabled: false };
 
-        render(
-            <Pushover settings={disabledSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={disabledSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).toBeDisabled();
@@ -127,22 +113,16 @@ describe('Notifications/Pushover', () => {
     it('Send Test Notification button is enabled when pushover is enabled', () => {
         const enabledSettings = { ...mockSettings, pushover_enabled: true };
 
-        render(
-            <Pushover settings={enabledSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={enabledSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).not.toBeDisabled();
     });
 
     it('renders notification settings section', () => {
-        render(
-            <Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />
-        );
+        render(<Pushover settings={mockSettings} updateUrl="/notifications/pushover" sendTestUrl="/notifications/pushover/test" />);
 
         expect(screen.getByText(/Notification Settings/)).toBeInTheDocument();
-        expect(
-            screen.getByText(/Select events for which you would like to receive Pushover notifications\./)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Select events for which you would like to receive Pushover notifications\./)).toBeInTheDocument();
     });
 });

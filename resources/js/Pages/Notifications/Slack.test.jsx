@@ -45,9 +45,7 @@ describe('Notifications/Slack', () => {
     });
 
     it('renders heading and navigation tabs', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         expect(screen.getByRole('heading', { level: 1, name: /Notifications/i })).toBeInTheDocument();
         expect(screen.getByText(/Get notified about your infrastructure\./)).toBeInTheDocument();
@@ -55,9 +53,7 @@ describe('Notifications/Slack', () => {
     });
 
     it('renders main Slack settings form', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         expect(screen.getByRole('heading', { level: 2, name: /Slack/i })).toBeInTheDocument();
         const slackEnabledInput = document.getElementById('slack_enabled');
@@ -66,18 +62,14 @@ describe('Notifications/Slack', () => {
     });
 
     it('renders Save and Send Test Notification buttons', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         expect(screen.getByRole('button', { name: /Save/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Send Test Notification/i })).toBeInTheDocument();
     });
 
     it('renders all event notification groups', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         expect(screen.getByText('Deployments')).toBeInTheDocument();
         expect(screen.getByText('Backups')).toBeInTheDocument();
@@ -87,9 +79,7 @@ describe('Notifications/Slack', () => {
     });
 
     it('renders all event notification checkboxes', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         expect(screen.getByLabelText(/Deployment Success/)).toBeInTheDocument();
         expect(screen.getByLabelText(/Deployment Failure/)).toBeInTheDocument();
@@ -100,9 +90,7 @@ describe('Notifications/Slack', () => {
     });
 
     it('webhook field is password type', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         const webhookInput = screen.getByLabelText(/Webhook/);
         expect(webhookInput).toHaveAttribute('type', 'password');
@@ -111,9 +99,7 @@ describe('Notifications/Slack', () => {
     it('Send Test Notification button is disabled when slack is not enabled', () => {
         const disabledSettings = { ...mockSettings, slack_enabled: false };
 
-        render(
-            <Slack settings={disabledSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={disabledSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).toBeDisabled();
@@ -122,22 +108,16 @@ describe('Notifications/Slack', () => {
     it('Send Test Notification button is enabled when slack is enabled', () => {
         const enabledSettings = { ...mockSettings, slack_enabled: true };
 
-        render(
-            <Slack settings={enabledSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={enabledSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).not.toBeDisabled();
     });
 
     it('renders notification settings section', () => {
-        render(
-            <Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />
-        );
+        render(<Slack settings={mockSettings} updateUrl="/notifications/slack" sendTestUrl="/notifications/slack/test" />);
 
         expect(screen.getByText(/Notification Settings/)).toBeInTheDocument();
-        expect(
-            screen.getByText(/Select events for which you would like to receive Slack notifications\./)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Select events for which you would like to receive Slack notifications\./)).toBeInTheDocument();
     });
 });

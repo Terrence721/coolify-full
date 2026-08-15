@@ -46,9 +46,7 @@ describe('Notifications/Discord', () => {
     });
 
     it('renders heading and navigation tabs', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         expect(screen.getByRole('heading', { level: 1, name: /Notifications/i })).toBeInTheDocument();
         expect(screen.getByText(/Get notified about your infrastructure\./)).toBeInTheDocument();
@@ -56,9 +54,7 @@ describe('Notifications/Discord', () => {
     });
 
     it('renders main Discord settings form', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         expect(screen.getByRole('heading', { level: 2, name: /Discord/i })).toBeInTheDocument();
         const discordEnabledInput = document.getElementById('discord_enabled');
@@ -69,18 +65,14 @@ describe('Notifications/Discord', () => {
     });
 
     it('renders Save and Send Test Notification buttons', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         expect(screen.getByRole('button', { name: /Save/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Send Test Notification/i })).toBeInTheDocument();
     });
 
     it('renders all event notification groups', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         expect(screen.getByText('Deployments')).toBeInTheDocument();
         expect(screen.getByText('Backups')).toBeInTheDocument();
@@ -90,9 +82,7 @@ describe('Notifications/Discord', () => {
     });
 
     it('renders all event notification checkboxes', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         expect(screen.getByLabelText(/Deployment Success/)).toBeInTheDocument();
         expect(screen.getByLabelText(/Deployment Failure/)).toBeInTheDocument();
@@ -103,9 +93,7 @@ describe('Notifications/Discord', () => {
     });
 
     it('webhook field is password type', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         const webhookInput = screen.getByLabelText(/Webhook/);
         expect(webhookInput).toHaveAttribute('type', 'password');
@@ -114,9 +102,7 @@ describe('Notifications/Discord', () => {
     it('Send Test Notification button is disabled when discord is not enabled', () => {
         const disabledSettings = { ...mockSettings, discord_enabled: false };
 
-        render(
-            <Discord settings={disabledSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={disabledSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).toBeDisabled();
@@ -125,22 +111,16 @@ describe('Notifications/Discord', () => {
     it('Send Test Notification button is enabled when discord is enabled', () => {
         const enabledSettings = { ...mockSettings, discord_enabled: true };
 
-        render(
-            <Discord settings={enabledSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={enabledSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).not.toBeDisabled();
     });
 
     it('renders notification settings section', () => {
-        render(
-            <Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />
-        );
+        render(<Discord settings={mockSettings} updateUrl="/notifications/discord" sendTestUrl="/notifications/discord/test" />);
 
         expect(screen.getByText(/Notification Settings/)).toBeInTheDocument();
-        expect(
-            screen.getByText(/Select events for which you would like to receive Discord notifications\./)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Select events for which you would like to receive Discord notifications\./)).toBeInTheDocument();
     });
 });

@@ -45,9 +45,7 @@ describe('Notifications/Webhook', () => {
     });
 
     it('renders heading and navigation tabs', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         expect(screen.getByRole('heading', { level: 1, name: /Notifications/i })).toBeInTheDocument();
         expect(screen.getByText(/Get notified about your infrastructure\./)).toBeInTheDocument();
@@ -55,9 +53,7 @@ describe('Notifications/Webhook', () => {
     });
 
     it('renders main Webhook settings form', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         expect(screen.getByRole('heading', { level: 2, name: /Webhook/i })).toBeInTheDocument();
         const webhookEnabledInput = document.getElementById('webhook_enabled');
@@ -66,18 +62,14 @@ describe('Notifications/Webhook', () => {
     });
 
     it('renders Save and Send Test Notification buttons', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         expect(screen.getByRole('button', { name: /Save/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Send Test Notification/i })).toBeInTheDocument();
     });
 
     it('renders all event notification groups', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         expect(screen.getByText('Deployments')).toBeInTheDocument();
         expect(screen.getByText('Backups')).toBeInTheDocument();
@@ -87,9 +79,7 @@ describe('Notifications/Webhook', () => {
     });
 
     it('renders all event notification checkboxes', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         expect(screen.getByLabelText(/Deployment Success/)).toBeInTheDocument();
         expect(screen.getByLabelText(/Deployment Failure/)).toBeInTheDocument();
@@ -100,9 +90,7 @@ describe('Notifications/Webhook', () => {
     });
 
     it('webhook URL field is password type', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         const webhookUrlInput = screen.getByLabelText(/Webhook URL/);
         expect(webhookUrlInput).toHaveAttribute('type', 'password');
@@ -111,9 +99,7 @@ describe('Notifications/Webhook', () => {
     it('Send Test Notification button is disabled when webhook is not enabled', () => {
         const disabledSettings = { ...mockSettings, webhook_enabled: false };
 
-        render(
-            <Webhook settings={disabledSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={disabledSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).toBeDisabled();
@@ -122,22 +108,16 @@ describe('Notifications/Webhook', () => {
     it('Send Test Notification button is enabled when webhook is enabled', () => {
         const enabledSettings = { ...mockSettings, webhook_enabled: true };
 
-        render(
-            <Webhook settings={enabledSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={enabledSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         const testButton = screen.getByRole('button', { name: /Send Test Notification/i });
         expect(testButton).not.toBeDisabled();
     });
 
     it('renders notification settings section', () => {
-        render(
-            <Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />
-        );
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
 
         expect(screen.getByText(/Notification Settings/)).toBeInTheDocument();
-        expect(
-            screen.getByText(/Select events for which you would like to receive webhook notifications\./)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Select events for which you would like to receive webhook notifications\./)).toBeInTheDocument();
     });
 });

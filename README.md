@@ -95,7 +95,7 @@ This is a **single Laravel application**, not a decoupled frontend/backend split
 ```text
 ┌───────────────────────────────────────────────┐
 │                 Laravel app                   │  (nginx + PHP-FPM, one container)
-│   Inertia/React pages (92 .jsx pages) — all   │  ← migration complete,
+│   Inertia/React pages (184 .jsx pages) — all  │  ← migration complete,
 │   full-page routes, same Laravel routes/auth  │     no Livewire remains
 │   Horizon queue workers (deploys, backups)    │
 └──────┬──────────┬─────────────┬───────────────┘

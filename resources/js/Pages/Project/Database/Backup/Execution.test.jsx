@@ -3,11 +3,7 @@ import { render, screen } from '@testing-library/react';
 import Execution from './Execution';
 
 vi.mock('../../../../Components/BackupEditForm', () => ({
-    default: ({ backup, s3Storages, urls }) => (
-        <div data-testid="backup-edit-form">
-            Backup Edit Form - {backup?.schedule_name}
-        </div>
-    ),
+    default: ({ backup, s3Storages, urls }) => <div data-testid="backup-edit-form">Backup Edit Form - {backup?.schedule_name}</div>,
 }));
 
 vi.mock('../../../../Components/BackupExecutionsList', () => ({
@@ -19,19 +15,11 @@ vi.mock('../../../../Components/BackupExecutionsList', () => ({
 }));
 
 vi.mock('../../../../Components/ConfigurationChecker', () => ({
-    default: ({ configurationChecker }) => (
-        <div data-testid="configuration-checker">
-            Configuration Checker - {configurationChecker?.name}
-        </div>
-    ),
+    default: ({ configurationChecker }) => <div data-testid="configuration-checker">Configuration Checker - {configurationChecker?.name}</div>,
 }));
 
 vi.mock('../../../../Components/DatabaseHeading', () => ({
-    default: ({ heading, urls }) => (
-        <div data-testid="database-heading">
-            Database Heading - {heading?.database_name}
-        </div>
-    ),
+    default: ({ heading, urls }) => <div data-testid="database-heading">Database Heading - {heading?.database_name}</div>,
 }));
 
 describe('Project/Database/Backup/Execution', () => {
