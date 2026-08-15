@@ -41,6 +41,18 @@ COMPOSE="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
 MAX_ATTEMPTS=18
 SLEEP_SECONDS=10
 
+# https-proxy is opt-in (see docker-compose.https.yml) - only manage it here if this
+# machine already did the one-time cert setup. Once opted in, its container hits the
+# exact same reboot races documented above (it has a directory bind mount too, plus a
+# real healthcheck as of 2026-08-15), so it needs the same treatment as everything else
+# in this script rather than being silently left behind - that gap is what let it sit
+# `Exited (127)` for 28 hours undetected before being found and fixed.
+HTTPS_OPTED_IN=false
+if [ -f docker/https-proxy/certs/dev.crt ]; then
+    HTTPS_OPTED_IN=true
+    COMPOSE="$COMPOSE -f docker-compose.https.yml"
+fi
+
 echo "==> Starting the dev stack..."
 $COMPOSE up -d
 
@@ -92,6 +104,25 @@ for service in coolify-realtime coolify-autoheal coolify-testing-host; do
         attempt=$((attempt + 1))
     done
 done
+
+if [ "$HTTPS_OPTED_IN" = true ]; then
+    echo "==> Waiting for coolify-https-proxy to report healthy (nginx.conf-dir race)..."
+    attempt=1
+    while true; do
+        health=$(docker inspect -f '{{.State.Health.Status}}' coolify-https-proxy 2>/dev/null || echo "missing")
+        if [ "$health" = "healthy" ]; then
+            break
+        fi
+        if [ "$attempt" -gt "$MAX_ATTEMPTS" ]; then
+            echo "    - coolify-https-proxy is still '$health' after $MAX_ATTEMPTS attempts - giving up on it."
+            break
+        fi
+        echo "    - coolify-https-proxy is '$health' (attempt $attempt/$MAX_ATTEMPTS), restarting..."
+        docker restart coolify-https-proxy >/dev/null 2>&1 || true
+        sleep "$SLEEP_SECONDS"
+        attempt=$((attempt + 1))
+    done
+fi
 
 echo "==> Verifying coolify-testing-host's docker.sock actually works (not just that the container is running)..."
 # "running" alone doesn't prove the socket reconnected - docker version's Server block is
