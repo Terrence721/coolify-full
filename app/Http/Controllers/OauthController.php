@@ -48,10 +48,18 @@ class OauthController extends Controller
                 // can get an OAuth provider to assert a given email address - trivial on a
                 // self-hosted/admin-configured provider with no email verification of its own -
                 // would be logged in AS that account, no password needed. Only allow the login
-                // if this account was originally created via this exact provider; a password-only
-                // account (oauth_provider is null) or one created via a different provider both
-                // fail this check and are rejected rather than silently logged in.
-                abort(403, 'An account with this email already exists. Please log in with your password.');
+                // if this account was originally created via this exact provider.
+                //
+                // Migration edge case: before oauth_provider tracking was added, OAuth-only
+                // accounts had oauth_provider = NULL. Detect these by checking if both
+                // oauth_provider and password are null - that's an existing OAuth account.
+                // Backfill the provider and allow the login to maintain backward compatibility.
+                if ($user->oauth_provider === null && $user->password === null) {
+                    $user->update(['oauth_provider' => $provider]);
+                } else {
+                    // Either a password-only account or one created via a different provider
+                    abort(403, 'An account with this email already exists. Please log in with your password.');
+                }
             }
             Auth::login($user);
 
