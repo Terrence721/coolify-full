@@ -116,3 +116,23 @@ it('returns a 404 on the redirect endpoint too when the provider is disabled', f
 
     $response->assertNotFound();
 });
+
+it('migrates existing OAuth-only accounts (oauth_provider = null, password = null) and backfills the provider on first login', function () {
+    // Regression coverage for the migration case: accounts created via OAuth before provider
+    // tracking was added have oauth_provider = null and password = null. The login flow should
+    // recognize them as existing OAuth accounts (not password-only accounts) by checking both
+    // conditions, allow the login, and backfill oauth_provider to the provider they're using now.
+    OauthSetting::factory()->create(['provider' => 'github', 'enabled' => true]);
+    $existingOauthUser = User::factory()->create([
+        'email' => 'existing-oauth@example.com',
+        'oauth_provider' => null,
+        'password' => null,
+    ]);
+    fakeSocialiteFor('existing-oauth@example.com');
+
+    $response = $this->get(route('auth.callback', 'github'));
+
+    $response->assertRedirect('/');
+    expect(Auth::id())->toBe($existingOauthUser->id);
+    expect($existingOauthUser->fresh()->oauth_provider)->toBe('github');
+});
