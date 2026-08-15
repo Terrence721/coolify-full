@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 5, 2026**
+**Last Updated: August 15, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -579,3 +579,43 @@ Found via an independent `/code-review 164` pass (pseudo peer review) on already
 **medium · Reliability (root team's real-time updates silently disabled)** — Fixed via [PR #166](https://github.com/Terrence721/coolify-full/pull/166) ([`a0bb97d52`](https://github.com/Terrence721/coolify-full/commit/a0bb97d52))
 
 Found via an autonomous sweep specifically hunting for more instances of finding #69's bug class (a falsy check on an ID that can legitimately be `0`) — this time in JS, not PHP. `useTeamChannel`'s effect guard `if (!teamId || !echoConfig || events.length === 0) { return; }` treats team id `0` as falsy (`!0` is `true` in JS). Team id `0` is the real root/instance team every Coolify install seeds (`RootUserSeeder` explicitly creates `Team::find(0)`, attaches the root user as owner); `HandleInertiaRequests` shares its real numeric `id` (0) as the `currentTeam` prop for that user (`$team ? [...] : null` checks the Team object's truthiness, always truthy, not the id's), and `App\Events\*`'s `broadcastOn()` methods build the matching `team.{id}` private channel name on the backend. Independently re-verified before fixing: traced the full chain from seeder through session to Inertia prop share to a real event's `broadcastOn()`, confirming `team.0` really is the channel name on both ends; checked the rest of the frontend for the same shape — the one other `!currentTeam`-style hit (`AppLayout.jsx`) checks the team object's truthiness, not `.id`, so it's unaffected. Consequence: this hook backs ~15 components/pages (`ServerNavbar`, `DatabaseHeading`, `ServiceHeading`, `ScheduledTasksTab`, `BackupExecutionsList`, `ConfigurationChecker`, `Deployment/Index`, etc.) — for the root/instance-admin user specifically, every one of these silently never subscribed, leaving deployment/proxy/backup/scheduled-task status stale until a manual page refresh, while every other team worked correctly. Fix: `teamId == null` instead of a falsy check, matching the `is_null($teamId)` fix already used for `NotificationPolicy::update()` (finding #69). New regression test confirms the hook subscribes for team id 0, TDD-proved against the pre-fix code.
+
+---
+
+### [`ProjectResourceCreateControllerTest.php`](https://github.com/Terrence721/coolify-full/blob/main/tests/v4/Feature/ProjectResourceCreateControllerTest.php)
+
+**medium · Test quality** — Fixed via [PR #175](https://github.com/Terrence721/coolify-full/pull/175) ([`41cf76f8c`](https://github.com/Terrence721/coolify-full/commit/41cf76f8c))
+
+Found via an independent `/code-review 112` pass (pseudo peer review) on already-merged PR #112. That PR restored the real `Gate::allows('createAnyResource')` check in `CanCreateResources` middleware — dead code that had let any team member create resources — but its only regression test hit `project.resource.create`, leaving the other 12 routes behind the same middleware with no test proving a plain member gets 403. Same false-confidence shape as finding #51's `download.backup` test gap. Verified all 13 routes via `routes/web.php` and confirmed none has an independent `authorize()` call. Fixed by expanding the single-route test into a Pest dataset covering all 13 route/method pairs. TDD-proved: reverting the middleware check reproduced the exact real symptom across all 13 cases.
+
+---
+
+### [`CanUpdateResource.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Middleware/CanUpdateResource.php)
+
+**high · Security / Reliability / Test quality** — Fixed via [PR #176](https://github.com/Terrence721/coolify-full/pull/176), [PR #177](https://github.com/Terrence721/coolify-full/pull/177), [PR #178](https://github.com/Terrence721/coolify-full/pull/178), [PR #179](https://github.com/Terrence721/coolify-full/pull/179), [PR #180](https://github.com/Terrence721/coolify-full/pull/180)
+
+Found via an independent `/code-review 113` pass — five separate real gaps in one file, the most any single pass has surfaced. (1) The `elseif` chain checked `service_uuid` before `stack_service_uuid`, so the more specific branch never matched. (2) The `server_uuid` branch used session-scoped `isAdmin()` instead of resolving the target through `Gate::allows()` — the same bug class as finding #56. (3) The `database_uuid` branch hand-listed all 8 standalone database model classes instead of using `DatabaseEngineRegistry::modelClasses()`, the single source of truth written to prevent exactly that drift. (4) The `project_uuid` branch returned 404 instead of the 403 every other branch produces for cross-team access. (5) Five of the middleware's seven branches had no test coverage at all. Landed as five independent PRs at the user's request rather than one bundled fix, so each stands as its own reviewable unit. Every fix individually TDD-proved by reverting it and confirming the exact real symptom.
+
+---
+
+### [`ServiceApplicationPolicy.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Policies/ServiceApplicationPolicy.php), [`ServiceDatabasePolicy.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Policies/ServiceDatabasePolicy.php)
+
+**medium · Security** — Fixed via [PR #181](https://github.com/Terrence721/coolify-full/pull/181) ([`76ae0c74f`](https://github.com/Terrence721/coolify-full/commit/76ae0c74f))
+
+Found via an independent `/code-review 114` pass. `EnvironmentVariablePolicy::canManage()` delegates to `Gate::allows('manageEnvironment', $resourceable)` for whatever model the polymorphic relation points at — but `ServiceApplication`/`ServiceDatabase` never got a `manageEnvironment` method on their policies. `Gate::allows()` returns `false` for a missing ability rather than throwing, so this would fail closed for every user including team owners, the moment any future caller passed one of these types through. A real gap, though confirmed not currently reachable. Writing the test surfaced a genuine gotcha: these policies delegate via the *static* `Gate::allows()` facade, which resolves against the authenticated user rather than the `$user` argument passed in — unlike sibling policies — so each assertion needs its own `actingAs()`.
+
+---
+
+### [`ServersController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/ServersController.php)
+
+**low · Security hygiene** — Fixed via [PR #184](https://github.com/Terrence721/coolify-full/pull/184) ([`637315bb1`](https://github.com/Terrence721/coolify-full/commit/637315bb1))
+
+Found via an independent `/code-review 119` pass. `removeSensitiveData()` deliberately hides the server's own integer `id` (uuid is this API's public identifier), but the nested settings row carried both its own `id` and a `server_id` equal to that very value — returning one level down exactly what was stripped one level up. Verified `serializeApiResponse()` explicitly *preserves* `id` rather than stripping it, so nothing downstream removed these. Severity stated plainly rather than inflated: both endpoints are team-scoped, so a caller only ever saw their own team's server ids — not a cross-tenant leak, and an integer surrogate key is not a credential. Brought in line with the rule `app/Mcp/Concerns/BuildsResponse.php` already applies. Also removed a vestigial empty `if` block signalling redaction was once intended there.
+
+---
+
+### [`ServerLogDrainsController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/ServerLogDrainsController.php), [`ServerSentinelController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/ServerSentinelController.php)
+
+**high · Security** — Fixed via [PR #185](https://github.com/Terrence721/coolify-full/pull/185) ([`03dc26a9f`](https://github.com/Terrence721/coolify-full/commit/03dc26a9f))
+
+Found by the same `/code-review 119` pass, which flagged it as adjacent and out of scope for that diff; verified real and materially larger than the finding it accompanied. `ServerPolicy::view()` is plain team membership and neither controller's `index()` calls `authorize()` at all — unlike `toggle()`/`submit()` in both files. So any plain team member received the raw credentials in the Inertia props. The five fields involved are exactly the set `ServersController` gates behind the API's `read:sensitive` ability, so the API and the web UI gave opposite answers for an identical field set. Confirmed empirically: the pre-fix test failed with a member's rendered page genuinely containing the secret. Key judgment call — adding `authorize('view')` would have been a **no-op**, since that policy is the same membership check `ownedByCurrentTeam()` already enforces, so the fix gates the credentials rather than the page. Members keep the page and every enabled/disabled flag.
