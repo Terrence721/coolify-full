@@ -130,3 +130,33 @@ it('exposes logdrain credentials only when the token carries read:sensitive', fu
     $response->assertJsonFragment(['logdrain_axiom_api_key' => 'SECRET-AXIOM-API-KEY']);
     $response->assertJsonFragment(['logdrain_newrelic_license_key' => 'SECRET-NEWRELIC-LICENSE-KEY']);
 });
+
+// removeSensitiveData() deliberately hides the server's own integer `id` (uuid is the public
+// identifier on this API), but the nested settings row carried both its own `id` and a
+// `server_id` equal to that very value straight back into the same response - handing back one
+// level down exactly what was stripped one level up. app/Mcp/Concerns/BuildsResponse.php already
+// treats raw surrogate keys this way ("id and *_id columns; uuid stays"); this brings the API
+// controller in line with it.
+it('never returns the internal server id via the nested settings row', function () {
+    [$team, $user, $server] = makeApiServerWithSecretSettings([]);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson("/api/v1/servers/{$server->uuid}");
+
+    $response->assertOk();
+    expect($response->json('settings'))->not->toHaveKey('server_id')
+        ->and($response->json('settings'))->not->toHaveKey('id')
+        ->and($response->json())->not->toHaveKey('id');
+});
+
+it('never returns the internal server id via the nested settings row on the list endpoint', function () {
+    [$team, $user] = makeApiServerWithSecretSettings([]);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson('/api/v1/servers');
+
+    $response->assertOk();
+    expect($response->json('0.settings'))->not->toHaveKey('server_id')
+        ->and($response->json('0.settings'))->not->toHaveKey('id')
+        ->and($response->json('0'))->not->toHaveKey('id');
+});
