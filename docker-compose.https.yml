@@ -22,7 +22,16 @@ services:
     container_name: coolify-https-proxy
     restart: unless-stopped
     volumes:
-      - ./docker/https-proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Directory-to-directory mount, not a single-file mount - single-file bind mounts
+      # (e.g. the old ./nginx.conf:/etc/nginx/conf.d/default.conf) are the exact pattern
+      # that fails after a Docker Desktop/WSL2 restart with "not a directory: Are you
+      # trying to mount a directory onto a file?" (the source special file isn't ready
+      # yet when the mount is created). Confirmed 2026-08-15: this container sat crashed
+      # for 28 hours with that error, invisible because it has no healthcheck/autoheal
+      # label (unlike the `coolify` container's own instance of this same race - see
+      # docker-compose.dev.yml). Mounting the whole conf.d/ directory instead sidesteps
+      # the race entirely.
+      - ./docker/https-proxy/conf.d:/etc/nginx/conf.d:ro
       - ./docker/https-proxy/certs:/etc/nginx/certs:ro
     ports:
       - "8443:443"
