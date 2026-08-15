@@ -150,3 +150,41 @@ it('returns 404 on every sentinel action for a server owned by another team', fu
         ->post(route('server.sentinel.regenerate-token', ['server_uuid' => $server->uuid]))
         ->assertNotFound();
 });
+
+// Same rule as ServerLogDrainsTest's member-redaction case: sentinel_token sits in the very
+// redaction list ServersController applies behind the API's `read:sensitive` ability, so the
+// web UI must not hand it to a plain member either. ServerSetting::booted()'s updated() hook
+// restarts Sentinel when sentinel_token changes - fake the queue so that doesn't run here.
+it('withholds the sentinel token from a plain member', function () {
+    Queue::fake();
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'member']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update(['sentinel_token' => 'SECRET-SENTINEL-TOKEN']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('server.sentinel', ['server_uuid' => $server->uuid]));
+
+    $response->assertOk();
+    expect($response->getContent())->not->toContain('SECRET-SENTINEL-TOKEN');
+});
+
+it('still shows the sentinel token to an admin', function () {
+    Queue::fake();
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update(['sentinel_token' => 'SECRET-SENTINEL-TOKEN']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('server.sentinel', ['server_uuid' => $server->uuid]));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('sentinelToken', 'SECRET-SENTINEL-TOKEN')
+    );
+});

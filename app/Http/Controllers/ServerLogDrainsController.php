@@ -27,20 +27,28 @@ class ServerLogDrainsController extends Controller
         $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
         $settings = $server->settings;
 
+        // ServerPolicy::view is plain team membership, so any member reaches this page. The
+        // credentials below are the same fields ServersController gates behind the API's
+        // `read:sensitive` ability - only send them to a user who could actually change them
+        // (toggle()/submit() both authorize('update')). Members still see the page and every
+        // enabled/disabled flag; the secret values are simply absent.
+        $canUpdate = auth()->user()?->can('update', $server) ?? false;
+
         return Inertia::render('Server/LogDrains', [
             'serverNavbar' => ServerChromeData::navbar($server),
             'sidebar' => ServerChromeData::sidebar($server, 'main', 'log-drains'),
+            'canUpdate' => $canUpdate,
             'isFunctional' => $server->isFunctional(),
             'isLogDrainEnabled' => $server->isLogDrainEnabled(),
             'isLogDrainNewRelicEnabled' => (bool) $settings->is_logdrain_newrelic_enabled,
-            'logDrainNewRelicLicenseKey' => $settings->logdrain_newrelic_license_key,
+            'logDrainNewRelicLicenseKey' => $canUpdate ? $settings->logdrain_newrelic_license_key : null,
             'logDrainNewRelicBaseUri' => $settings->logdrain_newrelic_base_uri,
             'isLogDrainAxiomEnabled' => (bool) $settings->is_logdrain_axiom_enabled,
             'logDrainAxiomDatasetName' => $settings->logdrain_axiom_dataset_name,
-            'logDrainAxiomApiKey' => $settings->logdrain_axiom_api_key,
+            'logDrainAxiomApiKey' => $canUpdate ? $settings->logdrain_axiom_api_key : null,
             'isLogDrainCustomEnabled' => (bool) $settings->is_logdrain_custom_enabled,
-            'logDrainCustomConfig' => $settings->logdrain_custom_config,
-            'logDrainCustomConfigParser' => $settings->logdrain_custom_config_parser,
+            'logDrainCustomConfig' => $canUpdate ? $settings->logdrain_custom_config : null,
+            'logDrainCustomConfigParser' => $canUpdate ? $settings->logdrain_custom_config_parser : null,
             'toggleUrl' => route('server.log-drains.toggle', ['server_uuid' => $server->uuid]),
             'submitUrl' => route('server.log-drains.submit', ['server_uuid' => $server->uuid]),
         ]);
