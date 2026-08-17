@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\OauthSetting;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -52,12 +53,23 @@ class OauthController extends Controller
                 //
                 // Migration edge case: before oauth_provider tracking was added, OAuth-only
                 // accounts had oauth_provider = NULL. Detect these by checking if both
-                // oauth_provider and password are null - that's an existing OAuth account.
-                // Backfill the provider and allow the login to maintain backward compatibility.
-                if ($user->oauth_provider === null && $user->password === null) {
+                // oauth_provider and password are null - no other code path leaves password
+                // null, so this combination can only be a pre-migration OAuth account.
+                //
+                // But we don't know which provider *originally* created it, so backfilling
+                // unconditionally on the first successful email match would let any currently
+                // enabled provider claim the account - reopening the exact takeover this check
+                // exists to close, just scoped to legacy accounts instead of every account. Only
+                // safe when exactly one provider is enabled: in that case "the provider asserting
+                // this login" is unambiguously the only provider that could have created it. With
+                // 2+ enabled providers, fail closed rather than guess - the account stays locked
+                // until an admin narrows it back down to one provider (or resets the password).
+                $isLegacyOauthAccount = $user->oauth_provider === null && ! $user->hasPassword();
+                if ($isLegacyOauthAccount && OauthSetting::where('enabled', true)->count() === 1) {
                     $user->update(['oauth_provider' => $provider]);
                 } else {
-                    // Either a password-only account or one created via a different provider
+                    // Either a password-only account, one created via a different provider, or a
+                    // legacy OAuth account that can't be safely attributed to this provider alone
                     abort(403, 'An account with this email already exists. Please log in with your password.');
                 }
             }

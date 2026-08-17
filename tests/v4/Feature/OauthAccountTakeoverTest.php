@@ -136,3 +136,27 @@ it('migrates existing OAuth-only accounts (oauth_provider = null, password = nul
     expect(Auth::id())->toBe($existingOauthUser->id);
     expect($existingOauthUser->fresh()->oauth_provider)->toBe('github');
 });
+
+it('refuses to backfill a legacy OAuth-only account when more than one provider is enabled - reopened account-takeover window', function () {
+    // Regression coverage for a real gap the migration-backfill fix above left behind: since a
+    // legacy account (oauth_provider = null, password = null) has no record of which provider
+    // actually created it, unconditionally trusting the first provider to assert its email lets
+    // *any* currently enabled provider claim it - exactly the takeover the surrounding check
+    // exists to prevent, just scoped to this account population instead of every account. Only
+    // safe to backfill when exactly one provider is enabled, since then there's no other provider
+    // that could be asserting a false claim.
+    OauthSetting::factory()->create(['provider' => 'github', 'enabled' => true]);
+    OauthSetting::factory()->create(['provider' => 'gitlab', 'enabled' => true]);
+    $victim = User::factory()->create([
+        'email' => 'legacy-oauth-victim@example.com',
+        'oauth_provider' => null,
+        'password' => null,
+    ]);
+    fakeSocialiteFor('legacy-oauth-victim@example.com');
+
+    $response = $this->get(route('auth.callback', 'gitlab'));
+
+    $response->assertRedirect(route('login'));
+    expect(Auth::check())->toBeFalse();
+    expect($victim->fresh()->oauth_provider)->toBeNull();
+});
