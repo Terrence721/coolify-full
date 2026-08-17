@@ -38,7 +38,7 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
+        return $user->isAdminOfTeam($project->team_id) && $user->teams->contains('id', $project->team_id);
     }
 
     /**
@@ -46,7 +46,7 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
+        return $user->isAdminOfTeam($project->team_id) && $user->teams->contains('id', $project->team_id);
     }
 
     /**
@@ -54,7 +54,7 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
+        return $user->isAdminOfTeam($project->team_id) && $user->teams->contains('id', $project->team_id);
     }
 
     /**
@@ -62,6 +62,6 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
-        return $user->isAdmin() && $user->teams->contains('id', $project->team_id);
+        return $user->isAdminOfTeam($project->team_id) && $user->teams->contains('id', $project->team_id);
     }
 }

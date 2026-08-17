@@ -176,6 +176,34 @@ class DisabledPolicyChecksTest extends TestCase
     }
 
     #[Test]
+    public function project_policy_denies_an_admin_of_a_different_team(): void
+    {
+        // update()/delete()/restore()/forceDelete() checked $user->isAdmin() - the role in the
+        // user's *current session team* - ANDed with mere teams->contains() membership in the
+        // resource's team, instead of admin status *in that specific team* (isAdminOfTeam()).
+        // A user admin of their own current team but only a plain member of the project's team
+        // could pass this combined check - found via an independent /code-review 179 pass
+        // (pseudo peer review) on already-merged PR #179; #179's own fix (project_uuid resolved
+        // unscoped, letting the Gate reject cross-team access) is correct, but currently the only
+        // two routes reaching it (project.edit/project.update) mask this pre-existing policy bug
+        // by independently re-scoping to currentTeam() in the controller first. Same bug class as
+        // finding #80 (ServerPolicy). Uses adminOfButMemberOf() (a user genuinely attached to
+        // BOTH teams) rather than a user never attached to $team at all, since the latter only
+        // ever fails the separate teams->contains() check and never actually exercises the
+        // isAdmin() logic being tested.
+        $team = Team::factory()->create();
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $otherTeam = Team::factory()->create();
+        $policy = new ProjectPolicy;
+        $user = $this->adminOfButMemberOf($otherTeam, $team);
+
+        $this->assertFalse($policy->update($user, $project));
+        $this->assertFalse($policy->delete($user, $project));
+        $this->assertFalse($policy->restore($user, $project));
+        $this->assertFalse($policy->forceDelete($user, $project));
+    }
+
+    #[Test]
     public function environment_policy_denies_a_member_and_allows_an_admin(): void
     {
         $team = Team::factory()->create();
