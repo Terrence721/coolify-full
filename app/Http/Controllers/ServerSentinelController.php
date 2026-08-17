@@ -25,14 +25,15 @@ class ServerSentinelController extends Controller
 
     private const SENTINEL_CONTAINER = 'coolify-sentinel';
 
+    /**
+     * See ServerLogDrainsController::index() - sentinel_token is in the same redaction list
+     * ServersController applies behind the API's `read:sensitive` ability, so it follows the
+     * same rule here: only sent to a user who can actually change it. canUpdate is also used
+     * for UI affordances below, not just gating the secret itself.
+     */
     public function index(string $server_uuid): Response
     {
         $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
-
-        // See ServerLogDrainsController::index() - sentinel_token is in the same redaction list
-        // ServersController applies behind the API's `read:sensitive` ability, so it follows the
-        // same rule here: only sent to a user who can actually change it. canUpdate was already
-        // computed for UI affordances; it now also gates the secret itself.
         $canUpdate = auth()->user()?->can('update', $server) ?? false;
 
         return Inertia::render('Server/Sentinel', [

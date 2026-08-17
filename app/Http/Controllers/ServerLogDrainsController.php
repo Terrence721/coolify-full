@@ -22,16 +22,17 @@ class ServerLogDrainsController extends Controller
 
     private const array PROVIDERS = ['newrelic', 'axiom', 'custom'];
 
+    /**
+     * ServerPolicy::view is plain team membership, so any member reaches this page. The
+     * credentials sent below are the same fields ServersController gates behind the API's
+     * `read:sensitive` ability - only sent to a user who could actually change them
+     * (toggle()/submit() both authorize('update')). Members still see the page and every
+     * enabled/disabled flag; the secret values are simply absent.
+     */
     public function index(string $server_uuid): Response
     {
         $server = Server::ownedByCurrentTeam()->whereUuid($server_uuid)->firstOrFail();
         $settings = $server->settings;
-
-        // ServerPolicy::view is plain team membership, so any member reaches this page. The
-        // credentials below are the same fields ServersController gates behind the API's
-        // `read:sensitive` ability - only send them to a user who could actually change them
-        // (toggle()/submit() both authorize('update')). Members still see the page and every
-        // enabled/disabled flag; the secret values are simply absent.
         $canUpdate = auth()->user()?->can('update', $server) ?? false;
 
         return Inertia::render('Server/LogDrains', [
