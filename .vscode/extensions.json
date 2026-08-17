@@ -1,0 +1,38 @@
+{
+    "recommendations": [
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "devsense.composer-php-vscode",
+        "georgykurian.laravel-ide-helper",
+        "lovecoder.php-debugger",
+        "onecentlin.laravel-blade",
+        "shufo.vscode-blade-formatter",
+        "redhat.vscode-yaml",
+        "ryannaddy.laravel-artisan",
+        "sanderronde.phpstan-vscode",
+        "editorconfig.editorconfig",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "ms-azuretools.vscode-containers",
+        "damms005.devdb",
+        "mechatroner.rainbow-csv",
+        "eamodio.gitlens",
+        "adam-bender.commit-message-editor"
+    ],
+    "unwantedRecommendations": [
+        "donjayamanne.githistory",
+        "howardzuo.vscode-git-tags",
+        "mhutchie.git-graph",
+        "ziyasal.vscode-open-in-github",
+        "vinirossa.vscode-gitandgithub-pack",
+        "ms-vscode.azure-repos",
+        "github.codespaces",
+        "github.remotehub",
+        "ms-vscode.remote-repositories",
+        "ms-azuretools.vscode-docker",
+        "d-koppenhagen.vscode-code-review",
+        "sixth.sixth-ai"
+    ]
+}

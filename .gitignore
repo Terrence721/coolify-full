@@ -16,7 +16,8 @@ npm-debug.log
 yarn-error.log
 /.fleet
 /.idea
-/.vscode
+/.vscode/*
+!/.vscode/extensions.json
 /.npm
 .claude/settings.local.json
 /.bash_history
