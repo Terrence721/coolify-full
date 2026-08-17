@@ -659,3 +659,11 @@ Found via an independent `/code-review 185` pass on already-merged PR #185 (the 
 **high · Security — cross-team privilege escalation** — Fixed via [PR #190](https://github.com/Terrence721/coolify-full/pull/190) ([`112510cb5`](https://github.com/Terrence721/coolify-full/commit/112510cb5))
 
 Found via an independent `/code-review 177` pass on already-merged PR #177 (the `CanUpdateResource` fix that resolved the real `server_uuid` target). `update()`, `delete()`, `manageProxy()`, `manageSentinel()`, `manageCaCertificate()`, and `viewSecurity()` all checked `$user->isAdmin()` — the role in the user's session-current team — ANDed with mere membership (any role) in the server's team, instead of admin status *in that team*. A user admin of their own current team but only a plain member of the target server's team passed every one of these checks. PR #177 made this reachable via the bare `server.security` route; the two data-bearing controllers were only incidentally safe due to their own independent `ownedByCurrentTeam()` re-scoping. Fixed by swapping `isAdmin()` for `isAdminOfTeam($server->team_id)` in all 6 methods, matching the pattern `ApplicationPolicy` already used correctly.
+
+---
+
+### [`ProjectPolicy.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Policies/ProjectPolicy.php)
+
+**medium · Security — latent cross-team privilege escalation, not currently exploitable** — Fixed via [PR #191](https://github.com/Terrence721/coolify-full/pull/191) ([`3681f802b`](https://github.com/Terrence721/coolify-full/commit/3681f802b))
+
+Found via an independent `/code-review 179` pass on already-merged PR #179 (which fixed `CanUpdateResource`'s `project_uuid` branch to resolve unscoped and let the Gate produce 403 instead of a leaky 404 — confirmed correct on its own). `update()`, `delete()`, `restore()`, and `forceDelete()` shared the same `isAdmin()`-vs-target-team bug as `ServerPolicy` (above). Unlike that finding, confirmed not currently exploitable — both routes reaching the branch (`project.edit`, `project.update`) independently re-scope to `currentTeam()` in the controller first, masking rather than closing the gap. Fixed anyway since the same bug shape has now recurred three times across this codebase. Same fix pattern: `isAdminOfTeam($project->team_id)` in all 4 methods.
