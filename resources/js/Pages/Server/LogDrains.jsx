@@ -6,6 +6,7 @@ export default function LogDrains({
     serverNavbar,
     sidebar,
     isFunctional,
+    canUpdate,
     isLogDrainEnabled,
     isLogDrainNewRelicEnabled,
     logDrainNewRelicLicenseKey,
@@ -69,7 +70,7 @@ export default function LogDrains({
                                         id="log-drain-newrelic-enabled"
                                         name="log-drain-newrelic-enabled"
                                         type="checkbox"
-                                        disabled={isLogDrainAxiomEnabled || isLogDrainCustomEnabled}
+                                        disabled={isLogDrainAxiomEnabled || isLogDrainCustomEnabled || !canUpdate}
                                         checked={isLogDrainNewRelicEnabled}
                                         onChange={(e) =>
                                             toggle('newrelic', e.target.checked, {
@@ -96,7 +97,7 @@ export default function LogDrains({
                                             name="log-drain-newrelic-license-key"
                                             type="password"
                                             required
-                                            disabled={isLogDrainEnabled}
+                                            disabled={isLogDrainEnabled || !canUpdate}
                                             value={newRelic.data.logDrainNewRelicLicenseKey}
                                             onChange={(e) => newRelic.setData('logDrainNewRelicLicenseKey', e.target.value)}
                                         />
@@ -110,7 +111,7 @@ export default function LogDrains({
                                             id="log-drain-newrelic-base-uri"
                                             name="log-drain-newrelic-base-uri"
                                             required
-                                            disabled={isLogDrainEnabled}
+                                            disabled={isLogDrainEnabled || !canUpdate}
                                             placeholder="https://log-api.eu.newrelic.com/log/v1"
                                             value={newRelic.data.logDrainNewRelicBaseUri}
                                             onChange={(e) => newRelic.setData('logDrainNewRelicBaseUri', e.target.value)}
@@ -121,7 +122,7 @@ export default function LogDrains({
                                     </label>
                                 </div>
                                 <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={newRelic.processing || isLogDrainEnabled}>
+                                    <button type="submit" disabled={newRelic.processing || isLogDrainEnabled || !canUpdate}>
                                         Save
                                     </button>
                                 </div>
@@ -134,7 +135,7 @@ export default function LogDrains({
                                         id="log-drain-axiom-enabled"
                                         name="log-drain-axiom-enabled"
                                         type="checkbox"
-                                        disabled={isLogDrainNewRelicEnabled || isLogDrainCustomEnabled}
+                                        disabled={isLogDrainNewRelicEnabled || isLogDrainCustomEnabled || !canUpdate}
                                         checked={isLogDrainAxiomEnabled}
                                         onChange={(e) =>
                                             toggle('axiom', e.target.checked, {
@@ -161,7 +162,7 @@ export default function LogDrains({
                                             name="log-drain-axiom-api-key"
                                             type="password"
                                             required
-                                            disabled={isLogDrainEnabled}
+                                            disabled={isLogDrainEnabled || !canUpdate}
                                             value={axiom.data.logDrainAxiomApiKey}
                                             onChange={(e) => axiom.setData('logDrainAxiomApiKey', e.target.value)}
                                         />
@@ -173,7 +174,7 @@ export default function LogDrains({
                                             id="log-drain-axiom-dataset-name"
                                             name="log-drain-axiom-dataset-name"
                                             required
-                                            disabled={isLogDrainEnabled}
+                                            disabled={isLogDrainEnabled || !canUpdate}
                                             value={axiom.data.logDrainAxiomDatasetName}
                                             onChange={(e) => axiom.setData('logDrainAxiomDatasetName', e.target.value)}
                                         />
@@ -183,7 +184,7 @@ export default function LogDrains({
                                     </label>
                                 </div>
                                 <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={axiom.processing || isLogDrainEnabled}>
+                                    <button type="submit" disabled={axiom.processing || isLogDrainEnabled || !canUpdate}>
                                         Save
                                     </button>
                                 </div>
@@ -196,7 +197,7 @@ export default function LogDrains({
                                         id="log-drain-custom-enabled"
                                         name="log-drain-custom-enabled"
                                         type="checkbox"
-                                        disabled={isLogDrainNewRelicEnabled || isLogDrainAxiomEnabled}
+                                        disabled={isLogDrainNewRelicEnabled || isLogDrainAxiomEnabled || !canUpdate}
                                         checked={isLogDrainCustomEnabled}
                                         onChange={(e) =>
                                             toggle('custom', e.target.checked, {
@@ -222,7 +223,7 @@ export default function LogDrains({
                                         name="log-drain-custom-config"
                                         rows={6}
                                         required
-                                        disabled={isLogDrainEnabled}
+                                        disabled={isLogDrainEnabled || !canUpdate}
                                         value={custom.data.logDrainCustomConfig}
                                         onChange={(e) => custom.setData('logDrainCustomConfig', e.target.value)}
                                     />
@@ -233,13 +234,13 @@ export default function LogDrains({
                                     <textarea
                                         id="log-drain-custom-config-parser"
                                         name="log-drain-custom-config-parser"
-                                        disabled={isLogDrainEnabled}
+                                        disabled={isLogDrainEnabled || !canUpdate}
                                         value={custom.data.logDrainCustomConfigParser}
                                         onChange={(e) => custom.setData('logDrainCustomConfigParser', e.target.value)}
                                     />
                                 </label>
                                 <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={custom.processing || isLogDrainEnabled}>
+                                    <button type="submit" disabled={custom.processing || isLogDrainEnabled || !canUpdate}>
                                         Save
                                     </button>
                                 </div>

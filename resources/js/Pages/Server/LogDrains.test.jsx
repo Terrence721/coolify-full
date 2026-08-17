@@ -44,6 +44,7 @@ function baseProps(overrides = {}) {
         serverNavbar: {},
         sidebar: {},
         isFunctional: true,
+        canUpdate: true,
         isLogDrainEnabled: false,
         isLogDrainNewRelicEnabled: false,
         logDrainNewRelicLicenseKey: null,
@@ -187,6 +188,27 @@ describe('Server/LogDrains', () => {
 
         it('leaves fields and Save enabled when isLogDrainEnabled is false', () => {
             render(<LogDrains {...baseProps({ isLogDrainEnabled: false })} />);
+            expect(screen.getByLabelText('License Key')).not.toBeDisabled();
+            screen.getAllByRole('button', { name: 'Save' }).forEach((btn) => expect(btn).not.toBeDisabled());
+        });
+    });
+
+    describe('withholding mutating controls from plain members', () => {
+        it('disables every checkbox, field, and Save button when canUpdate is false', () => {
+            render(<LogDrains {...baseProps({ canUpdate: false })} />);
+            screen.getAllByLabelText('Enabled').forEach((checkbox) => expect(checkbox).toBeDisabled());
+            expect(screen.getByLabelText('License Key')).toBeDisabled();
+            expect(screen.getByLabelText('Endpoint')).toBeDisabled();
+            expect(screen.getByLabelText('API Key')).toBeDisabled();
+            expect(screen.getByLabelText('Dataset Name')).toBeDisabled();
+            expect(screen.getByLabelText('Custom FluentBit Configuration')).toBeDisabled();
+            expect(screen.getByLabelText('Custom Parser Configuration')).toBeDisabled();
+            screen.getAllByRole('button', { name: 'Save' }).forEach((btn) => expect(btn).toBeDisabled());
+        });
+
+        it('leaves every checkbox, field, and Save button enabled when canUpdate is true', () => {
+            render(<LogDrains {...baseProps({ canUpdate: true })} />);
+            screen.getAllByLabelText('Enabled').forEach((checkbox) => expect(checkbox).not.toBeDisabled());
             expect(screen.getByLabelText('License Key')).not.toBeDisabled();
             screen.getAllByRole('button', { name: 'Save' }).forEach((btn) => expect(btn).not.toBeDisabled());
         });
