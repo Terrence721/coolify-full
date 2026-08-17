@@ -136,6 +136,33 @@ class DisabledPolicyChecksTest extends TestCase
     }
 
     #[Test]
+    public function server_policy_denies_an_admin_of_a_different_team(): void
+    {
+        // update()/delete()/manageProxy()/manageSentinel()/manageCaCertificate()/viewSecurity()
+        // checked $user->isAdmin() - the role in the user's *current session team* - ANDed with
+        // mere teams->contains() membership in the resource's team, instead of admin status *in
+        // that specific team* (isAdminOfTeam($teamId)). A user admin of their own current team
+        // but only a plain member of the server's team could pass this combined check - found via
+        // an independent /code-review 177 pass (pseudo peer review) on already-merged PR #177,
+        // which fixed CanUpdateResource's server_uuid branch to route through this exact policy.
+        // Uses adminOfButMemberOf() (a user genuinely attached to BOTH teams) rather than a user
+        // never attached to $team at all, since the latter only ever fails the separate
+        // teams->contains() check and never actually exercises the isAdmin() logic being tested.
+        $team = Team::factory()->create();
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $otherTeam = Team::factory()->create();
+        $policy = new ServerPolicy;
+        $user = $this->adminOfButMemberOf($otherTeam, $team);
+
+        $this->assertFalse($policy->update($user, $server));
+        $this->assertFalse($policy->delete($user, $server));
+        $this->assertFalse($policy->manageProxy($user, $server));
+        $this->assertFalse($policy->manageSentinel($user, $server));
+        $this->assertFalse($policy->manageCaCertificate($user, $server));
+        $this->assertFalse($policy->viewSecurity($user, $server));
+    }
+
+    #[Test]
     public function project_policy_denies_a_member_and_allows_an_admin(): void
     {
         $team = Team::factory()->create();
