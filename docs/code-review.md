@@ -651,3 +651,11 @@ Found via an independent `/code-review 183` pass on already-merged PR #183 (the 
 **medium · UI correctness** — Fixed via [PR #188](https://github.com/Terrence721/coolify-full/pull/188) ([`e2ed08b17`](https://github.com/Terrence721/coolify-full/commit/e2ed08b17))
 
 Found via an independent `/code-review 185` pass on already-merged PR #185 (the credential-withholding fix). The controller already sent a `canUpdate` prop to gate the page's forms for non-admin members, but `LogDrains.jsx` never consumed it — unlike every sibling Server page, which all disable their mutating controls when `canUpdate` is false. All 3 toggle checkboxes, all 6 inputs, and all 3 Save buttons stayed fully interactive for a plain member. `authorize('update', $server)` still rejects the actual mutation server-side, so this isn't a privilege escalation — just a broken read-only affordance. Fixed by adding `disabled={... || !canUpdate}` to all 12 controls. Also converted two inline security-rationale comments to PHPDoc blocks on their methods, per repo convention.
+
+---
+
+### [`ServerPolicy.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Policies/ServerPolicy.php)
+
+**high · Security — cross-team privilege escalation** — Fixed via [PR #190](https://github.com/Terrence721/coolify-full/pull/190) ([`112510cb5`](https://github.com/Terrence721/coolify-full/commit/112510cb5))
+
+Found via an independent `/code-review 177` pass on already-merged PR #177 (the `CanUpdateResource` fix that resolved the real `server_uuid` target). `update()`, `delete()`, `manageProxy()`, `manageSentinel()`, `manageCaCertificate()`, and `viewSecurity()` all checked `$user->isAdmin()` — the role in the user's session-current team — ANDed with mere membership (any role) in the server's team, instead of admin status *in that team*. A user admin of their own current team but only a plain member of the target server's team passed every one of these checks. PR #177 made this reachable via the bare `server.security` route; the two data-bearing controllers were only incidentally safe due to their own independent `ownedByCurrentTeam()` re-scoping. Fixed by swapping `isAdmin()` for `isAdminOfTeam($server->team_id)` in all 6 methods, matching the pattern `ApplicationPolicy` already used correctly.
