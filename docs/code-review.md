@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 15, 2026**
+**Last Updated: August 17, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -619,3 +619,19 @@ Found via an independent `/code-review 119` pass. `removeSensitiveData()` delibe
 **high · Security** — Fixed via [PR #185](https://github.com/Terrence721/coolify-full/pull/185) ([`03dc26a9f`](https://github.com/Terrence721/coolify-full/commit/03dc26a9f))
 
 Found by the same `/code-review 119` pass, which flagged it as adjacent and out of scope for that diff; verified real and materially larger than the finding it accompanied. `ServerPolicy::view()` is plain team membership and neither controller's `index()` calls `authorize()` at all — unlike `toggle()`/`submit()` in both files. So any plain team member received the raw credentials in the Inertia props. The five fields involved are exactly the set `ServersController` gates behind the API's `read:sensitive` ability, so the API and the web UI gave opposite answers for an identical field set. Confirmed empirically: the pre-fix test failed with a member's rendered page genuinely containing the secret. Key judgment call — adding `authorize('view')` would have been a **no-op**, since that policy is the same membership check `ownedByCurrentTeam()` already enforces, so the fix gates the credentials rather than the page. Members keep the page and every enabled/disabled flag.
+
+---
+
+### [`ServersSensitiveFieldsTest.php`](https://github.com/Terrence721/coolify-full/blob/main/tests/v4/Feature/Api/ServersSensitiveFieldsTest.php)
+
+**medium · Test quality** — Fixed via [PR #182](https://github.com/Terrence721/coolify-full/pull/182) ([`09cda4623`](https://github.com/Terrence721/coolify-full/commit/09cda4623))
+
+Found via the same `/code-review 119` pass that produced the two findings above. PR #119's regression test for `logdrain_custom_config`/`logdrain_custom_config_parser` only asserted the single-resource endpoint (`GET /api/v1/servers/{uuid}`); `ServersController` calls `removeSensitiveDataFromSettings()` on the list endpoint (`GET /api/v1/servers`) too, so the same fields had no test proving they don't leak there. Fixed by adding a companion test matching the pattern already established by the `logdrain_axiom`/`logdrain_newrelic` tests, which check both endpoints. *Logged retroactively 2026-08-17 — the original logging commit landed with the right message but no file changes, so this went unrecorded for two days.*
+
+---
+
+### [`OauthController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/OauthController.php)
+
+**high · Security / Reliability** — Fixed via [PR #183](https://github.com/Terrence721/coolify-full/pull/183) ([`69bdb88ec`](https://github.com/Terrence721/coolify-full/commit/69bdb88ec))
+
+Found via an independent `/code-review 127` pass on already-merged PR #127 (the OAuth account-takeover fix). PR #127 required an OAuth login to match the account's originally-recorded `oauth_provider` before logging it in. Accounts created via OAuth before that column existed have `oauth_provider = NULL` and `password = NULL` — indistinguishable, under the new check, from a genuine password-only account being targeted — so every pre-existing OAuth-only user was locked out post-migration. Fixed by detecting that specific case (both columns null) as an existing OAuth account, allowing the login and backfilling `oauth_provider`, while leaving the account-takeover check intact for every other case. New regression test covers the migration scenario directly. *Logged retroactively 2026-08-17 — same empty-commit gap as the finding above.*
