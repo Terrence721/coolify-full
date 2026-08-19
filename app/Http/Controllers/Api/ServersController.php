@@ -28,6 +28,10 @@ class ServersController extends Controller
      */
     private function removeSensitiveDataFromSettings(mixed $settings): Collection
     {
+        if (is_null($settings)) {
+            return collect();
+        }
+
         // The settings row's own `id` and its `server_id` are raw integer surrogate keys, and
         // `server_id` is the very value removeSensitiveData() strips from the parent server
         // below - hidden unconditionally, not behind can_read_sensitive, since `read:sensitive`

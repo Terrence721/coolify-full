@@ -119,7 +119,6 @@ use OpenApi\Attributes as OA;
     description: 'Server Settings model',
     type: 'object',
     properties: [
-        new OA\Property(property: 'id', type: 'integer'),
         new OA\Property(property: 'concurrent_builds', type: 'integer'),
         new OA\Property(property: 'deployment_queue_limit', type: 'integer'),
         new OA\Property(property: 'dynamic_timeout', type: 'integer'),
@@ -151,7 +150,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'sentinel_token', type: 'string'),
         new OA\Property(property: 'docker_cleanup_frequency', type: 'string'),
         new OA\Property(property: 'docker_cleanup_threshold', type: 'integer'),
-        new OA\Property(property: 'server_id', type: 'integer'),
         new OA\Property(property: 'wildcard_domain', type: 'string'),
         new OA\Property(property: 'created_at', type: 'string'),
         new OA\Property(property: 'updated_at', type: 'string'),
