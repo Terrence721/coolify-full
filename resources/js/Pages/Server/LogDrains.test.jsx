@@ -194,7 +194,7 @@ describe('Server/LogDrains', () => {
     });
 
     describe('withholding mutating controls from plain members', () => {
-        it('disables every checkbox, field, and Save button when canUpdate is false', () => {
+        it('disables every checkbox and field, and hides every Save button, when canUpdate is false', () => {
             render(<LogDrains {...baseProps({ canUpdate: false })} />);
             screen.getAllByLabelText('Enabled').forEach((checkbox) => expect(checkbox).toBeDisabled());
             expect(screen.getByLabelText('License Key')).toBeDisabled();
@@ -203,7 +203,7 @@ describe('Server/LogDrains', () => {
             expect(screen.getByLabelText('Dataset Name')).toBeDisabled();
             expect(screen.getByLabelText('Custom FluentBit Configuration')).toBeDisabled();
             expect(screen.getByLabelText('Custom Parser Configuration')).toBeDisabled();
-            screen.getAllByRole('button', { name: 'Save' }).forEach((btn) => expect(btn).toBeDisabled());
+            expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
         });
 
         it('leaves every checkbox, field, and Save button enabled when canUpdate is true', () => {
