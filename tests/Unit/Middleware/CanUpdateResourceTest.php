@@ -138,15 +138,7 @@ class CanUpdateResourceTest extends TestCase
     #[Test]
     public function authorizes_the_application_uuid_branch_against_the_target_applications_own_team(): void
     {
-        $team = Team::factory()->create();
-        $user = User::factory()->create();
-        $team->members()->attach($user, ['role' => 'admin']);
-        $this->actingAs($user)->withSession(['currentTeam' => $team]);
-
-        $server = Server::factory()->create(['team_id' => $team->id]);
-        $destination = $server->standaloneDockers()->first() ?? StandaloneDocker::factory()->create(['server_id' => $server->id]);
-        $project = Project::factory()->create(['team_id' => $team->id]);
-        $environment = $project->environments()->first() ?? Environment::factory()->create(['project_id' => $project->id]);
+        ['destination' => $destination, 'environment' => $environment] = $this->actingAsNewTeamAdmin();
 
         $application = Application::factory()->create([
             'environment_id' => $environment->id,
@@ -162,31 +154,13 @@ class CanUpdateResourceTest extends TestCase
         $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
         $this->assertSame('ok', $response->getContent());
 
-        $otherTeam = Team::factory()->create();
-        $otherTeamUser = User::factory()->create();
-        $otherTeam->members()->attach($otherTeamUser, ['role' => 'admin']);
-        $this->actingAs($otherTeamUser)->withSession(['currentTeam' => $otherTeam]);
-
-        try {
-            (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
-            $this->fail('Expected a 403 HttpException for a cross-team application_uuid.');
-        } catch (HttpException $e) {
-            $this->assertSame(403, $e->getStatusCode());
-        }
+        $this->assertCrossTeamUuidIs403($request, 'application_uuid');
     }
 
     #[Test]
     public function authorizes_the_bare_service_uuid_branch_against_the_target_services_own_team(): void
     {
-        $team = Team::factory()->create();
-        $user = User::factory()->create();
-        $team->members()->attach($user, ['role' => 'admin']);
-        $this->actingAs($user)->withSession(['currentTeam' => $team]);
-
-        $server = Server::factory()->create(['team_id' => $team->id]);
-        $destination = $server->standaloneDockers()->first() ?? StandaloneDocker::factory()->create(['server_id' => $server->id]);
-        $project = Project::factory()->create(['team_id' => $team->id]);
-        $environment = $project->environments()->first() ?? Environment::factory()->create(['project_id' => $project->id]);
+        ['server' => $server, 'destination' => $destination, 'environment' => $environment] = $this->actingAsNewTeamAdmin();
 
         $service = Service::factory()->create([
             'environment_id' => $environment->id,
@@ -203,6 +177,29 @@ class CanUpdateResourceTest extends TestCase
         $response = (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
         $this->assertSame('ok', $response->getContent());
 
+        $this->assertCrossTeamUuidIs403($request, 'service_uuid');
+    }
+
+    /**
+     * @return array{team: Team, user: User, server: Server, destination: StandaloneDocker, project: Project, environment: Environment}
+     */
+    private function actingAsNewTeamAdmin(): array
+    {
+        $team = Team::factory()->create();
+        $user = User::factory()->create();
+        $team->members()->attach($user, ['role' => 'admin']);
+        $this->actingAs($user)->withSession(['currentTeam' => $team]);
+
+        $server = Server::factory()->create(['team_id' => $team->id]);
+        $destination = $server->standaloneDockers()->first() ?? StandaloneDocker::factory()->create(['server_id' => $server->id]);
+        $project = Project::factory()->create(['team_id' => $team->id]);
+        $environment = $project->environments()->first() ?? Environment::factory()->create(['project_id' => $project->id]);
+
+        return compact('team', 'user', 'server', 'destination', 'project', 'environment');
+    }
+
+    private function assertCrossTeamUuidIs403(Request $request, string $paramLabel): void
+    {
         $otherTeam = Team::factory()->create();
         $otherTeamUser = User::factory()->create();
         $otherTeam->members()->attach($otherTeamUser, ['role' => 'admin']);
@@ -210,7 +207,7 @@ class CanUpdateResourceTest extends TestCase
 
         try {
             (new CanUpdateResource)->handle($request, fn ($req) => response('ok'));
-            $this->fail('Expected a 403 HttpException for a cross-team service_uuid.');
+            $this->fail("Expected a 403 HttpException for a cross-team {$paramLabel}.");
         } catch (HttpException $e) {
             $this->assertSame(403, $e->getStatusCode());
         }
