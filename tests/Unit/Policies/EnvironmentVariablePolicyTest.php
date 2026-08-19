@@ -92,10 +92,6 @@ class EnvironmentVariablePolicyTest extends TestCase
 
         $policy = new EnvironmentVariablePolicy;
 
-        // ServiceApplicationPolicy's methods delegate via the static Gate::allows() facade,
-        // which resolves against the currently-authenticated user rather than the $user argument
-        // passed to the policy method - actingAs() is required for each case, unlike sibling
-        // policies (e.g. NotificationPolicy) that operate on the passed-in $user directly.
         $admin = $this->adminOf($team);
         $this->actingAs($admin);
         $this->assertTrue($policy->update($admin, $env));

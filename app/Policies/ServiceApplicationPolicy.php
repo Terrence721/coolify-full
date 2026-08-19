@@ -15,7 +15,7 @@ class ServiceApplicationPolicy
      */
     public function view(User $user, ServiceApplication $serviceApplication): bool
     {
-        return Gate::allows('view', $serviceApplication->service);
+        return Gate::forUser($user)->allows('view', $serviceApplication->service);
     }
 
     /**
@@ -31,7 +31,7 @@ class ServiceApplicationPolicy
      */
     public function update(User $user, ServiceApplication $serviceApplication): bool
     {
-        return Gate::allows('update', $serviceApplication->service);
+        return Gate::forUser($user)->allows('update', $serviceApplication->service);
     }
 
     /**
@@ -39,7 +39,7 @@ class ServiceApplicationPolicy
      */
     public function delete(User $user, ServiceApplication $serviceApplication): bool
     {
-        return Gate::allows('delete', $serviceApplication->service);
+        return Gate::forUser($user)->allows('delete', $serviceApplication->service);
     }
 
     /**
@@ -47,7 +47,7 @@ class ServiceApplicationPolicy
      */
     public function restore(User $user, ServiceApplication $serviceApplication): bool
     {
-        return Gate::allows('update', $serviceApplication->service);
+        return Gate::forUser($user)->allows('update', $serviceApplication->service);
     }
 
     /**
@@ -55,7 +55,7 @@ class ServiceApplicationPolicy
      */
     public function forceDelete(User $user, ServiceApplication $serviceApplication): bool
     {
-        return Gate::allows('delete', $serviceApplication->service);
+        return Gate::forUser($user)->allows('delete', $serviceApplication->service);
     }
 
     /**
@@ -63,6 +63,6 @@ class ServiceApplicationPolicy
      */
     public function manageEnvironment(User $user, ServiceApplication $serviceApplication): bool
     {
-        return Gate::allows('manageEnvironment', $serviceApplication->service);
+        return Gate::forUser($user)->allows('manageEnvironment', $serviceApplication->service);
     }
 }
