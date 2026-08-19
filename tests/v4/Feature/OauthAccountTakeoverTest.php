@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\InstanceSettings;
 use App\Models\OauthSetting;
 use App\Models\User;
+use Closure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -31,16 +32,29 @@ beforeEach(function () {
 
 function fakeSocialiteFor(string $email, string $name = 'OAuth User'): void
 {
+    fakeSocialiteForWithSideEffect($email, fn () => null, $name);
+}
+
+/**
+ * Same as fakeSocialiteFor(), but runs $sideEffect() while "fetching" the OAuth user - the
+ * synchronous stand-in for whatever could happen during the real network round-trip to the
+ * IdP that sits between get_socialite_provider()'s own enabled check and the code that runs
+ * after user() returns.
+ */
+function fakeSocialiteForWithSideEffect(string $email, Closure $sideEffect, string $name = 'OAuth User'): void
+{
     $fakeSocialiteUser = new class($email, $name)
     {
         public function __construct(public string $email, public string $name) {}
     };
-    $fakeProvider = new class($fakeSocialiteUser)
+    $fakeProvider = new class($fakeSocialiteUser, $sideEffect)
     {
-        public function __construct(private object $user) {}
+        public function __construct(private object $user, private Closure $sideEffect) {}
 
         public function user(): object
         {
+            ($this->sideEffect)();
+
             return $this->user;
         }
     };
@@ -155,6 +169,33 @@ it('refuses to backfill a legacy OAuth-only account when more than one provider 
     fakeSocialiteFor('legacy-oauth-victim@example.com');
 
     $response = $this->get(route('auth.callback', 'gitlab'));
+
+    $response->assertRedirect(route('login'));
+    expect(Auth::check())->toBeFalse();
+    expect($victim->fresh()->oauth_provider)->toBeNull();
+});
+
+it('does not backfill a legacy account to a provider that was disabled during the OAuth round trip', function () {
+    // TOCTOU regression: get_socialite_provider() confirms $provider is enabled before the
+    // network round-trip to the IdP; the backfill decision runs after that round-trip. If an
+    // admin disables $provider and enables a different one in that window, a bare
+    // enabled-count of 1 would pass against the *new* sole-enabled provider while backfilling
+    // $provider, which is no longer enabled at all - reopening the takeover this check exists
+    // to prevent.
+    $github = OauthSetting::factory()->create(['provider' => 'github', 'enabled' => true]);
+    OauthSetting::factory()->create(['provider' => 'gitlab', 'enabled' => false]);
+    $victim = User::factory()->create([
+        'email' => 'legacy-toctou-victim@example.com',
+        'oauth_provider' => null,
+        'password' => null,
+    ]);
+
+    fakeSocialiteForWithSideEffect('legacy-toctou-victim@example.com', function () use ($github) {
+        $github->update(['enabled' => false]);
+        OauthSetting::where('provider', 'gitlab')->update(['enabled' => true]);
+    });
+
+    $response = $this->get(route('auth.callback', 'github'));
 
     $response->assertRedirect(route('login'));
     expect(Auth::check())->toBeFalse();

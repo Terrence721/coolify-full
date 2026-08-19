@@ -60,12 +60,22 @@ class OauthController extends Controller
                 // unconditionally on the first successful email match would let any currently
                 // enabled provider claim the account - reopening the exact takeover this check
                 // exists to close, just scoped to legacy accounts instead of every account. Only
-                // safe when exactly one provider is enabled: in that case "the provider asserting
-                // this login" is unambiguously the only provider that could have created it. With
-                // 2+ enabled providers, fail closed rather than guess - the account stays locked
-                // until an admin narrows it back down to one provider (or resets the password).
+                // safe when exactly one provider is enabled AND it's this one: in that case "the
+                // provider asserting this login" is unambiguously the only provider that could
+                // have created it. With 2+ enabled providers, fail closed rather than guess - the
+                // account stays locked until an admin narrows it back down to one provider (or
+                // resets the password).
+                //
+                // The enabled check has to name $provider explicitly, not just count()===1: the
+                // enabled-provider check at the top of this method (inside get_socialite_provider())
+                // runs before the network round-trip to the OAuth IdP above. If an admin disables
+                // $provider and enables a different one during that round-trip, a bare count()===1
+                // here would pass against the *new* sole-enabled provider while backfilling
+                // $provider, which is no longer enabled at all - re-opening the takeover this
+                // whole check exists to prevent.
                 $isLegacyOauthAccount = $user->oauth_provider === null && ! $user->hasPassword();
-                if ($isLegacyOauthAccount && OauthSetting::where('enabled', true)->count() === 1) {
+                $enabledProviders = OauthSetting::where('enabled', true)->pluck('provider');
+                if ($isLegacyOauthAccount && $enabledProviders->count() === 1 && $enabledProviders->first() === $provider) {
                     $user->update(['oauth_provider' => $provider]);
                 } else {
                     // Either a password-only account, one created via a different provider, or a
