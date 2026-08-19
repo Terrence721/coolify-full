@@ -65,7 +65,7 @@ class OauthController extends Controller
                 // 2+ enabled providers, fail closed rather than guess - the account stays locked
                 // until an admin narrows it back down to one provider (or resets the password).
                 $isLegacyOauthAccount = $user->oauth_provider === null && ! $user->hasPassword();
-                if ($isLegacyOauthAccount && OauthSetting::where('enabled', true)->count() === 1) {
+                if ($isLegacyOauthAccount && OauthSetting::enabled()->count() === 1) {
                     $user->update(['oauth_provider' => $provider]);
                 } else {
                     // Either a password-only account, one created via a different provider, or a
