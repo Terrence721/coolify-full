@@ -1,7 +1,7 @@
 # 📝 TODO
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 15, 2026**
+**Last Updated: August 19, 2026**
 
 > The WSL2 dev-environment showcase that briefly replaced this file lives at [docs/wsl2-environment.md](docs/wsl2-environment.md).
 
@@ -23,7 +23,7 @@ This file is long and detailed on purpose — every claim below is backed by evi
 | Manual QA smoke-test checklist | All 11 sub-issues closed 2026-07-29, every SSH-touching action browser-confirmed — see "Manual QA smoke-test checklist" below |
 | ESLint `react-hooks/set-state-in-effect` cleanup | All 20 findings resolved individually (per-effect review, not a bulk fix), baseline at 0 as of 2026-07-31 — issue #33 closed. See "Frontend component testing" below |
 
-**Actually still open, right now:** 20 items — see the overview table at the top of **Still to do** below.
+**Actually still open, right now:** 21 items — see the overview table at the top of **Still to do** below.
 
 If you only read one section of this file, read this one and that table — everything else is the evidence trail behind them.
 

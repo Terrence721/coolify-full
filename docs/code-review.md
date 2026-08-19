@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 17, 2026**
+**Last Updated: August 19, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -667,3 +667,59 @@ Found via an independent `/code-review 177` pass on already-merged PR #177 (the 
 **medium · Security — latent cross-team privilege escalation, not currently exploitable** — Fixed via [PR #191](https://github.com/Terrence721/coolify-full/pull/191) ([`3681f802b`](https://github.com/Terrence721/coolify-full/commit/3681f802b))
 
 Found via an independent `/code-review 179` pass on already-merged PR #179 (which fixed `CanUpdateResource`'s `project_uuid` branch to resolve unscoped and let the Gate produce 403 instead of a leaky 404 — confirmed correct on its own). `update()`, `delete()`, `restore()`, and `forceDelete()` shared the same `isAdmin()`-vs-target-team bug as `ServerPolicy` (above). Unlike that finding, confirmed not currently exploitable — both routes reaching the branch (`project.edit`, `project.update`) independently re-scope to `currentTeam()` in the controller first, masking rather than closing the gap. Fixed anyway since the same bug shape has now recurred three times across this codebase. Same fix pattern: `isAdminOfTeam($project->team_id)` in all 4 methods.
+
+---
+
+### [`CanUpdateResourceTest.php`](https://github.com/Terrence721/coolify-full/blob/main/tests/Unit/Middleware/CanUpdateResourceTest.php)
+
+**low · Test quality — duplication** — Fixed via [PR #192](https://github.com/Terrence721/coolify-full/pull/192)
+
+Found via an independent `/code-review 180` pass on already-merged PR #180 (which added the `application_uuid`/`service_uuid` branch tests), run twice by the user and converging on the same finding both times. The two new tests duplicated a ~9-line team/user/server/destination/project/environment setup block and an ~11-line cross-team-403 assertion block verbatim, differing only in the failure message string. Fixed by extracting `actingAsNewTeamAdmin()`/`assertCrossTeamUuidIs403()` helpers.
+
+---
+
+### [`ServiceApplicationPolicy.php`, `ServiceDatabasePolicy.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Policies/ServiceApplicationPolicy.php)
+
+**medium · Security — latent wrong-actor authorization, not currently exploitable** — Fixed via [PR #193](https://github.com/Terrence721/coolify-full/pull/193) ([`62e7549bc`](https://github.com/Terrence721/coolify-full/commit/62e7549bc))
+
+Found via an independent `/code-review 181` pass on already-merged PR #181 (which added `manageEnvironment()` to both policies), corroborated by 2 background review angles. The new methods — and every sibling delegate method already in both files — called the static `Gate::allows()` facade, which resolves against the currently-authenticated `Auth::user()` rather than the `$user` argument Laravel passes to a policy method. `EnvironmentVariablePolicy::canManage()`, the real caller, deliberately uses `Gate::forUser($user)` to evaluate an explicit `$user`; sibling policies all check `$user` directly. Dormant today since every real caller passes the currently-authenticated user, but the first caller evaluating permissions for a different user would silently authorize the wrong person. Fixed by switching every `Gate::allows(...)` call to `Gate::forUser($user)->allows(...)` across both files, not just the 2 new methods.
+
+---
+
+### [`ProjectEnvironmentVariablesTabTest.php`](https://github.com/Terrence721/coolify-full/blob/main/tests/v4/Feature/ProjectEnvironmentVariablesTabTest.php)
+
+**low · Test quality — duplication** — Fixed via [PR #194](https://github.com/Terrence721/coolify-full/pull/194)
+
+Found via the same `/code-review 181` pass above. `envTabMakePostgres()`, `envTabMakeApplication()`, and `envTabMakeService()` each duplicated an identical `Server::factory()->create(...)` + `Project::factory()->create(...)` setup block. Fixed by extracting `envTabMakeServerAndProject()`.
+
+---
+
+### [`ServersController.php`, `ServerSetting.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/ServersController.php)
+
+**medium · Reliability + doc drift** — Fixed via [PR #195](https://github.com/Terrence721/coolify-full/pull/195) ([`8b90613f7`](https://github.com/Terrence721/coolify-full/commit/8b90613f7))
+
+Found via an independent `/code-review 184` pass on already-merged PR #184 (the fix hiding the settings row's surrogate keys). The new unconditional `makeHidden(['id', 'server_id'])` call ran ahead of the `can_read_sensitive` guard that used to gate the file's only `makeHidden()` call — a server with a null settings relation now fatals on the `read:sensitive` API path too (the plain-`read` path already crashed pre-existing; PR #184 widened an existing gap). Not confirmed reachable in production (every `Server` auto-creates its `ServerSetting` via a model hook) but independently reproduced via a real HTTP request. Same pass found `ServerSetting`'s `#[OA\Schema]` attribute and the checked-in `openapi.yaml` still listed `id`/`server_id` despite both now being hidden. Fixed by adding a null guard, removing both stale schema properties, and regenerating `openapi.yaml` from source.
+
+---
+
+### [`OauthController.php`, `FortifyServiceProvider.php`, `OauthSetting.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/OauthController.php)
+
+**low · Reuse** — Fixed via [PR #196](https://github.com/Terrence721/coolify-full/pull/196) ([`df1d39da8`](https://github.com/Terrence721/coolify-full/commit/df1d39da8))
+
+Found via an independent `/code-review 187` pass on already-merged PR #187. `OauthController`/`FortifyServiceProvider` each hand-rolled `OauthSetting::where('enabled', true)` with no shared scope. Fixed by extracting `OauthSetting::scopeEnabled()`.
+
+---
+
+### [`OauthController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/OauthController.php)
+
+**high · Security — TOCTOU account-takeover, requires a concurrent admin action** — Fixed via [PR #197](https://github.com/Terrence721/coolify-full/pull/197) ([`dff2c0c0a`](https://github.com/Terrence721/coolify-full/commit/dff2c0c0a))
+
+Found via the same `/code-review 187` pass above, corroborated by 3 independent review passes. PR #187's multi-provider-lockout check (`count() === 1`) only proved the enabled-provider set was a singleton at check time, not that the singleton was the provider actually completing the login. `get_socialite_provider()` validates the requesting provider's own enabled flag *before* the network round-trip to the OAuth IdP; an admin provider-swap during that round-trip could let the check pass against a different now-sole-enabled provider while backfilling the original, disabled one — the exact account-takeover this fix chain (#127/#183/#187) exists to prevent, just requiring one intervening admin action. Fixed by checking the enabled set is exactly `{$provider}`, not just its count. New regression test reproduces the race by running the provider swap as a side effect inside the faked Socialite callback.
+
+---
+
+### [`LogDrains.jsx`](https://github.com/Terrence721/coolify-full/blob/main/resources/js/Pages/Server/LogDrains.jsx)
+
+**low · UI consistency + test coverage** — Fixed via [PR #198](https://github.com/Terrence721/coolify-full/pull/198) ([`7cd213ae7`](https://github.com/Terrence721/coolify-full/commit/7cd213ae7))
+
+Found via an independent `/code-review 188` pass on already-merged PR #188 (the `canUpdate` gating fix). Confirmed correct across all 3 background review angles, but `LogDrains.jsx` kept its 3 Save buttons rendered-but-disabled for a plain member instead of hidden entirely, the only page in its family to do so — independently verified against `Sentinel.jsx` directly, since the official review synthesis's "matches the sibling pattern" claim didn't hold for this specific element. Also found `isLogDrainEnabled || !canUpdate` duplicated verbatim 6 times, and the backend test missing the `canUpdate` assertion its sibling test already had. Fixed by hiding the buttons for non-updaters, extracting the duplicated expression into a `fieldsDisabled` variable, and adding the missing backend assertions.
