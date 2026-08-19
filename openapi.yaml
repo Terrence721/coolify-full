@@ -8195,8 +8195,6 @@ components:
     ServerSetting:
       description: 'Server Settings model'
       properties:
-        id:
-          type: integer
         concurrent_builds:
           type: integer
         deployment_queue_limit:
@@ -8258,8 +8256,6 @@ components:
         docker_cleanup_frequency:
           type: string
         docker_cleanup_threshold:
-          type: integer
-        server_id:
           type: integer
         wildcard_domain:
           type: string

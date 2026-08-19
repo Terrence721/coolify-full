@@ -160,3 +160,25 @@ it('never returns the internal server id via the nested settings row on the list
         ->and($response->json('0.settings'))->not->toHaveKey('id')
         ->and($response->json('0'))->not->toHaveKey('id');
 });
+
+it('does not crash the single-resource endpoint when the settings relation is null', function () {
+    [$team, $user, $server] = makeApiServerWithSecretSettings([]);
+    $server->settings()->delete();
+    $token = $this->apiToken($user, $team, ['read', 'read:sensitive']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson("/api/v1/servers/{$server->uuid}");
+
+    $response->assertOk();
+    expect($response->json('settings'))->toBe([]);
+});
+
+it('does not crash the list endpoint when the settings relation is null', function () {
+    [$team, $user, $server] = makeApiServerWithSecretSettings([]);
+    $server->settings()->delete();
+    $token = $this->apiToken($user, $team, ['read', 'read:sensitive']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson('/api/v1/servers');
+
+    $response->assertOk();
+    expect($response->json('0.settings'))->toBe([]);
+});
