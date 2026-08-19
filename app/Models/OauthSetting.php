@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\OauthSettingFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +56,15 @@ class OauthSetting extends Model
             get: fn (?string $value) => empty($value) ? null : Crypt::decryptString($value),
             set: fn (?string $value) => empty($value) ? null : Crypt::encryptString($value),
         );
+    }
+
+    /**
+     * @param  Builder<OauthSetting>  $query
+     * @return Builder<OauthSetting>
+     */
+    public function scopeEnabled(Builder $query): Builder
+    {
+        return $query->where('enabled', true);
     }
 
     public function couldBeEnabled(): bool

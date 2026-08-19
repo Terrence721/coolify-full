@@ -74,7 +74,7 @@ class OauthController extends Controller
                 // $provider, which is no longer enabled at all - re-opening the takeover this
                 // whole check exists to prevent.
                 $isLegacyOauthAccount = $user->oauth_provider === null && ! $user->hasPassword();
-                $enabledProviders = OauthSetting::where('enabled', true)->pluck('provider');
+                $enabledProviders = OauthSetting::enabled()->pluck('provider');
                 if ($isLegacyOauthAccount && $enabledProviders->count() === 1 && $enabledProviders->first() === $provider) {
                     $user->update(['oauth_provider' => $provider]);
                 } else {

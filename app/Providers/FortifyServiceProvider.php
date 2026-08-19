@@ -61,7 +61,7 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::loginView(function () {
             $settings = instanceSettings();
-            $enabled_oauth_providers = OauthSetting::where('enabled', true)->get();
+            $enabled_oauth_providers = OauthSetting::enabled()->get();
             $users = User::count();
             if ($users == 0) {
                 // If there are no users, redirect to registration
