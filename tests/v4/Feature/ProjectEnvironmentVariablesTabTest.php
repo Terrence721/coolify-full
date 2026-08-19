@@ -30,10 +30,20 @@ function envTabActingAs(Team $team): User
     return $user;
 }
 
-function envTabMakePostgres(Team $team): StandalonePostgresql
+/**
+ * @return array{0: Server, 1: Project}
+ */
+function envTabMakeServerAndProject(Team $team): array
 {
     $server = Server::factory()->create(['team_id' => $team->id]);
     $project = Project::factory()->create(['team_id' => $team->id]);
+
+    return [$server, $project];
+}
+
+function envTabMakePostgres(Team $team): StandalonePostgresql
+{
+    [$server, $project] = envTabMakeServerAndProject($team);
 
     return StandalonePostgresql::create([
         'name' => 'test-postgres',
@@ -62,8 +72,7 @@ function envTabParams(StandalonePostgresql|Service|Application $resource): array
 
 function envTabMakeApplication(Team $team): Application
 {
-    $server = Server::factory()->create(['team_id' => $team->id]);
-    $project = Project::factory()->create(['team_id' => $team->id]);
+    [$server, $project] = envTabMakeServerAndProject($team);
 
     return Application::factory()->create([
         'environment_id' => $project->environments()->first()->id,
@@ -74,8 +83,7 @@ function envTabMakeApplication(Team $team): Application
 
 function envTabMakeService(Team $team): Service
 {
-    $server = Server::factory()->create(['team_id' => $team->id]);
-    $project = Project::factory()->create(['team_id' => $team->id]);
+    [$server, $project] = envTabMakeServerAndProject($team);
 
     return Service::factory()->create([
         'environment_id' => $project->environments()->first()->id,
