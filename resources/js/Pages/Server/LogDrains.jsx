@@ -36,6 +36,8 @@ export default function LogDrains({
         logDrainCustomConfigParser: logDrainCustomConfigParser ?? '',
     });
 
+    const fieldsDisabled = isLogDrainEnabled || !canUpdate;
+
     function toggle(type, enabled, fields = {}) {
         router.post(toggleUrl, { type, enabled, ...fields }, { preserveScroll: true });
     }
@@ -97,7 +99,7 @@ export default function LogDrains({
                                             name="log-drain-newrelic-license-key"
                                             type="password"
                                             required
-                                            disabled={isLogDrainEnabled || !canUpdate}
+                                            disabled={fieldsDisabled}
                                             value={newRelic.data.logDrainNewRelicLicenseKey}
                                             onChange={(e) => newRelic.setData('logDrainNewRelicLicenseKey', e.target.value)}
                                         />
@@ -111,7 +113,7 @@ export default function LogDrains({
                                             id="log-drain-newrelic-base-uri"
                                             name="log-drain-newrelic-base-uri"
                                             required
-                                            disabled={isLogDrainEnabled || !canUpdate}
+                                            disabled={fieldsDisabled}
                                             placeholder="https://log-api.eu.newrelic.com/log/v1"
                                             value={newRelic.data.logDrainNewRelicBaseUri}
                                             onChange={(e) => newRelic.setData('logDrainNewRelicBaseUri', e.target.value)}
@@ -121,11 +123,13 @@ export default function LogDrains({
                                         )}
                                     </label>
                                 </div>
-                                <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={newRelic.processing || isLogDrainEnabled || !canUpdate}>
-                                        Save
-                                    </button>
-                                </div>
+                                {canUpdate && (
+                                    <div className="flex justify-end gap-4 pt-6">
+                                        <button type="submit" disabled={newRelic.processing || isLogDrainEnabled}>
+                                            Save
+                                        </button>
+                                    </div>
+                                )}
                             </form>
 
                             <h3>Axiom</h3>
@@ -162,7 +166,7 @@ export default function LogDrains({
                                             name="log-drain-axiom-api-key"
                                             type="password"
                                             required
-                                            disabled={isLogDrainEnabled || !canUpdate}
+                                            disabled={fieldsDisabled}
                                             value={axiom.data.logDrainAxiomApiKey}
                                             onChange={(e) => axiom.setData('logDrainAxiomApiKey', e.target.value)}
                                         />
@@ -174,7 +178,7 @@ export default function LogDrains({
                                             id="log-drain-axiom-dataset-name"
                                             name="log-drain-axiom-dataset-name"
                                             required
-                                            disabled={isLogDrainEnabled || !canUpdate}
+                                            disabled={fieldsDisabled}
                                             value={axiom.data.logDrainAxiomDatasetName}
                                             onChange={(e) => axiom.setData('logDrainAxiomDatasetName', e.target.value)}
                                         />
@@ -183,11 +187,13 @@ export default function LogDrains({
                                         )}
                                     </label>
                                 </div>
-                                <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={axiom.processing || isLogDrainEnabled || !canUpdate}>
-                                        Save
-                                    </button>
-                                </div>
+                                {canUpdate && (
+                                    <div className="flex justify-end gap-4 pt-6">
+                                        <button type="submit" disabled={axiom.processing || isLogDrainEnabled}>
+                                            Save
+                                        </button>
+                                    </div>
+                                )}
                             </form>
 
                             <h3>Custom FluentBit</h3>
@@ -223,7 +229,7 @@ export default function LogDrains({
                                         name="log-drain-custom-config"
                                         rows={6}
                                         required
-                                        disabled={isLogDrainEnabled || !canUpdate}
+                                        disabled={fieldsDisabled}
                                         value={custom.data.logDrainCustomConfig}
                                         onChange={(e) => custom.setData('logDrainCustomConfig', e.target.value)}
                                     />
@@ -234,16 +240,18 @@ export default function LogDrains({
                                     <textarea
                                         id="log-drain-custom-config-parser"
                                         name="log-drain-custom-config-parser"
-                                        disabled={isLogDrainEnabled || !canUpdate}
+                                        disabled={fieldsDisabled}
                                         value={custom.data.logDrainCustomConfigParser}
                                         onChange={(e) => custom.setData('logDrainCustomConfigParser', e.target.value)}
                                     />
                                 </label>
-                                <div className="flex justify-end gap-4 pt-6">
-                                    <button type="submit" disabled={custom.processing || isLogDrainEnabled || !canUpdate}>
-                                        Save
-                                    </button>
-                                </div>
+                                {canUpdate && (
+                                    <div className="flex justify-end gap-4 pt-6">
+                                        <button type="submit" disabled={custom.processing || isLogDrainEnabled}>
+                                            Save
+                                        </button>
+                                    </div>
+                                )}
                             </form>
                         </div>
                     </div>

@@ -30,6 +30,7 @@ it('renders the server log drains Inertia page', function () {
         ->component('Server/LogDrains')
         ->has('serverNavbar')
         ->has('sidebar')
+        ->where('canUpdate', true)
         ->where('isLogDrainNewRelicEnabled', false)
         ->where('isLogDrainAxiomEnabled', false)
         ->where('isLogDrainCustomEnabled', false)
@@ -165,6 +166,7 @@ it('withholds log drain credentials from a plain member', function () {
         ->get(route('server.log-drains', ['server_uuid' => $server->uuid]));
 
     $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page->where('canUpdate', false));
     expect($response->getContent())->not->toContain('SECRET-NEWRELIC-LICENSE-KEY')
         ->and($response->getContent())->not->toContain('SECRET-AXIOM-API-KEY')
         ->and($response->getContent())->not->toContain('SECRET-CUSTOM-CONFIG')
