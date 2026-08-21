@@ -43,6 +43,22 @@ it('lists services owned by the token team', function () {
     $response->assertJsonFragment(['name' => 'my-service']);
 });
 
+it('formats the list endpoint response the same way removeSensitiveData() formats every other endpoint', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    apiMakeService($team, ['name' => 'my-service']);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson('/api/v1/services');
+
+    $response->assertOk();
+    $keys = array_keys($response->json()[0]);
+    // serializeApiResponse() moves created_at/updated_at to the very end and sorts the
+    // rest alphabetically; raw model attribute order (natural DB column order) does
+    // neither, so this only holds once removeSensitiveData()'s return value is actually used.
+    expect(array_pop($keys))->toBe('updated_at');
+});
+
 it('does not list another team\'s services', function () {
     $team = Team::factory()->create();
     $otherTeam = Team::factory()->create();
