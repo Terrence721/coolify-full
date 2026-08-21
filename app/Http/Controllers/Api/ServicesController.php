@@ -1348,7 +1348,7 @@ class ServicesController extends Controller
         $this->authorize('manageEnvironment', $service);
 
         $bulk_data = $request->get('data');
-        if (! $bulk_data) {
+        if (! is_array($bulk_data) || empty($bulk_data)) {
             return response()->json(['message' => 'Bulk data is required.'], 400);
         }
 
