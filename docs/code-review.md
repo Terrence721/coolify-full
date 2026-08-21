@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 19, 2026**
+**Last Updated: August 21, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -723,3 +723,35 @@ Found via the same `/code-review 187` pass above, corroborated by 3 independent 
 **low · UI consistency + test coverage** — Fixed via [PR #198](https://github.com/Terrence721/coolify-full/pull/198) ([`7cd213ae7`](https://github.com/Terrence721/coolify-full/commit/7cd213ae7))
 
 Found via an independent `/code-review 188` pass on already-merged PR #188 (the `canUpdate` gating fix). Confirmed correct across all 3 background review angles, but `LogDrains.jsx` kept its 3 Save buttons rendered-but-disabled for a plain member instead of hidden entirely, the only page in its family to do so — independently verified against `Sentinel.jsx` directly, since the official review synthesis's "matches the sibling pattern" claim didn't hold for this specific element. Also found `isLogDrainEnabled || !canUpdate` duplicated verbatim 6 times, and the backend test missing the `canUpdate` assertion its sibling test already had. Fixed by hiding the buttons for non-updaters, extracting the duplicated expression into a `fieldsDisabled` variable, and adding the missing backend assertions.
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/ServicesController.php)
+
+**high · Security — mass-assignment IDOR** — Fixed via [PR #199](https://github.com/Terrence721/coolify-full/pull/199) ([`a617b3a9a`](https://github.com/Terrence721/coolify-full/commit/a617b3a9a7509a0d76d5a7f4d24779cb7e9b5b31))
+
+Found via a fresh code-review pass on this previously-unreviewed 2,217-line API controller. `create_bulk_envs()` passed the raw request item straight through as `updateOrCreate()`'s `$values`; `resourceable_id`/`resourceable_type` are both fillable and the validator never rejects unknown fields. The create-new-row path is already safe (Eloquent re-applies the correct foreign/morph attributes after `newInstance()`), but the update-existing-row path calls `fill($values)->save()` unconditionally with no re-application — a caller who knows an existing env var's key can retarget it onto an arbitrary resource, including a different team's. Same call also discarded the normalized key on save. Fixed by building an explicit whitelisted `$values` array instead of passing the raw item through.
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/ServicesController.php)
+
+**medium · Reliability** — Fixed via [PR #200](https://github.com/Terrence721/coolify-full/pull/200) ([`ea18e8676`](https://github.com/Terrence721/coolify-full/commit/ea18e8676b42916adef78d4f04b10b7c5a2d12b5))
+
+Found via the same pass above. `create_bulk_envs()` only checked truthiness of the request's `data` field before `foreach`-ing over it — a non-empty string value threw instead of returning a clean 400. Fixed by checking `is_array($bulk_data)` instead of just truthiness.
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/ServicesController.php)
+
+**low · Consistency, not a security leak** — Fixed via [PR #201](https://github.com/Terrence721/coolify-full/pull/201) ([`a05c2375e`](https://github.com/Terrence721/coolify-full/commit/a05c2375e124364fd49e533054d6c37812764fa4))
+
+Found via the same pass above. `services()` reassigned its `foreach` loop variable instead of writing `removeSensitiveData()`'s result back into `$services`, discarding `serializeApiResponse()`'s key-sort/field-reordering on the list endpoint — sensitive fields still ended up hidden only because `makeHidden()` mutates the model in place. Fixed with `->map()` instead of a `foreach` that discards its result.
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/ServicesController.php)
+
+**low · Maintainability, dead code** — Fixed via [PR #202](https://github.com/Terrence721/coolify-full/pull/202) ([`b11c9c56f`](https://github.com/Terrence721/coolify-full/commit/b11c9c56fc04306969d1f1464df68e228054df17))
+
+Found via the same pass above. `create_service()` checked `$request->is_public`/`$request->public_port`, but neither field is in `$allowedFields`/`$validationRules` for this endpoint, so the branch can never fire. Removed the dead branch.
