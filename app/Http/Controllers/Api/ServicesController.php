@@ -355,9 +355,6 @@ class ServicesController extends Controller
         }
         $serverUuid = $request->server_uuid;
         $instantDeploy = $request->instant_deploy ?? false;
-        if ($request->is_public && ! $request->public_port) {
-            $request->offsetSet('is_public', false);
-        }
         $project = Project::whereTeamId($teamId)->whereUuid($request->project_uuid)->first();
         if (! $project) {
             return response()->json(['message' => 'Project not found.'], 404);
