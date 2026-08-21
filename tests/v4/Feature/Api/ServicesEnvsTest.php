@@ -217,6 +217,24 @@ it('ignores an attacker-supplied resourceable_id/resourceable_type when bulk-upd
     expect($otherService->environment_variables()->where('key', 'HIJACKED')->exists())->toBeFalse();
 });
 
+it('keeps the normalized key when bulk-updating an existing env var with a raw un-normalized key', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $service = apiEnvsMakeService($team);
+    $token = $this->apiToken($user, $team, ['write']);
+    $service->environment_variables()->create(['key' => 'MY_VAR', 'value' => 'original']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/services/{$service->uuid}/envs/bulk", [
+        'data' => [
+            ['key' => ' MY VAR ', 'value' => 'updated'],
+        ],
+    ]);
+
+    $response->assertCreated();
+    expect($service->environment_variables()->where('key', 'MY_VAR')->first()?->value)->toBe('updated');
+    expect($service->environment_variables()->where('key', ' MY VAR ')->exists())->toBeFalse();
+});
+
 // delete_env_by_uuid()
 
 it('deletes an env var', function () {
