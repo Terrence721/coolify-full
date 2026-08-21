@@ -43,6 +43,24 @@ it('rejects a create request providing both type and docker_compose_raw', functi
     $response->assertStatus(422);
 });
 
+it('rejects an is_public field as not allowed', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->postJson('/api/v1/services', [
+        'type' => 'plausible',
+        'project_uuid' => $project->uuid,
+        'environment_name' => 'production',
+        'server_uuid' => 'nonexistent',
+        'is_public' => true,
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonPath('errors.is_public.0', 'This field is not allowed.');
+});
+
 it('returns 404 when the project does not exist', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();
