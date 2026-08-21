@@ -235,6 +235,19 @@ it('keeps the normalized key when bulk-updating an existing env var with a raw u
     expect($service->environment_variables()->where('key', ' MY VAR ')->exists())->toBeFalse();
 });
 
+it('rejects bulk env creation when data is not an array', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $service = apiEnvsMakeService($team);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/services/{$service->uuid}/envs/bulk", [
+        'data' => 'oops',
+    ]);
+
+    $response->assertStatus(400);
+});
+
 // delete_env_by_uuid()
 
 it('deletes an env var', function () {
