@@ -189,6 +189,34 @@ it('rejects bulk env creation with missing data', function () {
     $response->assertStatus(400);
 });
 
+it('ignores an attacker-supplied resourceable_id/resourceable_type when bulk-updating an existing env var', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $service = apiEnvsMakeService($team);
+    $otherService = apiEnvsMakeService(Team::factory()->create());
+    $token = $this->apiToken($user, $team, ['write']);
+    $service->environment_variables()->create(['key' => 'HIJACKED', 'value' => 'original']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/services/{$service->uuid}/envs/bulk", [
+        'data' => [
+            [
+                'key' => 'HIJACKED',
+                'value' => 'updated',
+                'resourceable_id' => $otherService->id,
+                'resourceable_type' => get_class($otherService),
+            ],
+        ],
+    ]);
+
+    $response->assertCreated();
+    $env = $service->environment_variables()->where('key', 'HIJACKED')->first();
+    expect($env)->not->toBeNull();
+    expect($env->value)->toBe('updated');
+    expect($env->resourceable_id)->toBe($service->id);
+    expect($env->resourceable_type)->toBe(get_class($service));
+    expect($otherService->environment_variables()->where('key', 'HIJACKED')->exists())->toBeFalse();
+});
+
 // delete_env_by_uuid()
 
 it('deletes an env var', function () {
