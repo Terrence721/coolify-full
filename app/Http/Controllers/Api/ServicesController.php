@@ -1370,9 +1370,15 @@ class ServicesController extends Controller
                 ], 422);
             }
             $key = str($item['key'])->trim()->replace(' ', '_')->value();
+            $values = ['key' => $key, 'value' => $item['value'] ?? null];
+            foreach (['is_literal', 'is_multiline', 'is_shown_once', 'comment'] as $field) {
+                if (array_key_exists($field, $item)) {
+                    $values[$field] = $item[$field];
+                }
+            }
             $env = $service->environment_variables()->updateOrCreate(
                 ['key' => $key],
-                $item
+                $values
             );
 
             $updatedEnvs->push($this->removeSensitiveData($env));
