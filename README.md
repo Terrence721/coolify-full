@@ -121,3 +121,5 @@ Work on this fork is tracked two ways:
 - **[GitHub Project board](https://github.com/users/Terrence721/projects/1)** — a Scrum-style Backlog/Planned/In Progress/Verification & QA/Done view of the same work, for a quick at-a-glance status without reading the full log. Kept in sync with [`todo.md`](todo.md).
 - **[`ROADMAP.md`](ROADMAP.md)** — a different kind of list: product-direction ideas found by reading the code but not yet scoped into work items. Once picked up, an idea moves out of here and into `todo.md`/the board like everything else.
 - **[`docs/code-review.md`](docs/code-review.md)** — real line-level code review notes, done as a reviewer role separate from the engineer who fixes them (see `todo.md`).
+
+On AI-assisted development: Commits co-authored as Claude are AI-assisted implementations directed, reviewed, and merged by Terrence Daniels — same process as every other change, documented in `docs/code-review.md`.
