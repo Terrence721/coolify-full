@@ -787,3 +787,35 @@ Found via the same pass above. `validateToken()` decrypted `$cloudToken->token` 
 **low · Reliability, narrow race window** — Fixed via [PR #206](https://github.com/Terrence721/coolify-full/pull/206) ([`11c8614da`](https://github.com/Terrence721/coolify-full/commit/11c8614dac9b71ffa314cfb27ee804732b9ed2b9))
 
 Found via the same pass above. `destroy()`'s `hasServers()` check and `delete()` weren't atomic - a server attached in the gap between them silently lost its `cloud_provider_token_id` instead of blocking the delete. Fixed by wrapping both in a `DB::transaction()` with `lockForUpdate()`; the residual cross-connection-locking gap is disclosed directly in a code comment rather than backed by a test that could only prove it trivially.
+
+---
+
+### [`PrivateKey.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Models/PrivateKey.php)
+
+**high · Correctness — wrong scope, not a narrow race** — Fixed via [PR #207](https://github.com/Terrence721/coolify-full/pull/207) ([`cecea16de`](https://github.com/Terrence721/coolify-full/commit/cecea16deb4247694f247bee5f31e35a623e726b))
+
+Found via a fresh code-review pass on `app/Http/Controllers/Api/SecurityController.php`. `fingerprintExists()` fell back to the session-based `currentTeam()` helper, which is never populated for a real token-authenticated API request (the `api` middleware group never runs `StartSession`) - the uniqueness check silently ran globally across every team on the instance instead of per-team. Confirmed live, not just theorized: Team A creates a key, an unrelated Team B trying to add the identical content gets incorrectly rejected with "Private key already exists." Fixed by passing the actual `team_id` explicitly at both call sites (the model's own saving hook, and the API controller's pre-check).
+
+---
+
+### [`SecurityController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/SecurityController.php)
+
+**medium · Correctness** — Fixed via [PR #208](https://github.com/Terrence721/coolify-full/pull/208) ([`06392d205`](https://github.com/Terrence721/coolify-full/commit/06392d205b1451188185d35a4416ca3e4ed13ee2))
+
+Found via the same pass above. `update_key()` had no base64-decode step, unlike `create_key()`. A key successfully created via base64 input got rejected on any subsequent update resending the same string unchanged (e.g. just renaming it, since `private_key` is a required field on every update). Fixed by adding the same detect-and-decode step `create_key()` already had.
+
+---
+
+### [`SecurityController.php`, `shared.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/SecurityController.php)
+
+**medium · Correctness, surfaced a second real bug along the way** — Fixed via [PR #209](https://github.com/Terrence721/coolify-full/pull/209) and [PR #211](https://github.com/Terrence721/coolify-full/pull/211) ([`e7ccae450`](https://github.com/Terrence721/coolify-full/commit/e7ccae450b5bde4f27dd037410362c62fedbf4df), [`72d2be6f3`](https://github.com/Terrence721/coolify-full/commit/72d2be6f3c691f68ef2d3199046d6d26cad04939))
+
+Found via the same pass above. `create_key()` used non-strict `base64_decode()` inside a `try`/`catch` that could never throw, silently garbling genuinely invalid input instead of rejecting it cleanly. Fixed by switching to strict-mode `base64_decode()` with an explicit `false` check, in both `create_key()` and `update_key()`. While evaluating the codebase's existing `isBase64Encoded()` helper as an alternative, found it has a real bug of its own: it crashes with a `TypeError` under `strict_types=1` whenever the strict decode genuinely fails, since it passes bool `false` into `base64_encode()` - confirmed live via tinker. That helper has 7 other call sites (`ApplicationsController`, `ServicesController`, `DatabasesController`), so it was fixed separately in its own PR rather than folded into this one.
+
+---
+
+### [`SecurityController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/SecurityController.php)
+
+**low · Documentation only** — Fixed via [PR #210](https://github.com/Terrence721/coolify-full/pull/210) ([`7864b7124`](https://github.com/Terrence721/coolify-full/commit/7864b7124f8a01afd8cd45ee7b734c4a8da377a6))
+
+Found via the same pass above. The `#[OA\Patch]` attribute for `update_key()` declared the wrong path (`/security/keys` instead of `/security/keys/{uuid}`) and omitted the `uuid` parameter entirely, despite the controller reading it from the route. Fixed by correcting the path and adding the parameter, matching every sibling action; regenerated `openapi.yaml` from source.
