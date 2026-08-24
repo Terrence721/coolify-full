@@ -11,7 +11,7 @@ Most changes are committed (and, once verified, pushed) straight to `main` — t
 
 ## Development Environment
 
-See [`CLAUDE.md`](CLAUDE.md) for the full command reference and [`TECH_STACK.md`](TECH_STACK.md) for the stack overview. Short version:
+See [`docs/command.md`](docs/command.md) for the full command reference and [`TECH_STACK.md`](TECH_STACK.md) for the stack overview. Short version:
 
 ```bash
 spin up      # or: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
