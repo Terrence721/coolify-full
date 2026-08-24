@@ -6,6 +6,7 @@ use App\Models\CloudProviderToken;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\Support\InteractsWithApiV1;
 
 uses(RefreshDatabase::class, InteractsWithApiV1::class);
@@ -44,7 +45,7 @@ it('ignores a query-string uuid override on destroy()', function () {
 });
 
 it('ignores a query-string uuid override on validateToken()', function () {
-    Illuminate\Support\Facades\Http::fake(['api.digitalocean.com/*' => Illuminate\Support\Facades\Http::response(['account' => []], 200)]);
+    Http::fake(['api.digitalocean.com/*' => Http::response(['account' => []], 200)]);
     $team = Team::factory()->create();
     $user = User::factory()->create();
     $pathToken = CloudProviderToken::create(['team_id' => $team->id, 'provider' => 'digitalocean', 'token' => 'dop_v1_path', 'name' => 'Path Token']);
@@ -55,5 +56,5 @@ it('ignores a query-string uuid override on validateToken()', function () {
         ->postJson("/api/v1/cloud-tokens/{$pathToken->uuid}/validate?uuid={$queryToken->uuid}")
         ->assertOk();
 
-    Illuminate\Support\Facades\Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer dop_v1_path'));
+    Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer dop_v1_path'));
 });
