@@ -105,7 +105,7 @@ class PrivateKey extends BaseModel
             }
 
             $key->fingerprint = self::generateFingerprint($key->private_key);
-            if (self::fingerprintExists($key->fingerprint, $key->id)) {
+            if (self::fingerprintExists($key->fingerprint, $key->team_id, $key->id)) {
                 throw ValidationException::withMessages([
                     'private_key' => ['This private key already exists.'],
                 ]);
@@ -464,14 +464,21 @@ class PrivateKey extends BaseModel
         }
     }
 
-    public static function fingerprintExists(string $fingerprint, ?int $excludeId = null): bool
+    public static function fingerprintExists(string $fingerprint, int|string|null $teamId = null, ?int $excludeId = null): bool
     {
         $query = self::query()
             ->where('fingerprint', $fingerprint)
             ->where('id', '!=', $excludeId);
 
-        if (currentTeam()) {
-            $query->where('team_id', currentTeam()->id);
+        // currentTeam() is session-based and only ever set by web/session login flows - it's
+        // never populated for a token-authenticated API request, so relying on it alone here
+        // silently checked uniqueness globally (across every team on the instance) instead of
+        // per-team for any API caller. Callers with a real team_id in hand (the saving hook,
+        // the API controller) now pass it explicitly; the currentTeam() fallback stays for any
+        // caller that genuinely only has a web session to go on.
+        $teamId ??= currentTeam()?->id;
+        if ($teamId) {
+            $query->where('team_id', $teamId);
         }
 
         return $query->exists();
