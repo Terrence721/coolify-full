@@ -1889,7 +1889,12 @@ function isBase64Encoded(?string $strValue): bool
         return false;
     }
 
-    return base64_encode(base64_decode($strValue, true)) === $strValue;
+    $decoded = base64_decode($strValue, true);
+    if ($decoded === false) {
+        return false;
+    }
+
+    return base64_encode($decoded) === $strValue;
 }
 function customApiValidator(Collection|array $item, array $rules, array $messages = [])
 {
