@@ -581,7 +581,23 @@ class CloudProviderTokensController extends Controller
 
         $this->authorize('view', $cloudToken);
 
-        $validation = $this->validateProviderToken($cloudToken->provider, $cloudToken->token);
+        try {
+            // The 'encrypted' cast's magic getter can throw DecryptException; PHPStan can't see through it.
+            $decryptedToken = $cloudToken->token;
+            // @phpstan-ignore catch.neverThrown
+        } catch (\Throwable $e) {
+            Log::error('Failed to decrypt cloud provider token', [
+                'provider' => $cloudToken->provider,
+                'exception' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'valid' => false,
+                'message' => 'Failed to validate token with provider API.',
+            ]);
+        }
+
+        $validation = $this->validateProviderToken($cloudToken->provider, $decryptedToken);
 
         return response()->json([
             'valid' => $validation['valid'],
