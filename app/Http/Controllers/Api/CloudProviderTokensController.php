@@ -112,6 +112,8 @@ class CloudProviderTokensController extends Controller
             return invalidTokenResponse();
         }
 
+        $this->authorize('viewAny', CloudProviderToken::class);
+
         $tokens = CloudProviderToken::whereTeamId($teamId)
             ->withCount('servers')
             ->get()
@@ -181,6 +183,8 @@ class CloudProviderTokensController extends Controller
             return response()->json(['message' => 'Cloud provider token not found.'], 404);
         }
 
+        $this->authorize('view', $token);
+
         return response()->json($this->removeSensitiveData($token));
     }
 
@@ -246,6 +250,8 @@ class CloudProviderTokensController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
+
+        $this->authorize('create', CloudProviderToken::class);
 
         $return = validateIncomingRequest($request);
         if ($return instanceof JsonResponse) {
@@ -398,6 +404,8 @@ class CloudProviderTokensController extends Controller
             return response()->json(['message' => 'Cloud provider token not found.'], 404);
         }
 
+        $this->authorize('update', $token);
+
         $token->update(array_intersect_key($body, array_flip($allowedFields)));
 
         auditLog('api.cloud_token.updated', [
@@ -479,6 +487,8 @@ class CloudProviderTokensController extends Controller
             return response()->json(['message' => 'Cloud provider token not found.'], 404);
         }
 
+        $this->authorize('delete', $token);
+
         if ($token->hasServers()) {
             return response()->json(['message' => 'Cannot delete token that is used by servers.'], 400);
         }
@@ -548,6 +558,8 @@ class CloudProviderTokensController extends Controller
         if (! $cloudToken) {
             return response()->json(['message' => 'Cloud provider token not found.'], 404);
         }
+
+        $this->authorize('view', $cloudToken);
 
         try {
             // The 'encrypted' cast's magic getter can throw DecryptException; PHPStan can't see through it.
