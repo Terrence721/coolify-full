@@ -1,7 +1,7 @@
 # 🗺️ Roadmap
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: July 29, 2026**
+**Last Updated: August 24, 2026**
 
 This file is for a different kind of item than [`todo.md`](todo.md). `todo.md` tracks **known work**: things already found, scoped, and either done or actionable right now, each backed by evidence. This file tracks **product-direction ideas** — real gaps identified by reading the code, not yet scoped into a work item, kept here so they don't get lost between sessions. Once an idea here is picked up, it gets a GitHub issue and moves to `todo.md`'s "Still to do" table like everything else; this file is not itself a place to check work off.
 
@@ -16,7 +16,7 @@ Every item below was found by reading the actual code (file/class named), not as
 | 3 | HMAC-signed outbound webhook notifications | A receiver of the generic webhook notification channel has no way to verify a payload genuinely came from this instance and wasn't spoofed | `app/Notifications/Channels/WebhookChannel.php` posts the raw payload to `webhook_url` with no signature/shared-secret header — inconsistent with the *inbound* Git webhooks (GitHub/Gitea/Bitbucket), which do verify signatures correctly | #68 |
 | 4 | In-app team switcher | Blocked real multi-user manual testing at least twice already (config-diff masking, admin-restriction checks both had to fall back to automated tests instead of a live second-user session) | `resources/js/Layouts/AppLayout.jsx`'s own docblock documents the gap directly (read-only team name shown instead of a working switcher); not a new finding, just previously untracked as an open item | #69 |
 | 5 | Team-wide "require 2FA" enforcement | 2FA exists (Fortify, confirmed enabled with `confirm`/`confirmPassword`) but is opt-in per user — an Owner has no way to require it across the team | `config/fortify.php`'s `Features::twoFactorAuthentication()`; no corresponding team-level enforcement setting anywhere in `Team`/`TeamController` | — |
-| 6 | Encryption at rest for S3-stored backups | Backup content currently relies entirely on whatever the destination bucket provides — no application-level encryption before upload | No `gpg`/`age`/equivalent step anywhere in `app/Actions/Database/*Backup*` before the S3 upload | — |
+| 6 | Encryption at rest for S3-stored backups | Backup content currently relies entirely on whatever the destination bucket provides — no application-level encryption before upload | No `gpg`/`age`/equivalent step anywhere in `app/Jobs/DatabaseBackupJob.php` before the S3 upload | — |
 | 7 | On-call-paging notification channels (PagerDuty/Opsgenie) | Current channels (Discord/Slack/Telegram/Pushover/generic webhook) are all chat-first; a PaaS pitched on reliability is more often paired with an on-call tool than another chat integration | `app/Notifications/Channels/` — 5 channels present, none paging-oriented | — |
 
 Items 1–4 are scoped enough to become real GitHub issues now (done, see table). Items 5–7 are still speculative — worth a line here so they aren't lost, but not yet broken down enough to be actionable work.
