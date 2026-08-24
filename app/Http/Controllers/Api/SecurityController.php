@@ -258,12 +258,15 @@ class SecurityController extends Controller
     #[OA\Patch(
         summary: 'Update',
         description: 'Update a private key.',
-        path: '/security/keys',
+        path: '/security/keys/{uuid}',
         operationId: 'update-private-key',
         security: [
             ['bearerAuth' => []],
         ],
         tags: ['Private Keys'],
+        parameters: [
+            new OA\Parameter(name: 'uuid', in: 'path', required: true, description: 'Private Key UUID', schema: new OA\Schema(type: 'string')),
+        ],
         requestBody: new OA\RequestBody(
             required: true,
             content: [
