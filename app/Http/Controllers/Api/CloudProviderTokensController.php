@@ -176,7 +176,7 @@ class CloudProviderTokensController extends Controller
         }
 
         $token = CloudProviderToken::whereTeamId($teamId)
-            ->whereUuid($request->uuid)
+            ->whereUuid($request->route('uuid'))
             ->withCount('servers')
             ->first();
 
@@ -478,11 +478,11 @@ class CloudProviderTokensController extends Controller
             return invalidTokenResponse();
         }
 
-        if (! $request->uuid) {
+        if (! $request->route('uuid')) {
             return response()->json(['message' => 'UUID is required.'], 422);
         }
 
-        $token = CloudProviderToken::whereTeamId($teamId)->whereUuid($request->uuid)->first();
+        $token = CloudProviderToken::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
 
         if (! $token) {
             return response()->json(['message' => 'Cloud provider token not found.'], 404);
@@ -573,7 +573,7 @@ class CloudProviderTokensController extends Controller
             return invalidTokenResponse();
         }
 
-        $cloudToken = CloudProviderToken::whereTeamId($teamId)->whereUuid($request->uuid)->first();
+        $cloudToken = CloudProviderToken::whereTeamId($teamId)->whereUuid($request->route('uuid'))->first();
 
         if (! $cloudToken) {
             return response()->json(['message' => 'Cloud provider token not found.'], 404);
