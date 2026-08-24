@@ -210,14 +210,18 @@ class SecurityController extends Controller
 
         $isPrivateKeyString = str_starts_with($request->private_key, '-----BEGIN');
         if (! $isPrivateKeyString) {
-            try {
-                $base64PrivateKey = base64_decode($request->private_key);
-                $request->offsetSet('private_key', $base64PrivateKey);
-            } catch (\Exception $e) {
+            // Strict mode: rejects anything containing a character outside the base64
+            // alphabet instead of silently dropping it, unlike the non-strict default.
+            $decodedPrivateKey = base64_decode($request->private_key, true);
+            if ($decodedPrivateKey === false) {
                 return response()->json([
-                    'message' => 'Invalid private key.',
+                    'message' => 'Validation failed.',
+                    'errors' => [
+                        'private_key' => 'The private_key should be a valid PEM string or base64 encoded.',
+                    ],
                 ], 422);
             }
+            $request->offsetSet('private_key', $decodedPrivateKey);
         }
         $isPrivateKeyValid = PrivateKey::validatePrivateKey($request->private_key);
         if (! $isPrivateKeyValid) {
@@ -348,8 +352,18 @@ class SecurityController extends Controller
 
         $isPrivateKeyString = str_starts_with($request->private_key, '-----BEGIN');
         if (! $isPrivateKeyString) {
-            $base64PrivateKey = base64_decode($request->private_key);
-            $request->offsetSet('private_key', $base64PrivateKey);
+            // Strict mode: rejects anything containing a character outside the base64
+            // alphabet instead of silently dropping it, unlike the non-strict default.
+            $decodedPrivateKey = base64_decode($request->private_key, true);
+            if ($decodedPrivateKey === false) {
+                return response()->json([
+                    'message' => 'Validation failed.',
+                    'errors' => [
+                        'private_key' => 'The private_key should be a valid PEM string or base64 encoded.',
+                    ],
+                ], 422);
+            }
+            $request->offsetSet('private_key', $decodedPrivateKey);
         }
 
         $foundKey->update($request->only($allowedFields));
