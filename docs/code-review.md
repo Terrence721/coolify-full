@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 21, 2026**
+**Last Updated: August 24, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -755,3 +755,35 @@ Found via the same pass above. `services()` reassigned its `foreach` loop variab
 **low · Maintainability, dead code** — Fixed via [PR #202](https://github.com/Terrence721/coolify-full/pull/202) ([`b11c9c56f`](https://github.com/Terrence721/coolify-full/commit/b11c9c56fc04306969d1f1464df68e228054df17))
 
 Found via the same pass above. `create_service()` checked `$request->is_public`/`$request->public_port`, but neither field is in `$allowedFields`/`$validationRules` for this endpoint, so the branch can never fire. Removed the dead branch.
+
+---
+
+### [`CloudProviderTokensController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/CloudProviderTokensController.php)
+
+**high · Security — missing authorization** — Fixed via [PR #203](https://github.com/Terrence721/coolify-full/pull/203) ([`2362ecf03`](https://github.com/Terrence721/coolify-full/commit/2362ecf035737525cd774a258ad464b1cdf7178e))
+
+Found via a fresh code-review pass on this previously-unreviewed 559-line API controller. None of the 6 actions called `authorize()`, unlike the web/Inertia sibling `SecurityCloudTokensController` (admin-only via `CloudProviderTokenPolicy`, enforced by its own test). Write actions were already blocked for non-admin roles by `EnsureTokenBelongsToCurrentTeamMember` (re-checked live per request), but `index()`/`show()` only require a read-ability token with no role check - a plain team member could list/view cloud-provider-token metadata that should be admin-only. The secret token value itself stays hidden either way. Fixed by adding the correct `authorize()` call to all 6 actions.
+
+---
+
+### [`CloudProviderTokensController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/CloudProviderTokensController.php)
+
+**medium · Security — request-parameter confusion** — Fixed via [PR #204](https://github.com/Terrence721/coolify-full/pull/204) ([`992f5f8d4`](https://github.com/Terrence721/coolify-full/commit/992f5f8d4d619a4ec4f5ca09cdd5ce71fcebb48e))
+
+Found via the same pass above. `show()`, `destroy()`, and `validateToken()` resolved the target token via `$request->uuid` instead of `$request->route('uuid')`, letting a query-string `?uuid=` override which token the request actually targets. `update()` already guarded against this; the fix never reached the other three. Fixed by switching all 4 remaining reads to `$request->route('uuid')`.
+
+---
+
+### [`CloudProviderTokensController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/CloudProviderTokensController.php)
+
+**low · Reliability** — Fixed via [PR #205](https://github.com/Terrence721/coolify-full/pull/205) ([`d3a580fac`](https://github.com/Terrence721/coolify-full/commit/d3a580face40582ff9c79759a9cffad2b9caad9c))
+
+Found via the same pass above. `validateToken()` decrypted `$cloudToken->token` as a call argument, outside `validateProviderToken()`'s own try/catch - a real decrypt failure (`APP_KEY` rotation, corrupted ciphertext) 500'd instead of returning the intended graceful error. Fixed by decrypting into a local variable inside its own try/catch first.
+
+---
+
+### [`CloudProviderTokensController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/CloudProviderTokensController.php)
+
+**low · Reliability, narrow race window** — Fixed via [PR #206](https://github.com/Terrence721/coolify-full/pull/206) ([`11c8614da`](https://github.com/Terrence721/coolify-full/commit/11c8614dac9b71ffa314cfb27ee804732b9ed2b9))
+
+Found via the same pass above. `destroy()`'s `hasServers()` check and `delete()` weren't atomic - a server attached in the gap between them silently lost its `cloud_provider_token_id` instead of blocking the delete. Fixed by wrapping both in a `DB::transaction()` with `lockForUpdate()`; the residual cross-connection-locking gap is disclosed directly in a code comment rather than backed by a test that could only prove it trivially.
