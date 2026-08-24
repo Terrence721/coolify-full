@@ -345,6 +345,13 @@ class SecurityController extends Controller
                 'message' => 'Private Key not found.',
             ], 404);
         }
+
+        $isPrivateKeyString = str_starts_with($request->private_key, '-----BEGIN');
+        if (! $isPrivateKeyString) {
+            $base64PrivateKey = base64_decode($request->private_key);
+            $request->offsetSet('private_key', $base64PrivateKey);
+        }
+
         $foundKey->update($request->only($allowedFields));
 
         auditLog('api.private_key.updated', [
