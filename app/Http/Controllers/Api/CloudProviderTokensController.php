@@ -9,6 +9,7 @@ use App\Models\CloudProviderToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OpenApi\Attributes as OA;
@@ -489,14 +490,33 @@ class CloudProviderTokensController extends Controller
 
         $this->authorize('delete', $token);
 
-        if ($token->hasServers()) {
-            return response()->json(['message' => 'Cannot delete token that is used by servers.'], 400);
-        }
-
         $tokenUuid = $token->uuid;
         $tokenName = $token->name;
         $tokenProvider = $token->provider;
-        $token->delete();
+
+        // The hasServers() check and the delete must be atomic, or a server attached in the
+        // gap between them would silently lose its cloud_provider_token_id (servers.
+        // cloud_provider_token_id has onDelete('set null')) instead of blocking the delete.
+        // lockForUpdate() here relies on Postgres implicitly taking a FOR KEY SHARE lock on
+        // this row for any concurrent INSERT that references it via the servers table's FK -
+        // that INSERT blocks until this transaction commits or rolls back, closing the race
+        // for real concurrent requests. Not fully provable by this test suite (SQLite in
+        // testing, single-connection Pest tests can't exercise cross-connection locking), so
+        // this is disclosed here rather than backed by a test that could only prove it
+        // trivially.
+        $blocked = DB::transaction(function () use ($token) {
+            $lockedToken = CloudProviderToken::whereKey($token->id)->lockForUpdate()->first();
+            if (! $lockedToken || $lockedToken->hasServers()) {
+                return true;
+            }
+            $lockedToken->delete();
+
+            return false;
+        });
+
+        if ($blocked) {
+            return response()->json(['message' => 'Cannot delete token that is used by servers.'], 400);
+        }
 
         auditLog('api.cloud_token.deleted', [
             'team_id' => $teamId,
