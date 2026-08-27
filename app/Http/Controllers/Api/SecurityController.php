@@ -194,19 +194,9 @@ class SecurityController extends Controller
             'private_key' => 'required|string',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         if (! $request->name) {
             $request->offsetSet('name', generate_random_name());
@@ -339,19 +329,9 @@ class SecurityController extends Controller
             'private_key' => 'required|string',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         $foundKey = PrivateKey::where('team_id', $teamId)->where('uuid', $request->uuid)->first();
         if (is_null($foundKey)) {
