@@ -867,3 +867,11 @@ Found via the same pass above, in the model rather than the controller. The `del
 **low · Audit-trail accuracy, not security** — Fixed via [PR #217](https://github.com/Terrence721/coolify-full/pull/217) ([`f9121deeb`](https://github.com/Terrence721/coolify-full/commit/f9121deeba12d4b19a3c4d7ae62514883eb3c7a4))
 
 Found via the same pass above. `update_github_app()`'s audit-log `changed_fields` was computed from the static `$allowedFields` allowlist, not from `$payload` (what the client actually sent) — a `PATCH` containing only `{"name": "..."}` logged 9-10 unrelated field names as "changed," every time, regardless of what was really touched. Fixed by switching to `array_keys($payload)`.
+
+---
+
+### [`GithubController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/GithubController.php)
+
+**low · Documentation only** — Fixed via [PR #218](https://github.com/Terrence721/coolify-full/pull/218) ([`509ba5995`](https://github.com/Terrence721/coolify-full/commit/509ba599554988c378020278d89e41eb13dbbf20))
+
+Found via the same pass above, the last of its findings. `create_github_app()`'s validator has always required `webhook_secret`, but the OpenAPI spec's `required` array omitted it — a client following the documented contract and leaving `webhook_secret` out got a 422 the docs don't predict. Fixed by adding it to the `required` array and regenerating `openapi.yaml` from source.
