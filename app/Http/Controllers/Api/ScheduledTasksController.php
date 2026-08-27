@@ -281,7 +281,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $application = $this->resolveApplication($request, $teamId);
+        $application = $this->resolveApplication($request, (int) $teamId);
         if (! $application) {
             return response()->json(['message' => 'Application not found.'], 404);
         }
@@ -360,7 +360,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $application = $this->resolveApplication($request, $teamId);
+        $application = $this->resolveApplication($request, (int) $teamId);
         if (! $application) {
             return response()->json(['message' => 'Application not found.'], 404);
         }
@@ -447,7 +447,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $application = $this->resolveApplication($request, $teamId);
+        $application = $this->resolveApplication($request, (int) $teamId);
         if (! $application) {
             return response()->json(['message' => 'Application not found.'], 404);
         }
@@ -517,7 +517,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $application = $this->resolveApplication($request, $teamId);
+        $application = $this->resolveApplication($request, (int) $teamId);
         if (! $application) {
             return response()->json(['message' => 'Application not found.'], 404);
         }
@@ -585,7 +585,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $application = $this->resolveApplication($request, $teamId);
+        $application = $this->resolveApplication($request, (int) $teamId);
         if (! $application) {
             return response()->json(['message' => 'Application not found.'], 404);
         }
@@ -644,7 +644,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = $this->resolveService($request, $teamId);
+        $service = $this->resolveService($request, (int) $teamId);
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -723,7 +723,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = $this->resolveService($request, $teamId);
+        $service = $this->resolveService($request, (int) $teamId);
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -810,7 +810,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = $this->resolveService($request, $teamId);
+        $service = $this->resolveService($request, (int) $teamId);
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -880,7 +880,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = $this->resolveService($request, $teamId);
+        $service = $this->resolveService($request, (int) $teamId);
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
@@ -948,7 +948,7 @@ class ScheduledTasksController extends Controller
             return invalidTokenResponse();
         }
 
-        $service = $this->resolveService($request, $teamId);
+        $service = $this->resolveService($request, (int) $teamId);
         if (! $service) {
             return response()->json(['message' => 'Service not found.'], 404);
         }
