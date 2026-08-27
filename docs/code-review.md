@@ -859,3 +859,11 @@ Found via the same pass above. Three methods (`create_github_app`, `load_reposit
 **medium · Correctness — false-positive blocked delete** — Fixed via [PR #216](https://github.com/Terrence721/coolify-full/pull/216) ([`ffcf07bba`](https://github.com/Terrence721/coolify-full/commit/ffcf07bba10fdac6cf5451a510ba140388b42488))
 
 Found via the same pass above, in the model rather than the controller. The `deleting` hook re-checked "in use" via a raw `Application::where('source_id', $github_app->id)->count()`, omitting the `source_type` filter the model's own `applications()` `morphMany` relation applies automatically — `Application::source` is a polymorphic column pair, not `source_id` alone. `GithubApp` and `GitlabApp` are separate tables with independent auto-increment sequences, so a fresh instance of each naturally shares the same numeric id; an `Application` belonging to a `GitlabApp` with that shared id incorrectly counted toward a same-id `GithubApp`'s in-use check, blocking a legitimate delete the controller's own correctly-scoped pre-check had already approved. Fixed by adding the matching `source_type` filter.
+
+---
+
+### [`GithubController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/GithubController.php)
+
+**low · Audit-trail accuracy, not security** — Fixed via [PR #217](https://github.com/Terrence721/coolify-full/pull/217) ([`f9121deeb`](https://github.com/Terrence721/coolify-full/commit/f9121deeba12d4b19a3c4d7ae62514883eb3c7a4))
+
+Found via the same pass above. `update_github_app()`'s audit-log `changed_fields` was computed from the static `$allowedFields` allowlist, not from `$payload` (what the client actually sent) — a `PATCH` containing only `{"name": "..."}` logged 9-10 unrelated field names as "changed," every time, regardless of what was really touched. Fixed by switching to `array_keys($payload)`.
