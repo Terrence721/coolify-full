@@ -460,16 +460,14 @@ class SecurityController extends Controller
             return response()->json(['message' => 'Private Key not found.'], 404);
         }
 
-        if ($key->isInUse()) {
+        $keyUuid = $key->uuid;
+        $keyName = $key->name;
+        if (! $key->safeDelete()) {
             return response()->json([
                 'message' => 'Private Key is in use and cannot be deleted.',
                 'details' => 'This private key is currently being used by servers, applications, or Git integrations.',
             ], 422);
         }
-
-        $keyUuid = $key->uuid;
-        $keyName = $key->name;
-        $key->forceDelete();
 
         auditLog('api.private_key.deleted', [
             'team_id' => $teamId,
