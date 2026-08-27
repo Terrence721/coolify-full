@@ -9,6 +9,7 @@ use App\Models\GithubApp;
 use App\Models\PrivateKey;
 use App\Rules\SafeExternalUrl;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Client\Pool;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -370,34 +371,72 @@ class GithubController extends Controller
                 ->firstOrFail();
 
             $token = generateGithubInstallationToken($githubApp);
-            $repositories = collect();
-            $page = 1;
             $maxPages = 100; // Safety limit: max 10,000 repositories
 
-            while ($page <= $maxPages) {
-                $response = Http::GitHub($githubApp->api_url, $token)
-                    ->timeout(20)
-                    ->retry(3, 200, throw: false)
-                    ->get('/installation/repositories', [
-                        'per_page' => 100,
-                        'page' => $page,
-                    ]);
+            $firstResponse = Http::GitHub($githubApp->api_url, $token)
+                ->timeout(20)
+                ->retry(3, 200, throw: false)
+                ->get('/installation/repositories', [
+                    'per_page' => 100,
+                    'page' => 1,
+                ]);
 
-                if ($response->status() !== 200) {
-                    return response()->json([
-                        'message' => $response->json()['message'] ?? 'Failed to load repositories',
-                    ], $response->status());
+            if ($firstResponse->status() !== 200) {
+                return response()->json([
+                    'message' => $firstResponse->json()['message'] ?? 'Failed to load repositories',
+                ], $firstResponse->status());
+            }
+
+            $firstJson = $firstResponse->json();
+            $firstPageRepos = $firstJson['repositories'] ?? [];
+            $repositories = collect()->concat($firstPageRepos);
+
+            // GitHub's response includes total_count up front, so the remaining page count
+            // is known after this first request - the rest can be fetched concurrently
+            // instead of one sequential round trip per page.
+            if (! empty($firstPageRepos)) {
+                $totalCount = (int) ($firstJson['total_count'] ?? count($firstPageRepos));
+                $totalPages = min($maxPages, (int) ceil($totalCount / 100));
+
+                if ($totalPages > 1) {
+                    $remainingPages = range(2, $totalPages);
+                    $responses = Http::pool(fn (Pool $pool) => collect($remainingPages)
+                        ->map(fn (int $page) => $pool->as((string) $page)
+                            ->withHeaders([
+                                'X-GitHub-Api-Version' => '2022-11-28',
+                                'Accept' => 'application/vnd.github.v3+json',
+                                'Authorization' => "Bearer {$token}",
+                            ])
+                            ->baseUrl($githubApp->api_url)
+                            ->timeout(20)
+                            ->retry(3, 200, throw: false)
+                            ->get('/installation/repositories', [
+                                'per_page' => 100,
+                                'page' => $page,
+                            ]))
+                        ->all());
+
+                    foreach ($remainingPages as $page) {
+                        $response = $responses[(string) $page];
+
+                        if ($response instanceof \Throwable) {
+                            return response()->json(['message' => 'Failed to load repositories: '.$response->getMessage()], 500);
+                        }
+
+                        if ($response->status() !== 200) {
+                            return response()->json([
+                                'message' => $response->json()['message'] ?? 'Failed to load repositories',
+                            ], $response->status());
+                        }
+
+                        $pageRepos = $response->json()['repositories'] ?? [];
+                        if (empty($pageRepos)) {
+                            break;
+                        }
+
+                        $repositories = $repositories->concat($pageRepos);
+                    }
                 }
-
-                $json = $response->json();
-                $repos = $json['repositories'] ?? [];
-
-                if (empty($repos)) {
-                    break; // No more repositories to load
-                }
-
-                $repositories = $repositories->concat($repos);
-                $page++;
             }
 
             return response()->json([
