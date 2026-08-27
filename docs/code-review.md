@@ -835,3 +835,11 @@ Found via the same pass above, but not reached until this session. `create_key()
 **low · Maintainability, DRY only — no behavioral difference** — Fixed via [PR #213](https://github.com/Terrence721/coolify-full/pull/213) ([`323a7b128`](https://github.com/Terrence721/coolify-full/commit/323a7b128fec70f3403d77ccf8605032ba5e58d4))
 
 Found via the same pass above, the last of its findings. `delete_key()` reimplemented `PrivateKey::safeDelete()`'s check-then-delete logic inline instead of calling it — `safeDelete()` itself calls `delete()` rather than `forceDelete()`, but `PrivateKey` has no `SoftDeletes` trait, so both are a hard delete with no behavioral difference. Fixed by switching to `safeDelete()`. Also added this endpoint's first test coverage at all — neither the successful-delete path nor the blocked-while-in-use path had a test before this PR.
+
+---
+
+### [`GithubController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/GithubController.php)
+
+**high · Correctness — reachable crash on any request** — Fixed via [PR #214](https://github.com/Terrence721/coolify-full/pull/214) ([`f57604ea1`](https://github.com/Terrence721/coolify-full/commit/f57604ea18d9aa7f2d78f3d39b8ebebfd9db4212))
+
+Found on a fresh `/code-review` pass — `GithubController.php` had never been reviewed by this cadence before. `update_github_app()` built its validation rules with `isset($payload[$field])`, which returns `false` for a present-but-null value, not just a missing key. Sending an explicit JSON null (e.g. `{"name": null}`) silently skipped that field's validation rule, then flowed straight through to `$githubApp->update($payload)` — crashing with an uncaught `NOT NULL` constraint violation for any not-nullable column, since this method only catches `ModelNotFoundException`. Confirmed live: `PATCH` with `{"name": null}` threw `SQLSTATE[23000]: NOT NULL constraint failed: github_apps.name` instead of a clean 422. Fixed by switching to `array_key_exists()`, and adding `nullable` to the rules for fields backed by genuinely-nullable columns so their existing null-tolerant behavior wasn't newly broken.
