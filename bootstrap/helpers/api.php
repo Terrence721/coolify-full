@@ -7,9 +7,11 @@ use App\Enums\RedirectTypes;
 use App\Enums\StaticImageTypes;
 use App\Rules\ValidGitBranch;
 use App\Support\ValidationPatterns;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Rule;
 
 function getTeamIdFromToken()
@@ -184,6 +186,40 @@ function validateIncomingRequest(Request $request): ?JsonResponse
     }
 
     return null;
+}
+
+/**
+ * Reject any request field not in $allowedFields, on top of whatever $validator(s)
+ * already check - returns the standard 422 "Validation failed." response if either
+ * fails, null if the request is clean. $validator may be a single Validator, an
+ * array of them (their errors are merged), or omitted entirely for an
+ * extraFields-only check.
+ *
+ * @param  Validator|array<Validator>|null  $validator
+ */
+function validateExtraFields(array $data, array $allowedFields, Validator|array|null $validator = null): ?JsonResponse
+{
+    $extraFields = array_diff(array_keys($data), $allowedFields);
+    $validators = is_array($validator) ? $validator : (is_null($validator) ? [] : [$validator]);
+    $fails = collect($validators)->contains(fn (Validator $v) => $v->fails());
+
+    if (! $fails && empty($extraFields)) {
+        return null;
+    }
+
+    $errors = collect($validators)->reduce(
+        fn (?MessageBag $carry, Validator $v) => $carry ? $carry->merge($v->errors()) : $v->errors(),
+        null
+    ) ?? new MessageBag;
+
+    foreach ($extraFields as $field) {
+        $errors->add($field, 'This field is not allowed.');
+    }
+
+    return response()->json([
+        'message' => 'Validation failed.',
+        'errors' => $errors,
+    ], 422);
 }
 
 function removeUnnecessaryFieldsFromRequest(Request $request): void
