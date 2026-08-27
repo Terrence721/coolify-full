@@ -827,3 +827,11 @@ Found via the same pass above. The `#[OA\Patch]` attribute for `update_key()` de
 **medium · Correctness, spec/implementation mismatch** — Fixed via [PR #212](https://github.com/Terrence721/coolify-full/pull/212) ([`83fa487fd`](https://github.com/Terrence721/coolify-full/commit/83fa487fd09c81545e4a288722c8aeeb691c3f2f))
 
 Found via the same pass above, but not reached until this session. `create_key()` had no `extraFields`/`additionalProperties` check, unlike `update_key()` — despite both endpoints declaring `additionalProperties: false` in the OpenAPI spec, only `update_key()` actually enforced it. A client sending an extra JSON field to `POST /security/keys` got a 201 instead of the 422 `update_key()` gives the identical request shape. Fixed by adding the same `$allowedFields`/`extraFields` check to `create_key()`.
+
+---
+
+### [`SecurityController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/SecurityController.php)
+
+**low · Maintainability, DRY only — no behavioral difference** — Fixed via [PR #213](https://github.com/Terrence721/coolify-full/pull/213) ([`323a7b128`](https://github.com/Terrence721/coolify-full/commit/323a7b128fec70f3403d77ccf8605032ba5e58d4))
+
+Found via the same pass above, the last of its findings. `delete_key()` reimplemented `PrivateKey::safeDelete()`'s check-then-delete logic inline instead of calling it — `safeDelete()` itself calls `delete()` rather than `forceDelete()`, but `PrivateKey` has no `SoftDeletes` trait, so both are a hard delete with no behavioral difference. Fixed by switching to `safeDelete()`. Also added this endpoint's first test coverage at all — neither the successful-delete path nor the blocked-while-in-use path had a test before this PR.
