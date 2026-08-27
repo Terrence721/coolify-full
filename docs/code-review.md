@@ -874,4 +874,12 @@ Found via the same pass above. `update_github_app()`'s audit-log `changed_fields
 
 **low · Documentation only** — Fixed via [PR #218](https://github.com/Terrence721/coolify-full/pull/218) ([`509ba5995`](https://github.com/Terrence721/coolify-full/commit/509ba599554988c378020278d89e41eb13dbbf20))
 
-Found via the same pass above, the last of its findings. `create_github_app()`'s validator has always required `webhook_secret`, but the OpenAPI spec's `required` array omitted it — a client following the documented contract and leaving `webhook_secret` out got a 422 the docs don't predict. Fixed by adding it to the `required` array and regenerating `openapi.yaml` from source.
+Found via the same pass above. `create_github_app()`'s validator has always required `webhook_secret`, but the OpenAPI spec's `required` array omitted it — a client following the documented contract and leaving `webhook_secret` out got a 422 the docs don't predict. Fixed by adding it to the `required` array and regenerating `openapi.yaml` from source.
+
+---
+
+### [`GithubController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/GithubController.php)
+
+**high · Correctness — a documented feature that could never work** — Fixed via [PR #219](https://github.com/Terrence721/coolify-full/pull/219) ([`42315d1fe`](https://github.com/Terrence721/coolify-full/commit/42315d1fed08c64a25bf5c082c92a701f685c5ef))
+
+Found while adding regression coverage for two lower-severity reuse findings from the same pass (a redundant `makeHidden()` call, and near-duplicate private-key-lookup logic in `create_github_app()`/`update_github_app()`). `update_github_app()`'s `private_key_uuid` rule was `'string|uuid'`, but `PrivateKey::uuid` is always a Cuid2 (`BaseModel`'s default), never an RFC4122 UUID with hyphens — Laravel's `uuid` rule rejected every real caller unconditionally, so this field could never be successfully updated by anyone. `create_github_app()`'s own rule for the same field (`'required|string'`) was already correct. Fixed by matching it; also removed the redundant `makeHidden()` call (`GithubApp::$hidden` already covers it) and extracted the shared lookup into `resolvePrivateKeyByUuid()`.
