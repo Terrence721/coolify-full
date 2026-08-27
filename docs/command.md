@@ -1,7 +1,7 @@
 # Commands Reference
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 15, 2026**
+**Last Updated: August 27, 2026**
 
 Every command you need to develop, test, and verify this repo, grouped by what you're trying to do. This repo runs entirely inside Docker containers (via `spin`/Docker Compose) — there is no local PHP/Node install expected. Commands that must run inside a container are prefixed with `docker exec <container>`.
 
@@ -109,12 +109,19 @@ docker exec coolify php artisan vendor:publish --provider='<ServiceProvider>'
 
 ## Tests (Pest 4)
 
+`scripts/run-tests.sh` wraps every form below with one guard: it checks for and kills any
+already-running `artisan test`/Pest process in the container before starting a new one. A test
+run left running in the background (a closed terminal, an interrupted session) keeps going as an
+orphan; starting a second run on top of it makes both crawl, competing for the same SQLite test
+DB, and can look like a hang or a real regression when it's neither. Prefer it over calling
+`docker exec` directly for anything longer than a single test.
+
 ```bash
-docker exec coolify php artisan test --compact                                    # full suite
-docker exec coolify php artisan test --compact --filter=<testName>                # single test by name
-docker exec coolify php artisan test --compact tests/Feature/SomeTest.php         # single file
-docker exec coolify php artisan test --compact --filter="<ClassName>"             # single test file/class by filter
-docker exec coolify php artisan test --compact --order-by=random                  # catches order-dependent failures (config() leakage etc.)
+scripts/run-tests.sh --compact                                    # full suite
+scripts/run-tests.sh --compact --filter=<testName>                # single test by name
+scripts/run-tests.sh --compact tests/Feature/SomeTest.php         # single file
+scripts/run-tests.sh --compact --filter="<ClassName>"             # single test file/class by filter
+scripts/run-tests.sh --compact --order-by=random                  # catches order-dependent failures (config() leakage etc.)
 docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pest --testdox-html storage/test-report.html"   # full suite with an HTML report
 ```
 
