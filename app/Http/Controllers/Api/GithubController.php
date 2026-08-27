@@ -682,7 +682,7 @@ class GithubController extends Controller
                 'team_id' => $teamId,
                 'github_app_uuid' => $githubApp->uuid,
                 'github_app_name' => $githubApp->name,
-                'changed_fields' => array_values(array_diff($allowedFields, ['client_secret', 'webhook_secret', 'private_key_uuid'])),
+                'changed_fields' => array_values(array_diff(array_keys($payload), ['client_secret', 'webhook_secret'])),
             ]);
 
             return response()->json([
