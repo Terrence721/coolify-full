@@ -111,7 +111,9 @@ class GithubApp extends BaseModel
     protected static function booted(): void
     {
         static::deleting(function (GithubApp $github_app) {
-            $applications_count = Application::where('source_id', $github_app->id)->count();
+            $applications_count = Application::where('source_id', $github_app->id)
+                ->where('source_type', self::class)
+                ->count();
             if ($applications_count > 0) {
                 throw new \Exception('You cannot delete this GitHub App because it is in use by '.$applications_count.' application(s). Delete them first.');
             }
