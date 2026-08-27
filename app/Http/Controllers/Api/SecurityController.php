@@ -179,6 +179,7 @@ class SecurityController extends Controller
     )]
     public function create_key(Request $request): JsonResponse
     {
+        $allowedFields = ['name', 'description', 'private_key'];
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
             return invalidTokenResponse();
@@ -193,8 +194,14 @@ class SecurityController extends Controller
             'private_key' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
+        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
+        if ($validator->fails() || ! empty($extraFields)) {
             $errors = $validator->errors();
+            if (! empty($extraFields)) {
+                foreach ($extraFields as $field) {
+                    $errors->add($field, 'This field is not allowed.');
+                }
+            }
 
             return response()->json([
                 'message' => 'Validation failed.',
