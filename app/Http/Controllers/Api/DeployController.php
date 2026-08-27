@@ -393,9 +393,9 @@ class DeployController extends Controller
             return response()->json(['message' => 'docker_tag requires pull_request_id.'], 400);
         }
         if ($tags) {
-            return $this->by_tags($tags, $teamId, $force);
+            return $this->by_tags($tags, (int) $teamId, $force);
         } elseif ($uuids) {
-            return $this->by_uuids($uuids, $teamId, $force, $pr, $dockerTag);
+            return $this->by_uuids($uuids, (int) $teamId, $force, $pr, $dockerTag);
         }
 
         return response()->json(['message' => 'You must provide uuid or tag.'], 400);
