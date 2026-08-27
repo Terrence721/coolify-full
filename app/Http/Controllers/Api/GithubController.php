@@ -24,12 +24,27 @@ class GithubController extends Controller
      */
     private function removeSensitiveData(GithubApp $githubApp): Collection
     {
-        $githubApp->makeHidden([
-            'client_secret',
-            'webhook_secret',
-        ]);
-
+        // No makeHidden() call needed here - GithubApp::$hidden already always excludes
+        // client_secret/webhook_secret from array/JSON conversion.
         return serializeApiResponse($githubApp);
+    }
+
+    /**
+     * @return PrivateKey|JsonResponse a 404 response if the key doesn't exist or belongs to a different team
+     */
+    private function resolvePrivateKeyByUuid(string $uuid, int|string $teamId): PrivateKey|JsonResponse
+    {
+        $privateKey = PrivateKey::where('team_id', $teamId)
+            ->where('uuid', $uuid)
+            ->first();
+
+        if (! $privateKey) {
+            return response()->json([
+                'message' => 'Private key not found or does not belong to your team',
+            ], 404);
+        }
+
+        return $privateKey;
     }
 
     #[OA\Get(
@@ -249,15 +264,9 @@ class GithubController extends Controller
         }
 
         try {
-            // Verify the private key belongs to the team
-            $privateKey = PrivateKey::where('uuid', $request->input('private_key_uuid'))
-                ->where('team_id', $teamId)
-                ->first();
-
-            if (! $privateKey) {
-                return response()->json([
-                    'message' => 'Private key not found or does not belong to your team.',
-                ], 404);
+            $privateKey = $this->resolvePrivateKeyByUuid($request->input('private_key_uuid'), $teamId);
+            if ($privateKey instanceof JsonResponse) {
+                return $privateKey;
             }
 
             $payload = [
@@ -645,7 +654,7 @@ class GithubController extends Controller
                 $rules['webhook_secret'] = 'nullable|string';
             }
             if (array_key_exists('private_key_uuid', $payload)) {
-                $rules['private_key_uuid'] = 'string|uuid';
+                $rules['private_key_uuid'] = 'string';
             }
             if (! isCloud() && array_key_exists('is_system_wide', $payload)) {
                 $rules['is_system_wide'] = 'boolean';
@@ -661,14 +670,9 @@ class GithubController extends Controller
 
             // Handle private_key_uuid -> private_key_id conversion
             if (isset($payload['private_key_uuid'])) {
-                $privateKey = PrivateKey::where('team_id', $teamId)
-                    ->where('uuid', $payload['private_key_uuid'])
-                    ->first();
-
-                if (! $privateKey) {
-                    return response()->json([
-                        'message' => 'Private key not found or does not belong to your team',
-                    ], 404);
+                $privateKey = $this->resolvePrivateKeyByUuid($payload['private_key_uuid'], $teamId);
+                if ($privateKey instanceof JsonResponse) {
+                    return $privateKey;
                 }
 
                 unset($payload['private_key_uuid']);
