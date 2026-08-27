@@ -615,50 +615,29 @@ class GithubController extends Controller
 
             $payload = $request->only($allowedFields);
 
-            // Validate the request. array_key_exists(), not isset() - isset() is false for an
-            // explicit JSON null, which would silently skip validation for a present key
-            // instead of rejecting it, letting the null flow straight through to update()
-            // and crash on any NOT NULL column instead of returning a clean 422.
-            $rules = [];
-            if (array_key_exists('name', $payload)) {
-                $rules['name'] = 'string';
+            // Validate only the fields actually present in $payload - array_intersect_key()
+            // keys off array_key_exists() semantics (a present-but-null value still counts
+            // as present), not isset(), which would silently skip validation for an explicit
+            // JSON null instead of rejecting it, letting the null flow straight through to
+            // update() and crash on any NOT NULL column instead of returning a clean 422.
+            $allRules = [
+                'name' => 'string',
+                'organization' => 'nullable|string',
+                'api_url' => ['url', new SafeExternalUrl],
+                'html_url' => ['url', new SafeExternalUrl],
+                'custom_user' => 'string',
+                'custom_port' => 'integer|min:1|max:65535',
+                'app_id' => 'nullable|integer',
+                'installation_id' => 'nullable|integer',
+                'client_id' => 'nullable|string',
+                'client_secret' => 'nullable|string',
+                'webhook_secret' => 'nullable|string',
+                'private_key_uuid' => 'string',
+            ];
+            if (! isCloud()) {
+                $allRules['is_system_wide'] = 'boolean';
             }
-            if (array_key_exists('organization', $payload)) {
-                $rules['organization'] = 'nullable|string';
-            }
-            if (array_key_exists('api_url', $payload)) {
-                $rules['api_url'] = ['url', new SafeExternalUrl];
-            }
-            if (array_key_exists('html_url', $payload)) {
-                $rules['html_url'] = ['url', new SafeExternalUrl];
-            }
-            if (array_key_exists('custom_user', $payload)) {
-                $rules['custom_user'] = 'string';
-            }
-            if (array_key_exists('custom_port', $payload)) {
-                $rules['custom_port'] = 'integer|min:1|max:65535';
-            }
-            if (array_key_exists('app_id', $payload)) {
-                $rules['app_id'] = 'nullable|integer';
-            }
-            if (array_key_exists('installation_id', $payload)) {
-                $rules['installation_id'] = 'nullable|integer';
-            }
-            if (array_key_exists('client_id', $payload)) {
-                $rules['client_id'] = 'nullable|string';
-            }
-            if (array_key_exists('client_secret', $payload)) {
-                $rules['client_secret'] = 'nullable|string';
-            }
-            if (array_key_exists('webhook_secret', $payload)) {
-                $rules['webhook_secret'] = 'nullable|string';
-            }
-            if (array_key_exists('private_key_uuid', $payload)) {
-                $rules['private_key_uuid'] = 'string';
-            }
-            if (! isCloud() && array_key_exists('is_system_wide', $payload)) {
-                $rules['is_system_wide'] = 'boolean';
-            }
+            $rules = array_intersect_key($allRules, $payload);
 
             $validator = customApiValidator($payload, $rules);
             if ($validator->fails()) {
