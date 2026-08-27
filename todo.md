@@ -785,4 +785,4 @@ Expected: `APP_KEY` now populated in `.env` (written by `key:generate` through t
 
 ### Verification standing habit
 
-- Every change in this repo is expected to go through: `vendor/bin/pint --dirty --format agent`, `vendor/bin/phpstan analyse`, `php artisan test --compact`, and `yarn build` before being considered done. See `docs/command.md` for the exact commands.
+- Every change in this repo is expected to go through: `vendor/bin/pint --dirty --format agent`, `vendor/bin/phpstan analyse`, `scripts/run-tests.sh --compact`, and `yarn build` before being considered done. See `docs/command.md` for the exact commands.
