@@ -125,6 +125,16 @@ scripts/run-tests.sh --compact --order-by=random                  # catches orde
 docker exec coolify sh -lc "cd /var/www/html && vendor/bin/pest --testdox-html storage/test-report.html"   # full suite with an HTML report
 ```
 
+For a run long enough that whatever started it (a terminal, an assistant session) might not
+stay attached the whole way through, use `--detached` — it launches via `docker compose exec -d`
+so the run lives entirely inside the container, and `scripts/test-status.sh` checks on it from
+any shell, anytime, without needing to have been the one that started it:
+
+```bash
+scripts/run-tests.sh --detached --compact
+scripts/test-status.sh
+```
+
 ## Code quality
 
 ```bash
