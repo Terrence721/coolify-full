@@ -890,4 +890,12 @@ Found while adding regression coverage for two lower-severity reuse findings fro
 
 **low · Reuse/simplification, no behavior change** — Fixed via [PR #220](https://github.com/Terrence721/coolify-full/pull/220) ([`c19ae5c58`](https://github.com/Terrence721/coolify-full/commit/c19ae5c58223c9bc40d1e6e0c8e5b73624e7cfc8))
 
-Found via the same pass above, the last of its findings. `update_github_app()` built its per-field validation rules via 12 near-identical `if (array_key_exists(...))` blocks. Simplified to a single field-to-rule map filtered down via `array_intersect_key($allRules, $payload)`, preserving the same presence semantics.
+Found via the same pass above. `update_github_app()` built its per-field validation rules via 12 near-identical `if (array_key_exists(...))` blocks. Simplified to a single field-to-rule map filtered down via `array_intersect_key($allRules, $payload)`, preserving the same presence semantics.
+
+---
+
+### [`GithubController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/GithubController.php)
+
+**low · Efficiency, no behavior change** — Fixed via [PR #221](https://github.com/Terrence721/coolify-full/pull/221) ([`773a62370`](https://github.com/Terrence721/coolify-full/commit/773a62370b7f173f64e41d6316482fe5d2a38ac6))
+
+Found via the same pass above, the last of its findings. `load_repositories()` fetched every page strictly sequentially, up to 100 pages, each with its own 3-retry budget. GitHub's response includes `total_count` up front, so the remaining page count is knowable as soon as page 1 comes back. Fixed by fetching page 1 normally, then dispatching pages 2+ concurrently via `Http::pool()` — same safety cap, same per-page error handling, same final sorted output. This endpoint's pagination logic had zero test coverage before this PR.
