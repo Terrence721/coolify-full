@@ -883,3 +883,11 @@ Found via the same pass above. `create_github_app()`'s validator has always requ
 **high · Correctness — a documented feature that could never work** — Fixed via [PR #219](https://github.com/Terrence721/coolify-full/pull/219) ([`42315d1fe`](https://github.com/Terrence721/coolify-full/commit/42315d1fed08c64a25bf5c082c92a701f685c5ef))
 
 Found while adding regression coverage for two lower-severity reuse findings from the same pass (a redundant `makeHidden()` call, and near-duplicate private-key-lookup logic in `create_github_app()`/`update_github_app()`). `update_github_app()`'s `private_key_uuid` rule was `'string|uuid'`, but `PrivateKey::uuid` is always a Cuid2 (`BaseModel`'s default), never an RFC4122 UUID with hyphens — Laravel's `uuid` rule rejected every real caller unconditionally, so this field could never be successfully updated by anyone. `create_github_app()`'s own rule for the same field (`'required|string'`) was already correct. Fixed by matching it; also removed the redundant `makeHidden()` call (`GithubApp::$hidden` already covers it) and extracted the shared lookup into `resolvePrivateKeyByUuid()`.
+
+---
+
+### [`GithubController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/GithubController.php)
+
+**low · Reuse/simplification, no behavior change** — Fixed via [PR #220](https://github.com/Terrence721/coolify-full/pull/220) ([`c19ae5c58`](https://github.com/Terrence721/coolify-full/commit/c19ae5c58223c9bc40d1e6e0c8e5b73624e7cfc8))
+
+Found via the same pass above, the last of its findings. `update_github_app()` built its per-field validation rules via 12 near-identical `if (array_key_exists(...))` blocks. Simplified to a single field-to-rule map filtered down via `array_intersect_key($allRules, $payload)`, preserving the same presence semantics.
