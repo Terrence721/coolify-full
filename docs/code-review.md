@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 24, 2026**
+**Last Updated: August 27, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -819,3 +819,11 @@ Found via the same pass above. `create_key()` used non-strict `base64_decode()` 
 **low · Documentation only** — Fixed via [PR #210](https://github.com/Terrence721/coolify-full/pull/210) ([`7864b7124`](https://github.com/Terrence721/coolify-full/commit/7864b7124f8a01afd8cd45ee7b734c4a8da377a6))
 
 Found via the same pass above. The `#[OA\Patch]` attribute for `update_key()` declared the wrong path (`/security/keys` instead of `/security/keys/{uuid}`) and omitted the `uuid` parameter entirely, despite the controller reading it from the route. Fixed by correcting the path and adding the parameter, matching every sibling action; regenerated `openapi.yaml` from source.
+
+---
+
+### [`SecurityController.php`](https://github.com/Terrence721/coolify-full/blob/main/app/Http/Controllers/Api/SecurityController.php)
+
+**medium · Correctness, spec/implementation mismatch** — Fixed via [PR #212](https://github.com/Terrence721/coolify-full/pull/212) ([`83fa487fd`](https://github.com/Terrence721/coolify-full/commit/83fa487fd09c81545e4a288722c8aeeb691c3f2f))
+
+Found via the same pass above, but not reached until this session. `create_key()` had no `extraFields`/`additionalProperties` check, unlike `update_key()` — despite both endpoints declaring `additionalProperties: false` in the OpenAPI spec, only `update_key()` actually enforced it. A client sending an extra JSON field to `POST /security/keys` got a 201 instead of the 422 `update_key()` gives the identical request shape. Fixed by adding the same `$allowedFields`/`extraFields` check to `create_key()`.
