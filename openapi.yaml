@@ -4758,6 +4758,7 @@ paths:
                 - installation_id
                 - client_id
                 - client_secret
+                - webhook_secret
                 - private_key_uuid
               properties:
                 name:

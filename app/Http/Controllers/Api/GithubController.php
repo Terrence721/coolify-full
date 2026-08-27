@@ -142,7 +142,7 @@ class GithubController extends Controller
                             new OA\Property(property: 'private_key_uuid', type: 'string', description: 'UUID of an existing private key for GitHub App authentication.'),
                             new OA\Property(property: 'is_system_wide', type: 'boolean', description: 'Is this app system-wide (cloud only).'),
                         ],
-                        required: ['name', 'api_url', 'html_url', 'app_id', 'installation_id', 'client_id', 'client_secret', 'private_key_uuid'],
+                        required: ['name', 'api_url', 'html_url', 'app_id', 'installation_id', 'client_id', 'client_secret', 'webhook_secret', 'private_key_uuid'],
                     ),
                 ),
             ],
