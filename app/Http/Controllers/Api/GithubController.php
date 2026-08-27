@@ -92,16 +92,22 @@ class GithubController extends Controller
             return invalidTokenResponse();
         }
 
-        $githubApps = GithubApp::where(function ($query) use ($teamId) {
-            $query->where('team_id', $teamId)
-                ->orWhere('is_system_wide', true);
-        })->get();
+        try {
+            $githubApps = GithubApp::where(function ($query) use ($teamId) {
+                $query->where('team_id', $teamId)
+                    ->orWhere('is_system_wide', true);
+            })->get();
 
-        $githubApps = $githubApps->map(function ($app) {
-            return $this->removeSensitiveData($app);
-        });
+            $githubApps = $githubApps->map(function ($app) {
+                return $this->removeSensitiveData($app);
+            });
 
-        return response()->json($githubApps);
+            return response()->json($githubApps);
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in list_github_apps().', ['error' => $e->getMessage()]);
+
+            return response()->json(['message' => 'Failed to list GitHub apps: '.$e->getMessage()], 500);
+        }
     }
 
     #[OA\Post(
@@ -288,7 +294,7 @@ class GithubController extends Controller
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in create_github_app().', ['error' => $e->getMessage()]);
 
-            return handleError($e);
+            return response()->json(['message' => 'Failed to create GitHub app: '.$e->getMessage()], 500);
         }
     }
 
@@ -393,7 +399,7 @@ class GithubController extends Controller
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in load_repositories().', ['error' => $e->getMessage()]);
 
-            return handleError($e);
+            return response()->json(['message' => 'Failed to load repositories: '.$e->getMessage()], 500);
         }
     }
 
@@ -497,7 +503,7 @@ class GithubController extends Controller
         } catch (\Throwable $e) {
             Log::error('Unhandled exception in load_branches().', ['error' => $e->getMessage()]);
 
-            return handleError($e);
+            return response()->json(['message' => 'Failed to load branches: '.$e->getMessage()], 500);
         }
     }
 
@@ -687,6 +693,10 @@ class GithubController extends Controller
             return response()->json([
                 'message' => 'GitHub app not found',
             ], 404);
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in update_github_app().', ['error' => $e->getMessage()]);
+
+            return response()->json(['message' => 'Failed to update GitHub app: '.$e->getMessage()], 500);
         }
     }
 
@@ -780,6 +790,10 @@ class GithubController extends Controller
             return response()->json([
                 'message' => 'GitHub app not found',
             ], 404);
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in delete_github_app().', ['error' => $e->getMessage()]);
+
+            return response()->json(['message' => 'Failed to delete GitHub app: '.$e->getMessage()], 500);
         }
     }
 }
