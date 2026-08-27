@@ -520,19 +520,9 @@ class ServersController extends Controller
             ...ValidationPatterns::serverUsernameMessages(),
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         if (! $request->name) {
             $request->offsetSet('name', generate_random_name());
@@ -707,19 +697,9 @@ class ServersController extends Controller
             ...ValidationPatterns::serverUsernameMessages(),
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         $server = ModelsServer::whereTeamId($teamId)->whereUuid($request->uuid)->first();
         if (! $server) {
