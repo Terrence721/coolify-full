@@ -136,11 +136,12 @@ return [
         ],
 
         'audit' => [
-            'driver' => 'daily',
+            'driver' => env('LOG_AUDIT_DRIVER', 'daily'),
             'path' => storage_path('logs/audit.log'),
             'level' => env('LOG_AUDIT_LEVEL', 'info'),
             'days' => env('LOG_AUDIT_DAYS', 90),
             'replace_placeholders' => true,
+            'handler' => NullHandler::class,
         ],
     ],
 

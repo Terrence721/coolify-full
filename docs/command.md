@@ -135,6 +135,14 @@ scripts/run-tests.sh --detached --compact
 scripts/test-status.sh
 ```
 
+Every form above runs with `--parallel` by default (paratest is already vendored). Safe here
+because every feature test runs on `RefreshDatabase` against SQLite `:memory:`, which is private
+to each OS process paratest spawns — no shared DB to race on. Pass `--no-parallel` to fall back
+to sequential if that assumption is ever broken by a future test. The `audit` log channel is
+also forced to a no-op `NullHandler` in the testing environment (`LOG_AUDIT_DRIVER=monolog` in
+`phpunit.xml`, see `config/logging.php`) — several API controllers write to it on every mutating
+request, and under `--parallel` all workers were serializing on writes to that one shared file.
+
 ## Code quality
 
 ```bash

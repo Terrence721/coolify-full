@@ -17,6 +17,7 @@
     <env name="APP_ENV" value="testing"/>
     <env name="BCRYPT_ROUNDS" value="4"/>
     <env name="CACHE_DRIVER" value="array" force="true"/>
+    <env name="LOG_AUDIT_DRIVER" value="monolog" force="true"/>
     <env name="APP_MAINTENANCE_STORE" value="array" force="true"/>
     <env name="DB_CONNECTION" value="testing" force="true"/>
 

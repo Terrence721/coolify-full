@@ -23,6 +23,16 @@
 # anytime after with scripts/test-status.sh, from any shell, in this session or a new one:
 #   scripts/run-tests.sh --detached --compact
 #   scripts/test-status.sh
+#
+# Runs with `--parallel` by default (paratest is already vendored via a transitive
+# dependency). Safe here specifically because: every feature test already runs on
+# `RefreshDatabase` against sqlite `:memory:`, which is private to each OS process paratest
+# spawns (no shared DB to race on); CACHE_DRIVER/SESSION_DRIVER are both "array", so
+# in-process only; and no test file writes to a real shared path outside Storage::fake()
+# except tests/Unit/Services/ConfigurationGeneratorTest.php, which is safe because Laravel's
+# parallel runner splits work by whole file, so that file's own writes never run
+# concurrently with themselves. Pass --no-parallel to fall back to sequential if a future
+# test file breaks one of those assumptions.
 
 set -euo pipefail
 
@@ -43,15 +53,26 @@ if [ -n "$STALE_PIDS" ]; then
     sleep 1
 fi
 
-if [ "${1:-}" = "--detached" ]; then
-    shift
+ARGS=("$@")
+PARALLEL=(--parallel)
+FILTERED_ARGS=()
+for arg in "${ARGS[@]}"; do
+    if [ "$arg" = "--no-parallel" ]; then
+        PARALLEL=()
+    else
+        FILTERED_ARGS+=("$arg")
+    fi
+done
+
+if [ "${FILTERED_ARGS[0]:-}" = "--detached" ]; then
+    FILTERED_ARGS=("${FILTERED_ARGS[@]:1}")
     "${COMPOSE[@]}" exec -T coolify rm -f "$LOG_PATH"
     # Docker's own -d detaches the exec session immediately; the command keeps running
     # inside the container regardless of what happens to the client that started it -
     # no shell backgrounding tricks, no dependency on this session staying alive.
-    "${COMPOSE[@]}" exec -d coolify sh -c "php artisan test $* > $LOG_PATH 2>&1; echo \"###DONE exit=\$?###\" >> $LOG_PATH"
+    "${COMPOSE[@]}" exec -d coolify sh -c "php artisan test ${PARALLEL[*]:-} ${FILTERED_ARGS[*]} > $LOG_PATH 2>&1; echo \"###DONE exit=\$?###\" >> $LOG_PATH"
     echo "Started detached, logging to $LOG_PATH inside the container."
     echo "Check status anytime with: scripts/test-status.sh"
 else
-    "${COMPOSE[@]}" exec -T coolify php artisan test "$@"
+    "${COMPOSE[@]}" exec -T coolify php artisan test "${PARALLEL[@]}" "${FILTERED_ARGS[@]}"
 fi
