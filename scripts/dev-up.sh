@@ -53,6 +53,9 @@ if [ -f docker/https-proxy/certs/dev.crt ]; then
     COMPOSE="$COMPOSE -f docker-compose.https.yml"
 fi
 
+echo "==> Cleaning up stray log files..."
+bash scripts/clean-logs.sh
+
 echo "==> Starting the dev stack..."
 $COMPOSE up -d
 

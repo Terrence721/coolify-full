@@ -3,6 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "clean:logs": "bash scripts/clean-logs.sh",
+        "predev": "yarn clean:logs",
         "dev": "vite",
         "build": "vite build",
         "test": "vitest run",
