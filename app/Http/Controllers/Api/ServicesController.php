@@ -327,19 +327,9 @@ class ServicesController extends Controller
         ];
         $validator = Validator::make($request->all(), $validationRules, $validationMessages);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         if (filled($request->type) && filled($request->docker_compose_raw)) {
@@ -522,19 +512,9 @@ class ServicesController extends Controller
             ];
             $validator = Validator::make($request->all(), $validationRules, $validationMessages);
 
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
 
             $environmentUuid = $request->environment_uuid;
@@ -956,19 +936,9 @@ class ServicesController extends Controller
         ];
         $validator = Validator::make($request->all(), $validationRules, $validationMessages);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         if ($request->has('docker_compose_raw')) {
             if (! isBase64Encoded($request->docker_compose_raw)) {
