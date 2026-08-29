@@ -855,19 +855,9 @@ class ApplicationsController extends Controller
             'autogenerate_domain' => 'boolean',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         $environmentUuid = $request->environment_uuid;
@@ -2317,19 +2307,9 @@ class ApplicationsController extends Controller
         if ($return instanceof JsonResponse) {
             return $return;
         }
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         if ($request->has('is_http_basic_auth_enabled') && $request->is_http_basic_auth_enabled === true) {
@@ -2767,19 +2747,9 @@ class ApplicationsController extends Controller
             'comment' => 'string|nullable|max:256',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         $is_preview = $request->is_preview ?? false;
         $is_literal = $request->is_literal ?? false;
@@ -3176,19 +3146,9 @@ class ApplicationsController extends Controller
             'comment' => 'string|nullable|max:256',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         $is_preview = $request->is_preview ?? false;
         $key = str($request->key)->trim()->replace(' ', '_')->value();
