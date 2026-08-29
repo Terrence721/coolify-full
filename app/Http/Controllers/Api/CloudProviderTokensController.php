@@ -268,19 +268,9 @@ class CloudProviderTokensController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $extraFields = array_diff(array_keys($body), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($body, $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         // Validate token with the provider's API
@@ -384,19 +374,9 @@ class CloudProviderTokensController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $extraFields = array_diff(array_keys($body), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($body, $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         // Use route parameter for UUID lookup
