@@ -71,19 +71,9 @@ class ScheduledTasksController extends Controller
             'enabled' => 'boolean',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         if (! validate_cron_expression($request->frequency)) {
@@ -147,19 +137,9 @@ class ScheduledTasksController extends Controller
             'enabled' => 'boolean',
         ]);
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors();
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, $validator);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         if ($request->has('frequency') && ! validate_cron_expression($request->frequency)) {
