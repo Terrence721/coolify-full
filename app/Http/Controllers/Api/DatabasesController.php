@@ -536,19 +536,9 @@ class DatabasesController extends Controller
             'health_check_retries' => 'integer|min:1',
             'health_check_start_period' => 'integer|min:0',
         ]);
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if ($validator->fails() || $healthCheckValidator->fails() || ! empty($extraFields)) {
-            $errors = $validator->errors()->merge($healthCheckValidator->errors());
-            if (! empty($extraFields)) {
-                foreach ($extraFields as $field) {
-                    $errors->add($field, 'This field is not allowed.');
-                }
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields, [$validator, $healthCheckValidator]);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         $whatToDoWithDatabaseProxy = null;
         if ($request->is_public === false && $database->is_public === true) {
@@ -736,17 +726,9 @@ class DatabasesController extends Controller
         }
 
         // Check for extra fields
-        $extraFields = array_diff(array_keys($request->all()), $backupConfigFields, ['backup_now']);
-        if (! empty($extraFields)) {
-            $errors = $validator->errors();
-            foreach ($extraFields as $field) {
-                $errors->add($field, 'This field is not allowed.');
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), [...$backupConfigFields, 'backup_now']);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         $backupData = $request->only($backupConfigFields);
@@ -986,17 +968,9 @@ class DatabasesController extends Controller
             return response()->json(['message' => 'Backup config not found.'], 404);
         }
 
-        $extraFields = array_diff(array_keys($request->all()), $backupConfigFields, ['backup_now']);
-        if (! empty($extraFields)) {
-            $errors = $validator->errors();
-            foreach ($extraFields as $field) {
-                $errors->add($field, 'This field is not allowed.');
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), [...$backupConfigFields, 'backup_now']);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
 
         $backupData = $request->only($backupConfigFields);
@@ -1616,17 +1590,9 @@ class DatabasesController extends Controller
             return $return;
         }
 
-        $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-        if (! empty($extraFields)) {
-            $errors = collect([]);
-            foreach ($extraFields as $field) {
-                $errors->put($field, ['This field is not allowed.']);
-            }
-
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $errors,
-            ], 422);
+        $return = validateExtraFields($request->all(), $allowedFields);
+        if ($return instanceof JsonResponse) {
+            return $return;
         }
         $environmentUuid = $request->environment_uuid;
         $environmentName = $request->environment_name;
@@ -1725,19 +1691,9 @@ class DatabasesController extends Controller
                 'postgres_host_auth_method' => 'string',
                 'postgres_conf' => 'string',
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             if ($confError = $this->validateAndDecodeBase64Conf($request, 'postgres_conf')) {
@@ -1776,19 +1732,9 @@ class DatabasesController extends Controller
                 'mariadb_password' => ValidationPatterns::databasePasswordRules(required: false),
                 'mariadb_database' => ValidationPatterns::databaseIdentifierRules(required: false),
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             if ($confError = $this->validateAndDecodeBase64Conf($request, 'mariadb_conf')) {
@@ -1828,19 +1774,9 @@ class DatabasesController extends Controller
                 'mysql_database' => ValidationPatterns::databaseIdentifierRules(required: false),
                 'mysql_conf' => 'string',
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             if ($confError = $this->validateAndDecodeBase64Conf($request, 'mysql_conf')) {
@@ -1877,19 +1813,9 @@ class DatabasesController extends Controller
                 'redis_password' => ValidationPatterns::databasePasswordRules(required: false),
                 'redis_conf' => 'string',
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             if ($confError = $this->validateAndDecodeBase64Conf($request, 'redis_conf')) {
@@ -1926,19 +1852,9 @@ class DatabasesController extends Controller
                 'dragonfly_password' => ValidationPatterns::databasePasswordRules(required: false),
             ]);
 
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
 
             removeUnnecessaryFieldsFromRequest($request);
@@ -1956,19 +1872,9 @@ class DatabasesController extends Controller
                 'keydb_password' => ValidationPatterns::databasePasswordRules(required: false),
                 'keydb_conf' => 'string',
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             if ($confError = $this->validateAndDecodeBase64Conf($request, 'keydb_conf')) {
@@ -2005,19 +1911,9 @@ class DatabasesController extends Controller
                 'clickhouse_admin_user' => ValidationPatterns::databaseIdentifierRules(required: false),
                 'clickhouse_admin_password' => ValidationPatterns::databasePasswordRules(required: false),
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             $database = create_standalone_clickhouse($environment->id, $destination, $request->only($allowedFields));
@@ -2053,19 +1949,9 @@ class DatabasesController extends Controller
                 'mongo_initdb_root_password' => ValidationPatterns::databasePasswordRules(required: false),
                 'mongo_initdb_database' => ValidationPatterns::databaseIdentifierRules(required: false),
             ]);
-            $extraFields = array_diff(array_keys($request->all()), $allowedFields);
-            if ($validator->fails() || ! empty($extraFields)) {
-                $errors = $validator->errors();
-                if (! empty($extraFields)) {
-                    foreach ($extraFields as $field) {
-                        $errors->add($field, 'This field is not allowed.');
-                    }
-                }
-
-                return response()->json([
-                    'message' => 'Validation failed.',
-                    'errors' => $errors,
-                ], 422);
+            $return = validateExtraFields($request->all(), $allowedFields, $validator);
+            if ($return instanceof JsonResponse) {
+                return $return;
             }
             removeUnnecessaryFieldsFromRequest($request);
             if ($confError = $this->validateAndDecodeBase64Conf($request, 'mongo_conf')) {
