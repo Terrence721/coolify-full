@@ -27,6 +27,44 @@ class TeamController extends Controller
         return serializeApiResponse($team);
     }
 
+    /**
+     * Validates the request's token and returns the authenticated user's id, or an
+     * error response if either the token or the underlying user is invalid.
+     */
+    private function resolveAuthenticatedUserId(): int|JsonResponse
+    {
+        $teamId = getTeamIdFromToken();
+        if (is_null($teamId)) {
+            return invalidTokenResponse();
+        }
+        $userId = Auth::id();
+        if (is_null($userId)) {
+            return invalidTokenResponse();
+        }
+
+        return $userId;
+    }
+
+    /**
+     * Resolves a team by id, scoped to teams the given user is actually a member of.
+     */
+    private function resolveTeamForUser(int $teamId, int $userId): Team|JsonResponse
+    {
+        $team = Team::query()
+            ->where('id', $teamId)
+            ->whereIn('id', function ($query) use ($userId) {
+                $query->select('team_id')
+                    ->from('team_user')
+                    ->where('user_id', $userId);
+            })
+            ->first();
+        if (is_null($team)) {
+            return response()->json(['message' => 'Team not found.'], 404);
+        }
+
+        return $team;
+    }
+
     #[OA\Get(
         summary: 'List',
         description: 'Get all teams.',
@@ -61,13 +99,9 @@ class TeamController extends Controller
     )]
     public function teams(Request $request): JsonResponse
     {
-        $teamId = getTeamIdFromToken();
-        if (is_null($teamId)) {
-            return invalidTokenResponse();
-        }
-        $userId = Auth::id();
-        if (is_null($userId)) {
-            return invalidTokenResponse();
+        $userId = $this->resolveAuthenticatedUserId();
+        if ($userId instanceof JsonResponse) {
+            return $userId;
         }
         $teams = Team::query()
             ->whereIn('id', function ($query) use ($userId) {
@@ -120,30 +154,18 @@ class TeamController extends Controller
     )]
     public function team_by_id(Request $request): JsonResponse
     {
-        $id = $request->route('id');
-        $teamId = getTeamIdFromToken();
-        if (is_null($teamId)) {
-            return invalidTokenResponse();
+        $id = (int) $request->route('id');
+        $userId = $this->resolveAuthenticatedUserId();
+        if ($userId instanceof JsonResponse) {
+            return $userId;
         }
-        $userId = Auth::id();
-        if (is_null($userId)) {
-            return invalidTokenResponse();
+        $team = $this->resolveTeamForUser($id, $userId);
+        if ($team instanceof JsonResponse) {
+            return $team;
         }
-        $team = Team::query()
-            ->where('id', $id)
-            ->whereIn('id', function ($query) use ($userId) {
-                $query->select('team_id')
-                    ->from('team_user')
-                    ->where('user_id', $userId);
-            })
-            ->first();
-        if (is_null($team)) {
-            return response()->json(['message' => 'Team not found.'], 404);
-        }
-        $team = $this->removeSensitiveData($team);
 
         return response()->json(
-            serializeApiResponse($team),
+            $this->removeSensitiveData($team),
         );
     }
 
@@ -188,25 +210,14 @@ class TeamController extends Controller
     )]
     public function members_by_id(Request $request): JsonResponse
     {
-        $id = $request->route('id');
-        $teamId = getTeamIdFromToken();
-        if (is_null($teamId)) {
-            return invalidTokenResponse();
+        $id = (int) $request->route('id');
+        $userId = $this->resolveAuthenticatedUserId();
+        if ($userId instanceof JsonResponse) {
+            return $userId;
         }
-        $userId = Auth::id();
-        if (is_null($userId)) {
-            return invalidTokenResponse();
-        }
-        $team = Team::query()
-            ->where('id', $id)
-            ->whereIn('id', function ($query) use ($userId) {
-                $query->select('team_id')
-                    ->from('team_user')
-                    ->where('user_id', $userId);
-            })
-            ->first();
-        if (is_null($team)) {
-            return response()->json(['message' => 'Team not found.'], 404);
+        $team = $this->resolveTeamForUser($id, $userId);
+        if ($team instanceof JsonResponse) {
+            return $team;
         }
         $members = $team->members()->get();
         $members->makeHidden([
@@ -250,20 +261,13 @@ class TeamController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $userId = Auth::id();
-        if (is_null($userId)) {
-            return invalidTokenResponse();
+        $userId = $this->resolveAuthenticatedUserId();
+        if ($userId instanceof JsonResponse) {
+            return $userId;
         }
-        $team = Team::query()
-            ->where('id', $teamId)
-            ->whereIn('id', function ($query) use ($userId) {
-                $query->select('team_id')
-                    ->from('team_user')
-                    ->where('user_id', $userId);
-            })
-            ->first();
-        if (is_null($team)) {
-            return response()->json(['message' => 'Team not found.'], 404);
+        $team = $this->resolveTeamForUser((int) $teamId, $userId);
+        if ($team instanceof JsonResponse) {
+            return $team;
         }
 
         return response()->json(
@@ -309,20 +313,13 @@ class TeamController extends Controller
         if (is_null($teamId)) {
             return invalidTokenResponse();
         }
-        $userId = Auth::id();
-        if (is_null($userId)) {
-            return invalidTokenResponse();
+        $userId = $this->resolveAuthenticatedUserId();
+        if ($userId instanceof JsonResponse) {
+            return $userId;
         }
-        $team = Team::query()
-            ->where('id', $teamId)
-            ->whereIn('id', function ($query) use ($userId) {
-                $query->select('team_id')
-                    ->from('team_user')
-                    ->where('user_id', $userId);
-            })
-            ->first();
-        if (is_null($team)) {
-            return response()->json(['message' => 'Team not found.'], 404);
+        $team = $this->resolveTeamForUser((int) $teamId, $userId);
+        if ($team instanceof JsonResponse) {
+            return $team;
         }
         $members = $team->members()->get();
         $members->makeHidden([
