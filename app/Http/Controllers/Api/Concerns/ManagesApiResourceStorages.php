@@ -130,7 +130,12 @@ trait ManagesApiResourceStorages
                 ? data_get($resource, 'persistentStorages', collect())
                 : data_get($resource, 'fileStorages', collect());
 
-            return $this->ensureStorageCollection($storages)->where($lookupField, $lookupValue)->first();
+            $storage = $this->ensureStorageCollection($storages)->where($lookupField, $lookupValue)->first();
+
+            // shouldBeReadOnlyInUI() -> isDockerComposeResource() only trusts an already-loaded
+            // 'resource' relation (an explicit N+1 guard on the model side) - without setting it
+            // here, a docker-compose-owned volume would silently pass the read-only check.
+            return $storage?->setRelation('resource', $resource);
         }
 
         foreach ($resource->applications as $app) {
@@ -160,8 +165,12 @@ trait ManagesApiResourceStorages
     private function findApiStorageByUuid(Application|Service|StandaloneDatabaseInstance $resource, string $storageUuid): LocalPersistentVolume|LocalFileVolume|null
     {
         if (! $resource instanceof Service) {
-            return $this->ensureStorageCollection(data_get($resource, 'persistentStorages'))->where('uuid', $storageUuid)->first()
+            $storage = $this->ensureStorageCollection(data_get($resource, 'persistentStorages'))->where('uuid', $storageUuid)->first()
                 ?? $this->ensureStorageCollection(data_get($resource, 'fileStorages'))->where('uuid', $storageUuid)->first();
+
+            // See findApiStorageByLookup() above: shouldBeReadOnlyInUI() needs the inverse
+            // relation actually loaded, or a docker-compose-owned volume silently isn't read-only.
+            return $storage?->setRelation('resource', $resource);
         }
 
         foreach ($resource->applications as $app) {
