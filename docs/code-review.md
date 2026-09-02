@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: August 27, 2026**
+**Last Updated: September 2, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -907,3 +907,11 @@ Found via the same pass above, the last of its findings. `load_repositories()` f
 **high · Correctness — a real TypeError crash on every real request to 2 entire controllers' worth of endpoints** — Fixed via [PR #236](https://github.com/Terrence721/coolify-full/pull/236) ([`d69e0898d`](https://github.com/Terrence721/coolify-full/commit/d69e0898d4fdec3ba88451ecc1da7b8029ecf26f))
 
 Found while wiring up `validateExtraFields()` in `ScheduledTasksController.php` — a new regression test hit a real `TypeError`, not a false positive. `resolveApplication()`/`resolveService()` (used by all 10 of that controller's endpoints) and `DeployController::by_uuids()`/`by_tags()` (the entire `/deploy` endpoint) declare a strict `int $teamId` parameter. `getTeamIdFromToken()` ultimately reads `PersonalAccessToken::team_id` — a plain VARCHAR column with no cast on the model — and a real Sanctum-authenticated request re-fetches the token from the DB by its hashed value, so the value handed back is genuinely a numeric string, not an int, in production. Two broader fixes were tried and reverted: casting `PersonalAccessToken::team_id` via a model cast broke 79 other tests, since other consumers (`ServicesController::applyServiceUrls()`, `ManagesApiResourceStorages`'s storage methods) declare a strict *string* `$teamId` and rely on the current type; widening the 4 broken methods' own signatures to `int|string` would have silently broken `getResourceByUuid()`'s internal strict `===` comparison against a genuine int column, turning a loud crash into a silent "resource never found." Fixed with a narrow `(int)` cast at each of the 4 call sites instead, matching an already-established defensive pattern elsewhere in the same file.
+
+---
+
+### [`Api/TeamController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-198725991)
+
+**medium · Correctness/security — a query-string parameter silently overrode the URL's own path parameter** — Fixed via [PR #247](https://github.com/Terrence721/coolify-full/pull/247) ([`db3f8b9b7`](https://github.com/Terrence721/coolify-full/commit/db3f8b9b7))
+
+Found via an independent `/code-review` pass on this file (the API controller, not the web `TeamController.php` above) — 338 lines, never previously reviewed, inherited verbatim from upstream Coolify. `team_by_id()` and `members_by_id()` both resolved the target team with `$id = $request->id`. `Illuminate\Http\Request::__get()` is `Arr::get($this->all(), $key, fn () => $this->route($key))` — it checks query/body input *before* falling back to the route parameter, and `all()` doesn't include route parameters at all. So `GET /api/v1/teams/5?id=999` silently served team 999's data instead of team 5's, even though the URL explicitly named team 5 — confirmed directly by instantiating a real `Illuminate\Http\Request` bound to that route and inspecting `$request->id` vs `$request->route('id')`. Not a full cross-tenant leak (the query still scopes to teams the caller is a member of), but a real "the endpoint doesn't do what its URL says" bug, and the exact same bug class already fixed once in `CloudProviderTokensController` (see `CloudProviderTokensUuidOverrideTest.php`) — it just was never applied here, since this file had zero prior review or test coverage. Fixed both call sites to use `$request->route('id')` explicitly. TDD-proved: reverted the fix, confirmed both new tests fail with the exact real symptom (wrong team's data returned), confirmed clean after restoring. Two lower-priority reuse findings from the same pass (a redundant double `serializeApiResponse()` call, and the same auth-lookup block duplicated across all 5 of this controller's actions) are queued separately, not fixed in this PR.
