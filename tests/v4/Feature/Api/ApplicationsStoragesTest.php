@@ -288,6 +288,48 @@ it('rejects a type-specific field not valid for file storages on update', functi
     $response->assertStatus(422);
 });
 
+it('rejects setting content on a directory-mounted file storage', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $application = apiStoragesMakeApplication($team);
+    $directory = LocalFileVolume::create([
+        'fs_path' => '/data/mydir', 'mount_path' => '/mydir', 'is_directory' => true,
+        'resource_id' => $application->id, 'resource_type' => $application->getMorphClass(),
+    ]);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/applications/{$application->uuid}/storages", [
+        'id' => $directory->id,
+        'type' => 'file',
+        'content' => 'this should not be allowed',
+    ]);
+
+    $response->assertStatus(422);
+    // Not $directory->refresh(): see "updates a file storage by id" above for why.
+    expect(LocalFileVolume::find($directory->id)->content)->toBeNull();
+});
+
+it('still allows updating mount_path on a directory-mounted file storage', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $application = apiStoragesMakeApplication($team);
+    $directory = LocalFileVolume::create([
+        'fs_path' => '/data/mydir', 'mount_path' => '/mydir', 'is_directory' => true,
+        'resource_id' => $application->id, 'resource_type' => $application->getMorphClass(),
+    ]);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/applications/{$application->uuid}/storages", [
+        'id' => $directory->id,
+        'type' => 'file',
+        'mount_path' => '/renamed-dir',
+    ]);
+
+    $response->assertOk();
+    // Not $directory->refresh(): see "updates a file storage by id" above for why.
+    expect(LocalFileVolume::find($directory->id)->mount_path)->toBe('/renamed-dir');
+});
+
 it('returns 404 updating a storage that does not exist', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();
