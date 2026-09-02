@@ -18,6 +18,7 @@ yarn-error.log
 /.idea
 /.vscode/*
 !/.vscode/extensions.json
+*.code-workspace
 /.npm
 .claude/settings.local.json
 /.bash_history
