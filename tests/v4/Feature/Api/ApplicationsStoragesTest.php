@@ -213,6 +213,48 @@ it('updates a file storage by id', function () {
     expect(LocalFileVolume::find($file->id)->content)->toBe('updated content');
 });
 
+it('normalizes a file storage mount_path on update, adding a leading slash', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $application = apiStoragesMakeApplication($team);
+    $file = LocalFileVolume::create([
+        'fs_path' => '/data/file.txt', 'mount_path' => '/file.txt', 'is_directory' => false,
+        'resource_id' => $application->id, 'resource_type' => $application->getMorphClass(),
+    ]);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/applications/{$application->uuid}/storages", [
+        'id' => $file->id,
+        'type' => 'file',
+        'mount_path' => 'relative/path.txt',
+    ]);
+
+    $response->assertOk();
+    // Not $file->refresh(): see "updates a file storage by id" above for why.
+    expect(LocalFileVolume::find($file->id)->mount_path)->toBe('/relative/path.txt');
+});
+
+it('rejects a shell-unsafe mount_path on update', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $application = apiStoragesMakeApplication($team);
+    $file = LocalFileVolume::create([
+        'fs_path' => '/data/file.txt', 'mount_path' => '/file.txt', 'is_directory' => false,
+        'resource_id' => $application->id, 'resource_type' => $application->getMorphClass(),
+    ]);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/applications/{$application->uuid}/storages", [
+        'id' => $file->id,
+        'type' => 'file',
+        'mount_path' => '/file.txt; rm -rf /',
+    ]);
+
+    $response->assertStatus(500);
+    $response->assertJsonPath('message', fn ($message) => str_contains($message, 'forbidden character'));
+    expect(LocalFileVolume::find($file->id)->mount_path)->toBe('/file.txt');
+});
+
 it('rejects an update with neither uuid nor id', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();
