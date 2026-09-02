@@ -415,6 +415,12 @@ trait ManagesApiResourceStorages
             $storage->is_preview_suffix_enabled = $request->is_preview_suffix_enabled;
         }
 
+        // getRawOriginal(), not getOriginal(): LocalFileVolume::content is 'encrypted'-cast,
+        // and setRawAttributes() below expects the still-encrypted raw form. getOriginal()
+        // returns the decrypted value - pairing it with setRawAttributes() would silently
+        // store plaintext where ciphertext belongs, corrupting the row on the next read.
+        $original = $storage->getRawOriginal();
+
         if (! $isReadOnly) {
             if ($request->type === 'persistent') {
                 if ($request->has('name')) {
@@ -437,6 +443,24 @@ trait ManagesApiResourceStorages
         }
 
         $storage->save();
+
+        // LocalFileVolume::booted() only dispatches ServerStorageSaveJob on `created`, not
+        // `updated` - without this, a PATCHed content/mount_path change would persist to the
+        // DB and return 200 without ever rewriting the actual file on the remote server, the
+        // same way the web UI's updateStorageFile() already does via saveStorageOnServer().
+        if (! $isReadOnly && $storage instanceof LocalFileVolume) {
+            try {
+                $storage->saveStorageOnServer();
+            } catch (\Throwable $e) {
+                $storage->setRawAttributes($original);
+                $storage->save();
+
+                return response()->json([
+                    'message' => 'Failed to save the file on the server.',
+                    'errors' => ['content' => $e->getMessage()],
+                ], 500);
+            }
+        }
 
         auditLog($auditContext['event'].'_updated', [
             'team_id' => $teamId,
