@@ -414,7 +414,7 @@ trait ManagesApiResourceStorages
             // web equivalents (updateStorageFile()/convertStorageFile()) both enforce this by
             // forcing content to null; this path had no equivalent guard, so a client could
             // set real content on a row that should never carry any.
-            if ($request->type === 'file' && $storage instanceof LocalFileVolume && $storage->is_directory && $request->has('content')) {
+            if ($storage instanceof LocalFileVolume && $storage->is_directory && $request->has('content')) {
                 return response()->json([
                     'message' => 'Validation failed.',
                     'errors' => ['content' => 'The content field is not valid for a directory-mounted storage.'],
