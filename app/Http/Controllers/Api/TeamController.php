@@ -120,7 +120,7 @@ class TeamController extends Controller
     )]
     public function team_by_id(Request $request): JsonResponse
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
             return invalidTokenResponse();
@@ -188,7 +188,7 @@ class TeamController extends Controller
     )]
     public function members_by_id(Request $request): JsonResponse
     {
-        $id = $request->id;
+        $id = $request->route('id');
         $teamId = getTeamIdFromToken();
         if (is_null($teamId)) {
             return invalidTokenResponse();
