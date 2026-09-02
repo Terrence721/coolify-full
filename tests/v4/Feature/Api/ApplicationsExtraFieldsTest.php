@@ -91,3 +91,20 @@ it('rejects an unexpected field on create_env', function () {
 
     $response->assertStatus(422);
 });
+
+it('rejects an unexpected field on update_env_by_uuid', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $application = applicationsExtraFieldsMakeApplication($team);
+    $application->environment_variables()->create(['key' => 'EXISTING', 'value' => 'old']);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/applications/{$application->uuid}/envs", [
+        'key' => 'EXISTING',
+        'value' => 'new',
+        'unexpected_field' => 'nope',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('unexpected_field');
+});
