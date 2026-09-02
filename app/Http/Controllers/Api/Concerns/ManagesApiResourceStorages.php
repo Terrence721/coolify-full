@@ -434,7 +434,13 @@ trait ManagesApiResourceStorages
                 }
             } else {
                 if ($request->has('mount_path')) {
-                    $storage->mount_path = $request->mount_path;
+                    // Same normalization + shell-safety check applyApiStorageCreate() already
+                    // applies to a new file storage's mount_path - update skipped both, so a
+                    // client could persist a relative path or shell metacharacters that create()
+                    // would have rejected/normalized.
+                    $mountPath = str($request->mount_path)->trim()->start('/')->value();
+                    validateShellSafePath($mountPath, 'file storage path');
+                    $storage->mount_path = $mountPath;
                 }
                 if ($request->has('content')) {
                     $storage->content = $request->content;
