@@ -15,11 +15,11 @@ use App\Support\DatabaseEngineRegistry;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Shared search/creatable-item data behind both the still-Livewire GlobalSearch (kept alive for
- * Boarding\Index/Server\Show, the two pages still on layouts/app.blade.php) and the React
- * GlobalSearchController — split out here rather than duplicated so the two stay behaviorally
- * identical while both are live, matching this migration's established "extract on 2nd consumer"
- * pattern for shared tabs/concerns.
+ * Shared search/creatable-item data behind GlobalSearchController (React/Inertia), which
+ * feeds GlobalSearchModal.jsx. Split out into its own class rather than left inline on the
+ * controller, matching this migration's established "extract on 2nd consumer" pattern for
+ * shared tabs/concerns. The Livewire GlobalSearch this replaced is fully gone as of the
+ * migration's completion (Phase 79).
  */
 class GlobalSearchService
 {
