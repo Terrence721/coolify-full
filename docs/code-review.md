@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: September 2, 2026**
+**Last Updated: September 6, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -955,3 +955,35 @@ Third finding from the same pass above. `applyApiStorageCreate()`'s file-type br
 **medium · Correctness — an invariant enforced elsewhere in the codebase was never enforced on this path** — Fixed via [PR #253](https://github.com/Terrence721/coolify-full/pull/253) ([`540861967`](https://github.com/Terrence721/coolify-full/commit/540861967))
 
 Fourth finding from the same pass above. `applyApiStorageUpdate()`'s file-type branch applied `$request->content` with no check against `$storage->is_directory`. A directory-mounted `LocalFileVolume`'s content is semantically always null — the web equivalents (`updateStorageFile()`/`convertStorageFile()`) both explicitly force `content = null` for a directory storage; this API path had no equivalent guard, letting a client PATCH real content onto a row that should never carry any. `update()` doesn't allow changing `is_directory` itself, so this only mattered for PATCHing content on an already-directory-mounted storage. Fixed by rejecting the combination with a 422, matching this method's existing pattern for other type-specific invalid fields (rather than silently coercing, like the web version does). **Caught a real full-project PHPStan regression before merge, not after**: the initial fix combined `$request->type === 'file'` with `$storage instanceof LocalFileVolume` in one `&&` chain, which passed a single-file `phpstan analyse` locally but failed the full run CI actually uses — Larastan analyzes a shared trait separately per consuming controller, and this combination triggered `booleanAnd.alwaysFalse`/`identical.alwaysFalse` in all 3 (`ApplicationsController`/`DatabasesController`/`ServicesController`). Root cause not fully diagnosed, but the fix was also a genuine simplification: the `$request->type === 'file'` check was redundant anyway (`instanceof LocalFileVolume` already implies it) — dropping it resolved the false positive and left cleaner code. TDD-proved: reverted just the controller fix (kept the new tests), confirmed the reject test fails with the exact real symptom (200 instead of 422, content persisted), confirmed clean after restoring. **This closes out every finding from the `ManagesApiResourceStorages.php` review pass except one deliberately deferred efficiency item** (an N+1 query pattern in `apiStoragesPayload()`/`findApiStorageByUuid()` for `Service` resources — low priority, not yet fixed).
+
+---
+
+### [`SentinelController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199261055)
+
+**high · Reliability — an uncaught TypeError crashed the whole Sentinel push, not just its dedup logic** — Fixed via [PR #256](https://github.com/Terrence721/coolify-full/pull/256) ([`496dccb6b`](https://github.com/Terrence721/coolify-full/commit/496dccb6b))
+
+Found via an independent `/code-review` pass on this file — 180 lines, the Sentinel agent metrics-push endpoint, never previously reviewed. `containerStateHash()` hashes `json_encode($containers)` directly. `json_encode()` returns `false` if any string in the array contains invalid UTF-8 bytes — reachable via a form-encoded push body, since (unlike JSON) form-data parsing doesn't validate string encoding on the way in. `hash()`'s second parameter is a strict `string` under this file's own `declare(strict_types=1)`, so passing `false` throws an uncaught `TypeError` instead of just producing a different hash, 500ing the entire push. Inherited verbatim from the original upstream import. Fixed via `json_encode($containers, JSON_INVALID_UTF8_SUBSTITUTE)`. TDD-proved via a real gotcha: a JSON request body can't carry raw invalid UTF-8 in the first place (`json_decode()` would itself fail on the way in), so the regression test uses a form-encoded body instead — reverting the fix reproduced the exact real symptom (`hash(): Argument #2 ($data) must be of type string, false given`), then restored.
+
+---
+
+### [`SentinelController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199261424)
+
+**medium · Reliability — the one rejection path in push() with no audit trail** — Fixed via [PR #257](https://github.com/Terrence721/coolify-full/pull/257) ([`b12200378`](https://github.com/Terrence721/coolify-full/commit/b12200378))
+
+Second finding from the same pass above. Every rejection branch in `push()` — missing token, decrypt failure, invalid payload, server not found, relations missing, not functional, token mismatch — calls `auditLogWebhookFailure()` before returning, except the validator-fails branch. A malfunctioning or malicious Sentinel agent sending repeated malformed payloads left zero trace in the audit log. Inherited from upstream. Fixed by adding the same call every sibling branch already uses. TDD-proved: reverted just the fix, confirmed the new test fails with the real symptom (`$captured` stays `null`, no audit call happens), confirmed clean after restoring.
+
+---
+
+### [`SentinelController.php`](https://github.com/Terrence721/coolify-full/commit/34648d53fe8f312d50eb707ff9e2bc4e53658a79#commitcomment-199279758)
+
+**medium · Efficiency — a duplicate query on every single Sentinel push** — Fixed via [PR #258](https://github.com/Terrence721/coolify-full/pull/258) ([`62f022ee3`](https://github.com/Terrence721/coolify-full/commit/62f022ee3))
+
+Third finding from the same pass. **Fork-introduced, not inherited** — the commit that replaced upstream's Stripe/subscription-unpaid gate with the current team/settings existence check explicitly fetches `$settings = ServerSetting::query()->where('server_id', $server->id)->first()`, but `$server->isFunctional()` (called a few lines later) reads `$this->settings` internally — a fresh, separate lazy-load of the exact same row, on every single Sentinel push (default 60s per server). Upstream's original code had zero duplication here, since it read `$server->settings->sentinel_token` directly and reused the same lazy-loaded relation on both accesses. Fixed via `$server->setRelation('settings', $settings)` before the `isFunctional()` call, matching the pattern already established for finding #116. TDD-proved: reverted just the fix, confirmed the new test (asserting exactly 1 `server_settings` query via `DB::enableQueryLog()`) fails with the real symptom (2 queries), confirmed clean after restoring.
+
+---
+
+### [`SentinelController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199280208)
+
+**low · Security — a timing side-channel on the Sentinel token comparison, disclosed not overstated** — Fixed via [PR #259](https://github.com/Terrence721/coolify-full/pull/259) ([`a61e0e2f9`](https://github.com/Terrence721/coolify-full/commit/a61e0e2f9))
+
+Fourth and last finding from the same pass, closing it out. `$settings->sentinel_token !== $naked_token` leaks timing information proportional to the position of the first mismatched byte. Inherited from upstream. Fixed via `hash_equals()`. Severity disclosed honestly rather than inflated: reaching this comparison already requires `decrypt($naked_token)` to succeed against Laravel's own authenticated encryption a few lines earlier, so an attacker who can produce a byte sequence that both decrypts successfully *and* parses as valid JSON with a real `server_uuid` has, in practice, already reconstructed the full token — this is defense-in-depth, not a fix for an actively exploitable gap. A `(string)` cast was also added, but that's purely defensive housekeeping, not a reachable-bug fix — `ServerSetting::creating()`'s hook always generates a real token, confirmed by checking that model directly, so `sentinel_token` is never actually null in practice. New regression test isn't a bug-reproduction (the old `!==` code already rejected mismatches correctly too) — just coverage confirming the swap didn't change accept/reject behavior, since this endpoint had zero test coverage of its auth-reject path before this whole pass. **This closes out every finding from the `SentinelController.php` review pass.**
