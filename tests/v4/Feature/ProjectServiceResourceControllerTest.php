@@ -70,6 +70,30 @@ it('renders the application general tab', function () {
     );
 });
 
+// normalizeFqdn() calls Url::fromString($domain, ['http', 'https']) with no try/catch.
+// Spatie\Url throws for a URL parse_url() can't parse at all (e.g. a bad port) or whose
+// scheme isn't http/https/none - 'fqdn' has no format validation rule, so this
+// previously 500'd instead of showing a friendly error.
+it('shows a friendly error instead of crashing on a malformed application fqdn', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    [$project, $environment, , $service] = createServiceResourceFixture($team);
+    $application = $service->applications()->create(['name' => 'app1', 'image' => 'nginx:latest']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->post(route('project.service.application.update', serviceResourceParams($project, $environment, $service, $application->uuid)), [
+            'human_name' => $application->human_name,
+            'description' => $application->description,
+            'fqdn' => 'https://example.com:not-a-port',
+            'image' => $application->image,
+        ]);
+
+    $response->assertSessionHas('error');
+    $response->assertSessionDoesntHaveErrors();
+});
+
 it('renders the application advanced tab', function () {
     $user = User::factory()->create();
     $team = Team::factory()->create();

@@ -1571,7 +1571,13 @@ class ProjectApplicationConfigurationController extends Controller
         $oldDockerComposeLocation = $application->docker_compose_location;
         $oldBaseDirectory = $application->base_directory;
 
-        $warning = $this->applyNormalizedFqdn($application, (string) ($validated['fqdn'] ?? ''));
+        try {
+            $warning = $this->applyNormalizedFqdn($application, (string) ($validated['fqdn'] ?? ''));
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in applyNormalizedFqdn().', ['error' => $e->getMessage()]);
+
+            return back()->with('error', $e->getMessage());
+        }
 
         $this->syncGeneralFieldsToModel($application, $validated);
 
