@@ -781,6 +781,23 @@ it('flags a top-level fqdn conflict instead of saving, then force-saves it', fun
     expect($application->refresh()->fqdn)->toBe('https://taken.example.com');
 });
 
+// applyNormalizedFqdn() calls Url::fromString($domain, ['http', 'https']) with no
+// try/catch. Spatie\Url throws for a URL parse_url() can't parse at all (e.g. a bad
+// port) or whose scheme isn't http/https/none - 'fqdn' has no format validation rule,
+// so this previously 500'd instead of showing a friendly error.
+it('shows a friendly error instead of crashing on a malformed fqdn', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+
+    $response = $this->patch(route('project.application.general.update', appTabsParams($application)), appGeneralPayload($application, [
+        'fqdn' => 'https://example.com:not-a-port',
+    ]));
+
+    $response->assertSessionHas('error');
+    $response->assertSessionDoesntHaveErrors();
+});
+
 it('saves the instant-save settings, regenerating nginx config when isSpa flips', function () {
     $team = Team::factory()->create();
     appTabsActingAs($team);

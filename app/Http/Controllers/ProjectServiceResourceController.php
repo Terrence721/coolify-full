@@ -18,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -61,7 +62,13 @@ class ProjectServiceResourceController extends Controller
             'force_remove_port' => ['boolean'],
         ])->validate();
 
-        $fqdn = $this->normalizeFqdn((string) ($validated['fqdn'] ?? ''));
+        try {
+            $fqdn = $this->normalizeFqdn((string) ($validated['fqdn'] ?? ''));
+        } catch (\Throwable $e) {
+            Log::error('Unhandled exception in normalizeFqdn().', ['error' => $e->getMessage()]);
+
+            return back()->with('error', $e->getMessage());
+        }
         $warning = $fqdn ? sslipDomainWarning($fqdn) : false;
 
         $serviceApplication->human_name = $validated['human_name'] ?? null;
