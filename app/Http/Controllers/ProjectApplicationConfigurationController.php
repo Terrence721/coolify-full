@@ -1443,20 +1443,26 @@ class ProjectApplicationConfigurationController extends Controller
             $template = $application->preview_url_template;
             $random = (string) new Cuid2;
             $previewFqdns = [];
-            foreach (explode(',', $domainString) as $singleDomain) {
-                $singleDomain = trim($singleDomain);
-                if ($singleDomain === '') {
-                    continue;
+            try {
+                foreach (explode(',', $domainString) as $singleDomain) {
+                    $singleDomain = trim($singleDomain);
+                    if ($singleDomain === '') {
+                        continue;
+                    }
+                    $url = Url::fromString($singleDomain);
+                    $host = $url->getHost();
+                    $schema = $url->getScheme();
+                    $portInt = $url->getPort();
+                    $port = $portInt !== null ? ':'.$portInt : '';
+                    $candidate = str_replace('{{random}}', $random, $template);
+                    $candidate = str_replace('{{domain}}', $host, $candidate);
+                    $candidate = str_replace('{{pr_id}}', (string) $pull_request_id, $candidate);
+                    $previewFqdns[] = "$schema://$candidate{$port}";
                 }
-                $url = Url::fromString($singleDomain);
-                $host = $url->getHost();
-                $schema = $url->getScheme();
-                $portInt = $url->getPort();
-                $port = $portInt !== null ? ':'.$portInt : '';
-                $candidate = str_replace('{{random}}', $random, $template);
-                $candidate = str_replace('{{domain}}', $host, $candidate);
-                $candidate = str_replace('{{pr_id}}', (string) $pull_request_id, $candidate);
-                $previewFqdns[] = "$schema://$candidate{$port}";
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in generatePreviewComposeDomain().', ['error' => $e->getMessage()]);
+
+                return back()->with('error', $e->getMessage());
             }
             $previewFqdn = implode(',', $previewFqdns);
         }
