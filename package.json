@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "clean:logs": "bash scripts/clean-logs.sh",
+        "clean:logs": "command -v bash >/dev/null 2>&1 && bash scripts/clean-logs.sh || true",
         "predev": "yarn clean:logs",
         "dev": "vite",
         "build": "vite build",
