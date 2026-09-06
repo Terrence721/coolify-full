@@ -91,6 +91,11 @@ class SentinelController extends Controller
         ]);
 
         if ($validator->fails()) {
+            auditLogWebhookFailure('sentinel', 'validation_failed', [
+                'server_uuid' => $server->uuid,
+                'team_id' => $server->team_id,
+            ]);
+
             return response()->json(serializeApiResponse([
                 'message' => 'Validation failed.',
                 'errors' => $validator->errors(),
