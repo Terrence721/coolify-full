@@ -105,3 +105,15 @@ it('does not run a second server_settings query when checking isFunctional()', f
     $response->assertOk();
     expect($settingsQueries)->toHaveCount(1);
 });
+
+// The token comparison switched from `!==` to hash_equals() for timing-safety - this
+// proves that change didn't alter the actual accept/reject behavior.
+it('rejects a request with a mismatched sentinel token', function () {
+    [$server] = createFunctionalSentinelServer();
+    $wrongToken = Crypt::encrypt(json_encode(['server_uuid' => $server->uuid]));
+
+    $response = $this->withHeaders(['Authorization' => "Bearer {$wrongToken}"])
+        ->postJson('/api/v1/sentinel/push', ['containers' => []]);
+
+    $response->assertStatus(401);
+});
