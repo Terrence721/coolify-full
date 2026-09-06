@@ -69,6 +69,10 @@ class SentinelController extends Controller
             return response()->json(['message' => 'Server relations are not configured'], 422);
         }
 
+        // isFunctional() reads $this->settings internally - without this, it lazy-loads
+        // a second, separate ServerSetting query for the same row already fetched above.
+        $server->setRelation('settings', $settings);
+
         if ($server->isFunctional() === false) {
             auditLogWebhookFailure('sentinel', 'server_not_functional', [
                 'server_uuid' => $server->uuid,

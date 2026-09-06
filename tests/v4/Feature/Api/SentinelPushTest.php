@@ -8,6 +8,7 @@ use App\Models\Server;
 use App\Models\Team;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
@@ -84,4 +85,23 @@ it('logs an audit failure when the containers payload fails validation', functio
     $response->assertStatus(422);
     expect($captured['reason'])->toBe('validation_failed');
     expect($captured['server_uuid'])->toBe($server->uuid);
+});
+
+// push() explicitly fetches ServerSetting for $server, then calls isFunctional() -
+// which reads $this->settings internally. Without setRelation(), that's a second,
+// separate query for the exact same row on every single Sentinel push (default 60s
+// per server).
+it('does not run a second server_settings query when checking isFunctional()', function () {
+    [$server, $token] = createFunctionalSentinelServer();
+
+    DB::enableQueryLog();
+
+    $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+        ->postJson('/api/v1/sentinel/push', ['containers' => []]);
+
+    $settingsQueries = collect(DB::getQueryLog())
+        ->filter(fn ($query) => str_contains($query['query'], 'server_settings'));
+
+    $response->assertOk();
+    expect($settingsQueries)->toHaveCount(1);
 });
