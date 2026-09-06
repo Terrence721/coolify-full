@@ -175,6 +175,10 @@ class SentinelController extends Controller
             ->values()
             ->all();
 
-        return hash('xxh128', json_encode($containers));
+        // JSON_INVALID_UTF8_SUBSTITUTE keeps this a pure hash-input helper that never
+        // throws: without it, a container name/state containing invalid UTF-8 makes
+        // json_encode() return false, and hash()'s strict `string` param type turns
+        // that into an uncaught TypeError instead of just changing the hash.
+        return hash('xxh128', json_encode($containers, JSON_INVALID_UTF8_SUBSTITUTE));
     }
 }
