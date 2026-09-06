@@ -8,6 +8,7 @@ use App\Models\Server;
 use App\Models\Team;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
 uses(RefreshDatabase::class);
@@ -15,6 +16,28 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     InstanceSettings::forceCreate(['id' => 0]);
 });
+
+/**
+ * Creates a functional, sentinel-token-bearing server and returns [$server, $token]
+ * for a valid Authorization header - the auth prerequisite shared by every test here.
+ *
+ * Fakes the queue: setting sentinel_token fires ServerSetting's updated() hook, which
+ * restarts Sentinel and would otherwise require a real Instance Settings FQDN.
+ */
+function createFunctionalSentinelServer(): array
+{
+    Queue::fake();
+
+    $team = Team::factory()->create();
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $server->settings->update([
+        'is_reachable' => true,
+        'is_usable' => true,
+        'sentinel_token' => $token = Crypt::encrypt(json_encode(['server_uuid' => $server->uuid])),
+    ]);
+
+    return [$server, $token];
+}
 
 // containerStateHash() builds its hash from json_encode($containers) - without
 // JSON_INVALID_UTF8_SUBSTITUTE, a container name/state containing invalid UTF-8 makes
@@ -27,15 +50,7 @@ beforeEach(function () {
 // how this reaches containerStateHash() for real (e.g. a client posting as
 // multipart/form-data or application/x-www-form-urlencoded instead of JSON).
 it('does not crash when a container name contains invalid UTF-8', function () {
-    Queue::fake();
-
-    $team = Team::factory()->create();
-    $server = Server::factory()->create(['team_id' => $team->id]);
-    $server->settings->update([
-        'is_reachable' => true,
-        'is_usable' => true,
-        'sentinel_token' => $token = Crypt::encrypt(json_encode(['server_uuid' => $server->uuid])),
-    ]);
+    [$server, $token] = createFunctionalSentinelServer();
 
     $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
         ->post('/api/v1/sentinel/push', [
@@ -46,4 +61,27 @@ it('does not crash when a container name contains invalid UTF-8', function () {
     $response->assertOk();
     $response->assertJson(['message' => 'ok']);
     Queue::assertPushed(PushServerUpdateJob::class);
+});
+
+// Every other rejection branch in push() (missing token, decrypt failure, server not
+// found, etc.) calls auditLogWebhookFailure() before returning - a malformed 'containers'
+// payload was the one gap, leaving a malfunctioning/malicious Sentinel agent's repeated
+// bad requests with no trace in the audit log.
+it('logs an audit failure when the containers payload fails validation', function () {
+    [$server, $token] = createFunctionalSentinelServer();
+
+    Log::shouldReceive('channel')->with('audit')->andReturnSelf();
+    $captured = null;
+    Log::shouldReceive('warning')->once()->andReturnUsing(function ($event, $context) use (&$captured) {
+        $captured = $context;
+    });
+
+    $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+        ->postJson('/api/v1/sentinel/push', [
+            'containers' => 'not-an-array',
+        ]);
+
+    $response->assertStatus(422);
+    expect($captured['reason'])->toBe('validation_failed');
+    expect($captured['server_uuid'])->toBe($server->uuid);
 });
