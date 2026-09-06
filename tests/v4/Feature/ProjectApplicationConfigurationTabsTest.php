@@ -23,11 +23,15 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\Fakes\RemoteProcessFake;
+
+require_once __DIR__.'/../../Support/Fakes/controllers_remote_process_overrides.php';
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     InstanceSettings::forceCreate(['id' => 0]);
+    RemoteProcessFake::reset();
 });
 
 function appTabsActingAs(Team $team): User
@@ -1717,4 +1721,30 @@ it('changes the git source, tolerating a failed GitHub API lookup', function () 
     $application->refresh();
     expect($application->source_id)->toBe($githubApp->id)
         ->and($application->source_type)->toBe(GithubApp::class);
+});
+
+// rollbackLoadImages() split the running image's full reference on ':' and took index 1 as
+// the tag - correct for a plain "nginx:latest" (2 parts), but wrong for a self-hosted
+// registry with an explicit port (e.g. "registry.example.com:5000/myapp:latest", 3 parts),
+// where index 1 is "5000/myapp" instead of "latest". The tag is always the LAST segment.
+it('correctly identifies the current image tag when the registry has an explicit port', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, ['docker_registry_image_name' => 'registry.example.com:5000/myapp']);
+    $application->destination->server->settings->update(['is_reachable' => true, 'is_usable' => true]);
+
+    RemoteProcessFake::$outputQueue = [
+        'registry.example.com:5000/myapp:latest',
+        "registry.example.com:5000/myapp#latest#2026-01-01T00:00:00Z\nregistry.example.com:5000/myapp#v1#2025-01-01T00:00:00Z",
+    ];
+
+    $response = $this->post(route('project.application.rollback.load-images', appTabsParams($application)));
+
+    $response->assertSessionHas('rollbackCurrentTag', 'latest');
+    $response->assertSessionHas('rollbackImages', function ($images) {
+        $current = collect($images)->firstWhere('tag', 'latest');
+        $older = collect($images)->firstWhere('tag', 'v1');
+
+        return $current['isCurrent'] === true && $older['isCurrent'] === false;
+    });
 });

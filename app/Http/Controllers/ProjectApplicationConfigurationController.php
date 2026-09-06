@@ -515,7 +515,10 @@ class ProjectApplicationConfigurationController extends Controller
             $output = instant_remote_process([
                 "docker inspect --format='{{.Config.Image}}' {$application->uuid}",
             ], $server, throwError: false);
-            $current = data_get(str($output)->trim()->explode(':'), 1);
+            // Split on the LAST colon, not the first: a self-hosted registry with an explicit
+            // port (e.g. registry.example.com:5000/myapp:latest) has one before the tag too.
+            $imageParts = str($output)->trim()->explode(':');
+            $current = $imageParts->count() > 1 ? $imageParts->last() : null;
 
             $output = instant_remote_process([
                 "docker images --format '{{.Repository}}#{{.Tag}}#{{.CreatedAt}}'",
