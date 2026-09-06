@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Docker\GetContainersStatus;
 use App\Jobs\ApplicationDeploymentJob;
 use App\Jobs\DeleteResourceJob;
 use App\Models\Application;
@@ -1527,6 +1528,26 @@ it('stops an application on a non-functional additional server, without touching
     ]);
 
     $response->assertSessionHas('error', 'Server is not functional');
+});
+
+// GetContainersStatus::run() previously always ran against $application->destination->server
+// (the primary server) instead of the additional server the request actually targeted -
+// stopping an app on an additional server left that server's displayed status stale.
+it('refreshes the additional server\'s own container status when stopping it, not the primary\'s', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team);
+    $additionalServer = Server::factory()->create(['team_id' => $team->id]);
+
+    $this->mock(GetContainersStatus::class)
+        ->shouldReceive('handle')
+        ->once()
+        ->with(Mockery::on(fn ($server) => $server->id === $additionalServer->id))
+        ->andReturn(null);
+
+    $this->post(route('project.application.servers.stop', appTabsParams($application)), [
+        'serverId' => $additionalServer->id,
+    ]);
 });
 
 it('rejects removing the main server', function () {

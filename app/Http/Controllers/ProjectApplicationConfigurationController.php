@@ -799,7 +799,7 @@ class ProjectApplicationConfigurationController extends Controller
 
         $server = Server::ownedByCurrentTeam()->findOrFail($validated['serverId']);
         $error = StopApplicationOneServer::run($application, $server);
-        GetContainersStatus::run($application->destination->server);
+        GetContainersStatus::run($server);
 
         if ($error) {
             return back()->with('error', $error);
