@@ -1748,3 +1748,23 @@ it('correctly identifies the current image tag when the registry has an explicit
         return $current['isCurrent'] === true && $older['isCurrent'] === false;
     });
 });
+
+// generatePreviewComposeDomain() calls Url::fromString($singleDomain) with no try/catch on
+// each domain configured for the service in the application's own docker_compose_domains -
+// a malformed one (bad port, unparseable) throws an uncaught InvalidArgument, 500ing the
+// request instead of showing a friendly error.
+it('shows a friendly error instead of crashing when generating a preview compose domain from a malformed base domain', function () {
+    $team = Team::factory()->create();
+    appTabsActingAs($team);
+    $application = appTabsMakeApplication($team, [
+        'build_pack' => 'dockercompose',
+        'docker_compose_domains' => json_encode(['app' => ['domain' => 'https://example.com:not-a-port']]),
+    ]);
+    $preview = $application->previews()->create(['pull_request_id' => 33, 'pull_request_html_url' => 'https://github.com/acme/repo/pull/33']);
+
+    $response = $this->post(route('project.application.previews.compose-domain.generate', [...appTabsParams($application), 'pull_request_id' => $preview->pull_request_id]), [
+        'serviceName' => 'app',
+    ]);
+
+    $response->assertSessionHas('error');
+});
