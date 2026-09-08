@@ -31,7 +31,7 @@ function invalidTokenResponse(): JsonResponse
     return response()->json(['message' => 'Invalid token.', 'docs' => 'https://coolify.io/docs/api-reference/authorization'], 400);
 }
 
-function serializeApiResponse($data): Illuminate\Support\Collection
+function serializeApiResponse(mixed $data): Illuminate\Support\Collection
 {
     if ($data instanceof Collection) {
         return $data->map(function ($d) {

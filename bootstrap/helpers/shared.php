@@ -32,7 +32,6 @@ use App\Models\SwarmDocker;
 use App\Models\Team;
 use App\Models\User;
 use Carbon\CarbonImmutable;
-use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -57,7 +56,6 @@ use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token\Builder;
-use Livewire\Component;
 use Nubs\RandomNameGenerator\All;
 use Nubs\RandomNameGenerator\Alliteration;
 use phpseclib3\Crypt\EC;
@@ -400,20 +398,9 @@ function refreshSession(?Team $team = null): void
     });
     session(['currentTeam' => $team]);
 }
-function handleError(?Throwable $error = null, ?Component $livewire = null, ?string $customErrorMessage = null)
+function handleError(?Throwable $error = null, ?string $customErrorMessage = null)
 {
-    if ($error instanceof TooManyRequestsException) {
-        if (isset($livewire)) {
-            return $livewire->dispatch('error', "Too many requests. Please try again in {$error->secondsUntilAvailable} seconds.");
-        }
-
-        return "Too many requests. Please try again in {$error->secondsUntilAvailable} seconds.";
-    }
     if ($error instanceof UniqueConstraintViolationException) {
-        if (isset($livewire)) {
-            return $livewire->dispatch('error', 'Duplicate entry found. Please use a different name.');
-        }
-
         return 'Duplicate entry found. Please use a different name.';
     }
 
@@ -430,9 +417,6 @@ function handleError(?Throwable $error = null, ?Component $livewire = null, ?str
         $message = $customErrorMessage.' '.$message;
     }
 
-    if (isset($livewire)) {
-        return $livewire->dispatch('error', $message);
-    }
     throw new Exception($message);
 }
 function get_route_parameters(): array
@@ -1396,7 +1380,7 @@ function parseCommandFromMagicEnvVariable(Stringable|Str|string $key): Stringabl
 
     return str($command);
 }
-function parseEnvVariable(Str|string $value)
+function parseEnvVariable(Stringable|string $value)
 {
     $value = str($value);
     $count = substr_count($value->value(), '_');
@@ -3268,14 +3252,14 @@ function parseDockerComposeFile(Service|Application $resource, bool $isNew = fal
             if ($resource->serviceType()) {
                 $fqdns = generateServiceSpecificFqdns($resource);
             } else {
-                $domains = collect(json_decode($resource->docker_compose_domains)) ?? [];
+                $domains = collect(json_decode((string) $resource->docker_compose_domains)) ?? [];
                 if ($domains) {
                     $fqdns = data_get($domains, "$serviceName.domain");
                     if ($fqdns) {
                         $fqdns = str($fqdns)->explode(',');
                         if ($pull_request_id !== 0) {
                             $preview = $resource->previews()->find($preview_id);
-                            $docker_compose_domains = collect(json_decode(data_get($preview, 'docker_compose_domains')));
+                            $docker_compose_domains = collect(json_decode((string) data_get($preview, 'docker_compose_domains')));
                             if ($docker_compose_domains->count() > 0) {
                                 $found_fqdn = data_get($docker_compose_domains, "$serviceName.domain");
                                 if ($found_fqdn) {
@@ -3291,9 +3275,9 @@ function parseDockerComposeFile(Service|Application $resource, bool $isNew = fal
                                     $host = $url->getHost();
                                     $schema = $url->getScheme();
                                     $random = new Cuid2;
-                                    $preview_fqdn = str_replace('{{random}}', $random, $template);
+                                    $preview_fqdn = str_replace('{{random}}', (string) $random, $template);
                                     $preview_fqdn = str_replace('{{domain}}', $host, $preview_fqdn);
-                                    $preview_fqdn = str_replace('{{pr_id}}', $pull_request_id, $preview_fqdn);
+                                    $preview_fqdn = str_replace('{{pr_id}}', (string) $pull_request_id, $preview_fqdn);
                                     $preview_fqdn = "$schema://$preview_fqdn";
                                     $preview->fqdn = $preview_fqdn;
                                     $preview->save();
@@ -3562,27 +3546,6 @@ function wireNavigate(): string
     }
 }
 
-/**
- * Redirect to a named route with SPA navigation support.
- * Automatically uses wire:navigate when is_wire_navigate_enabled is true.
- *
- * @param  array<int|string, mixed>  $parameters
- */
-function redirectRoute(Component $component, string $name, array $parameters = []): mixed
-{
-    $navigate = true;
-
-    try {
-        $navigate = instanceSettings()->is_wire_navigate_enabled ?? true;
-    } catch (Exception $e) {
-        $navigate = true;
-    }
-
-    $component->redirectRoute($name, $parameters, navigate: $navigate);
-
-    return null;
-}
-
 function getHelperVersion(): string
 {
     $settings = instanceSettings();
@@ -3806,8 +3769,15 @@ function parseDockerfileInterval(string $something)
     return $seconds;
 }
 
-function addPreviewDeploymentSuffix(string $name, int $pull_request_id = 0): string
+// Accepts Stringable as well as string: most real callers pass the result of
+// chained Stringable methods (->before(), ->after(), ->replaceFirst(), etc.)
+// from the docker-compose volume/service parsing above, and a plain `string`
+// parameter here would throw a TypeError against those - PHP does not coerce
+// Stringable objects into scalar string parameters, even implicitly.
+function addPreviewDeploymentSuffix(string|Stringable $name, int $pull_request_id = 0): string
 {
+    $name = (string) $name;
+
     return ($pull_request_id === 0) ? $name : $name.'-pr-'.$pull_request_id;
 }
 
@@ -4010,10 +3980,9 @@ function shouldSkipPasswordConfirmation(): bool
  * - User has no password (OAuth users)
  *
  * @param  mixed  $password  The password to verify (may be array if skipped by frontend)
- * @param  Component|null  $component  Optional Livewire component to add errors to
  * @return bool True if verification passed (or skipped), false if password is incorrect
  */
-function verifyPasswordConfirmation(mixed $password, ?Component $component = null): bool
+function verifyPasswordConfirmation(mixed $password): bool
 {
     // Skip if password confirmation should be skipped
     if (shouldSkipPasswordConfirmation()) {
@@ -4021,15 +3990,7 @@ function verifyPasswordConfirmation(mixed $password, ?Component $component = nul
     }
 
     // Verify the password
-    if (! Hash::check($password, Auth::user()->password)) {
-        if ($component) {
-            $component->addError('password', 'The provided password is incorrect.');
-        }
-
-        return false;
-    }
-
-    return true;
+    return Hash::check($password, Auth::user()->password);
 }
 
 /**
