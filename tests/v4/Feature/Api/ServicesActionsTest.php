@@ -100,6 +100,29 @@ it('queues a stop for a running service', function () {
     Queue::assertPushed(JobDecorator::class, fn ($job) => $job->decorates(StopService::class));
 });
 
+it('stops the service named in the URL path, not a uuid supplied in the query string', function () {
+    // Regression test: Laravel's Request::__get() is Arr::get($this->all(), $key, fn () =>
+    // $this->route($key)) - request input wins over the route parameter. action_stop()
+    // (like action_deploy()/action_restart()) fetched $request->route('uuid') into a local
+    // $uuid variable and null-checked it, but then discarded it in favor of $request->uuid
+    // for the actual database lookup - so a caller could stop a different service than the
+    // one named in the URL just by also supplying a uuid query param. Proven black-box: the
+    // URL's service is already stopped (would 400 "already stopped" if acted on), the
+    // query-string service is running (200s and queues a stop) - a 200 here proves the
+    // wrong service was acted on.
+    Queue::fake();
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $urlService = apiActionsMakeService($team, 'exited:unhealthy');
+    $queryStringService = apiActionsMakeService($team, 'running:healthy');
+    $token = $this->apiToken($user, $team, ['deploy']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))
+        ->getJson("/api/v1/services/{$urlService->uuid}/stop?uuid={$queryStringService->uuid}");
+
+    $response->assertStatus(400);
+});
+
 it('rejects stopping an already-stopped service', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();

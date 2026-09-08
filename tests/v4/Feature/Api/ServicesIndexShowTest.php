@@ -84,6 +84,28 @@ it('shows a single service by uuid', function () {
     $response->assertJsonFragment(['uuid' => $service->uuid]);
 });
 
+it('always acts on the service named in the URL path, not a uuid supplied in the query string', function () {
+    // Regression test: Laravel's Request::__get() is Arr::get($this->all(), $key, fn () =>
+    // $this->route($key)) - request input (query string or body) wins over the route
+    // parameter. Every uuid lookup in this file used the magic $request->uuid accessor
+    // instead of $request->route('uuid'), so a client that also puts a uuid in the query
+    // string or body silently overrides which service the endpoint actually acts on. This
+    // exact bug was already found and fixed in CloudProviderTokensController.php in an
+    // earlier review pass; the fix never reached this file.
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $serviceA = apiMakeService($team, ['name' => 'service-a']);
+    $serviceB = apiMakeService($team, ['name' => 'service-b']);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))
+        ->getJson("/api/v1/services/{$serviceA->uuid}?uuid={$serviceB->uuid}");
+
+    $response->assertOk();
+    $response->assertJsonFragment(['uuid' => $serviceA->uuid]);
+    $response->assertJsonMissing(['uuid' => $serviceB->uuid]);
+});
+
 it('returns 404 for a service belonging to another team', function () {
     $team = Team::factory()->create();
     $otherTeam = Team::factory()->create();
