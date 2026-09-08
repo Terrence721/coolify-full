@@ -1,7 +1,7 @@
 # Code Review Results
 
 <!-- markdownlint-disable-next-line MD036 -->
-**Last Updated: September 6, 2026**
+**Last Updated: September 8, 2026**
 
 > [!CAUTION]
 > This is a simulation of real-world code review.
@@ -1019,3 +1019,35 @@ Found via an independent `/code-review` pass on this file — 2,593 lines, the l
 **high · Reliability — a third instance of the same crash-on-malformed-domain regression as the first finding, closing out this file's review pass** — Fixed via [PR #263](https://github.com/Terrence721/coolify-full/pull/263) ([`2234fe9bb`](https://github.com/Terrence721/coolify-full/commit/2234fe9bb))
 
 `generatePreviewComposeDomain()` calls `Url::fromString($singleDomain)` on each domain configured for the service in the application's own `docker_compose_domains`, with no try/catch — same underlying issue as the first finding above, a third call site in the same file. Checked against pristine upstream: `App\Livewire\Project\Application\PreviewsCompose::generate()` wraps its entire method body the same way upstream's other two Livewire equivalents did; the React port (`9f142c3c2`, Phase 70) never re-added the guard. Fixed by wrapping the domain-parsing loop in a try/catch. New test, TDD-proved against the pre-fix code. **This closes out 6 of 8 findings from this file's review pass — 2 lower-priority reuse/simplification items remain queued** (a dead no-op helper, and the same service-name sanitization logic hand-rolled independently in 3 places).
+
+---
+
+### [`DatabasesController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199581570)
+
+**high · Security — mass-assignment of resourceable_id/resourceable_type via create_bulk_envs(), inherited verbatim from upstream** — Fixed via [PR #266](https://github.com/Terrence721/coolify-full/pull/266) ([`23cb81e93`](https://github.com/Terrence721/coolify-full/commit/23cb81e93))
+
+First finding from an independent `/code-review` pass on this file (3,563 lines, part of the cadence #1/#3 controller rotation). `create_bulk_envs()` passed the raw request item straight into `updateOrCreate()`. On the update path (an env var with that key already exists), `updateOrCreate()` only calls `fill($values)` with no re-assertion of the correct foreign attributes — `EnvironmentVariable::$fillable` includes `resourceable_id` and `resourceable_type`, so a caller with write access to one database could hijack an existing env var onto an arbitrary resource by including those keys in the bulk payload. The create path is safe: the relation re-asserts the correct foreign attributes *after* `fill()` runs there, but `updateOrCreate()`'s update branch has no equivalent re-assertion. Sibling endpoints (`create_env`, `update_env_by_uuid`, and the Applications'/Services' own `create_bulk_envs()`) all build the attributes field-by-field and were never affected. Fixed by building the attributes field-by-field here too. New regression test proves an existing env var's resourceable_id/type can no longer be overwritten via the bulk endpoint, TDD-proved against the pre-fix code.
+
+---
+
+### [`DatabasesController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199581582)
+
+**high · Correctness — create_database()'s field validator never actually ran, inherited verbatim from upstream** — Fixed via [PR #267](https://github.com/Terrence721/coolify-full/pull/267) ([`cf19b135c`](https://github.com/Terrence721/coolify-full/commit/cf19b135c))
+
+`$validator->failed()` returns the internal `$failedRules` array, which is only populated by `passes()`/`fails()` — since neither was called, this check was always empty/falsy, silently bypassing every validation rule (name length, `public_port_timeout` min:1, `limits_cpu_shares`, etc.) for all 8 `create_database_*` endpoints. New regression test sends `public_port_timeout: 0` and confirms it's now rejected, TDD-proved against the pre-fix code (which returned 201 instead of 422).
+
+---
+
+### [`DatabasesController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199581597)
+
+**low · Correctness — update_by_uuid() missing the public_port range check that create_database() enforces, inherited verbatim from upstream** — Fixed via [PR #268](https://github.com/Terrence721/coolify-full/pull/268) ([`74462137a`](https://github.com/Terrence721/coolify-full/commit/74462137a))
+
+`create_database()` rejects a `public_port` outside 1024-65535 as an explicit check after its validator (the validator rule itself is only `'numeric|nullable'`, not range-checked there). `update_by_uuid()`'s validator has the identical rule but no equivalent range check anywhere in the method — PATCH could set an out-of-range port that create() would have rejected. Fixed by adding the same check to `update_by_uuid()`, mirroring `create_database()`'s logic exactly. New regression test sends `public_port: 80` on update and confirms it's now rejected, TDD-proved against the pre-fix code.
+
+---
+
+### [`DatabasesController.php`](https://github.com/Terrence721/coolify-full/commit/abb1fad2879eb76e09e8ec76c89e3c2d4e6f852f#commitcomment-199581611)
+
+**low · Security — list_backup_executions() missing the authorize() call every sibling backup endpoint has, closing out this file's review pass, inherited verbatim from upstream** — Fixed via [PR #269](https://github.com/Terrence721/coolify-full/pull/269) ([`695befb51`](https://github.com/Terrence721/coolify-full/commit/695befb51))
+
+Every sibling backup endpoint (`database_backup_details_uuid`, `create_backup`, `update_backup`, `delete_backup_by_uuid`, `delete_execution_by_uuid`) calls `$this->authorize('view', $database)` right after the database lookup; `list_backup_executions()` was missing it. Currently harmless — `queryDatabaseByUuidWithinTeam()` already scopes to the caller's team, and `DatabasePolicy::view()` only checks team membership — but it's an unenforced gap relative to every sibling endpoint, so it was fixed for consistency and defense-in-depth. Existing happy-path test coverage (`DatabasesBackupsTest.php`) confirmed no regression; a hijack-proving test isn't meaningful here since the endpoint was never actually reachable cross-team. **This closes out all 4 findings from this file's review pass.**
