@@ -435,6 +435,16 @@ class DatabasesController extends Controller
 
         $this->authorize('update', $database);
 
+        if ($request->public_port) {
+            if ($request->public_port < 1024 || $request->public_port > 65535) {
+                return response()->json([
+                    'message' => 'Validation failed.',
+                    'errors' => [
+                        'public_port' => 'The public port should be between 1024 and 65535.',
+                    ],
+                ], 422);
+            }
+        }
         if ($request->is_public && $request->public_port) {
             if (isPublicPortAlreadyUsed($database->destination->server, $request->public_port, $database->id)) {
                 return response()->json(['message' => 'Public port already used by another database.'], 400);
