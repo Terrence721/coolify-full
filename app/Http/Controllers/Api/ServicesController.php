@@ -988,6 +988,7 @@ class ServicesController extends Controller
         if ($request->has('is_container_label_escape_enabled')) {
             $service->is_container_label_escape_enabled = $request->boolean('is_container_label_escape_enabled');
         }
+        $originalAttributes = $service->getOriginal();
         $service->save();
 
         $service->parse();
@@ -995,6 +996,9 @@ class ServicesController extends Controller
         if ($request->has('urls') && is_array($request->urls)) {
             $urlResult = $this->applyServiceUrls($service, $request->urls, $teamId, $request->boolean('force_domain_override'));
             if ($urlResult !== null) {
+                // Revert the field changes already persisted above - the client is being
+                // told this update failed, so it must not have taken effect.
+                $service->fill($originalAttributes)->save();
                 if (isset($urlResult['errors'])) {
                     return response()->json([
                         'message' => 'Validation failed.',
