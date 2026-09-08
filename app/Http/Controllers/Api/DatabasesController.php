@@ -3019,9 +3019,15 @@ class DatabasesController extends Controller
                 ], 422);
             }
             $key = str($item['key'])->trim()->replace(' ', '_')->value();
+            $values = ['key' => $key, 'value' => $item['value'] ?? null];
+            foreach (['is_literal', 'is_multiline', 'is_shown_once', 'comment'] as $field) {
+                if (array_key_exists($field, $item)) {
+                    $values[$field] = $item[$field];
+                }
+            }
             $env = $database->environment_variables()->updateOrCreate(
                 ['key' => $key],
-                $item
+                $values
             );
 
             $updatedEnvs->push($this->removeSensitiveEnvData($env));
