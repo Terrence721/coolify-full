@@ -2414,6 +2414,8 @@ class DatabasesController extends Controller
             return response()->json(['message' => 'Database not found.'], 404);
         }
 
+        $this->authorize('view', $database);
+
         // Find the backup configuration by its UUID
         $backup = ScheduledDatabaseBackup::ownedByCurrentTeamAPI($teamId)->where('database_id', $database->id)
             ->where('uuid', $request->scheduled_backup_uuid)
