@@ -1326,7 +1326,9 @@ class ServicesController extends Controller
             return response()->json(['message' => 'Bulk data is required.'], 400);
         }
 
-        $updatedEnvs = collect();
+        // Validate every item before writing any of them - otherwise a later item's
+        // validation failure would leave earlier items already persisted despite the
+        // whole request returning a single all-or-nothing-looking 422.
         foreach ($bulk_data as $item) {
             $validator = customApiValidator($item, [
                 'key' => 'string|required',
@@ -1343,6 +1345,10 @@ class ServicesController extends Controller
                     'errors' => $validator->errors(),
                 ], 422);
             }
+        }
+
+        $updatedEnvs = collect();
+        foreach ($bulk_data as $item) {
             $key = str($item['key'])->trim()->replace(' ', '_')->value();
             $values = ['key' => $key, 'value' => $item['value'] ?? null];
             foreach (['is_literal', 'is_multiline', 'is_shown_once', 'comment'] as $field) {
