@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Project;
+use App\Models\Server;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,6 +53,29 @@ it('returns 404 when the project does not exist', function () {
     ]);
 
     $response->assertNotFound();
+});
+
+it('rejects a create request with a public_port_timeout below the allowed minimum', function () {
+    // Regression test: create_database()'s own field validator used $validator->failed()
+    // instead of $validator->fails() - failed() returns the internal $failedRules array,
+    // which is only populated by passes()/fails(), so this validator's rules (including
+    // public_port_timeout's min:1) never actually ran and were silently bypassed for every
+    // create_database_* endpoint.
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $server = Server::factory()->create(['team_id' => $team->id]);
+    $project = Project::factory()->create(['team_id' => $team->id]);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->postJson('/api/v1/databases/postgresql', [
+        'project_uuid' => $project->uuid,
+        'environment_name' => 'production',
+        'server_uuid' => $server->uuid,
+        'public_port_timeout' => 0,
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('public_port_timeout');
 });
 
 it('rejects a create request for another team\'s project', function () {

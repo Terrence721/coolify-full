@@ -1665,7 +1665,7 @@ class DatabasesController extends Controller
             'limits_cpu_shares' => 'numeric',
             'instant_deploy' => 'boolean',
         ]);
-        if ($validator->failed()) {
+        if ($validator->fails()) {
             return response()->json([
                 'message' => 'Validation failed.',
                 'errors' => $validator->errors(),
