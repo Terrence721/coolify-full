@@ -11,12 +11,13 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Rule;
 
 function getTeamIdFromToken()
 {
-    $user = auth()->user();
+    $user = Auth::user();
     $token = $user?->currentAccessToken();
     $teamId = data_get($token, 'team_id');
 
