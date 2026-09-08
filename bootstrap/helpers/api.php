@@ -11,12 +11,13 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Rule;
 
 function getTeamIdFromToken()
 {
-    $user = auth()->user();
+    $user = Auth::user();
     $token = $user?->currentAccessToken();
     $teamId = data_get($token, 'team_id');
 
@@ -31,7 +32,7 @@ function invalidTokenResponse(): JsonResponse
     return response()->json(['message' => 'Invalid token.', 'docs' => 'https://coolify.io/docs/api-reference/authorization'], 400);
 }
 
-function serializeApiResponse($data): Illuminate\Support\Collection
+function serializeApiResponse(mixed $data): Illuminate\Support\Collection
 {
     if ($data instanceof Collection) {
         return $data->map(function ($d) {
