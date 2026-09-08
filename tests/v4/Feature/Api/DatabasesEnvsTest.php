@@ -180,6 +180,43 @@ it('bulk-creates env vars', function () {
     expect($database->environment_variables()->where('key', 'BULK_TWO')->exists())->toBeTrue();
 });
 
+it('ignores resourceable_id/resourceable_type supplied when bulk-updating an existing env var', function () {
+    // Regression test: create_bulk_envs() passed the raw request item straight into
+    // updateOrCreate(), and EnvironmentVariable::$fillable includes resourceable_id and
+    // resourceable_type. On the create path, the relation re-asserts the correct foreign
+    // attributes after fill() so that's safe - but on the update path (an env var with
+    // that key already exists), updateOrCreate() only calls $instance->fill($values), with
+    // no re-assertion, so a caller with write access to one database could hijack an
+    // *existing* env var onto an arbitrary resource by including those keys in the bulk
+    // payload. Sibling endpoints (create_env, update_env_by_uuid, and Applications'/
+    // Services' own create_bulk_envs()) all build the attributes field-by-field and aren't
+    // affected.
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $database = apiEnvsMakeDatabase($team);
+    $otherDatabase = apiEnvsMakeDatabase($team);
+    $database->environment_variables()->create(['key' => 'EXISTING', 'value' => 'original']);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/databases/{$database->uuid}/envs/bulk", [
+        'data' => [
+            [
+                'key' => 'EXISTING',
+                'value' => 'evil',
+                'resourceable_id' => $otherDatabase->id,
+                'resourceable_type' => get_class($otherDatabase),
+            ],
+        ],
+    ]);
+
+    $response->assertCreated();
+    $env = $database->environment_variables()->where('key', 'EXISTING')->first();
+    expect($env)->not->toBeNull();
+    expect($env->value)->toBe('evil');
+    expect($env->resourceable_id)->toBe($database->id);
+    expect($env->resourceable_type)->toBe(get_class($database));
+});
+
 it('rejects bulk env creation with missing data', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();
