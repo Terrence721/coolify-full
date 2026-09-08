@@ -747,8 +747,12 @@ function parseEnvFormatToArray(string $env_file_contents): array
                 // Only treat # as comment if preceded by whitespace
                 if (preg_match('/\s+#/', $value_and_comment, $matches, PREG_OFFSET_CAPTURE)) {
                     // Found whitespace followed by #, extract comment
-                    $remainder = substr($value_and_comment, $matches[0][1]);
-                    $value = substr($value_and_comment, 0, $matches[0][1]);
+                    // (int) cast: intelephense's preg_match() stub doesn't model how
+                    // PREG_OFFSET_CAPTURE changes $matches' shape to [string, int]
+                    // tuples, so it sees $matches[0][1] as string - confirmed via
+                    // direct execution that it's genuinely an int at runtime.
+                    $remainder = substr($value_and_comment, (int) $matches[0][1]);
+                    $value = substr($value_and_comment, 0, (int) $matches[0][1]);
                     $value = rtrim($value);
                 } else {
                     $value = $value_and_comment;
