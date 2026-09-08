@@ -178,6 +178,27 @@ it('bulk-creates env vars', function () {
     expect($service->environment_variables()->where('key', 'BULK_TWO')->exists())->toBeTrue();
 });
 
+it('writes nothing when a later item in the batch fails validation', function () {
+    // Regression test: the loop validated and wrote each item one at a time - a later
+    // item's validation failure returned a 422 for the whole request, but earlier items in
+    // the same batch had already been persisted, contradicting the all-or-nothing response
+    // the client receives. Now validates every item first, before writing any of them.
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $service = apiEnvsMakeService($team);
+    $token = $this->apiToken($user, $team, ['write']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/services/{$service->uuid}/envs/bulk", [
+        'data' => [
+            ['key' => 'VALID_ONE', 'value' => '1'],
+            ['value' => 'missing a key'],
+        ],
+    ]);
+
+    $response->assertStatus(422);
+    expect($service->environment_variables()->where('key', 'VALID_ONE')->exists())->toBeFalse();
+});
+
 it('rejects bulk env creation with missing data', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();
