@@ -85,6 +85,24 @@ it('rejects an unexpected field on update', function () {
     $response->assertJsonValidationErrors('unexpected_field');
 });
 
+it('rejects an update with a public_port outside the 1024-65535 range', function () {
+    // Regression test: create_database() enforces public_port between 1024 and 65535 as
+    // an explicit check after its validator (public_port itself is only 'numeric' there,
+    // not range-checked by the validator rule), but update_by_uuid() had no equivalent
+    // check anywhere - PATCH could set an out-of-range port that create() would reject.
+    $team = Team::factory()->create();
+    $user = User::factory()->create();
+    $database = databasesExtraFieldsMakeDatabase($team);
+    $token = $this->apiToken($user, $team, ['write'], role: 'admin');
+
+    $response = $this->withHeaders($this->apiHeaders($token))->patchJson("/api/v1/databases/{$database->uuid}", [
+        'public_port' => 80,
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('public_port');
+});
+
 it('still updates a database with only allowed fields', function () {
     $team = Team::factory()->create();
     $user = User::factory()->create();
