@@ -223,7 +223,11 @@ trait ManagesResourceStorages
             'content' => 'nullable|string',
         ])->validate();
 
-        $original = $file->getOriginal();
+        // getRawOriginal(), not getOriginal(): LocalFileVolume::content is 'encrypted'-cast,
+        // and setRawAttributes() below expects the still-encrypted raw form. getOriginal()
+        // returns the decrypted value - pairing it with setRawAttributes() would silently
+        // store plaintext where ciphertext belongs, corrupting the row on the next read.
+        $original = $file->getRawOriginal();
         try {
             $file->content = $file->is_directory ? null : ($validated['content'] ?? null);
             $file->save();

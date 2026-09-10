@@ -4,6 +4,7 @@
     "words": [
         "appwrite",
         "cifs",
+        "ciphertext",
         "Clickhouse",
         "coolify",
         "dedup",
@@ -13,6 +14,7 @@
         "Keydb",
         "Lasterror",
         "Lcobucci",
+        "Livewire",
         "LOWERCASEUSER",
         "metachar",
         "metacharacters",
@@ -21,6 +23,7 @@
         "Poliander",
         "REALBASE",
         "resourceable",
+        "smoketest",
         "Soketi",
         "Spatie",
         "sslip",
