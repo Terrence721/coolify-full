@@ -6,7 +6,9 @@ import { randomUUID } from 'crypto';
 import 'dotenv/config';
 import {
     getTerminalSessionTimeout,
+    isAllowedOrigin,
     isAuthorizedTargetHost,
+    normalizeOrigin,
     parseCommandMessage,
 } from './terminal-utils.js';
 
@@ -60,6 +62,11 @@ function createHttpError(response) {
 
     return error;
 }
+
+// APP_URL plus an optional comma-separated TERMINAL_ALLOWED_ORIGINS for multi-domain setups.
+const allowedOrigins = [process.env.APP_URL, ...String(process.env.TERMINAL_ALLOWED_ORIGINS || '').split(',')]
+    .map(normalizeOrigin)
+    .filter((origin) => origin !== '');
 
 const userSessions = new Map();
 const envName = String(process.env.APP_ENV || process.env.NODE_ENV || '').toLowerCase();
@@ -116,6 +123,11 @@ const verifyClient = async (info, callback) => {
     };
 
     logTerminal('log', 'Verifying websocket client.', requestContext);
+
+    if (!isAllowedOrigin(info.origin, allowedOrigins)) {
+        logTerminal('warn', 'Rejecting websocket client because the Origin header is not allow-listed.', requestContext);
+        return callback(false, 403, 'Forbidden: Origin not allowed');
+    }
 
     // Verify presence of required tokens
     if (!laravelSession || !xsrfToken) {

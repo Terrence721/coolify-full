@@ -151,3 +151,21 @@ export function isAuthorizedTargetHost(targetHost, authorizedHosts = []) {
         .map(host => normalizeHostForAuthorization(host))
         .includes(normalizedTargetHost);
 }
+
+export function normalizeOrigin(origin) {
+    return String(origin || '').trim().replace(/\/+$/, '').toLowerCase();
+}
+
+// Every browser WebSocket upgrade request sends an Origin header - a missing/empty one means
+// the client isn't a browser at all, so it's rejected the same as a mismatched one.
+export function isAllowedOrigin(origin, allowedOrigins = []) {
+    const normalizedOrigin = normalizeOrigin(origin);
+
+    if (!normalizedOrigin) {
+        return false;
+    }
+
+    return allowedOrigins
+        .map(allowed => normalizeOrigin(allowed))
+        .includes(normalizedOrigin);
+}
