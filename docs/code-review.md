@@ -1051,3 +1051,27 @@ First finding from an independent `/code-review` pass on this file (3,563 lines,
 **low · Security — list_backup_executions() missing the authorize() call every sibling backup endpoint has, closing out this file's review pass, inherited verbatim from upstream** — Fixed via [PR #269](https://github.com/Terrence721/coolify-full/pull/269) ([`695befb51`](https://github.com/Terrence721/coolify-full/commit/695befb51))
 
 Every sibling backup endpoint (`database_backup_details_uuid`, `create_backup`, `update_backup`, `delete_backup_by_uuid`, `delete_execution_by_uuid`) calls `$this->authorize('view', $database)` right after the database lookup; `list_backup_executions()` was missing it. Currently harmless — `queryDatabaseByUuidWithinTeam()` already scopes to the caller's team, and `DatabasePolicy::view()` only checks team membership — but it's an unenforced gap relative to every sibling endpoint, so it was fixed for consistency and defense-in-depth. Existing happy-path test coverage (`DatabasesBackupsTest.php`) confirmed no regression; a hijack-proving test isn't meaningful here since the endpoint was never actually reachable cross-team. **This closes out all 4 findings from this file's review pass.**
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/pull/270)
+
+**high · Security — `$request->uuid` used instead of `$request->route('uuid')` throughout the file** — Fixed via [PR #270](https://github.com/Terrence721/coolify-full/pull/270) ([`ae5864271`](https://github.com/Terrence721/coolify-full/commit/ae5864271920e718c00c5baa920bac05be683e49))
+
+First finding from an independent `/code-review` pass on this file. Laravel's `Request::__get()` is `Arr::get($this->all(), $key, fn () => $this->route($key))` — request input (query string or body) wins over the route parameter. Every uuid lookup in the file used the magic `$request->uuid` accessor instead of `$request->route('uuid')`, so a caller could act on a different service than the one named in the URL by also supplying a `uuid` query param or body field. Worst case: `action_deploy()`/`action_stop()`/`action_restart()` already fetched and null-checked `$request->route('uuid')` into a local variable, then discarded it in favor of `$request->uuid` on the very next line — the URL's own uuid was validated but never actually used. This exact bug was already found and fixed in `CloudProviderTokensController.php` and `TeamController.php` in earlier review passes; the fix never reached this file. Fixed all 10 affected methods the same way. New regression tests prove a request naming service A in the URL but service B in a query param acts on A, not B.
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/pull/271)
+
+**high · Reliability — no compensating write when update_by_uuid()'s urls step fails, inherited verbatim from upstream** — Fixed via [PR #271](https://github.com/Terrence721/coolify-full/pull/271) ([`80e34bd19`](https://github.com/Terrence721/coolify-full/commit/80e34bd197edf85f618b6726c366e9f9f35c6e41))
+
+`update_by_uuid()` saved the new name/description/`docker_compose_raw`/`connect_to_docker_network`/`is_container_label_escape_enabled` fields before validating urls. If `applyServiceUrls()` then returned an error or domain conflict, the handler returned a 422/409 with no compensating write — the client sees "nothing happened," but the field changes had already committed. `create_service()` calls `$service->delete()` on the same failure for a brand-new service; `update_by_uuid()` had no equivalent revert for an existing one (deleting isn't the right revert for an update). Fixed by capturing the original attributes before mutation and restoring them before returning the error response. Doesn't revert docker-compose-parse side effects (any `ServiceApplication`/`ServiceDatabase` rows re-derived from a new `docker_compose_raw`) — out of scope for this finding, disclosed not hidden. New regression test PATCHes with a name change plus an invalid urls entry, confirms 422, and confirms the service's name reverted, TDD-proved against the pre-fix code.
+
+---
+
+### [`ServicesController.php`](https://github.com/Terrence721/coolify-full/pull/272)
+
+**medium · Correctness — create_bulk_envs() could partially persist a batch it ultimately rejected, inherited verbatim from upstream, closing out this file's review pass** — Fixed via [PR #272](https://github.com/Terrence721/coolify-full/pull/272) ([`2e794feda`](https://github.com/Terrence721/coolify-full/commit/2e794feda74d3509cdfc1d50e1798cb1d3d41cf7))
+
+`create_bulk_envs()`'s loop validated and wrote each item one at a time — a later item's validation failure returned a single 422 for the whole request, but earlier items in the same batch had already been persisted, contradicting the all-or-nothing response the client receives. Fixed by validating every item first, in its own pass, before writing any of them. The same pattern also exists in `DatabasesController.php` and `ApplicationsController.php` — left unfixed here, out of scope for this file's review pass, flagged as a follow-up. New regression test sends a batch with one valid item followed by one invalid item, confirms 422, and confirms the valid item was never written, TDD-proved against the pre-fix code. **This closes out every finding from the `ServicesController.php` review pass.**
