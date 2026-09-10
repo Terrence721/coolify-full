@@ -158,6 +158,23 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml logs -f coolify-v
 
 You have a VS Code window open on `C:\Users\...` instead of the WSL2 path. Close it and reopen via Remote - WSL (see Section 1) — the two are different, unrelated directories even if one started as a copy of the other.
 
+### Vitest extension fails with a doubled `\\wsl.localhost\...\wsl.localhost\...` path, or the file watcher stops unexpectedly
+
+Confirmed 2026-09-10: both are symptoms of the same underlying cause as the item above, just less obvious — a VS Code window that *is* pointed at the right repo, but connected to it as a Windows-side window over the `\\wsl.localhost\Ubuntu\...` UNC path instead of through an actual Remote-WSL connection. Over that UNC path, the Vitest test-explorer extension can resolve `node_modules` with the WSL host prefix duplicated (e.g. `\\wsl.localhost\Ubuntu\wsl.localhost\Ubuntu\root\projects\coolify-full\node_modules\vitest\dist\node.js`), and VS Code's file-change watcher can silently stop and not restart on its own. Reloading the window (`Developer: Reload Window`) works around the file-watcher symptom temporarily, but the real fix for both is the same: reconnect via **Remote-WSL** (see Section 1 / the item above) rather than working from a Windows-side window against the UNC path.
+
+### VS Code shows "Setting up Dev Containers... (show log)" and it never finishes
+
+Confirmed 2026-09-10: this project has no `.devcontainer` config — its dev stack is docker-compose based (Section 3), not Dev Containers. If "Reopen in Container" gets picked instead of "Reopen Folder in WSL" (an easy mix-up from the Remote menu), VS Code has nothing well-defined to build against, and — if reached over the Windows-side UNC path rather than a real Remote-WSL connection — the very first bootstrap step it runs (`wsl -d Ubuntu -e wslpath -u \\wsl.localhost\Ubuntu\...`, translating the UNC path to its real Linux path) can hang indefinitely instead of returning in under a second.
+
+Fix:
+
+1. Use **`WSL: Reopen Folder in WSL`** for this repo, not Dev Containers.
+2. If it's already stuck, fully quit VS Code (**File → Exit**, and confirm no `Code.exe` remains in Task Manager) and relaunch — reloading the window alone may not be enough if the extension host itself is wedged.
+3. If reconnecting still does nothing, the WSL subsystem can accumulate orphaned processes from repeated failed attempts. Check `Get-Process | Where-Object {$_.ProcessName -match 'wsl'}` in PowerShell — a healthy session has only a couple of `wsl.exe`/`wslhost.exe` entries; a dozen or more means a real stall, not just an app bug.
+4. To clear it: gracefully stop any running containers first (`docker stop $(docker ps -q)`), then run `wsl --shutdown` from PowerShell. **This stops every WSL2 distro at once**, including Docker Desktop's own backend (`docker-desktop`) — every container on the machine, not just this project's, goes down.
+5. Docker Desktop does not reconnect its backend on its own after an externally-triggered `wsl --shutdown` — fully quit and relaunch the **Docker Desktop** application itself.
+6. Once `docker info` responds again, restart whatever containers you stopped in step 4.
+
 ### `docker exec coolify vendor/bin/pint` (or similar) fails with a permissions/"not writable" error
 
 New files created via some editors/tools land with restrictive permissions (`rw-r--r--`) that the container's runtime user can't write to, unlike the rest of the tree (`rwxrwxrwx`, carried over from the original `rsync` migration). Fix with `chmod 777 <file>` on the WSL2 side before retrying.
