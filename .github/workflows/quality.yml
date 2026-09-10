@@ -236,3 +236,25 @@ jobs:
 
       - name: Run Prettier format check
         run: yarn format:check
+
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: yarn
+
+      - name: Install Node dependencies
+        run: yarn install --immutable
+
+      - name: Run ESLint
+        run: yarn lint
