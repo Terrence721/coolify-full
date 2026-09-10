@@ -133,8 +133,11 @@ jobs:
           node-version: "24"
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build frontend assets
         run: yarn build
@@ -155,8 +158,11 @@ jobs:
           node-version: "24"
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run Vitest suite
         run: yarn test
@@ -194,8 +200,11 @@ jobs:
           node-version: "24"
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build frontend assets
         run: yarn build
@@ -219,8 +228,11 @@ jobs:
           node-version: "24"
           cache: yarn
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run Prettier format check
         run: yarn format:check

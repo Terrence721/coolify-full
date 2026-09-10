@@ -154,7 +154,7 @@ services:
       - "${VITE_PORT:-5173}:${VITE_PORT:-5173}"
     volumes:
       - .:/var/www/html/:cached
-    command: sh -c "yarn install && yarn dev"
+    command: sh -c "corepack enable && yarn install && yarn dev"
     networks:
       - coolify
   testing-host:
