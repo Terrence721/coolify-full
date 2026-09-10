@@ -127,6 +127,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -134,7 +137,7 @@ jobs:
           cache: yarn
 
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build frontend assets
         run: yarn build
@@ -149,6 +152,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -156,7 +162,7 @@ jobs:
           cache: yarn
 
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run Vitest suite
         run: yarn test
@@ -188,6 +194,9 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -195,7 +204,7 @@ jobs:
           cache: yarn
 
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Build frontend assets
         run: yarn build
@@ -213,6 +222,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -220,7 +232,7 @@ jobs:
           cache: yarn
 
       - name: Install Node dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run Prettier format check
         run: yarn format:check

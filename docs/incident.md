@@ -170,3 +170,134 @@ A same-day commit-author correction on `main` was followed by merging a pull req
 - Prefer `git commit-tree`/boundary-safe regex replacement over plain string substitution for any bulk commit-hash find/replace.
 - After a rewrite affecting already-documented commits, scan every existing commit-hash reference in tracked docs/issues for reachability from the current branch tip, not just the commits the rewrite explicitly targeted.
 
+---
+
+# Incident Report: WSL2/Docker Desktop Hang Blocking VS Code Remote Connection
+
+## Incident Details
+
+- Incident Window: 2026-09-08 to 2026-09-10
+- Severity: Medium
+- Status: Resolved
+
+## Overview
+
+A Windows-side VS Code window was operating against this repository over its `\\wsl.localhost\Ubuntu\...` UNC path instead of connecting through Remote-WSL. This class of access pattern produced three separate, escalating symptoms — a path-resolution bug in the Vitest test-explorer extension, an unreliable file-change watcher, and finally a fully hung "Setting up Dev Containers" attempt — the last of which left the WSL subsystem itself in a state where new `wsl.exe` invocations stopped returning.
+
+## User-Visible Impact
+
+- The Vitest extension in VS Code failed to start, reporting `ERR_MODULE_NOT_FOUND` for `vitest/dist/node.js`.
+- VS Code's file-change watcher stopped unexpectedly, requiring a window reload (temporarily) to resume.
+- A "Setting up Dev Containers" progress notification span indefinitely with no error, blocking further work in the window.
+- `git` commands run from the Windows-side Bash tool against the repo began failing with "detected dubious ownership."
+- VS Code's Source Control panel separately reported the repository as unsafe/potentially owned by another user.
+
+## Primary Symptoms
+
+- Vitest worker log showed a **doubled** UNC prefix: `\\wsl.localhost\Ubuntu\wsl.localhost\Ubuntu\root\projects\coolify-full\node_modules\vitest\dist\node.js` — the host prefix had been prepended twice while resolving `node_modules` from the workspace root.
+- The Dev Containers log showed a single line stuck for 28+ seconds: `Run: wsl -d Ubuntu -e wslpath -u \\wsl.localhost\Ubuntu\root\projects\coolify-full` — a call that should return near-instantly.
+- `Get-Process` showed an abnormal pile-up of stray `wsl.exe` (12) and `wslhost.exe` (9) processes, consistent with multiple earlier reconnect attempts each spawning a `wsl -e ...` call that never returned or got cleaned up.
+- `git status`/`git diff` from the Windows side refused to run ("may refer to a non-local directory") until a one-off, non-persistent `-c safe.directory=*` override was supplied per invocation.
+
+## Root Causes
+
+- VS Code (and its extensions, and Windows `git.exe`) were operating on the repository through its Windows UNC path (`\\wsl.localhost\Ubuntu\...`) rather than through a Remote-WSL connection — several tools in this chain (the Vitest extension's path-joining logic, `npx`'s use of `cmd.exe` to spawn shims, Windows Git's ownership check) do not handle a WSL-hosted repo accessed this way.
+- Repeated failed reconnect/Dev-Container attempts against that UNC path left a growing number of orphaned `wsl.exe`/`wslhost.exe` processes that never exited, which eventually caused *new* `wsl -e ...` invocations (including the routine `wslpath` bootstrap call Dev Containers always runs first) to queue behind the stuck ones indefinitely instead of completing.
+- Docker Desktop's own WSL2 backend distro (`docker-desktop`) does not automatically notice or recover from an externally-triggered `wsl --shutdown` (as opposed to a shutdown it initiated itself), so its daemon stayed unreachable after the WSL subsystem was cycled until the Docker Desktop application was fully restarted.
+
+## Remediation Actions
+
+- Diagnosed the doubled-path and file-watcher issues as symptoms of running natively on Windows against a WSL-hosted folder; recommended (and confirmed) switching to Remote-WSL as the fix for both.
+- Confirmed the Dev Containers hang was a genuine WSL-subsystem stall, not an application-level bug, by reproducing the exact stuck command (`wsl -d Ubuntu -e wslpath -u ...`) directly and timing it.
+- Gracefully stopped all 16 running containers across this project and two unrelated local projects (`docker stop`) before touching the WSL VM, to avoid an abrupt mid-write shutdown of stateful services (Postgres, Kafka).
+- Ran `wsl --shutdown` to clear the stuck process pile-up.
+- Fully stopped and relaunched the Docker Desktop application (`Docker Desktop.exe`, `com.docker.backend`, `com.docker.build`) after confirming its backend distro did not reconnect on its own.
+- Restarted all 16 previously-running containers once the Docker daemon responded again.
+
+## Validation Evidence
+
+- Re-ran the exact command captured in the original Dev Containers log (`wsl -d Ubuntu -e wslpath -u '\\wsl.localhost\Ubuntu\root\projects\coolify-full'`) after remediation: resolved in 0.6 seconds (down from an indefinite hang), correctly returning `/root/projects/coolify-full`.
+- `docker ps` after restart confirmed all 16 containers back in their prior running state, with the pre-existing (unrelated) `coolify`/`coolify-https-proxy` unhealthy status unchanged by this incident.
+- `Get-Process` re-check showed the `wsl.exe`/`wslhost.exe` process count back to a normal baseline.
+
+## Final Outcome
+
+- WSL and Docker Desktop's backend are both healthy; new `wsl -e ...` invocations return promptly.
+- All previously-running containers, across all local projects, are back up.
+- One pre-existing, unrelated issue was surfaced during recovery and flagged separately: `coolify-https-proxy` crash-loops on an nginx upstream (`coolify-realtime`) that isn't currently running as its own container — not caused by, or fixed as part of, this incident.
+
+## Preventive Measures
+
+- For this repository, always connect VS Code via **Remote-WSL** (`WSL: Reopen Folder in WSL` / `code /root/projects/coolify-full` from a WSL shell) — never operate on it from a Windows-side window through the UNC path. See the "Common Issues" section of `DEVELOPING_IN_CONTAINERS_WINDOWS.md` for the symptom-specific writeups (doubled-path Vitest error, hung Dev Containers spinner).
+- This project has no `.devcontainer` config and isn't meant to be opened via "Reopen in Container" — its dev stack is docker-compose based. Picking that option by mistake is the most likely trigger for the hang described here.
+- If a `wsl -e ...`-based reconnect attempt ever hangs again, check `Get-Process | Where-Object {$_.ProcessName -match 'wsl'}` for a process pile-up before assuming it's an application bug — a healthy session has only a couple of these.
+- Before running `wsl --shutdown` for any reason, gracefully stop running containers first (`docker stop`), since it hard-stops every WSL2 distro at once, including Docker Desktop's backend.
+- After `wsl --shutdown`, expect to manually restart the Docker Desktop application itself — it does not reconnect its backend on its own when the shutdown wasn't initiated by Docker Desktop.
+
+---
+
+# Incident Report: Vitest Path-Traversal CVE Remediation and Yarn Classic→Berry Migration
+
+## Incident Details
+
+- Incident Window: 2026-09-10
+- Severity: Moderate
+- Status: Resolved
+
+## Overview
+
+A Dependabot alert flagged `@vitest/mocker` for CVE-2026-84373 (path traversal / arbitrary file read via a redirect mock, fixed in 4.1.11). The first remediation attempt — a plain `yarn install` — was run against a Yarn Classic (v1) lockfile using a Yarn Berry (v4) binary, which silently migrated the lockfile to Berry's format, dropped a security-relevant `resolutions` override it couldn't parse, and then failed outright on an unrelated Windows/UNC-path link error. After reverting that false start, the version bump was applied by hand-editing the classic lockfile, and — at the user's direction — the project was then deliberately and fully migrated to Yarn Berry, with the dropped override rewritten in valid Berry syntax and CI/Docker updated to match.
+
+## User-Visible Impact
+
+- None in production — `@vitest/mocker` is a development-only dependency, and the vulnerability itself requires exposing a dev server's unauthenticated HMR WebSocket to reach.
+- Locally: a `yarn.lock` corruption scare (an 8,089-line diff from a single `yarn install`) that required immediate revert, and a temporarily-hung `node_modules/.bin` link step.
+
+## Primary Symptoms
+
+- Dependabot: "Vitest: Path Traversal / Arbitrary File Read via `@vitest/mocker` Redirect Mock" (Moderate), `@vitest/mocker` pinned at 4.1.10 (vulnerable range: 2.1.0–<4.1.11).
+- First `yarn install` attempt printed `YN0087: Migrated your project to the latest Yarn version` and three `YN0057` parse errors against the project's `resolutions` field, then failed at the Link step with `ENOENT ... node_modules/.bin/rolldown` under the Windows UNC path.
+- A second, deliberate migration attempt (this time intentional) hit the same class of `YN0057` parse error against a corrected-but-still-invalid `resolutions` rewrite (a `**`-glob form), which turned out not to be supported by Berry's `resolutions` field at all.
+
+## Root Causes
+
+- This repository's `yarn` command, depending on environment, resolved to two fundamentally different tools: Yarn Classic 1.22.22 (WSL and the `coolify-vite` container, via a standalone install bypassing Corepack) versus Yarn Berry 4.18.0 (Windows, via a Corepack shim) — with nothing in the repository pinning which one should be used.
+- The project's `resolutions` field used Yarn Classic's arbitrary-depth path syntax (e.g. `"eslint/@eslint/config-array/minimatch/brace-expansion"`), which Yarn Berry's `resolutions` field does not support at all — Berry's documented syntax allows only one level of specificity (`parent/child`, optionally with a version qualifier), not multi-segment chains or `**` globs.
+- Yarn Berry auto-migrates a detected Classic lockfile on first run rather than refusing — so the mismatched-binary problem manifested as silent data loss (the unparseable `resolutions` entries) and lockfile corruption rather than a clear error.
+- Running the install from a Windows-side shell against the UNC-mounted repo path caused a real (secondary) failure in the Link step, independent of the Classic/Berry mismatch.
+
+## Remediation Actions
+
+- Reverted the first failed migration (`git checkout -- package.json yarn.lock`, removed the stray `.yarnrc.yml`) to restore the last known-good committed state.
+- Hand-edited the still-Classic `yarn.lock`, bumping `vitest` and all 7 `@vitest/*` sibling packages from 4.1.10 to 4.1.11 with registry-verified `resolved` URLs and `integrity` hashes, without invoking any package manager — avoiding both failure modes above for this narrow fix.
+- At the user's direction, performed a deliberate full migration to Yarn Berry for this project specifically:
+  - Added `"packageManager": "yarn@4.18.0"` to `package.json`, matching the version already in use as the Windows/Corepack global default.
+  - Rewrote `resolutions` in valid Berry syntax. Investigated the dependency tree first (two distinct `minimatch` resolutions in the lockfile) and confirmed only one level of nesting was actually needed: `"minimatch/brace-expansion": "5.0.9"` covers both (harmless for the modern `minimatch` line, which already requested `brace-expansion@^5.0.5`; the actual fix for the older line, which requested the vulnerable `^1.1.7`).
+  - Added `.yarnrc.yml` (`nodeLinker: node-modules`) to keep the existing flat `node_modules` layout tooling already depends on, rather than Berry's default PnP mode.
+  - Added standard Berry entries to `.gitignore` (`.yarn/*` with tracked exceptions, `.pnp.*`).
+  - Ran the actual install from inside WSL via `corepack yarn install` (not the Windows-side binary, and not WSL's then-still-Classic binary) to perform the real migration and verify it end-to-end.
+  - Updated `.github/workflows/quality.yml` (all 4 jobs) to run `corepack enable` before installing, and swapped Classic's `--frozen-lockfile` flag for Berry's `--immutable`.
+  - Updated `docker-compose.dev.yml`'s `coolify-vite` service to run `corepack enable` before `yarn install`.
+  - Closed the remaining WSL gap at the user's request: removed the standalone `npm install -g yarn` (Classic 1.22.22) that was occupying the same install path Corepack needed for its own shims, then ran `corepack enable` — after which bare `yarn` in WSL resolves per-project via Corepack (this project → Berry 4.18.0; any project without a pin → Corepack's own Classic 1.22.22 fallback, identical to the prior global behavior).
+
+## Validation Evidence
+
+- Registry lookups (`npm view <pkg>@4.1.11 dist...`) confirmed real, valid `resolved`/`integrity` values for all 8 hand-edited lockfile entries before the fix was applied.
+- After the full Berry migration, confirmed on disk (`node_modules/brace-expansion` → `5.0.9`, single hoisted copy, no stale nested versions) and in the lockfile (no lockfile entry at all for the vulnerable `brace-expansion@npm:^1.1.7` descriptor — it resolves straight through to the pinned `5.0.9`).
+- Confirmed `vitest@npm:^4.1.10` resolves to `4.1.11` in the final Berry-format lockfile — the CVE fix survived the migration intact.
+- Ran a real `yarn install` (bare command, no `corepack` prefix) inside WSL post-migration: completed cleanly on Yarn 4.18.0 with no parse errors.
+- Verified environment consistency after the Corepack fix: `/tmp` (no project ancestry) → Classic 1.22.22 (unchanged fallback); this project and its `docker/coolify-realtime` subdirectory → Berry 4.18.0 (inherited pin).
+
+## Final Outcome
+
+- `@vitest/mocker`/`vitest` patched to 4.1.11 across every environment this project runs in (Windows, WSL, CI, the `coolify-vite` container).
+- The project is now explicitly and consistently pinned to Yarn Berry 4.18.0 everywhere it's built or tested, without changing the global Yarn default for any other project on the machine.
+- The original three-entry, unparseable-in-Berry `resolutions` block is now one valid, verified entry with equivalent (in practice, identical) effect.
+
+## Preventive Measures
+
+- Never run a bare `yarn` command against this repository without first confirming which binary it resolves to in that environment (`yarn --version`) — this incident's first failure would have been caught immediately by checking that before running an install.
+- When intentionally migrating Classic → Berry (or vice versa), audit the `resolutions` field syntax explicitly first; Berry silently drops entries it can't parse rather than failing loudly, so a successful-looking install is not sufficient evidence that overrides were preserved.
+- Prefer running Node/Yarn installs for this project from inside WSL (or a container) rather than from a Windows-side shell against the UNC path, independent of the Classic/Berry question — the UNC path has its own separate failure modes (see the WSL2/Docker Desktop hang incident above).
+- `packageManager` in `package.json` plus `corepack enable` (already added to CI and the dev container) is now the mechanism that keeps every environment on the same Yarn version going forward — if a future environment's `yarn` doesn't respect it, suspect a non-Corepack-managed install shadowing it, as WSL's was here.
+
