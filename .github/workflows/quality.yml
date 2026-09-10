@@ -127,14 +127,14 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install Node dependencies
         run: yarn install --immutable
@@ -152,14 +152,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install Node dependencies
         run: yarn install --immutable
@@ -194,14 +194,14 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install Node dependencies
         run: yarn install --immutable
@@ -222,14 +222,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
           node-version: "24"
           cache: yarn
-
-      - name: Enable Corepack
-        run: corepack enable
 
       - name: Install Node dependencies
         run: yarn install --immutable
