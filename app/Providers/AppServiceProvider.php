@@ -15,6 +15,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
 use Laravel\Telescope\TelescopeServiceProvider;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,12 +34,43 @@ class AppServiceProvider extends ServiceProvider
         $this->configureSanctumModel();
         $this->configureGitHubHttp();
         $this->configureBunnyCdnHttp();
+        $this->configureBroadcastingSecrets();
     }
 
     private function configureCommands(): void
     {
         if (App::isProduction()) {
             DB::prohibitDestructiveCommands();
+        }
+    }
+
+    /**
+     * scripts/install.sh generates real secrets for these on every standard install, so this
+     * only fires for a deploy that skipped it (e.g. docker-compose.prod.yml run directly) or hit
+     * a partial install failure - refuse to boot rather than silently sign WebSocket auth tokens
+     * with a fallback value that's permanently documented in this public repo.
+     */
+    private function configureBroadcastingSecrets(): void
+    {
+        if (! App::isProduction()) {
+            return;
+        }
+
+        $insecureDefault = 'coolify';
+        $vars = [
+            'PUSHER_APP_KEY' => config('broadcasting.connections.pusher.key'),
+            'PUSHER_APP_SECRET' => config('broadcasting.connections.pusher.secret'),
+            'PUSHER_APP_ID' => config('broadcasting.connections.pusher.app_id'),
+        ];
+
+        $stillDefault = array_keys(array_filter($vars, fn ($value) => $value === $insecureDefault));
+
+        if ($stillDefault !== []) {
+            throw new RuntimeException(
+                'Refusing to boot in production: '.implode(', ', $stillDefault).
+                ' still resolve to the insecure default broadcasting secret ("coolify"). '.
+                'Set real values (scripts/install.sh does this automatically on a standard install) before deploying.'
+            );
         }
     }
 

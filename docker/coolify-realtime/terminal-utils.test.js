@@ -5,6 +5,7 @@ import {
     extractSshArgs,
     extractTargetHost,
     getTerminalSessionTimeout,
+    isAllowedOrigin,
     isAuthorizedTargetHost,
     normalizeHostForAuthorization,
     parseCommandMessage,
@@ -49,6 +50,20 @@ test('isAuthorizedTargetHost rejects hosts that are not in the allowlist', () =>
     assert.equal(isAuthorizedTargetHost("'10.0.0.9'", ['10.0.0.5']), false);
 });
 
+test('isAllowedOrigin matches the configured origin regardless of a trailing slash or case', () => {
+    assert.equal(isAllowedOrigin('http://localhost:8000', ['http://localhost:8000']), true);
+    assert.equal(isAllowedOrigin('http://localhost:8000/', ['http://localhost:8000']), true);
+    assert.equal(isAllowedOrigin('HTTP://LOCALHOST:8000', ['http://localhost:8000']), true);
+});
+
+test('isAllowedOrigin rejects an origin not in the allowlist', () => {
+    assert.equal(isAllowedOrigin('https://evil.example', ['http://localhost:8000']), false);
+});
+
+test('isAllowedOrigin rejects a missing Origin header, matching what every real browser sends', () => {
+    assert.equal(isAllowedOrigin(undefined, ['http://localhost:8000']), false);
+    assert.equal(isAllowedOrigin('', ['http://localhost:8000']), false);
+});
 
 test('getTerminalSessionTimeout always enforces the maximum terminal session lifetime', () => {
     assert.equal(getTerminalSessionTimeout(null), MAX_TERMINAL_SESSION_TIMEOUT_SECONDS);
