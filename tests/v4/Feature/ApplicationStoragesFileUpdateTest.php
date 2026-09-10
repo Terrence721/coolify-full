@@ -20,6 +20,13 @@ beforeEach(function () {
     RemoteProcessFake::reset();
 });
 
+// Without this, $instantRemoteProcessException set by the revert-path test below leaks past
+// this file into whichever test runs next in the same process (RemoteProcessFake's state is
+// static) - confirmed live: it broke an unrelated DestinationShowTest deletion test in CI.
+afterEach(function () {
+    RemoteProcessFake::reset();
+});
+
 function webStorageFileUpdateMakeApplication(Team $team): Application
 {
     $server = Server::factory()->create(['team_id' => $team->id]);
