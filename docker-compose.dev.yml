@@ -197,9 +197,14 @@ services:
     image: coollabsio/maxio:latest
     container_name: coolify-minio
     restart: unless-stopped
+    # Loopback-only, not 0.0.0.0 - same reasoning as postgres/redis above (see git history):
+    # anything this app itself does with MinIO goes over the Docker-internal network by
+    # container name, never through this published port, so this binding only controls whether
+    # other machines on the LAN can reach it. Matters more than usual here since the access/
+    # secret key still default to minioadmin/minioadmin below.
     ports:
-      - "${FORWARD_MINIO_PORT:-9000}:9000"
-      - "${FORWARD_MINIO_PORT_CONSOLE:-9001}:9001"
+      - "127.0.0.1:${FORWARD_MINIO_PORT:-9000}:9000"
+      - "127.0.0.1:${FORWARD_MINIO_PORT_CONSOLE:-9001}:9001"
     environment:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-minioadmin}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-minioadmin}"
