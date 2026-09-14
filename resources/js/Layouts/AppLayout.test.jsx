@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppLayout from './AppLayout';
 
 // Regression coverage for the other half of the toast-notification bug (see
@@ -12,9 +12,10 @@ import AppLayout from './AppLayout';
 // left real, since the mount + flash-wiring is exactly what's under test.
 
 let pageProps = {};
+let pageUrl = '/';
 
 vi.mock('@inertiajs/react', () => ({
-    usePage: () => ({ props: pageProps }),
+    usePage: () => ({ props: pageProps, url: pageUrl }),
     Link: ({ href, className, children }) => (
         <a href={href} className={className}>
             {children}
@@ -99,5 +100,64 @@ describe('AppLayout', () => {
 
         expect(screen.getByText('Admin')).toBeInTheDocument();
         expect(screen.getByText('Terminal')).toBeInTheDocument();
+    });
+
+    // Regression coverage for issue #126: zero error boundaries anywhere meant a page component
+    // throwing during render blanked the *entire* page, nav/sidebar chrome included, with no
+    // recovery until a manual reload.
+    describe('page content error boundary', () => {
+        function Bomb() {
+            throw new Error('boom');
+        }
+
+        beforeEach(() => {
+            vi.spyOn(console, 'error').mockImplementation(() => {});
+            pageUrl = '/';
+        });
+
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+
+        it('shows a fallback in the content area instead of the whole page going blank when a page component throws', () => {
+            pageProps = basePageProps();
+            render(
+                <AppLayout>
+                    <Bomb />
+                </AppLayout>,
+            );
+
+            expect(screen.getByText('Something went wrong loading this page.')).toBeInTheDocument();
+        });
+
+        it('keeps the sidebar and its nav links usable when the page content throws', () => {
+            pageProps = basePageProps();
+            render(
+                <AppLayout>
+                    <Bomb />
+                </AppLayout>,
+            );
+
+            expect(screen.getByText('Dashboard')).toBeInTheDocument();
+            expect(screen.getByText('Projects')).toBeInTheDocument();
+            expect(screen.getByText('Logout')).toBeInTheDocument();
+        });
+
+        it('resets the boundary on navigation instead of staying stuck on the previous page error', () => {
+            pageProps = basePageProps();
+            pageUrl = '/broken-page';
+            const { rerender } = render(
+                <AppLayout>
+                    <Bomb />
+                </AppLayout>,
+            );
+            expect(screen.getByText('Something went wrong loading this page.')).toBeInTheDocument();
+
+            pageUrl = '/healthy-page';
+            rerender(<AppLayout>healthy content</AppLayout>);
+
+            expect(screen.getByText('healthy content')).toBeInTheDocument();
+            expect(screen.queryByText('Something went wrong loading this page.')).not.toBeInTheDocument();
+        });
     });
 });

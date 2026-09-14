@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
+import ErrorBoundary from '../Components/ErrorBoundary';
 import GlobalSearchModal from '../Components/GlobalSearchModal';
 import LayoutPopups from '../Components/LayoutPopups';
 import ThemeSwitcher from '../Components/ThemeSwitcher';
@@ -32,6 +33,14 @@ import { applyZoom, pageWidthClass } from '../hooks/useAppearance';
  * no-op'ing since the migration completed. Found via manual smoke-test QA, not inspection - see
  * todo.md's "Correction, 2026-07-20" note.
  *
+ * ErrorBoundary (see Components/ErrorBoundary.jsx) wraps {children} only, not this whole layout -
+ * a page component throwing during render now shows a fallback inside <main> while the sidebar/
+ * header/Toast/modals stay mounted and fully usable, so the user can navigate away without a
+ * manual reload. Keyed on the current url so each navigation gets a fresh boundary instance
+ * instead of staying "stuck" showing the fallback for a page that already recovered - AppLayout
+ * itself is an Inertia persistent layout (doesn't remount per page, see inertia-app.jsx), so
+ * without this key the boundary's own error state would otherwise outlive the page that caused it.
+ *
  * Known v1 gaps — features the old Livewire navbar had that have no React port yet, not deferred
  * for any architectural reason: team switching (read-only team name shown instead of a working
  * switcher), the upgrade banner, delete-team modal trigger, and the help modal. Logout itself
@@ -62,8 +71,22 @@ const NAV_ITEMS = [
     { label: 'Admin', href: '/admin', match: '/admin', permission: 'isInstanceAdmin' },
 ];
 
+function PageErrorFallback() {
+    return (
+        <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+            <h2 className="text-lg font-semibold dark:text-white">Something went wrong loading this page.</h2>
+            <p className="text-sm text-neutral-500 dark:text-coolgray-400">
+                You can try another page from the sidebar, or reload to try this one again.
+            </p>
+            <Link href="/" className="menu-item-active inline-block px-4 py-2 rounded-md">
+                Go to Dashboard
+            </Link>
+        </div>
+    );
+}
+
 export default function AppLayout({ children }) {
-    const { props } = usePage();
+    const { url, props } = usePage();
     const { auth, currentTeam, permissions, flash, changelog } = props;
 
     useEffect(() => {
@@ -158,7 +181,11 @@ export default function AppLayout({ children }) {
                         />
                     )}
                 </header>
-                <main className={`flex-1 p-6 w-full ${pageWidthClass(pageWidth)}`}>{children}</main>
+                <main className={`flex-1 p-6 w-full ${pageWidthClass(pageWidth)}`}>
+                    <ErrorBoundary key={url} fallback={<PageErrorFallback />}>
+                        {children}
+                    </ErrorBoundary>
+                </main>
             </div>
             {auth?.user && <LayoutPopups />}
             {auth?.user && <GlobalSearchModal />}
