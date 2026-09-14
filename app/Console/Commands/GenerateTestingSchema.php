@@ -50,7 +50,8 @@ class GenerateTestingSchema extends Command
 
         foreach ($tables as $table) {
             $columns = $this->getColumns($connection, $table);
-            $output[] = $this->generateCreateTable($table, $columns);
+            $foreignKeys = $this->getForeignKeys($connection, $table);
+            $output[] = $this->generateCreateTable($table, $columns, $foreignKeys);
         }
 
         $indexes = $this->getIndexes($connection, $tables);
@@ -108,8 +109,9 @@ class GenerateTestingSchema extends Command
 
     /**
      * @param  array<int, object>  $columns
+     * @param  array<int, object>  $foreignKeys
      */
-    private function generateCreateTable(string $table, array $columns): string
+    private function generateCreateTable(string $table, array $columns, array $foreignKeys): string
     {
         $lines = [];
 
@@ -117,7 +119,45 @@ class GenerateTestingSchema extends Command
             $lines[] = '    '.$this->generateColumnDef($table, $col);
         }
 
+        foreach ($foreignKeys as $fk) {
+            $lines[] = '    '.$this->generateForeignKeyDef($fk);
+        }
+
         return "CREATE TABLE IF NOT EXISTS \"{$table}\" (\n".implode(",\n", $lines)."\n);\n";
+    }
+
+    private function generateForeignKeyDef(object $fk): string
+    {
+        $def = "FOREIGN KEY (\"{$fk->column_name}\") REFERENCES \"{$fk->foreign_table_name}\" (\"{$fk->foreign_column_name}\")";
+
+        // PostgreSQL's delete_rule vocabulary (CASCADE, SET NULL, SET DEFAULT, RESTRICT, NO ACTION)
+        // maps directly onto SQLite's supported ON DELETE actions - no translation needed.
+        if ($fk->delete_rule !== 'NO ACTION') {
+            $def .= " ON DELETE {$fk->delete_rule}";
+        }
+
+        return $def;
+    }
+
+    /**
+     * @return array<int, object>
+     */
+    private function getForeignKeys(string $connection, string $table): array
+    {
+        return DB::connection($connection)->select(
+            'SELECT kcu.column_name, ccu.table_name AS foreign_table_name,
+                    ccu.column_name AS foreign_column_name, rc.delete_rule
+             FROM information_schema.table_constraints tc
+             JOIN information_schema.key_column_usage kcu
+                 ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.table_schema
+             JOIN information_schema.constraint_column_usage ccu
+                 ON tc.constraint_name = ccu.constraint_name AND tc.table_schema = ccu.table_schema
+             JOIN information_schema.referential_constraints rc
+                 ON tc.constraint_name = rc.constraint_name AND tc.table_schema = rc.constraint_schema
+             WHERE tc.constraint_type = \'FOREIGN KEY\' AND tc.table_schema = \'public\' AND tc.table_name = ?
+             ORDER BY kcu.ordinal_position',
+            [$table]
+        );
     }
 
     private function generateColumnDef(string $table, object $col): string
