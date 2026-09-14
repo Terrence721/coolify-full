@@ -60,6 +60,11 @@ trait LogsTeamAudit
         // and later gets compared against a real int (Team::$id) in TeamController::auditLog()'s
         // own where('properties->team_id', $team->id) filter - a silent string/int mismatch there
         // would break that filter too, not just crash here.
+        //
+        // The null check is real for models whose team_id is nullable (e.g. Application, before
+        // an environment is assigned) even though PHPStan proves it dead for Server specifically
+        // (declared non-nullable there) - a shared trait method can't be narrowed per consumer.
+        // @phpstan-ignore notIdentical.alwaysTrue
         return $this->team_id !== null ? (int) $this->team_id : null;
     }
 
