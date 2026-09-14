@@ -170,7 +170,7 @@ class ProjectController extends Controller
         if (! $environment) {
             return response()->json(['message' => 'Environment not found.'], 404);
         }
-        $environment = $environment->load(['applications', 'postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs', 'services']);
+        $environment = $environment->load(['applications', 'postgresqls', 'redis', 'mongodbs', 'mysqls', 'mariadbs', 'keydbs', 'dragonflies', 'clickhouses', 'services']);
         $environment = $this->redactEnvironmentResources($environment);
 
         return response()->json(serializeApiResponse($environment));
@@ -196,6 +196,9 @@ class ProjectController extends Controller
             'mongodbs' => DatabasesController::class,
             'mysqls' => DatabasesController::class,
             'mariadbs' => DatabasesController::class,
+            'keydbs' => DatabasesController::class,
+            'dragonflies' => DatabasesController::class,
+            'clickhouses' => DatabasesController::class,
         ];
 
         $fieldListsByController = [];

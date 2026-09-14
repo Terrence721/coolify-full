@@ -38,14 +38,14 @@ use Tests\Support\InteractsWithApiV1;
 // different case this schema-driven test isn't set up to exercise - same exclusion reasoning as
 // DatabasesSensitiveFieldsTest.php/ResourcesSensitiveFieldsTest.php.
 //
-// Separate, disclosed-not-fixed observation surfaced while writing this: environment_details()'s
-// own ->load([...]) call never includes keydbs/dragonflies/clickhouses at all (Environment has
-// all three relations - keydbs(), dragonflies(), clickhouses() - just never loaded here), so
-// those 3 engines' rows never appear in this endpoint's response regardless of redaction. That's
-// a completeness gap (an operator using this endpoint doesn't see those resources), not a
-// security leak - included in the dataset below anyway since they genuinely don't leak either
-// way, just for the unrelated reason of never being in the payload at all. Not fixed here; adding
-// the missing relations is a product-completeness change outside a security-redaction fix's scope.
+// keydbs/dragonflies/clickhouses were fixed separately (issue #153): environment_details()'s own
+// ->load([...]) call never included them even though Environment has all three relations, so
+// those 3 engines' rows never appeared in this endpoint's response at all - a completeness gap,
+// not a leak (nothing leaked; the opposite, real data was silently absent). They're in the
+// dataset below both for that reason and because adding them to load() without also adding them
+// to redactEnvironmentResources()'s own $relationControllers map would have turned a
+// completeness fix into a fresh instance of this exact leak - see 'now actually includes...' below
+// for the completeness assertion.
 
 uses(RefreshDatabase::class, InteractsWithApiV1::class);
 
@@ -126,6 +126,31 @@ it('never leaks a service\'s secrets into the environment-details response', fun
     $response->assertOk();
     expect($response->getContent())->not->toContain('SECRET-SERVICE-COMPOSE');
 });
+
+dataset('previously-omitted database engines', [
+    'keydb' => [StandaloneKeydb::class, 'keydbs', 'keydb_password'],
+    'dragonfly' => [StandaloneDragonfly::class, 'dragonflies', 'dragonfly_password'],
+    'clickhouse' => [StandaloneClickhouse::class, 'clickhouses', 'clickhouse_admin_password'],
+]);
+
+it('now actually includes keydb/dragonfly/clickhouse rows in the response, redacted', function (string $modelClass, string $relation, string $secretField) {
+    [$team, $user, $project, $environment, $destination] = makeApiEnvironmentTeamAndServer();
+    $resource = $modelClass::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_id' => $destination->id,
+        'name' => 'my-'.$relation.'-resource',
+        $secretField => 'SECRET-'.strtoupper($relation).'-PW',
+    ]);
+    $token = $this->apiToken($user, $team, ['read']);
+
+    $response = $this->withHeaders($this->apiHeaders($token))->getJson("/api/v1/projects/{$project->uuid}/{$environment->uuid}");
+
+    $response->assertOk();
+    // Completeness: the resource is genuinely present now, not silently dropped from the payload.
+    $response->assertJsonFragment(['uuid' => $resource->uuid]);
+    // Still redacted, same as every other engine - completeness must not regress the leak fix.
+    expect($response->getContent())->not->toContain('SECRET-'.strtoupper($relation).'-PW');
+})->with('previously-omitted database engines');
 
 it('exposes the real secrets only when the token carries read:sensitive', function () {
     [$team, $user, $project, $environment, $destination] = makeApiEnvironmentTeamAndServer();
