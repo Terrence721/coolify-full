@@ -1994,6 +1994,15 @@ class DatabasesController extends Controller
             return response()->json(serializeApiResponse($payload))->setStatusCode(201);
         }
 
+        // Provably unreachable today - every current NewDatabaseTypes case is handled by the
+        // if/elseif chain above - but this method's return type is JsonResponse, not ?JsonResponse,
+        // so falling through here with no return would throw a TypeError, not a clean error
+        // response, the moment a new enum case is ever added without also extending this chain
+        // (the exact per-engine-chain fragility already flagged as an OCP violation in #103).
+        // @phpstan-ignore deadCode.unreachable
+        return response()->json([
+            'message' => 'Unsupported database type.',
+        ], 422);
     }
 
     #[OA\Delete(

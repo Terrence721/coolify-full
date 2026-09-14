@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\PrivateKey;
 use App\Models\Project;
 use App\Models\Server;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,7 +24,7 @@ class DashboardController extends Controller
                 'uuid' => $project->uuid,
                 'name' => $project->name,
                 'description' => $project->description,
-                'canUpdate' => auth()->user()?->can('update', $project) ?? false,
+                'canUpdate' => Auth::user()?->can('update', $project) ?? false,
                 'navigateUrl' => $project->navigateTo(),
                 'editUrl' => route('project.edit', ['project_uuid' => $project->uuid]),
                 'addResourceUrl' => $project->environments->first()
@@ -46,9 +47,9 @@ class DashboardController extends Controller
                 'id' => $key->id,
                 'name' => $key->name,
             ]),
-            'canCreateProject' => auth()->user()?->can('createAnyResource') ?? false,
-            'canCreateServer' => auth()->user()?->can('createAnyResource') ?? false,
-            'canCreateKey' => auth()->user()?->can('create', PrivateKey::class) ?? false,
+            'canCreateProject' => Auth::user()?->can('createAnyResource') ?? false,
+            'canCreateServer' => Auth::user()?->can('createAnyResource') ?? false,
+            'canCreateKey' => Auth::user()?->can('create', PrivateKey::class) ?? false,
             'defaultServerName' => generate_random_name(),
             'defaultPrivateKeyId' => $privateKeys->first()?->id,
             'createProjectUrl' => route('project.store'),
