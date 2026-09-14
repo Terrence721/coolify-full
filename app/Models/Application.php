@@ -16,6 +16,7 @@ use App\Traits\HasResourceLinks;
 use App\Traits\HasResourceStatus;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasWatchPaths;
+use App\Traits\LogsTeamAudit;
 use Database\Factories\ApplicationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -373,7 +374,7 @@ use Visus\Cuid2\Cuid2;
 class Application extends BaseModel
 {
     /** @use HasFactory<ApplicationFactory> */
-    use ClearsGlobalSearchCache, GeneratesGitCommands, HasConfiguration, HasDeploymentConfigurationTracking, HasFactory, HasMetrics, HasResourceCleanup, HasResourceLinks, HasResourceStatus, HasSafeStringAttribute, HasWatchPaths, SoftDeletes;
+    use ClearsGlobalSearchCache, GeneratesGitCommands, HasConfiguration, HasDeploymentConfigurationTracking, HasFactory, HasMetrics, HasResourceCleanup, HasResourceLinks, HasResourceStatus, HasSafeStringAttribute, HasWatchPaths, LogsTeamAudit, SoftDeletes;
 
     protected function resourceTypeSlug(): string
     {
@@ -919,6 +920,19 @@ class Application extends BaseModel
     public function type(): string
     {
         return 'application';
+    }
+
+    /**
+     * Deliberately excludes docker_compose_raw/docker_compose_pr_raw (large, would make every
+     * audit entry huge) and every real secret among this model's fillable fields
+     * (manual_webhook_secret_*, http_basic_auth_password) - see LogsTeamAudit's own docblock for
+     * why this is an allow-list, not a deny-list.
+     *
+     * @return array<int, string>
+     */
+    protected function auditLogAttributes(): array
+    {
+        return ['name', 'description', 'fqdn', 'git_repository', 'git_branch', 'build_pack', 'status'];
     }
 
     /**

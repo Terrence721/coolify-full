@@ -130,6 +130,8 @@ export default function Index({
     currentUserRole,
     canManageMembers,
     canManageInvitations,
+    canViewAuditLog,
+    auditLogUrl,
     isInstanceAdmin,
     isTransactionalEmailsEnabled,
     invitations,
@@ -165,6 +167,7 @@ export default function Index({
                             Members
                         </a>
                         {(permissions?.isInstanceAdmin ?? isInstanceAdmin) && <a href="/team/admin">Admin View</a>}
+                        {canViewAuditLog && <a href={auditLogUrl}>Audit Log</a>}
                         <div className="flex-1" />
                     </nav>
                 </div>

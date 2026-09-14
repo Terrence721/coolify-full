@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Activitylog\Models\Activity;
 use Visus\Cuid2\Cuid2;
 
 class TeamController extends Controller
@@ -65,10 +66,46 @@ class TeamController extends Controller
             ],
             'canUpdate' => $user->can('update', $team),
             'canDelete' => $canDelete,
+            'canViewAuditLog' => $user->can('viewAuditLog', $team),
             'deletionBlockedReason' => $deletionBlockedReason,
             'blockingResources' => $blockingResources,
             'updateUrl' => route('team.update'),
             'deleteUrl' => route('team.destroy'),
+            'auditLogUrl' => route('team.audit-log'),
+        ]);
+    }
+
+    public function auditLog(): Response
+    {
+        $team = currentTeam();
+        $this->authorize('viewAuditLog', $team);
+
+        // team_id lives in properties, not a real activity_log column - see LogsTeamAudit's
+        // tapActivity() and the manual activity() calls elsewhere in this controller, both of
+        // which store it the same way.
+        $entries = Activity::query()
+            ->inLog('team-audit')
+            ->where('properties->team_id', $team->id)
+            ->with('causer')
+            ->latest()
+            ->limit(100)
+            ->get()
+            ->map(function (Activity $activity): array {
+                $causer = $activity->causer;
+
+                return [
+                    'id' => $activity->id,
+                    'event' => $activity->event,
+                    'description' => $activity->description,
+                    'causerName' => $causer instanceof User ? $causer->name : 'System',
+                    'subjectType' => $activity->subject_type ? class_basename($activity->subject_type) : null,
+                    'changes' => $activity->changes(),
+                    'createdAt' => $activity->created_at?->toIso8601String(),
+                ];
+            });
+
+        return Inertia::render('Team/AuditLog', [
+            'entries' => $entries,
         ]);
     }
 
@@ -215,6 +252,7 @@ class TeamController extends Controller
         $user = auth()->user();
         $canManageMembers = $user->can('manageMembers', $team);
         $canManageInvitations = $user->can('manageInvitations', $team);
+        $canViewAuditLog = $user->can('viewAuditLog', $team);
 
         return Inertia::render('Team/Member/Index', [
             'members' => $team->members->map(fn (User $member) => [
@@ -229,6 +267,8 @@ class TeamController extends Controller
             'currentUserRole' => $user->role(),
             'canManageMembers' => $canManageMembers,
             'canManageInvitations' => $canManageInvitations,
+            'canViewAuditLog' => $canViewAuditLog,
+            'auditLogUrl' => route('team.audit-log'),
             'isInstanceAdmin' => isInstanceAdmin(),
             'isTransactionalEmailsEnabled' => is_transactional_emails_enabled(),
             'invitations' => $canManageInvitations
@@ -276,6 +316,20 @@ class TeamController extends Controller
         $member->teams()->updateExistingPivot($team->id, ['role' => $targetRole->value]);
         RevokeUserTeamTokens::forUserTeam($member, $team->id);
 
+        activity()
+            ->useLog('team-audit')
+            ->causedBy(auth()->user())
+            ->performedOn($team)
+            ->withProperties([
+                'team_id' => $team->id,
+                'target_user_id' => $member->id,
+                'target_user_name' => $member->name,
+                'old_role' => $memberPivotRole,
+                'new_role' => $targetRole->value,
+            ])
+            ->event('member.role_updated')
+            ->log("Changed {$member->name}'s role from {$memberPivotRole} to {$targetRole->value}");
+
         return back();
     }
 
@@ -306,6 +360,19 @@ class TeamController extends Controller
         RevokeUserTeamTokens::forUserTeam($member, $team->id);
         Cache::forget("team:{$member->id}");
         Cache::forget("user:{$member->id}:team:{$team->id}");
+
+        activity()
+            ->useLog('team-audit')
+            ->causedBy(auth()->user())
+            ->performedOn($team)
+            ->withProperties([
+                'team_id' => $team->id,
+                'target_user_id' => $member->id,
+                'target_user_name' => $member->name,
+                'role' => $memberPivotRole,
+            ])
+            ->event('member.removed')
+            ->log("Removed {$member->name} ({$memberPivotRole}) from the team");
 
         return back();
     }
@@ -380,6 +447,18 @@ class TeamController extends Controller
 
             return back()->with('error', $message);
         }
+
+        activity()
+            ->useLog('team-audit')
+            ->causedBy(auth()->user())
+            ->performedOn($team)
+            ->withProperties([
+                'team_id' => $team->id,
+                'invited_email' => $email,
+                'role' => $validated['role'],
+            ])
+            ->event('member.invited')
+            ->log("Invited {$email} to join as {$validated['role']}");
 
         if ($sendEmail) {
             $mail = new MailMessage;

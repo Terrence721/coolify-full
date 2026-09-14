@@ -245,6 +245,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/invitations/{invitation_id}', [TeamController::class, 'deleteInvitation'])->name('team.invitation.destroy');
         Route::get('/admin', [TeamController::class, 'adminView'])->name('team.admin-view');
         Route::delete('/admin/user', [TeamController::class, 'adminDeleteUser'])->name('team.admin-view.delete-user');
+        Route::get('/audit-log', [TeamController::class, 'auditLog'])->name('team.audit-log');
     });
 
     Route::get('/terminal', [TerminalController::class, 'index'])->name('terminal')->middleware('can.access.terminal');
