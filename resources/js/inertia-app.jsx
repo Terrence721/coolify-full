@@ -1,6 +1,8 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import ErrorBoundary from './Components/ErrorBoundary';
+import RootErrorFallback from './Components/RootErrorFallback';
 import AppLayout from './Layouts/AppLayout';
 import { reloadOnBFCacheRestore } from './hooks/reloadOnBFCacheRestore';
 
@@ -14,6 +16,10 @@ createInertiaApp({
             return module;
         }),
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(
+            <ErrorBoundary fallback={<RootErrorFallback />}>
+                <App {...props} />
+            </ErrorBoundary>,
+        );
     },
 });
