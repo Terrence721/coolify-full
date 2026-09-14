@@ -87,15 +87,21 @@ services:
           sleep 300
         done
   postgres:
+    # Loopback-only, not 0.0.0.0 - the app itself never uses this published port (it connects
+    # over the Docker-internal network by service name, DB_HOST=coolify-db), so this binding
+    # only controls whether other machines on the LAN can reach the dev database directly.
+    # POSTGRES_HOST_AUTH_METHOD used to be "trust" (no password required at all) - removed since
+    # DB_PASSWORD is already sent on every connection the app makes, so requiring it here is
+    # transparent to the app and closes the "zero credentials needed" gap for anyone who does
+    # reach the port.
     ports:
-      - "${FORWARD_DB_PORT:-5432}:5432"
+      - "127.0.0.1:${FORWARD_DB_PORT:-5432}:5432"
     env_file:
       - .env
     environment:
       POSTGRES_USER: "${DB_USERNAME:-coolify}"
       POSTGRES_PASSWORD: "${DB_PASSWORD:-password}"
       POSTGRES_DB: "${DB_DATABASE:-coolify}"
-      POSTGRES_HOST_AUTH_METHOD: "trust"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
@@ -104,8 +110,10 @@ services:
     volumes:
       - dev_postgres_data:/var/lib/postgresql/data
   redis:
+    # Loopback-only, not 0.0.0.0 - same reasoning as postgres above: the app connects over the
+    # Docker-internal network, so this published port only controls LAN reachability.
     ports:
-      - "${FORWARD_REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${FORWARD_REDIS_PORT:-6379}:6379"
     env_file:
       - .env
     healthcheck:
