@@ -72,6 +72,25 @@ class TeamController extends Controller
         ]);
     }
 
+    public function switch(Request $request): RedirectResponse
+    {
+        $validated = Validator::make($request->all(), [
+            'team_id' => ['required', 'integer'],
+        ])->validate();
+
+        // Scoped through the user's own teams() relation, not Team::find() - switching to any
+        // arbitrary team_id would let a user move their session onto a team they don't belong to.
+        $team = $request->user()->teams()->where('teams.id', $validated['team_id'])->first();
+
+        if (! $team) {
+            return back()->with('error', 'You are not a member of that team.');
+        }
+
+        refreshSession($team);
+
+        return redirect()->route('dashboard');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = Validator::make(

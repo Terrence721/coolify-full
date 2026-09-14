@@ -55,6 +55,10 @@ class HandleInertiaRequests extends Middleware
                 'name' => $team->name,
                 'isAnyNotificationEnabled' => (bool) $team->isAnyNotificationEnabled(),
             ] : null,
+            'availableTeams' => $user ? $user->teams->map(fn ($userTeam) => [
+                'id' => $userTeam->id,
+                'name' => $userTeam->name,
+            ])->values() : [],
             'changelog' => $user ? [
                 'unreadCount' => app(ChangelogService::class)->getUnreadCountForUser($user),
                 'currentVersion' => 'v'.config('constants.coolify.version'),

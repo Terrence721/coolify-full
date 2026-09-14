@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import ErrorBoundary from '../Components/ErrorBoundary';
 import GlobalSearchModal from '../Components/GlobalSearchModal';
@@ -42,8 +42,11 @@ import { applyZoom, pageWidthClass } from '../hooks/useAppearance';
  * without this key the boundary's own error state would otherwise outlive the page that caused it.
  *
  * Known v1 gaps — features the old Livewire navbar had that have no React port yet, not deferred
- * for any architectural reason: team switching (read-only team name shown instead of a working
- * switcher), the upgrade banner, delete-team modal trigger, and the help modal. Logout itself
+ * for any architectural reason: the upgrade banner, delete-team modal trigger, and the help
+ * modal. Team switching (issue #69) is ported below: a <select> in the same nav slot the old
+ * read-only team name used, backed by TeamController::switch() - scoped to the user's own
+ * teams() relation server-side (not a raw Team::find()), since trusting a posted team_id without
+ * that check would let a user move their session onto a team they don't belong to. Logout itself
  * (POST /logout, matching the plain <form action="/logout" method="POST"> the old navbar used) is
  * ported below since its absence otherwise leaves no way to log out from any page — deliberately
  * a real browser form submission, not router.post(): logout redirects through a plain
@@ -87,7 +90,13 @@ function PageErrorFallback() {
 
 export default function AppLayout({ children }) {
     const { url, props } = usePage();
-    const { auth, currentTeam, permissions, flash, changelog } = props;
+    const { auth, currentTeam, availableTeams, permissions, flash, changelog } = props;
+
+    function switchTeam(e) {
+        const teamId = e.target.value;
+        if (currentTeam && teamId === String(currentTeam.id)) return;
+        router.post('/team/switch', { team_id: teamId });
+    }
 
     useEffect(() => {
         if (!flash) return;
@@ -117,7 +126,26 @@ export default function AppLayout({ children }) {
                     <Link href="/" className="text-2xl font-bold tracking-tight dark:text-white">
                         Coolify
                     </Link>
-                    {currentTeam && <div className="text-sm text-neutral-500 dark:text-coolgray-400">{currentTeam.name}</div>}
+                    {currentTeam && (availableTeams?.length ?? 0) > 1 ? (
+                        <label className="flex flex-col gap-0.5">
+                            <span className="sr-only">Switch team</span>
+                            <select
+                                id="team-switcher"
+                                name="team-switcher"
+                                value={currentTeam.id}
+                                onChange={switchTeam}
+                                className="text-sm text-neutral-500 dark:text-coolgray-400 bg-transparent border-none p-0 focus:outline-none focus:ring-1 focus:ring-neutral-400 rounded"
+                            >
+                                {availableTeams.map((team) => (
+                                    <option key={team.id} value={team.id}>
+                                        {team.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    ) : (
+                        currentTeam && <div className="text-sm text-neutral-500 dark:text-coolgray-400">{currentTeam.name}</div>
+                    )}
                 </div>
                 {auth?.user && (
                     <div className="px-4 pb-2">
