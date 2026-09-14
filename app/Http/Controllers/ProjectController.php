@@ -21,7 +21,13 @@ class ProjectController extends Controller
 
     public function index(): Response
     {
+        // Eager-loaded here, not baked into Project::ownedByCurrentTeamCached() itself - that
+        // method's other caller (ProjectResourceController::index()'s 'allProjects' list) never
+        // touches ->environments, so loading it there would be a wasted query for that consumer.
+        // Without this, ->environments->first() below (called twice per project) lazy-loads once
+        // per project - N+1 across the whole list.
         $projects = Project::ownedByCurrentTeamCached();
+        $projects->load('environments');
 
         return Inertia::render('Project/Index', [
             'projects' => $projects->map(fn (Project $project) => [

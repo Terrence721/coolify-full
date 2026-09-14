@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
@@ -50,6 +51,31 @@ it('only lists projects owned by the current team', function () {
         ->component('Project/Index')
         ->has('projects', 0)
     );
+});
+
+// Regression coverage for a real N+1: index() used to call ->environments->first() twice per
+// project with no eager loading, so this query count used to scale with the number of projects
+// (1 per project) instead of staying constant. Fixed by eager-loading at this specific call site
+// rather than baking it into Project::ownedByCurrentTeamCached() itself - that method's other
+// caller (ProjectResourceController's 'allProjects' list) never touches ->environments, so
+// eager-loading it there would be a wasted query for that consumer.
+it('loads every project\'s environments in one query, not one per project', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+    Project::factory()->count(5)->create(['team_id' => $team->id]);
+
+    DB::enableQueryLog();
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('project.index'));
+
+    $environmentQueries = collect(DB::getQueryLog())
+        ->filter(fn ($query) => str_contains($query['query'], 'select * from "environments"'));
+
+    $response->assertOk();
+    expect($environmentQueries)->toHaveCount(1);
 });
 
 it('creates a new empty project and redirects into its production environment', function () {
