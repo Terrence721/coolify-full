@@ -16,11 +16,6 @@ use App\Models\Service;
 use App\Models\ServiceApplication;
 use App\Models\ServiceDatabase;
 use App\Models\SslCertificate;
-use App\Models\StandaloneMariadb;
-use App\Models\StandaloneMongodb;
-use App\Models\StandaloneMysql;
-use App\Models\StandalonePostgresql;
-use App\Models\StandaloneRedis;
 use App\Models\Team;
 use App\Support\DatabaseEngineRegistry;
 use Illuminate\Console\Command;
@@ -226,143 +221,42 @@ class CleanupStuckedResources extends Command
 
             echo "Error in application: {$e->getMessage()}\n";
         }
-        try {
-            $postgresqls = StandalonePostgresql::where('id', '!=', 0)->get();
-            foreach ($postgresqls as $postgresql) {
-                if (! data_get($postgresql, 'environment')) {
-                    echo 'Postgresql without environment: '.$postgresql->name.'\n';
-                    DeleteResourceJob::dispatch($postgresql);
+        // One loop over every registered engine, not one hand-written block per engine - the
+        // old per-engine blocks (postgresql/redis/mongodb/mysql/mariadb only) silently never
+        // checked dragonfly/keydb/clickhouse at all, so orphaned resources of those 3 engines
+        // were permanently invisible to this cleanup command. where('id', '!=', 0) was already
+        // applied to postgresql only; broadened to every engine here since it's a strictly safer
+        // superset (excluding a sentinel id=0 row, if one exists, from deletion) and there's no
+        // reason the other 7 engines should be less protected than postgresql was.
+        foreach (DatabaseEngineRegistry::all() as $engine) {
+            try {
+                $modelClass = $engine->modelClass;
+                $instances = $modelClass::where('id', '!=', 0)->get();
+                foreach ($instances as $instance) {
+                    if (! data_get($instance, 'environment')) {
+                        echo "{$engine->displayName} without environment: {$instance->name}\n";
+                        DeleteResourceJob::dispatch($instance);
 
-                    continue;
-                }
-                if (! data_get($postgresql, 'destination')) {
-                    echo 'Postgresql without destination: '.$postgresql->name.'\n';
-                    DeleteResourceJob::dispatch($postgresql);
+                        continue;
+                    }
+                    if (! data_get($instance, 'destination')) {
+                        echo "{$engine->displayName} without destination: {$instance->name}\n";
+                        DeleteResourceJob::dispatch($instance);
 
-                    continue;
-                }
-                if (! data_get($postgresql, 'destination.server')) {
-                    echo 'Postgresql without server: '.$postgresql->name.'\n';
-                    DeleteResourceJob::dispatch($postgresql);
+                        continue;
+                    }
+                    if (! data_get($instance, 'destination.server')) {
+                        echo "{$engine->displayName} without server: {$instance->name}\n";
+                        DeleteResourceJob::dispatch($instance);
 
-                    continue;
+                        continue;
+                    }
                 }
+            } catch (\Throwable $e) {
+                Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
+
+                echo "Error in {$engine->type}: {$e->getMessage()}\n";
             }
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
-
-            echo "Error in postgresql: {$e->getMessage()}\n";
-        }
-        try {
-            $redis = StandaloneRedis::all();
-            foreach ($redis as $redis) {
-                if (! data_get($redis, 'environment')) {
-                    echo 'Redis without environment: '.$redis->name.'\n';
-                    DeleteResourceJob::dispatch($redis);
-
-                    continue;
-                }
-                if (! data_get($redis, 'destination')) {
-                    echo 'Redis without destination: '.$redis->name.'\n';
-                    DeleteResourceJob::dispatch($redis);
-
-                    continue;
-                }
-                if (! data_get($redis, 'destination.server')) {
-                    echo 'Redis without server: '.$redis->name.'\n';
-                    DeleteResourceJob::dispatch($redis);
-
-                    continue;
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
-
-            echo "Error in redis: {$e->getMessage()}\n";
-        }
-
-        try {
-            $mongodbs = StandaloneMongodb::all();
-            foreach ($mongodbs as $mongodb) {
-                if (! data_get($mongodb, 'environment')) {
-                    echo 'Mongodb without environment: '.$mongodb->name.'\n';
-                    DeleteResourceJob::dispatch($mongodb);
-
-                    continue;
-                }
-                if (! data_get($mongodb, 'destination')) {
-                    echo 'Mongodb without destination: '.$mongodb->name.'\n';
-                    DeleteResourceJob::dispatch($mongodb);
-
-                    continue;
-                }
-                if (! data_get($mongodb, 'destination.server')) {
-                    echo 'Mongodb without server:  '.$mongodb->name.'\n';
-                    DeleteResourceJob::dispatch($mongodb);
-
-                    continue;
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
-
-            echo "Error in mongodb: {$e->getMessage()}\n";
-        }
-
-        try {
-            $mysqls = StandaloneMysql::all();
-            foreach ($mysqls as $mysql) {
-                if (! data_get($mysql, 'environment')) {
-                    echo 'Mysql without environment: '.$mysql->name.'\n';
-                    DeleteResourceJob::dispatch($mysql);
-
-                    continue;
-                }
-                if (! data_get($mysql, 'destination')) {
-                    echo 'Mysql without destination: '.$mysql->name.'\n';
-                    DeleteResourceJob::dispatch($mysql);
-
-                    continue;
-                }
-                if (! data_get($mysql, 'destination.server')) {
-                    echo 'Mysql without server: '.$mysql->name.'\n';
-                    DeleteResourceJob::dispatch($mysql);
-
-                    continue;
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
-
-            echo "Error in mysql: {$e->getMessage()}\n";
-        }
-
-        try {
-            $mariadbs = StandaloneMariadb::all();
-            foreach ($mariadbs as $mariadb) {
-                if (! data_get($mariadb, 'environment')) {
-                    echo 'Mariadb without environment: '.$mariadb->name.'\n';
-                    DeleteResourceJob::dispatch($mariadb);
-
-                    continue;
-                }
-                if (! $mariadb->destination) {
-                    echo 'Mariadb without destination: '.$mariadb->name.'\n';
-                    DeleteResourceJob::dispatch($mariadb);
-
-                    continue;
-                }
-                if (! data_get($mariadb, 'destination.server')) {
-                    echo 'Mariadb without server: '.$mariadb->name.'\n';
-                    DeleteResourceJob::dispatch($mariadb);
-
-                    continue;
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::error('Unhandled exception in cleanup_stucked_resources().', ['error' => $e->getMessage()]);
-
-            echo "Error in mariadb: {$e->getMessage()}\n";
         }
 
         try {
