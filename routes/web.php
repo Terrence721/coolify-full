@@ -234,6 +234,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('team')->group(function () {
         Route::get('/', [TeamController::class, 'index'])->name('team.index');
+        Route::post('/switch', [TeamController::class, 'switch'])->name('team.switch');
         Route::post('/', [TeamController::class, 'store'])->name('team.store');
         Route::put('/', [TeamController::class, 'update'])->name('team.update');
         Route::delete('/', [TeamController::class, 'destroy'])->name('team.destroy');

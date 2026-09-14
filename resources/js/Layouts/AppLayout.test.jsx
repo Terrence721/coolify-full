@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AppLayout from './AppLayout';
 
@@ -13,6 +13,7 @@ import AppLayout from './AppLayout';
 
 let pageProps = {};
 let pageUrl = '/';
+const routerPost = vi.fn();
 
 vi.mock('@inertiajs/react', () => ({
     usePage: () => ({ props: pageProps, url: pageUrl }),
@@ -21,6 +22,7 @@ vi.mock('@inertiajs/react', () => ({
             {children}
         </a>
     ),
+    router: { post: (...args) => routerPost(...args) },
 }));
 
 vi.mock('../hooks/useAppearance', () => ({
@@ -36,7 +38,8 @@ vi.mock('../Components/WhatsNewButton', () => ({ default: () => <div data-testid
 function basePageProps(overrides = {}) {
     return {
         auth: { user: { name: 'Root User' } },
-        currentTeam: { name: 'Root Team' },
+        currentTeam: { id: 1, name: 'Root Team' },
+        availableTeams: [{ id: 1, name: 'Root Team' }],
         permissions: {},
         flash: {},
         changelog: null,
@@ -45,6 +48,70 @@ function basePageProps(overrides = {}) {
 }
 
 describe('AppLayout', () => {
+    beforeEach(() => {
+        routerPost.mockClear();
+    });
+
+    // Regression coverage for issue #69: a read-only team name was shown instead of a working
+    // switcher, with no in-app way to move between teams for a user in more than one.
+    describe('team switcher', () => {
+        it('shows a plain read-only team name when the user belongs to only one team', () => {
+            pageProps = basePageProps();
+            render(<AppLayout>content</AppLayout>);
+
+            expect(screen.getByText('Root Team')).toBeInTheDocument();
+            expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+        });
+
+        it('shows a working dropdown listing every team when the user belongs to more than one', () => {
+            pageProps = basePageProps({
+                currentTeam: { id: 1, name: 'Root Team' },
+                availableTeams: [
+                    { id: 1, name: 'Root Team' },
+                    { id: 2, name: 'Second Team' },
+                ],
+            });
+            render(<AppLayout>content</AppLayout>);
+
+            const select = screen.getByRole('combobox', { name: /switch team/i });
+            expect(select).toHaveValue('1');
+            expect(screen.getByRole('option', { name: 'Root Team' })).toBeInTheDocument();
+            expect(screen.getByRole('option', { name: 'Second Team' })).toBeInTheDocument();
+        });
+
+        it('posts to /team/switch with the selected team_id when a different team is chosen', () => {
+            pageProps = basePageProps({
+                currentTeam: { id: 1, name: 'Root Team' },
+                availableTeams: [
+                    { id: 1, name: 'Root Team' },
+                    { id: 2, name: 'Second Team' },
+                ],
+            });
+            render(<AppLayout>content</AppLayout>);
+
+            const select = screen.getByRole('combobox', { name: /switch team/i });
+            fireEvent.change(select, { target: { value: '2' } });
+
+            expect(routerPost).toHaveBeenCalledWith('/team/switch', { team_id: '2' });
+        });
+
+        it('does not post when the currently-selected team is chosen again', () => {
+            pageProps = basePageProps({
+                currentTeam: { id: 1, name: 'Root Team' },
+                availableTeams: [
+                    { id: 1, name: 'Root Team' },
+                    { id: 2, name: 'Second Team' },
+                ],
+            });
+            render(<AppLayout>content</AppLayout>);
+
+            const select = screen.getByRole('combobox', { name: /switch team/i });
+            fireEvent.change(select, { target: { value: '1' } });
+
+            expect(routerPost).not.toHaveBeenCalled();
+        });
+    });
+
     it('mounts Toast unconditionally, so window.toast is a real function', () => {
         pageProps = basePageProps();
         render(<AppLayout>content</AppLayout>);
