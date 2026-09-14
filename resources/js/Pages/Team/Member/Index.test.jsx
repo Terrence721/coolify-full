@@ -64,6 +64,8 @@ function baseProps(overrides = {}) {
         currentUserRole: 'owner',
         canManageMembers: true,
         canManageInvitations: true,
+        canViewAuditLog: true,
+        auditLogUrl: '/team/audit-log',
         isInstanceAdmin: false,
         isTransactionalEmailsEnabled: true,
         invitations: [],
@@ -81,6 +83,15 @@ describe('Team/Member/Index', () => {
 
     afterEach(() => {
         vi.restoreAllMocks();
+    });
+
+    it('only shows the Audit Log link when canViewAuditLog is true', () => {
+        const { unmount } = render(<Index {...baseProps({ canViewAuditLog: false })} />);
+        expect(screen.queryByRole('link', { name: 'Audit Log' })).not.toBeInTheDocument();
+        unmount();
+
+        render(<Index {...baseProps({ canViewAuditLog: true })} />);
+        expect(screen.getByRole('link', { name: 'Audit Log' })).toHaveAttribute('href', '/team/audit-log');
     });
 
     it('generates an invitation link via router.post with via: link, not useForm.post', () => {

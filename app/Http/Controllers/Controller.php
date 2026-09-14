@@ -170,6 +170,19 @@ class Controller extends BaseController
                 }
                 if (! $user->teams()->where('team_id', $team->id)->exists()) {
                     $user->teams()->attach($team->id, ['role' => $invitation->role]);
+
+                    activity()
+                        ->useLog('team-audit')
+                        ->causedBy($user)
+                        ->performedOn($team)
+                        ->withProperties([
+                            'team_id' => $team->id,
+                            'target_user_id' => $user->id,
+                            'target_user_name' => $user->name,
+                            'role' => $invitation->role,
+                        ])
+                        ->event('member.joined')
+                        ->log("{$user->name} joined as {$invitation->role}");
                 }
                 $invitation->delete();
 
@@ -241,6 +254,19 @@ class Controller extends BaseController
         }
         $user->teams()->attach($team->id, ['role' => $invitation->role]);
         $invitation->delete();
+
+        activity()
+            ->useLog('team-audit')
+            ->causedBy($user)
+            ->performedOn($team)
+            ->withProperties([
+                'team_id' => $team->id,
+                'target_user_id' => $user->id,
+                'target_user_name' => $user->name,
+                'role' => $invitation->role,
+            ])
+            ->event('member.joined')
+            ->log("{$user->name} joined as {$invitation->role}");
 
         refreshSession($team);
 

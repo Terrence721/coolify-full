@@ -19,6 +19,7 @@ use App\Traits\HasMetrics;
 use App\Traits\HasProxyConfiguration;
 use App\Traits\HasSafeStringAttribute;
 use App\Traits\HasSentinel;
+use App\Traits\LogsTeamAudit;
 use App\Traits\ValidatesDockerEnvironment;
 use Database\Factories\ServerFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -196,7 +197,7 @@ use Visus\Cuid2\Cuid2;
 class Server extends BaseModel
 {
     /** @use HasFactory<ServerFactory> */
-    use ClearsGlobalSearchCache, HasDockerContainers, HasFactory, HasMetrics, HasProxyConfiguration, HasSentinel, SchemalessAttributesTrait, SoftDeletes, ValidatesDockerEnvironment;
+    use ClearsGlobalSearchCache, HasDockerContainers, HasFactory, HasMetrics, HasProxyConfiguration, HasSentinel, LogsTeamAudit, SchemalessAttributesTrait, SoftDeletes, ValidatesDockerEnvironment;
 
     public static int $batch_counter = 0;
 
@@ -390,6 +391,14 @@ class Server extends BaseModel
     public function type(): string
     {
         return 'server';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function auditLogAttributes(): array
+    {
+        return ['name', 'ip', 'port', 'user', 'description'];
     }
 
     /**
