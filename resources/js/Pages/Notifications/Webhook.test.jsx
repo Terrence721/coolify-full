@@ -24,6 +24,7 @@ describe('Notifications/Webhook', () => {
     const mockSettings = {
         webhook_enabled: true,
         webhook_url: 'https://example.com/webhook',
+        signing_secret: 'a-test-signing-secret',
         deployment_success_webhook_notifications: true,
         deployment_failure_webhook_notifications: false,
         status_change_webhook_notifications: true,
@@ -94,6 +95,16 @@ describe('Notifications/Webhook', () => {
 
         const webhookUrlInput = screen.getByLabelText(/Webhook URL/);
         expect(webhookUrlInput).toHaveAttribute('type', 'password');
+    });
+
+    it('renders the signing secret, read-only, with its value', () => {
+        render(<Webhook settings={mockSettings} updateUrl="/notifications/webhook" sendTestUrl="/notifications/webhook/test" />);
+
+        const signingSecretInput = screen.getByLabelText(/Signing Secret/);
+        expect(signingSecretInput).toBeInTheDocument();
+        expect(signingSecretInput).toHaveValue('a-test-signing-secret');
+        expect(signingSecretInput).toHaveAttribute('readonly');
+        expect(screen.getByText(/X-Coolify-Signature-256/)).toBeInTheDocument();
     });
 
     it('Send Test Notification button is disabled when webhook is not enabled', () => {

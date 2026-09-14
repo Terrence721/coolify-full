@@ -9,12 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
  * @property int $team_id
  * @property bool $webhook_enabled
  * @property string|null $webhook_url
+ * @property string|null $signing_secret
  * @property bool $deployment_success_webhook_notifications
  * @property bool $deployment_failure_webhook_notifications
  * @property bool $status_change_webhook_notifications
@@ -63,11 +65,25 @@ class WebhookNotificationSettings extends Model
 
     public $timestamps = false;
 
+    /**
+     * Every row needs a real signing_secret from the moment it exists, not assigned lazily on
+     * first send - Team::booted() creates one of these unconditionally for every new team
+     * (webhookNotificationSettings()->create()), so this is the one place that covers all of
+     * them without every call site needing to remember to generate one.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (self $settings) {
+            $settings->signing_secret ??= Str::random(40);
+        });
+    }
+
     protected $fillable = [
         'team_id',
 
         'webhook_enabled',
         'webhook_url',
+        'signing_secret',
 
         'deployment_success_webhook_notifications',
         'deployment_failure_webhook_notifications',
@@ -90,6 +106,7 @@ class WebhookNotificationSettings extends Model
         return [
             'webhook_enabled' => 'boolean',
             'webhook_url' => 'encrypted',
+            'signing_secret' => 'encrypted',
 
             'deployment_success_webhook_notifications' => 'boolean',
             'deployment_failure_webhook_notifications' => 'boolean',

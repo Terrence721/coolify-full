@@ -38,6 +38,6 @@ class WebhookChannel
             ]);
         }
 
-        SendWebhookJob::dispatch($payload, $webhookSettings->webhook_url);
+        SendWebhookJob::dispatch($payload, $webhookSettings->webhook_url, $webhookSettings->signing_secret);
     }
 }
