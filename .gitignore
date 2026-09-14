@@ -26,6 +26,7 @@ yarn-error.log
 /.vscode/*
 !/.vscode/extensions.json
 *.code-workspace
+/cspell.json
 /.npm
 .claude/settings.local.json
 /.bash_history
