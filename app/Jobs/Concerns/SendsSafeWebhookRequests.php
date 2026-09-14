@@ -39,9 +39,24 @@ trait SendsSafeWebhookRequests
 
     /**
      * @param  array<string, mixed>  $payload
+     *
+     * Signs the exact raw bytes being sent, not a separate re-encoding of $payload - encoding it
+     * once and sending that same string via withBody() (rather than the ->post($url, $payload)
+     * array shorthand, which encodes internally) guarantees the signature a receiver computes
+     * over the request body they actually received matches what was signed here, with no risk of
+     * a key-ordering/whitespace mismatch between two independent json_encode() calls.
      */
-    private function sendWebhookRequest(string $webhookUrl, array $payload): Response
+    private function sendWebhookRequest(string $webhookUrl, array $payload, ?string $signingSecret = null): Response
     {
-        return Http::withoutRedirecting()->post($webhookUrl, $payload);
+        $body = json_encode($payload);
+        $request = Http::withoutRedirecting()->withBody($body, 'application/json');
+
+        if ($signingSecret !== null) {
+            $request = $request->withHeaders([
+                'X-Coolify-Signature-256' => 'sha256='.hash_hmac('sha256', $body, $signingSecret),
+            ]);
+        }
+
+        return $request->post($webhookUrl);
     }
 }

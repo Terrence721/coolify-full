@@ -55,3 +55,43 @@ it('never sends when the URL fails SafeWebhookUrl validation', function () {
 
     Http::assertNothingSent();
 });
+
+it('signs the request with an HMAC-SHA256 header when a signing secret is set', function () {
+    Http::fake();
+
+    $payload = ['event' => 'deployment.success', 'data' => ['id' => 1]];
+    $secret = 'test-signing-secret';
+
+    (new SendWebhookJob($payload, 'https://example.com/webhook', $secret))->handle();
+
+    $expectedSignature = 'sha256='.hash_hmac('sha256', json_encode($payload), $secret);
+
+    Http::assertSent(function ($request) use ($expectedSignature) {
+        return $request->hasHeader('X-Coolify-Signature-256', $expectedSignature);
+    });
+});
+
+it('omits the signature header when no signing secret is set', function () {
+    Http::fake();
+
+    (new SendWebhookJob(['event' => 'test'], 'https://example.com/webhook'))->handle();
+
+    Http::assertSent(function ($request) {
+        return ! $request->hasHeader('X-Coolify-Signature-256');
+    });
+});
+
+it('signs the exact raw body bytes sent, not a re-encoding of the payload', function () {
+    Http::fake();
+
+    $payload = ['b' => 2, 'a' => 1];
+    $secret = 'another-secret';
+
+    (new SendWebhookJob($payload, 'https://example.com/webhook', $secret))->handle();
+
+    Http::assertSent(function ($request) use ($secret) {
+        $expected = 'sha256='.hash_hmac('sha256', $request->body(), $secret);
+
+        return $request->header('X-Coolify-Signature-256')[0] === $expected;
+    });
+});

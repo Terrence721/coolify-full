@@ -38,6 +38,27 @@ it('renders the notifications webhook Inertia page with current settings', funct
         ->where('settings.webhook_url', 'https://example.com/hook')
         ->where('updateUrl', route('notifications.webhook.update'))
         ->where('sendTestUrl', route('notifications.webhook.send-test'))
+        ->where('settings.signing_secret', $team->webhookNotificationSettings->signing_secret)
+    );
+});
+
+// Every team gets a signing_secret the moment it's created (WebhookNotificationSettings::booted()),
+// so a team that never touched its webhook settings should still see a real secret here, not null -
+// otherwise a user configuring their receiver for the first time would have nothing to copy.
+it('exposes an auto-generated signing secret even before any webhook settings are saved', function () {
+    $user = User::factory()->create();
+    $team = Team::factory()->create();
+    $team->members()->attach($user, ['role' => 'admin']);
+
+    $response = $this->actingAs($user)
+        ->withSession(['currentTeam' => $team])
+        ->get(route('notifications.webhook'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Notifications/Webhook')
+        ->where('settings.signing_secret', $team->webhookNotificationSettings->signing_secret)
+        ->whereNot('settings.signing_secret', null)
     );
 });
 

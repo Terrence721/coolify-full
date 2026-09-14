@@ -41,7 +41,7 @@ class NotificationsWebhookController extends Controller
         $this->authorize('view', $settings);
 
         return Inertia::render('Notifications/Webhook', [
-            'settings' => $settings->only([...self::TOGGLE_FIELDS, 'webhook_url']),
+            'settings' => $settings->only([...self::TOGGLE_FIELDS, 'webhook_url', 'signing_secret']),
             'updateUrl' => route('notifications.webhook.update'),
             'sendTestUrl' => route('notifications.webhook.send-test'),
         ]);

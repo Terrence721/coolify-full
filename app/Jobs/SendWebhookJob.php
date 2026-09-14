@@ -35,7 +35,8 @@ class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
      */
     public function __construct(
         public array $payload,
-        public string $webhookUrl
+        public string $webhookUrl,
+        public ?string $signingSecret = null
     ) {
         $this->onQueue('high');
     }
@@ -56,7 +57,7 @@ class SendWebhookJob implements ShouldBeEncrypted, ShouldQueue
             ]);
         }
 
-        $response = $this->sendWebhookRequest($this->webhookUrl, $this->payload);
+        $response = $this->sendWebhookRequest($this->webhookUrl, $this->payload, $this->signingSecret);
 
         if (isDev()) {
             ray('Webhook response', [

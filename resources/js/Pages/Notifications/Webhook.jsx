@@ -122,6 +122,18 @@ export default function Webhook({ settings, updateUrl, sendTestUrl }) {
                         </span>
                     </label>
                 </div>
+                <div className="flex items-end gap-2">
+                    <label className="flex flex-col gap-1">
+                        Signing Secret
+                        <input id="signing_secret" name="signing_secret" type="text" readOnly value={data.signing_secret ?? ''} />
+                        <span className="text-sm text-neutral-500">
+                            Every request Coolify sends to this webhook includes an <code>X-Coolify-Signature-256: sha256=&lt;hex&gt;</code> header -
+                            an HMAC-SHA256 of the exact raw request body, keyed with this secret. Verify it on your receiving end (recomputing the
+                            same HMAC over the raw body you received and comparing with a constant-time check) to confirm a payload genuinely came
+                            from this instance.
+                        </span>
+                    </label>
+                </div>
             </form>
 
             <h2 className="mt-4">Notification Settings</h2>
