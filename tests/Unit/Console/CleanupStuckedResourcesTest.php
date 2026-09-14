@@ -5,7 +5,10 @@ declare(strict_types=1);
 use App\Jobs\DeleteResourceJob;
 use App\Models\Project;
 use App\Models\Server;
+use App\Models\StandaloneClickhouse;
 use App\Models\StandaloneDocker;
+use App\Models\StandaloneDragonfly;
+use App\Models\StandaloneKeydb;
 use App\Models\StandalonePostgresql;
 use App\Models\StandaloneRedis;
 use App\Models\Team;
@@ -48,7 +51,7 @@ it('reports a standalone postgresql with an orphaned destination via the destina
     $this->artisan('cleanup:stucked-resources');
     $output = ob_get_clean();
 
-    expect($output)->toContain('Postgresql without destination: '.$postgresql->name);
+    expect($output)->toContain('PostgreSQL without destination: '.$postgresql->name);
     Bus::assertDispatched(DeleteResourceJob::class, fn ($job) => $job->resource->is($postgresql));
 });
 
@@ -70,6 +73,38 @@ it('reports a standalone redis with an orphaned destination via the destination 
     expect($output)->toContain('Redis without destination: '.$redis->name);
     Bus::assertDispatched(DeleteResourceJob::class, fn ($job) => $job->resource->is($redis));
 });
+
+// Regression coverage for a real bug found by a fresh architecture audit: the old code had 5
+// hand-duplicated blocks (postgresql/redis/mongodb/mysql/mariadb only) instead of looping over
+// DatabaseEngineRegistry::all() the way the rest of this command already does - dragonfly, keydb,
+// and clickhouse were never checked at all, so orphaned resources of those 3 engines were
+// permanently invisible to this cleanup command. One dataset covering all 3 previously-missing
+// engines, not just one, since the bug was "some engines silently skipped" - a single passing
+// example wouldn't prove the other two aren't still skipped.
+dataset('previously-unchecked database engines', [
+    'dragonfly' => [StandaloneDragonfly::class, 'Dragonfly'],
+    'keydb' => [StandaloneKeydb::class, 'KeyDB'],
+    'clickhouse' => [StandaloneClickhouse::class, 'Clickhouse'],
+]);
+
+it('now actually checks previously-unchecked database engines for an orphaned destination', function (string $modelClass, string $displayName) {
+    [, $environment] = cleanupStuckedResourcesMakeEnvironment();
+
+    Bus::fake();
+
+    $resource = $modelClass::factory()->create([
+        'environment_id' => $environment->id,
+        'destination_type' => StandaloneDocker::class,
+        'destination_id' => 999999,
+    ]);
+
+    ob_start();
+    $this->artisan('cleanup:stucked-resources');
+    $output = ob_get_clean();
+
+    expect($output)->toContain("{$displayName} without destination: {$resource->name}");
+    Bus::assertDispatched(DeleteResourceJob::class, fn ($job) => $job->resource->is($resource));
+})->with('previously-unchecked database engines');
 
 it('does not dispatch DeleteResourceJob for a standalone postgresql with a real destination', function () {
     $team = Team::factory()->create();
