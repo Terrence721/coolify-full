@@ -38,7 +38,13 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.dev.yml"
-MAX_ATTEMPTS=18
+# 18 attempts (3 minutes) was found live 2026-09-14 to be short of this file's own documented
+# worst case above ("up to ~10 minutes post-boot to clear on its own") - a real run genuinely
+# needed longer than 3 minutes and the script gave up right as the mount was about to clear on
+# its own. 60 attempts covers the documented 10-minute worst case with margin; the common case
+# (mount already fine, or clears in the first attempt or two) exits the loop immediately either
+# way, so this only lengthens the rare pathological run, not the typical one.
+MAX_ATTEMPTS=60
 SLEEP_SECONDS=10
 
 # https-proxy is opt-in (see docker-compose.https.yml) - only manage it here if this
