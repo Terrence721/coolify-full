@@ -98,4 +98,17 @@ class TeamPolicy
 
         return $user->isAdmin() || $user->isOwner();
     }
+
+    /**
+     * Determine whether the user can view the team's audit log.
+     */
+    public function viewAuditLog(User $user, Team $team): bool
+    {
+        // Only admins and owners can view the audit log - same access level as managing members
+        if (! $user->teams->contains('id', $team->id)) {
+            return false;
+        }
+
+        return $user->isAdmin() || $user->isOwner();
+    }
 }

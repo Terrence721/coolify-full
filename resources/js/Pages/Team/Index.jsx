@@ -1,6 +1,16 @@
 import { router, useForm, usePage } from '@inertiajs/react';
 
-export default function Index({ team, canUpdate, canDelete, deletionBlockedReason, blockingResources, updateUrl, deleteUrl }) {
+export default function Index({
+    team,
+    canUpdate,
+    canDelete,
+    canViewAuditLog,
+    deletionBlockedReason,
+    blockingResources,
+    updateUrl,
+    deleteUrl,
+    auditLogUrl,
+}) {
     const { permissions } = usePage().props;
     const { data, setData, put, processing, errors } = useForm({
         name: team.name,
@@ -33,6 +43,7 @@ export default function Index({ team, canUpdate, canDelete, deletionBlockedReaso
                         </a>
                         <a href="/team/members">Members</a>
                         {permissions?.isInstanceAdmin && <a href="/team/admin">Admin View</a>}
+                        {canViewAuditLog && <a href={auditLogUrl}>Audit Log</a>}
                         <div className="flex-1" />
                     </nav>
                 </div>

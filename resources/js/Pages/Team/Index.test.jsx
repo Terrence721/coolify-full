@@ -36,10 +36,12 @@ function baseProps(overrides = {}) {
         team: { name: 'Root Team', description: 'The default team' },
         canUpdate: true,
         canDelete: true,
+        canViewAuditLog: true,
         deletionBlockedReason: 'default-team',
         blockingResources: {},
         updateUrl: '/team',
         deleteUrl: '/team',
+        auditLogUrl: '/team/audit-log',
         ...overrides,
     };
 }
@@ -88,6 +90,15 @@ describe('Team/Index', () => {
         mockPermissions = { isInstanceAdmin: true };
         render(<Index {...baseProps()} />);
         expect(screen.getByRole('link', { name: 'Admin View' })).toHaveAttribute('href', '/team/admin');
+    });
+
+    it('only shows the Audit Log link when canViewAuditLog is true', () => {
+        const { unmount } = render(<Index {...baseProps({ canViewAuditLog: false })} />);
+        expect(screen.queryByRole('link', { name: 'Audit Log' })).not.toBeInTheDocument();
+        unmount();
+
+        render(<Index {...baseProps({ canViewAuditLog: true })} />);
+        expect(screen.getByRole('link', { name: 'Audit Log' })).toHaveAttribute('href', '/team/audit-log');
     });
 
     it('hides the entire Danger Zone when canDelete is false', () => {
