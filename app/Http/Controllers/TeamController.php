@@ -50,7 +50,7 @@ class TeamController extends Controller
     public function index(Request $request): Response
     {
         $team = currentTeam();
-        $user = $request->user();
+        $user = $this->currentUser();
 
         $canDelete = $user->can('delete', $team);
         $deletionBlockedReason = null;
@@ -131,7 +131,7 @@ class TeamController extends Controller
 
         // Scoped through the user's own teams() relation, not Team::find() - switching to any
         // arbitrary team_id would let a user move their session onto a team they don't belong to.
-        $team = $request->user()->teams()->where('teams.id', $validated['team_id'])->first();
+        $team = $this->currentUser()->teams()->where('teams.id', $validated['team_id'])->first();
 
         if (! $team) {
             return back()->with('error', 'You are not a member of that team.');
@@ -158,7 +158,7 @@ class TeamController extends Controller
             'description' => $validated['description'] ?? null,
             'personal_team' => false,
         ]);
-        $request->user()->teams()->attach($team, ['role' => 'admin']);
+        $this->currentUser()->teams()->attach($team, ['role' => 'admin']);
         refreshSession($team);
 
         return redirect()->route('team.index');
@@ -213,7 +213,7 @@ class TeamController extends Controller
         }
 
         $search = (string) $request->query('search', '');
-        $query = User::where('id', '!=', $request->user()->id);
+        $query = User::where('id', '!=', $this->currentUser()->id);
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
