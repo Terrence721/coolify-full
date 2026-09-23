@@ -33,6 +33,20 @@ class TeamController extends Controller
 
     private const ADMIN_VIEW_USER_LIMIT = 20;
 
+    /**
+     * Auth::user()/auth()->user() are typed against the generic Authenticatable contract, not
+     * this app's concrete User model, so every app-specific method called on the result
+     * (->can(), ->role(), etc.) can't be resolved without this. Safe to assert non-null here -
+     * every route on this controller sits behind the 'auth' middleware.
+     */
+    private function currentUser(): User
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user;
+    }
+
     public function index(Request $request): Response
     {
         $team = currentTeam();
@@ -249,7 +263,7 @@ class TeamController extends Controller
     public function memberIndex(): Response
     {
         $team = currentTeam();
-        $user = auth()->user();
+        $user = $this->currentUser();
         $canManageMembers = $user->can('manageMembers', $team);
         $canManageInvitations = $user->can('manageInvitations', $team);
         $canViewAuditLog = $user->can('viewAuditLog', $team);
@@ -296,7 +310,7 @@ class TeamController extends Controller
 
         $member = User::findOrFail($member_id);
         $targetRole = Role::from($validated['role']);
-        $currentUserRole = Role::from(auth()->user()->role());
+        $currentUserRole = Role::from($this->currentUser()->role());
         $memberPivotRole = $member->teams()
             ->newPivotStatement()
             ->where('team_id', $team->id)
@@ -318,7 +332,7 @@ class TeamController extends Controller
 
         activity()
             ->useLog('team-audit')
-            ->causedBy(auth()->user())
+            ->causedBy($this->currentUser())
             ->performedOn($team)
             ->withProperties([
                 'team_id' => $team->id,
@@ -339,7 +353,7 @@ class TeamController extends Controller
         $this->authorize('manageMembers', $team);
 
         $member = User::findOrFail($member_id);
-        $currentUserRole = Role::from(auth()->user()->role());
+        $currentUserRole = Role::from($this->currentUser()->role());
         $memberPivotRole = $member->teams()
             ->newPivotStatement()
             ->where('team_id', $team->id)
@@ -363,7 +377,7 @@ class TeamController extends Controller
 
         activity()
             ->useLog('team-audit')
-            ->causedBy(auth()->user())
+            ->causedBy($this->currentUser())
             ->performedOn($team)
             ->withProperties([
                 'team_id' => $team->id,
@@ -388,7 +402,7 @@ class TeamController extends Controller
             'via' => ['required', 'string', 'in:email,link'],
         ])->validate();
 
-        $userRole = auth()->user()->role();
+        $userRole = $this->currentUser()->role();
         if (is_null($userRole) || ($userRole === 'member' && in_array($validated['role'], ['admin', 'owner']))) {
             return back()->with('error', 'Members cannot invite admins or owners.');
         }
@@ -450,7 +464,7 @@ class TeamController extends Controller
 
         activity()
             ->useLog('team-audit')
-            ->causedBy(auth()->user())
+            ->causedBy($this->currentUser())
             ->performedOn($team)
             ->withProperties([
                 'team_id' => $team->id,
